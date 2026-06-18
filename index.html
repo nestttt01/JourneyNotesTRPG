@@ -1365,19 +1365,27 @@ ${flagsText}
                     if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate limit')) { throw new Error("【點擊發送太快囉】\nAPI 限制每分鐘大約只能連續對話 15 次。\n請等待大約 10 秒後再次點擊發送即可！\n(系統已幫你保留剛才的輸入)"); }
                     throw new Error(`伺服器錯誤: ${errMsg}`);
                 }
-                if (!data.candidates || data.candidates.length === 0) { throw new Error(`伺服器拒絕回覆。可能觸發了安全審查，或模型無法理解輸入。`); }
+                        if (!data.candidates || data.candidates.length === 0) { throw new Error(`伺服器拒絕回覆。可能觸發了API限制，或模型無法理解輸入。`); }
 
-                let rawText = data.candidates[0].content.parts[0].text; 
-                
-                const jsonMatch = rawText.match(new RegExp("\\{[\\s\\S]*\\}"));
-                if(jsonMatch) {
-                    rawText = jsonMatch[0];
-                } else {
-                    rawText = rawText.replace(new RegExp("```json", "g"), "").replace(new RegExp("
-```", "g"), "").trim();
-                }
-                
-                const parsedData = JSON.parse(rawText);
+        // --- 👇👇👇 新增的安全審查防護與字串 Bug 修復 👇👇👇 ---
+        if (data.candidates[0].finishReason === 'SAFETY') {
+            throw new Error("【系統警告：安全審查】\nAI 判定剛剛的行動太過火（涉及血腥/暴力/違規），拒絕回覆！\n請稍微修改用詞後再試一次喔。");
+        }
+
+        let rawText = data.candidates[0].content?.parts?.[0]?.text; 
+        if (!rawText) {
+            throw new Error("AI 這次回傳了空白內容，可能是 API 暫時異常，請重新發送一次。");
+        }
+        
+        const jsonMatch = rawText.match(new RegExp("\\{[\\s\\S]*\\}"));
+        if(jsonMatch) {
+            rawText = jsonMatch[0];
+        } else {
+            rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+        }
+        // --- 👆👆👆 替換到這裡結束 👆👆👆 ---
+        
+        const parsedData = JSON.parse(rawText);
                 
                 if(parsedData.npc_love_change && typeof parsedData.npc_love_change === 'object') {
                     for (const npcName in parsedData.npc_love_change) {
