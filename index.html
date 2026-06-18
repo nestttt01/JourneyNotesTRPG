@@ -255,7 +255,7 @@
             <p style="font-size:12px; color:var(--text-main); font-weight:900; margin-bottom:4px;">冒險日誌 (AI 條列式記憶)</p>
             <p style="font-size:11px; color:var(--text-sub); margin-bottom:8px; font-weight:800;">AI 每次行動都會更新此欄位。若 AI 遺忘了小細節，你可以直接手動修改並儲存。</p>
             <textarea id="ui-adventure-log"></textarea>
-            <p style="font-size:12px; color:var(--text-main); font-weight:900; margin-bottom:8px;">當前劇本角色資料預覽 (鎖定狀態)</p>
+            <p style="font-size:12px; color:var(--text-main); font-weight:900; margin-bottom:8px;">當前劇本角色資料預覽 <span style="color:var(--text-sub); font-size:11px;">(可直接手動覆寫 AI 設定)</span></p>
             <div id="ui-stats-display" style="font-size:13px; color:var(--text-main); line-height:1.6; white-space: pre-wrap; font-weight:600; padding:12px; background:#e2e2e2; border-radius:8px;"></div>
         </div>
     </div>
@@ -472,7 +472,7 @@
                     persona: '【通用屬性】\n智力(高)、敏捷(高)。\n\n【性格與外觀】\n有點遲鈍的機工士。性格單純，雖然感覺對什麼事情都沒反應，但在危險時絕對不會拋下隊友。擁有聽力敏銳度兔耳朵，經常遲到，但實力堅強。現實生活是個擅長打扮的男性。'
                 }
             ],
-                        scenarios: [
+            scenarios: [
                 {
                     name: '艾歐澤亞 (FFXIV)',
                     lore: '充滿魔法與劍的奇幻虛擬世界。大家擁有技能與血量設定，一起推進高難度副本。',
@@ -487,7 +487,6 @@
                 }
             ]
         };
-
         let scenarioPresets = {};
         let activePresetId = 'default';
         let currentScenario = {}; 
@@ -874,11 +873,16 @@
             document.getElementById('ui-adventure-log').value = currentAdventureLog;
             
             const pStats = currentScenario.playerStats || {str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10};
-            let statsHtml = `<b>玩家：${currentScenario.playerName}</b>\n[力量STR:${pStats.str}] [敏捷DEX:${pStats.dex}] [體質CON:${pStats.con}]\n[智力INT:${pStats.int}] [感知WIS:${pStats.wis}] [魅力CHA:${pStats.cha}]\n${currentScenario.playerPersona}\n\n`;
+            let statsHtml = `<b>玩家：${currentScenario.playerName}</b>\n[力量STR:${pStats.str}] [敏捷DEX:${pStats.dex}] [體質CON:${pStats.con}]\n[智力INT:${pStats.int}] [感知WIS:${pStats.wis}] [魅力CHA:${pStats.cha}]\n`;
             
-            currentScenario.npcs.forEach(n => {
+            // 將玩家人設轉換為可編輯文字方塊
+            statsHtml += `<textarea id="edit-player-persona" class="scenario-input" style="min-height:60px; margin-top:5px; width:100%; border:1px solid #ccc; font-weight:600; font-size:12px; padding:8px;">${currentScenario.playerPersona}</textarea>\n\n`;
+            
+            currentScenario.npcs.forEach((n, idx) => {
                 const aff = n.affection !== undefined ? n.affection : 0;
-                statsHtml += `<b>NPC：${n.name} <span style="color:var(--accent-neon); background:var(--border-dark); padding:2px 6px; border-radius:4px; font-size:11px;">♥ 好感: ${aff}</span></b>\n${n.persona}\n\n`;
+                statsHtml += `<b>NPC：${n.name} <span style="color:var(--accent-neon); background:var(--border-dark); padding:2px 6px; border-radius:4px; font-size:11px;">♥ 好感: ${aff}</span></b>\n`;
+                // 將 NPC 人設轉換為可編輯文字方塊
+                statsHtml += `<textarea id="edit-npc-persona-${idx}" class="scenario-input" style="min-height:80px; margin-top:5px; width:100%; border:1px solid #ccc; font-weight:600; font-size:12px; padding:8px;">${n.persona}</textarea>\n\n`;
             });
             document.getElementById('ui-stats-display').innerHTML = statsHtml;
             
@@ -887,6 +891,16 @@
 
         function saveStatusModal() {
             currentAdventureLog = document.getElementById('ui-adventure-log').value.trim() || "無日誌。";
+            
+            // 抓取修改過後的人設
+            const playerPersonaEl = document.getElementById('edit-player-persona');
+            if (playerPersonaEl) currentScenario.playerPersona = playerPersonaEl.value;
+
+            currentScenario.npcs.forEach((n, idx) => {
+                const npcPersonaEl = document.getElementById(`edit-npc-persona-${idx}`);
+                if (npcPersonaEl) n.persona = npcPersonaEl.value;
+            });
+
             saveCurrentProgress();
             document.getElementById('status-modal').style.display = 'none';
         }
@@ -975,7 +989,6 @@
             savesData[currentSaveId].scenario = currentScenario;
             localStorage.setItem('sanko_saves_v8', JSON.stringify(savesData));
         }
-
         function getSystemInstruction() {
             const currentScen = currentScenario.scenarios[currentScenarioIndex];
             const flagsText = currentFlags.length > 0 ? currentFlags.map(f => `[狀態/成就] ${f}`).join('\n') : "目前尚無。";
@@ -993,9 +1006,9 @@
 【絕對禁止使用中國大陸用語】。必須嚴格使用【台灣繁體中文】與【台灣在地慣用語】。
 
 【目前場景與多重世界連貫性 (極重要)】
-目前場景：【${currentScen.name}】
+目前場景 / 支線：【${currentScen.name}】
 世界觀與物理法則：${currentScen.lore}
-(DM 絕對指令：如果場景從「遊戲」切換到「現實」，代表視角拉回到了「坐在螢幕前的真實玩家與朋友」。大家在現實與遊戲中的記憶是完全同步且連續的！)
+(DM 絕對指令：如果場景從「遊戲」切換到「現實」，代表視角拉回到了「坐在螢幕前的真實玩家與朋友」。大家在各個情境中的記憶是完全同步且連續的！)
 
 【登場的 NPC 們 (請依照這些設定進行扮演與判定)】
 ${npcDescriptions}
@@ -1031,9 +1044,10 @@ ${flagsText}
    - 🔴 屬性劣勢 / 負面狀態 (如：玩家力量STR低於10，或身上有骨折標籤)：DM 必須無情地將原本的「成功(如13點)」降級為「失敗」，甚至引發嚴重後果。
 2. 【事件對數值的影響】：若玩家遭遇重大事件，請主動利用 "new_flags" 發放「狀態標籤」(例：["狀態：右臂骨折"])。未來所有的擲骰判定，都必須將這些狀態標籤納入考量！
 
-【🚨 好感度與特殊事件觸發機制 (重點)】
+【🚨 動態人設與好感度演進機制 (極重要)】
 1. 若玩家的行為符合某位 NPC 的喜好、提供實質幫助或展現魅力，請增加其好感度。若惹惱對方則減少。
-2. 當某位 NPC 的好感度突破【50】或【80】時，請【主動在 narrative 中觸發專屬的特殊事件或私密對話】，並發放一個代表該階段的 "new_flags" (例如：["事件：三高的秘密交心"])。
+2. 當某位 NPC 的好感度突破【50】或【80】時，請【主動在 narrative 中觸發專屬的特殊事件或私密對話】，並發放代表該階段的 "new_flags"。
+3. 如果當前的劇情發生重大轉折（例如某個角色獲得了新武器、受了永久性傷害、得知了某個震撼真相、心態發生了改變），DM 必須透過 "npc_persona_updates" 或 "player_persona_update" 來修改並更新該角色的人設！
 
 【回傳 JSON 格式與嚴格規定 (支援多人)】
 - "hp_change": 整數。若需扣除或恢復體力填寫此欄位 (例: -10)。
@@ -1042,6 +1056,8 @@ ${flagsText}
 - "new_items": 字串陣列 [Array]。若玩家獲得新道具寫入此處。
 - "lost_items": 字串陣列 [Array]。若玩家消耗或失去道具寫入此處。
 - "new_flags": 字串陣列 [Array]。若玩家獲得長期 Buff/Debuff 或解鎖重要承諾/事件寫入此處。
+- "npc_persona_updates": 物件陣列 [Array of Objects]。若劇情導致某個NPC的心態、裝備、外觀發生【永久性重大改變】，請回傳更新後的人設。格式範例：[{"name": "宮崎三高", "new_persona": "原本的屬性... 新增：右眼受傷，對玩家極度信任..."}]。無改變請回傳 []。
+- "player_persona_update": 字串 (String)。若玩家角色設定發生永久轉變，回傳更新後的完整人設文字。無改變請回傳 ""。
 - "adventure_log": 字串 (String)。請以字串格式回傳，利用 \\n 換行。保留舊有重要日誌，並往下新增最新進展，上限 200 字。
 - "narrative": 第三方旁白視角。進行情境描寫、NPC之間的動作、判定結果宣告。
 - "dialogues": 物件陣列 (Array of Objects)。只有真正開口說話的 NPC 才列入此陣列！名稱必須完全符合上述 NPC 列表。格式範例：[{"speaker": "宮崎三高", "text": "退後。"}]。如果沒人講話，回傳 []。
@@ -1082,22 +1098,49 @@ ${flagsText}
         }
 
         function changeScenario(indexStr) {
+            const prevIndex = currentScenarioIndex;
             currentScenarioIndex = parseInt(indexStr);
+            if (prevIndex === currentScenarioIndex) return;
+
             const sc = currentScenario.scenarios[currentScenarioIndex];
+            
+            // 跳出視窗詢問是否要清空畫面重啟支線
+            const isClear = confirm(`你要切換到情境/支線：【${sc.name}】\n\n是否要「清空畫面」當作全新的分鏡開始？\n(選擇「確定」將清空當前對話框，重新生成開場；選擇「取消」則在原對話繼續推進)`);
+            
             const sysMsg = `— 視角切換至：${sc.name} —`; 
             
-            chatScript.push(`【系統提示】：${sysMsg}`);
-            
-            const msgBox = document.getElementById('dialogue-box'); 
-            const systemMsgDiv = document.createElement('div'); 
-            systemMsgDiv.className = 'system-msg'; 
-            systemMsgDiv.innerHTML = `<i>${sysMsg}</i>`;
-            msgBox.appendChild(systemMsgDiv); 
-            msgBox.scrollTop = msgBox.scrollHeight; 
-            
-            pendingMetaPrompt = `(DM絕對指令：視角剛剛已切換至「${sc.name}」。請緊扣上一秒發生的事件，描寫大家在新場景的反應。若切換至現實，請描寫螢幕前的真實動作與打字。)`;
-            
-            saveCurrentProgress();
+            if (isClear) {
+                chatScript = [];
+                document.getElementById('dialogue-box').innerHTML = '';
+                chatScript.push(`【系統提示】：${sysMsg}`);
+                
+                const msgBox = document.getElementById('dialogue-box'); 
+                const systemMsgDiv = document.createElement('div'); 
+                systemMsgDiv.className = 'system-msg'; 
+                systemMsgDiv.innerHTML = `<i>${sysMsg} (已開啟全新分鏡)</i>`;
+                msgBox.appendChild(systemMsgDiv); 
+                
+                pendingMetaPrompt = `(DM絕對指令：遊戲剛剛進入了全新支線/分鏡，場景已切換至「${sc.name}」。請根據這段新情境的設定，以及目前的角色狀態，隨機生成一段開場描述與NPC的第一句話。)`;
+                saveCurrentProgress();
+                
+                // 自動觸發一段生成
+                document.getElementById('loading').style.display = 'block';
+                callAI_JSON(pendingMetaPrompt, true);
+                pendingMetaPrompt = "";
+
+            } else {
+                chatScript.push(`【系統提示】：${sysMsg}`);
+                
+                const msgBox = document.getElementById('dialogue-box'); 
+                const systemMsgDiv = document.createElement('div'); 
+                systemMsgDiv.className = 'system-msg'; 
+                systemMsgDiv.innerHTML = `<i>${sysMsg}</i>`;
+                msgBox.appendChild(systemMsgDiv); 
+                msgBox.scrollTop = msgBox.scrollHeight; 
+                
+                pendingMetaPrompt = `(DM絕對指令：視角剛剛已切換至「${sc.name}」。請緊扣上一秒發生的事件，描寫大家在新場景的反應或狀態轉變。)`;
+                saveCurrentProgress();
+            }
         }
 
         function appendNarrative(text) {
@@ -1164,7 +1207,7 @@ ${flagsText}
                     if (line.startsWith(`【旁白】：`)) { appendNarrative(line.replace(`【旁白】：`, "")); }
                     else if (line.startsWith(`【系統提示】：`)) {
                         const rawMsg = line.replace(`【系統提示】：`, ""); const msgBox = document.getElementById('dialogue-box');
-                        if (rawMsg.includes("解鎖") || rawMsg.includes("獲得") || rawMsg.includes("失去") || rawMsg.includes("消耗") || rawMsg.includes("好感度")) {
+                        if (rawMsg.includes("解鎖") || rawMsg.includes("獲得") || rawMsg.includes("失去") || rawMsg.includes("消耗") || rawMsg.includes("好感度") || rawMsg.includes("發生改變")) {
                             const alertDiv = document.createElement('div'); alertDiv.className = 'alert-msg'; alertDiv.innerText = rawMsg; msgBox.appendChild(alertDiv);
                         } else {
                             const systemMsgDiv = document.createElement('div'); systemMsgDiv.className = 'system-msg'; systemMsgDiv.innerHTML = `<i>${rawMsg}</i>`; msgBox.appendChild(systemMsgDiv);
@@ -1239,7 +1282,6 @@ ${flagsText}
                 
                 if (!data.candidates || data.candidates.length === 0) { throw new Error(`伺服器拒絕回覆。可能觸發了API限制，或模型無法理解輸入。`); }
 
-                /* 🚨 已經修補的安全性審查阻攔 */
                 if (data.candidates[0].finishReason === 'SAFETY') {
                     throw new Error("【系統警告：安全審查】\nAI 判定剛剛的行動太過火（涉及血腥/暴力/違規），拒絕回覆！\n請稍微修改用詞後再試一次喔。");
                 }
@@ -1253,7 +1295,6 @@ ${flagsText}
                 if(jsonMatch) {
                     rawText = jsonMatch[0];
                 } else {
-                    /* 🚨 已經修補的字串強制換行 Bug */
                     rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
                 }
                 
@@ -1271,6 +1312,22 @@ ${flagsText}
                             }
                         }
                     }
+                }
+
+                // 處理 AI 主動修改的人設 (動態演進)
+                if (parsedData.npc_persona_updates && Array.isArray(parsedData.npc_persona_updates)) {
+                    parsedData.npc_persona_updates.forEach(update => {
+                        const foundNpc = currentScenario.npcs.find(n => n.name === update.name);
+                        if (foundNpc && update.new_persona && update.new_persona.trim() !== "") {
+                            foundNpc.persona = update.new_persona;
+                            createSystemAlert(`— NPC [ ${update.name} ] 的人物設定已根據劇情發生改變 —`);
+                        }
+                    });
+                }
+
+                if (parsedData.player_persona_update && typeof parsedData.player_persona_update === "string" && parsedData.player_persona_update.trim() !== "") {
+                    currentScenario.playerPersona = parsedData.player_persona_update.trim();
+                    createSystemAlert(`— 玩家 [ ${currentScenario.playerName} ] 的人物設定已根據劇情發生改變 —`);
                 }
 
                 if(parsedData.hp_change) { currentHp += parseInt(parsedData.hp_change); if(currentHp > 100) currentHp = 100; if(currentHp < 0) currentHp = 0; document.getElementById('ui-hp').innerText = currentHp; }
