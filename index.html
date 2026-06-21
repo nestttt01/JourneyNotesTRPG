@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>TRPG模擬器(測試版)</title>
     <style>
         :root {
@@ -13,6 +13,7 @@
             --text-sub: #808080; 
             --accent-neon: #EDFF66; 
             --accent-gray: #BFB3B8; 
+            --surface-muted: #E2E2E2;
             --hard-shadow: 4px 4px 0px var(--border-dark);
         }
 
@@ -123,7 +124,7 @@
         
         .delete-scen-btn { position: absolute; top: 15px; right: 10px; background: #ff4444; color: #fff; border: 2px solid var(--border-dark); border-radius: 6px; font-size: 11px; padding: 2px 8px; cursor: pointer; font-weight: bold; z-index: 5;}
 
-        .anime-sheet { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #e8e8e8; padding: 12px; border-radius: 8px; border: 2px solid var(--border-dark); margin-top: 5px; margin-bottom: 10px; }
+        .anime-sheet { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--surface-muted); padding: 12px; border-radius: 8px; border: 2px solid var(--border-dark); margin-top: 5px; margin-bottom: 10px; }
         .anime-sheet .full { grid-column: 1 / -1; }
         .anime-sheet label { font-size: 11px; font-weight: 900; color: var(--border-dark); display: block; margin-bottom: 2px; }
         .anime-sheet input, .anime-sheet textarea { width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 8px; font-size: 13px; font-weight: 600; font-family: inherit; background: #fff; transition: all 0.2s; resize: none; overflow: hidden; line-height: 1.5;}
@@ -173,7 +174,7 @@
 
         #ui-flags-container, #ui-items-container { 
             display: flex; flex-wrap: wrap; gap: 8px; 
-            padding: 12px; background: #e2e2e2; 
+            padding: 12px; background: var(--surface-muted); 
             border-radius: 8px; margin-bottom: 15px; min-height: 48px; align-content: flex-start;
         }
         
@@ -284,9 +285,9 @@
         .stat-box { display: flex; flex-direction: column; background: #fff; border: 2px solid var(--border-dark); border-radius: 8px; overflow: hidden; }
         .stat-label { font-size: 11px; font-weight: 900; color: #fff; background: var(--border-dark); text-align: center; padding: 4px 0; letter-spacing: 1px;}
         
-        .stat-input { width: 100%; border: none; background: #f0f0f0; text-align: center; font-size: 16px; font-weight: 900; color: var(--text-main); padding: 10px 0; outline: none; box-sizing: border-box; }
+        .stat-input { width: 100%; border: none; background: var(--surface-muted); text-align: center; font-size: 16px; font-weight: 900; color: var(--text-main); padding: 10px 0; outline: none; box-sizing: border-box; }
         .stat-input:focus { background: var(--accent-neon); }
-        .stat-input:disabled { background: #e6e6e6; color: var(--text-sub); cursor: not-allowed; }
+        .stat-input:disabled { background: var(--surface-muted); color: var(--text-sub); cursor: not-allowed; }
 
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -491,7 +492,7 @@
         #ui-items-container {
             border-radius: 8px;
             border: none;
-            background: #e2e2e2;
+            background: var(--surface-muted);
             padding: 14px 16px;
         }
         @media screen and (max-width: 600px) {
@@ -597,7 +598,7 @@
         #ui-items-container {
             min-height: 44px;
             padding: 12px;
-            background: #e2e2e2;
+            background: var(--surface-muted);
             border-radius: 8px;
         }
         #flag-input-area {
@@ -1044,7 +1045,7 @@
         .api-key-retention-copy small { display: block; margin-top: 2px; color: var(--text-sub); font-size: 10px; font-weight: 700; }
         .u-inline-027 { display: flex; gap: 10px; justify-content: center; width: 100%; max-width: 400px; margin: 0 auto 15px auto; }
         #verify-btn { flex: 1; background: var(--border-dark); color: #fff; }
-        .u-inline-028 { font-size: 11px; color: var(--text-main); text-align: left; font-weight: 800; margin-bottom: 15px; line-height: 1.6; background: #e2e2e2; padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent-neon); }
+        .u-inline-028 { font-size: 11px; color: var(--text-main); text-align: left; font-weight: 800; margin-bottom: 15px; line-height: 1.6; background: var(--card-bg); padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent-neon); }
         .u-inline-029 { color: var(--text-main); font-weight: 900; font-size: 13px; margin-bottom: 12px; }
         #start-btn { background: var(--border-dark); color: #fff; }
         .u-inline-030 { text-align: center; margin-top: 25px; }
@@ -1097,7 +1098,7 @@
         #scen-title-\24 \7b index\7d  { margin-left:8px; flex-grow:1; text-align:left; }
         .u-inline-065 { background: var(--border-dark); color: #fff; padding: 4px 10px; font-size: 15px; border-radius: 8px; border:none; cursor:pointer; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); transition: all 0.2s; }
         .u-inline-066 { font-size: 18px; filter: grayscale(100%); opacity: 0.4; cursor: not-allowed; }
-        .u-inline-067 { background: #e6e6e6; border-radius: 8px; padding: 18px; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .u-inline-067 { background: var(--surface-muted); border-radius: 8px; padding: 18px; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
         .u-inline-068 { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:12px; padding-bottom: 12px; border-bottom: 1px dashed #ccc; }
         .u-inline-069 { font-size: 16px; font-weight: 900; color: var(--text-main); letter-spacing: 1px; word-break: break-all; flex: 1; }
         .u-inline-070 { flex-shrink: 0; }
@@ -1116,7 +1117,7 @@
 
 
         /* 角色動態狀態：核心設定不受 AI 覆寫 */
-        .dynamic-state-panel { grid-column: 1 / -1; margin-top: 6px; padding: 12px 12px 10px; background: #eee8ea; border-left: 4px solid var(--accent-neon); border-radius: 0 6px 6px 0; }
+        .dynamic-state-panel { grid-column: 1 / -1; margin-top: 6px; padding: 12px 12px 10px; background: var(--surface-muted); border-left: 4px solid var(--accent-neon); border-radius: 0 6px 6px 0; }
         .dynamic-state-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
         .dynamic-state-heading strong { color: var(--text-main); font-size: 13px; }
         .dynamic-state-heading span { color: var(--text-sub); font-size: 10px; font-weight: 700; text-align: right; }
@@ -1143,7 +1144,27 @@
         }
 
 
-        .setup-version { margin: 16px 0 0; color: #aaa; font-size: 9px; font-weight: 600; line-height: 1; }
+        .setup-version { margin: 16px 0 0; color: var(--text-sub); font-size: 9px; font-weight: 600; line-height: 1; }
+
+        .theme-customizer { width: 100%; max-width: 400px; margin: 16px auto 0; padding-top: 9px; border-top: 1px solid var(--border-dark); }
+        .theme-customizer summary { display: flex; justify-content: space-between; align-items: center; color: var(--text-sub); font-size: 11px; font-weight: 800; cursor: pointer; list-style: none; user-select: none; }
+        .theme-customizer summary::-webkit-details-marker { display: none; }
+        .theme-customizer summary::after { content: "＋"; color: var(--text-main); font-size: 15px; line-height: 1; }
+        .theme-customizer[open] summary::after { content: "－"; }
+        .theme-palette { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+        .theme-color-field { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-sub); font-size: 9px; font-weight: 800; white-space: nowrap; }
+        .theme-color-field input[type="color"] { width: 34px; height: 34px; padding: 2px; border: 2px solid var(--border-dark); border-radius: 50%; background: var(--card-bg); cursor: pointer; }
+        .theme-color-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .theme-color-field input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 50%; }
+        .theme-color-field input[type="color"]::-moz-color-swatch { border: 0; border-radius: 50%; }
+        .theme-reset-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .theme-reset-btn { padding: 5px 9px; border: 1px solid var(--border-dark); border-radius: 5px; background: transparent; color: var(--text-main); font-size: 10px; font-weight: 800; cursor: pointer; }
+        .theme-reset-btn:hover { background: var(--accent-neon); }
+        @media screen and (max-width: 420px) {
+            .theme-palette { gap: 4px; }
+            .theme-color-field { font-size: 8px; }
+            .theme-color-field input[type="color"] { width: 31px; height: 31px; }
+        }
 
 
 
@@ -1157,6 +1178,12 @@
 
         .stat-total-display { display: inline-block; margin-right: 8px; color: var(--text-sub); font-size: 11px; font-weight: 900; white-space: nowrap; }
         .stat-total-display.at-cap { color: #9b596f; }
+
+        button, input, textarea, select { touch-action: manipulation; }
+        @media screen and (max-width: 600px) {
+            input:not([type="checkbox"]):not([type="radio"]), textarea, select { font-size: 16px !important; }
+            #player-input { font-size: 16px !important; }
+        }
     </style>
 </head>
 <body>
@@ -1218,6 +1245,8 @@
             <textarea id="mid-scen-npcs" class="scenario-input" oninput="autoResize(this)"></textarea>
             <div class="scenario-label">玩家專屬身分</div>
             <input type="text" id="mid-scen-player" class="scenario-input">
+            <div class="scenario-label">轉場規則（選填）</div>
+            <textarea id="mid-scen-transition" class="scenario-input" placeholder="例如：從遊戲世界切回時視為登出並回到語音通話。" oninput="autoResize(this)"></textarea>
             <button class="btn u-inline-007" onclick="confirmMidGameScenario()">確認建立並傳送</button>
             <button class="btn u-inline-008" onclick="document.getElementById('midgame-scen-modal').style.display='none'">取消</button>
         </div>
@@ -1301,20 +1330,23 @@
                 <p class="u-inline-019">1. 核心啟動 (API Key)</p>
                 <p class="u-inline-020">請至 Google AI Studio 或 OpenRouter 申請金鑰。金鑰只會送往目前選擇的 AI 供應商驗證，且不會包含在匯出備份中。</p>
                 
-                <p class="u-inline-019">2. 多重宇宙與情境切換</p>
-                <p class="u-inline-020">你可以建立多個情境分頁（如「艾歐澤亞」與「現實生活」）。切換分頁時，AI 會自動調整身份定位與環境法則。即使世界觀改變，你的核心人設與記憶依然持續累積。</p>
-                
-                <p class="u-inline-019">3. 自由行動與擲骰判定</p>
-                <p class="u-inline-020">直接輸入對話或動作指令（如 <code>(嘗試說服對方)</code>）。AI 選項若標有「DEX 檢定」等文字，送出後會自動擲骰；沒有檢定標記的選項也可自由選擇是否擲骰。判定採 D20 加上六圍加值，總和大於或等於難度 DC 即成功；天然 20 為大成功、天然 1 為大失敗。</p>
-                
-                <p class="u-inline-019">4. 角色面板與事件記憶 (Flags)</p>
-                <p class="u-inline-020">透過「角色面板」查看道具與好感度。重大決策將轉化為「永久事件標籤」，影響後續世界的發展。</p>
+                <p class="u-inline-019">2. 創角、語言與難度</p>
+                <p class="u-inline-020">六圍總點數固定為 72，可自行分配或交給守墓人隨機擲出。輸出語言與遊戲難度會跟隨角色配置；困難與極限模式會提高檢定 DC，並可能觸發 Game Over。</p>
 
-                <p class="u-inline-019">5. 生存機制 (HP 與 SAN)</p>
-                <p class="u-inline-020">遭遇攻擊或精神打擊時會扣除 HP 或 SAN。標準模式沒有 Game Over，歸零會觸發救援；困難模式會提高檢定 DC，歸零可能導致 Game Over；極限模式更加嚴苛，歸零必定演出壞結局。遊戲難度在劇本與創角配置中選擇。</p>
+                <p class="u-inline-019">3. 情境切換與交接</p>
+                <p class="u-inline-020">每個情境可設定不同世界法則、角色身分與轉場規則。切換時系統會整理交接資訊，協助 AI 銜接先前事件；必要時仍可在事件日誌補上一句前情提要。</p>
 
-                <p class="u-inline-019">6. 存檔與命運重鑄</p>
-                <p class="u-inline-020">遊戲進度會自動儲存於獨立的紀錄檔中，遊玩過程中新增的內容不會蓋掉已鎖定的角色配置，可解鎖覆蓋檔案或是善用另存新檔增加喜歡的配置。若對開局的六圍屬性不滿意，在遊戲內面板中，每個存檔都有 3 次找「守墓人」重新洗點的機會。</p>
+                <p class="u-inline-019">4. 自由行動與擲骰判定</p>
+                <p class="u-inline-020">直接輸入任何對話或動作。標有屬性檢定的 AI 選項會自動擲骰，其他行動也可自由使用骰點按鈕。判定採 D20 加六圍加值，總和大於或等於 DC 即成功；天然 20 為大成功、天然 1 為大失敗。</p>
+
+                <p class="u-inline-019">5. 動態狀態與重要紀錄</p>
+                <p class="u-inline-020">AI 會依劇情更新情緒、傷勢、關係與目標；重大約定或關係里程碑會以短標題追加到角色的重要紀錄。若暫時不想累積，在遊戲輸入框單獨送出 <code>［暫停追加］</code>；要重新開啟時送出 <code>［恢復追加］</code>。這兩個指令不會呼叫 API，且只影響目前存檔。</p>
+
+                <p class="u-inline-019">6. 生存、道具與好感度</p>
+                <p class="u-inline-020">受傷或精神打擊會改變 HP 與 SAN，道具可獲得、使用或失去，NPC 好感度會依互動增減。這些資料都能在角色面板檢視與手動修正。</p>
+
+                <p class="u-inline-019">7. 存檔、備份與命運重鑄</p>
+                <p class="u-inline-020">每個存檔各自保存劇情、動態狀態與重要紀錄，不會污染新遊戲。可匯出完整備份；每個存檔也有 3 次找守墓人重新洗點的機會。首頁配色只保存在本機，並會包含於完整備份中。</p>
 
                 <div class="u-inline-021">
                     <p class="u-inline-019">💡 提示：玩家即是神 (手動覆寫)</p>
@@ -1380,7 +1412,18 @@
                 <button id="delete-key-btn" onclick="deleteAllData()">清除設備所有資料</button>
             </div>
         </div>
-        <p class="setup-version">測試版 v0.17 · 2026/06/21</p>
+        <details class="theme-customizer">
+            <summary>外觀配色</summary>
+            <div class="theme-palette">
+                <label class="theme-color-field">背景<input id="theme-background" type="color" aria-label="背景顏色" oninput="updateUiThemeColor('background', this.value)"></label>
+                <label class="theme-color-field">面板<input id="theme-surface" type="color" aria-label="面板顏色" oninput="updateUiThemeColor('surface', this.value)"></label>
+                <label class="theme-color-field">線與字<input id="theme-ink" type="color" aria-label="線條與主要文字顏色" oninput="updateUiThemeColor('ink', this.value)"></label>
+                <label class="theme-color-field">重點<input id="theme-accent" type="color" aria-label="重點顏色" oninput="updateUiThemeColor('accent', this.value)"></label>
+                <label class="theme-color-field">對話<input id="theme-dialogue" type="color" aria-label="NPC 對話顏色" oninput="updateUiThemeColor('dialogue', this.value)"></label>
+            </div>
+            <div class="theme-reset-row"><button type="button" class="theme-reset-btn" onclick="resetUiTheme()">恢復預設</button></div>
+        </details>
+        <p class="setup-version">測試版 v0.26 · 2026/06/21</p>
     </div>
 
     <div id="edit-scenario-screen">
@@ -1589,10 +1632,89 @@
         let currentFlags = []; 
         let currentSaveId = null; 
         let savesData = {}; 
-        let pendingMetaPrompt = ""; 
+        let pendingSceneTransition = null;
         let pendingDiceSummary = null;
+        let activeGameSaveTimer = null;
+        let activeInputDraftTimer = null;
         let activeStatusTab = "state";
-        let apiUsageStats = {}; 
+        let apiUsageStats = {};
+
+        const UI_THEME_STORAGE_KEY = 'sanko_ui_theme_v1';
+        const DEFAULT_UI_THEME = Object.freeze({
+            background: '#EEEEEE',
+            surface: '#FAFAFA',
+            ink: '#282828',
+            accent: '#EDFF66',
+            dialogue: '#BFB3B8'
+        });
+        const UI_THEME_VARIABLES = Object.freeze({
+            background: '--bg-main',
+            surface: '--card-bg',
+            ink: '--border-dark',
+            accent: '--accent-neon',
+            dialogue: '--accent-gray'
+        });
+        let uiTheme = { ...DEFAULT_UI_THEME };
+
+        function normalizeThemeColor(value, fallback) {
+            const clean = String(value || '').trim();
+            return /^#[0-9a-f]{6}$/i.test(clean) ? clean.toUpperCase() : fallback;
+        }
+
+        function normalizeUiTheme(value) {
+            const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+            return Object.fromEntries(Object.keys(DEFAULT_UI_THEME).map(key => [
+                key,
+                normalizeThemeColor(source[key], DEFAULT_UI_THEME[key])
+            ]));
+        }
+
+        function mixThemeColors(base, overlay, overlayRatio = 0.12) {
+            const toRgb = color => [1, 3, 5].map(index => Number.parseInt(color.slice(index, index + 2), 16));
+            const baseRgb = toRgb(normalizeThemeColor(base, DEFAULT_UI_THEME.surface));
+            const overlayRgb = toRgb(normalizeThemeColor(overlay, DEFAULT_UI_THEME.ink));
+            const mixed = baseRgb.map((value, index) => Math.round(value * (1 - overlayRatio) + overlayRgb[index] * overlayRatio));
+            return `#${mixed.map(value => value.toString(16).padStart(2, '0')).join('').toUpperCase()}`;
+        }
+
+        function syncUiThemeControls() {
+            Object.keys(DEFAULT_UI_THEME).forEach(key => {
+                const input = document.getElementById(`theme-${key}`);
+                if (input && input.value.toUpperCase() !== uiTheme[key]) input.value = uiTheme[key];
+            });
+        }
+
+        function applyUiTheme(theme, persist = true) {
+            uiTheme = normalizeUiTheme(theme);
+            Object.entries(UI_THEME_VARIABLES).forEach(([key, variable]) => {
+                document.documentElement.style.setProperty(variable, uiTheme[key]);
+            });
+            document.documentElement.style.setProperty('--text-main', uiTheme.ink);
+            document.documentElement.style.setProperty('--text-sub', `${uiTheme.ink}A6`);
+            document.documentElement.style.setProperty('--surface-muted', mixThemeColors(uiTheme.surface, uiTheme.ink));
+            if (persist) localStorage.setItem(UI_THEME_STORAGE_KEY, JSON.stringify(uiTheme));
+            syncUiThemeControls();
+            return uiTheme;
+        }
+
+        function loadUiTheme() {
+            try {
+                const stored = JSON.parse(localStorage.getItem(UI_THEME_STORAGE_KEY) || 'null');
+                applyUiTheme(stored || DEFAULT_UI_THEME, false);
+            } catch (error) {
+                console.warn('配色資料已損壞，已恢復預設值', error);
+                applyUiTheme(DEFAULT_UI_THEME, true);
+            }
+        }
+
+        function updateUiThemeColor(key, color) {
+            if (!(key in DEFAULT_UI_THEME)) return;
+            applyUiTheme({ ...uiTheme, [key]: color }, true);
+        }
+
+        function resetUiTheme() {
+            applyUiTheme(DEFAULT_UI_THEME, true);
+        }
 
         const emptyAvatar = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
@@ -1629,13 +1751,15 @@
                     name: '艾歐澤亞 (FFXIV)',
                     lore: '充滿魔法與劍的奇幻虛擬世界。大家擁有技能與血量設定，一起推進高難度副本。',
                     npcRoles: '三高是硬核賢者補師(H2)，負責補血。SY是技術高超的遠程輸出。',
-                    playerRole: '熱衷 PVP 但對高難副本一竅不通的坦克。'
+                    playerRole: '熱衷 PVP 但對高難副本一竅不通的坦克。',
+                    transitionRule: '從現實世界進入時，預設視為登入遊戲；角色保留現實世界的人際關係與記憶。'
                 },
                 {
                     name: '現實世界',
                     lore: '現代都市，現代都市，地點在哪裡並不重要，不需要寫出地點。\n【🚨 DM 動態情境判斷法則】：\n1. 當剛退出遊戲 / 未特別說明時：預設大家『已下班，各自待幾家中』透過 Discord 語音閒聊。請描寫居家的放鬆感（如看迷因、喝水）。\n2. 當玩家主動出門 / 約見面 / 跑現實劇情時：請立刻無縫切換為『實體空間互動』！此時他們作為攝影師、化妝師的現實職業狀態與穿搭外貌，將成為主要的互動元素。\n(請 DM 隨時根據玩家的動作，聰明判斷現在是「遠端通話」還是「實體面對面」)',
                     npcRoles: '語音通話時：三高通常在看動物迷因，SY 呈現放鬆狀態。實體見面時：三高會展現禁慾專業的攝影師氣場，SY 則是擅長打扮的男性。',
-                    playerRole: '平時在家是被死線追殺的設計師，若出門則會切換為現實生活對應的狀態。'
+                    playerRole: '平時在家是被死線追殺的設計師，若出門則會切換為現實生活對應的狀態。',
+                    transitionRule: '從艾歐澤亞切回時，預設視為登出遊戲並回到 Discord 語音；除非玩家明確描述實體見面。'
                 }
             ]
         };
@@ -1796,6 +1920,7 @@
 
         window.onload = async () => {
             try {
+                loadUiTheme();
                 await initializePersistentStorage();
                 apiUsageStats = await loadApiUsageStats();
                 apiProvider = localStorage.getItem('sanko_api_provider') || 'google';
@@ -1828,6 +1953,7 @@
                 const savedPresets = await readPersistentValue('sanko_scenario_presets_v2', null);
                 if (savedPresets && typeof savedPresets === 'object' && !Array.isArray(savedPresets)) {
                     scenarioPresets = savedPresets;
+                    let presetRuntimeStateRemoved = false;
                     for(let k in scenarioPresets) {
                         if(!scenarioPresets[k].playerStats) {
                             scenarioPresets[k].playerStats = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
@@ -1859,11 +1985,23 @@
                             });
                         }
                         if(!scenarioPresets[k].scenarios) {
-                            scenarioPresets[k].scenarios = [{name: '預設場景', lore: '', npcRoles: scenarioPresets[k].targetRole || '', playerRole: ''}];
+                            scenarioPresets[k].scenarios = [{name: '預設場景', lore: '', npcRoles: scenarioPresets[k].targetRole || '', playerRole: '', transitionRule: ''}];
                         } else {
-                            scenarioPresets[k].scenarios.forEach(sc => { if(sc.npcRoles === undefined) sc.npcRoles = sc.targetRole || ''; });
+                            scenarioPresets[k].scenarios.forEach(sc => {
+                                if(sc.npcRoles === undefined) sc.npcRoles = sc.targetRole || '';
+                                if(sc.playerRole === undefined) sc.playerRole = '';
+                                if(sc.transitionRule === undefined) sc.transitionRule = '';
+                            });
+                        }
+
+                        const hasRuntimeState = Boolean(scenarioPresets[k].playerDynamic)
+                            || scenarioPresets[k].npcs.some(n => Boolean(n.dynamic));
+                        if (hasRuntimeState) {
+                            scenarioPresets[k] = createPresetSnapshotFromScenario(scenarioPresets[k], scenarioPresets[k]);
+                            presetRuntimeStateRemoved = true;
                         }
                     }
+                    if (presetRuntimeStateRemoved) persistJson('sanko_scenario_presets_v2', scenarioPresets, '清理角色配置中的遊戲進度');
                 } else {
                     scenarioPresets = { 'default': defaultPreset };
                     persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置');
@@ -1871,7 +2009,7 @@
 
                 activePresetId = localStorage.getItem('sanko_active_preset_id') || 'default';
                 if (!scenarioPresets[activePresetId]) activePresetId = Object.keys(scenarioPresets)[0];
-                currentScenario = { ...scenarioPresets[activePresetId] };
+                currentScenario = clonePersistentValue(scenarioPresets[activePresetId]);
 
             } catch (e) {
                 console.error("載入資料時發生錯誤:", e);
@@ -2315,6 +2453,35 @@
             return { mood: '', condition: '', relationship: '', goal: '', memoryNotes: [], lastReason: '', updatedAt: '' };
         }
 
+        function createPresetSnapshotFromScenario(sourceScenario, baselinePreset = null) {
+            const snapshot = clonePersistentValue(sourceScenario || defaultPreset);
+            const baselineNpcs = Array.isArray(baselinePreset?.npcs) ? baselinePreset.npcs : [];
+            delete snapshot.playerDynamic;
+            delete snapshot.sourcePresetId;
+            if (!Array.isArray(snapshot.npcs)) snapshot.npcs = [];
+            snapshot.npcs = snapshot.npcs.map(npc => {
+                const cleanNpc = clonePersistentValue(npc);
+                delete cleanNpc.dynamic;
+                if (baselinePreset) {
+                    const baselineNpc = baselineNpcs.find(item =>
+                        (item.id && cleanNpc.id && item.id === cleanNpc.id)
+                        || (item.name && cleanNpc.name && item.name === cleanNpc.name)
+                    );
+                    if (baselineNpc && baselineNpc.affection !== undefined) cleanNpc.affection = baselineNpc.affection;
+                }
+                return cleanNpc;
+            });
+            return snapshot;
+        }
+
+        function createFreshScenarioFromPreset(preset) {
+            const fresh = createPresetSnapshotFromScenario(preset || defaultPreset);
+            fresh.playerDynamic = createEmptyDynamicState();
+            fresh.npcs.forEach(npc => { npc.dynamic = createEmptyDynamicState(); });
+            fresh.memoryNotesPaused = false;
+            return fresh;
+        }
+
         function normalizeMemoryNotes(value) {
             const rawEntries = Array.isArray(value)
                 ? value
@@ -2355,14 +2522,14 @@
                 <div class="dynamic-state-panel">
                     <div class="dynamic-state-heading">
                         <strong>動態狀態</strong>
-                        <span>情緒可即時更新；關係、目標與重要紀錄只在重大變化時更新</span>
+                        <span>${currentScenario.memoryNotesPaused ? 'AI 重要紀錄追加已暫停；仍可手動修改' : '情緒可即時更新；關係、目標與重要紀錄只在重大變化時更新'}</span>
                     </div>
                     <div class="dynamic-state-grid">
                         <div class="dynamic-state-field"><label>當前情緒</label><input type="text" id="${prefix}-mood" value="${escapeStatusHtml(dynamic.mood)}"></div>
                         <div class="dynamic-state-field"><label>身體／外觀狀態</label><input type="text" id="${prefix}-condition" value="${escapeStatusHtml(dynamic.condition)}"></div>
                         <div class="dynamic-state-field"><label>對玩家／隊伍的態度</label><input type="text" id="${prefix}-relationship" value="${escapeStatusHtml(dynamic.relationship)}"></div>
                         <div class="dynamic-state-field"><label>當前目標</label><input type="text" id="${prefix}-goal" value="${escapeStatusHtml(dynamic.goal)}"></div>
-                        <div class="dynamic-state-field full"><label>重要關係／約定紀錄（逐行一則）</label><textarea id="${prefix}-memoryNotes" rows="4">${escapeStatusHtml(notesText)}</textarea></div>
+                        <div class="dynamic-state-field full"><label>重要關係／約定重點（每行一個短標題）</label><textarea id="${prefix}-memoryNotes" rows="4">${escapeStatusHtml(notesText)}</textarea></div>
                     </div>
                     ${reason}
                 </div>`;
@@ -2404,10 +2571,10 @@
             const memoryText = dynamic.memoryNotes.length
                 ? dynamic.memoryNotes.map(note => `- ${note}`).join('\n')
                 : '無';
-            return `[當前情緒]: ${dynamic.mood || '未特別標記'}\n[身體/外觀狀態]: ${dynamic.condition || '正常'}\n[對玩家/隊伍的態度]: ${dynamic.relationship || '尚未形成'}\n[當前目標]: ${dynamic.goal || '未設定'}\n[重要關係/約定紀錄，只可追加不可覆寫]:\n${memoryText}`;
+            return `[當前情緒]: ${dynamic.mood || '未特別標記'}\n[身體/外觀狀態]: ${dynamic.condition || '正常'}\n[對玩家/隊伍的態度]: ${dynamic.relationship || '尚未形成'}\n[當前目標]: ${dynamic.goal || '未設定'}\n[重要關係/約定重點，只可追加不可覆寫；每則為 4～12 字短標題]:\n${memoryText}`;
         }
 
-        function applyDynamicStatePatch(existingState, update) {
+        function applyDynamicStatePatch(existingState, update, allowMemoryNotes = true) {
             const state = normalizeDynamicState(existingState);
             const changes = update?.changes && typeof update.changes === 'object'
                 ? update.changes
@@ -2432,13 +2599,15 @@
                     changedLabels.push(lastingLabels[key]);
                 });
 
-                const incomingNotes = normalizeMemoryNotes(changes.memoryNotes ?? changes.recentChange);
-                incomingNotes.forEach(note => {
-                    if (!state.memoryNotes.includes(note)) state.memoryNotes.push(note);
-                });
-                if (incomingNotes.some(note => state.memoryNotes.includes(note)) && incomingNotes.length) {
-                    const addedCount = incomingNotes.filter(note => !normalizeDynamicState(existingState).memoryNotes.includes(note)).length;
-                    if (addedCount > 0) changedLabels.push('重要紀錄');
+                if (allowMemoryNotes) {
+                    const incomingNotes = normalizeMemoryNotes(changes.memoryNotes ?? changes.recentChange);
+                    incomingNotes.forEach(note => {
+                        if (!state.memoryNotes.includes(note)) state.memoryNotes.push(note);
+                    });
+                    if (incomingNotes.some(note => state.memoryNotes.includes(note)) && incomingNotes.length) {
+                        const addedCount = incomingNotes.filter(note => !normalizeDynamicState(existingState).memoryNotes.includes(note)).length;
+                        if (addedCount > 0) changedLabels.push('重要紀錄');
+                    }
                 }
             }
 
@@ -2449,10 +2618,105 @@
             return { state, changedLabels };
         }
 
+        function clampAffectionValue(value, fallback = 0) {
+            const parsed = Number.parseInt(value, 10);
+            const safe = Number.isFinite(parsed) ? parsed : Number.parseInt(fallback, 10) || 0;
+            return Math.max(-100, Math.min(100, safe));
+        }
+
+        function normalizeNpcLookupName(value) {
+            return valueToText(value)
+                .toLowerCase()
+                .replace(/[「」『』\"'`·・．。\s_\-]/g, '')
+                .replace(/^(npc|角色)/, '');
+        }
+
         function findNpcByName(name) {
             const cleanName = valueToText(name).replace(/^[「『\"']+|[」』\"']+$/g, '').trim();
             if (!cleanName || !currentScenario?.npcs) return null;
             return currentScenario.npcs.find(npc => valueToText(npc.name) === cleanName) || null;
+        }
+
+        function findNpcByLooseName(name) {
+            const exact = findNpcByName(name);
+            if (exact) return exact;
+            const lookup = normalizeNpcLookupName(name);
+            if (!lookup || !currentScenario?.npcs) return null;
+            return currentScenario.npcs.find(npc => {
+                const npcName = normalizeNpcLookupName(npc.name);
+                return npcName === lookup || (lookup.length >= 2 && (npcName.includes(lookup) || lookup.includes(npcName)));
+            }) || null;
+        }
+
+        function applyAffectionUpdate(npc, value, mode = 'change', { announce = true } = {}) {
+            if (!npc) return null;
+            const previous = clampAffectionValue(npc.affection, 0);
+            const numericValue = Number.parseInt(value, 10);
+            if (!Number.isFinite(numericValue)) return null;
+            const next = mode === 'set'
+                ? clampAffectionValue(numericValue, previous)
+                : clampAffectionValue(previous + numericValue, previous);
+            npc.affection = next;
+            if (announce) createSystemAlert(`— ${npc.name} 的好感度 ${previous} → ${next} —`);
+            return { npcId: npc.id || npc.name, npcName: npc.name, previous, next, mode };
+        }
+
+        function normalizeAffectionPayloadEntries(payload) {
+            if (!payload) return [];
+            if (Array.isArray(payload)) {
+                return payload.map(entry => ({
+                    name: valueToText(entry?.name || entry?.npc || entry?.character),
+                    value: entry?.value ?? entry?.affection ?? entry?.change ?? entry?.delta
+                })).filter(entry => entry.name);
+            }
+            if (typeof payload !== 'object') return [];
+            return Object.entries(payload).map(([name, rawValue]) => ({
+                name,
+                value: rawValue && typeof rawValue === 'object'
+                    ? (rawValue.value ?? rawValue.affection ?? rawValue.change ?? rawValue.delta)
+                    : rawValue
+            }));
+        }
+
+        function applyAffectionPayload(payload, mode = 'change', skippedNpcIds = new Set()) {
+            const updates = [];
+            normalizeAffectionPayloadEntries(payload).forEach(entry => {
+                const npc = findNpcByLooseName(entry.name);
+                if (!npc || skippedNpcIds.has(npc.id || npc.name)) return;
+                const update = applyAffectionUpdate(npc, entry.value, mode);
+                if (update) updates.push(update);
+            });
+            return updates;
+        }
+
+        function escapeRegExp(value) {
+            return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function applyManualAffectionCommands(text) {
+            const source = valueToText(text);
+            if (!source.includes('好感') || !Array.isArray(currentScenario?.npcs)) return [];
+            const updates = [];
+            currentScenario.npcs.forEach(npc => {
+                const escapedName = escapeRegExp(valueToText(npc.name));
+                if (!escapedName || !source.includes(valueToText(npc.name))) return;
+                const prefix = `(?:把|將)?\\s*${escapedName}\\s*(?:的)?\\s*好感度`;
+                const setMatch = source.match(new RegExp(`${prefix}\\s*(?:改成|改為|設為|設定為|設定成|調到|調成|調整到|變成|為)\\s*(-?\\d+)`, 'i'));
+                const addMatch = source.match(new RegExp(`${prefix}\\s*(?:增加|提升|加)\\s*(\\d+)`, 'i'));
+                const subtractMatch = source.match(new RegExp(`${prefix}\\s*(?:減少|降低|扣除|扣)\\s*(\\d+)`, 'i'));
+                let update = null;
+                if (setMatch) update = applyAffectionUpdate(npc, setMatch[1], 'set');
+                else if (addMatch) update = applyAffectionUpdate(npc, addMatch[1], 'change');
+                else if (subtractMatch) update = applyAffectionUpdate(npc, -Number.parseInt(subtractMatch[1], 10), 'change');
+                if (update) updates.push(update);
+            });
+            return updates;
+        }
+
+        function buildManualAffectionPrompt(updates) {
+            if (!Array.isArray(updates) || !updates.length) return '';
+            const summary = updates.map(update => `${update.npcName}：${update.previous} → ${update.next}`).join('、');
+            return `【系統已直接執行玩家的好感度修改】${summary}。請自然承接玩家指令，但本回合不得再對這些 NPC 回傳 npc_love_change 或 npc_love_set，以免重複計算。`;
         }
 
         function isBlankNpcPlaceholder(npc) {
@@ -2772,6 +3036,8 @@
                         <textarea class="scenario-input" id="scen-npcRoles-${index}" oninput="autoResize(this)">${escapeStatusHtml(scen.npcRoles || '')}</textarea>
                         <div class="scenario-label">玩家在此的專屬身份/狀態</div>
                         <input type="text" class="scenario-input" id="scen-player-${index}" value="${escapeStatusHtml(scen.playerRole)}">
+                        <div class="scenario-label">轉場規則（選填）</div>
+                        <textarea class="scenario-input" id="scen-transition-${index}" placeholder="例如：切回此情境時視為夢醒。" oninput="autoResize(this)">${escapeStatusHtml(scen.transitionRule || '')}</textarea>
                     </div>
                 `;
                 container.appendChild(details);
@@ -2804,6 +3070,7 @@
                     scen.lore = document.getElementById(`scen-lore-${index}`).value;
                     scen.npcRoles = document.getElementById(`scen-npcRoles-${index}`).value;
                     scen.playerRole = document.getElementById(`scen-player-${index}`).value;
+                    scen.transitionRule = document.getElementById(`scen-transition-${index}`).value;
                 }
             });
         }
@@ -2822,7 +3089,7 @@
 
         function addScenarioBlock() {
             syncEditingDataFromDOM();
-            editingScenarios.push({name: '新情境', lore: '', npcRoles: '', playerRole: ''});
+            editingScenarios.push({name: '新情境', lore: '', npcRoles: '', playerRole: '', transitionRule: ''});
             forceOpenScenIndex = editingScenarios.length - 1; 
             renderScenarioList();
         }
@@ -2871,7 +3138,7 @@
             else { editingNpcs.forEach(n => { if (n.affection === undefined) n.affection = 0; if(!n.details) n.details = { age: '', speech: '', likes: '', dislikes: '', app: '', bg: n.persona || '' }; }); }
             
             editingScenarios = JSON.parse(JSON.stringify(p.scenarios || []));
-            if(editingScenarios.length === 0) editingScenarios.push({name: '預設場景', lore: '', npcRoles: '', playerRole: ''});
+            if(editingScenarios.length === 0) editingScenarios.push({name: '預設場景', lore: '', npcRoles: '', playerRole: '', transitionRule: ''});
             
             renderNpcList(); renderScenarioList();
             initTextareas();
@@ -2885,7 +3152,7 @@
                 isLocked: false, 
                 statsLocked: false,
                 npcs: [{ id: 'npc_1', name: '新角色', avatar: emptyAvatar, details: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: '' }, affection: 0 }],
-                scenarios: [{name: '主情境', lore: '', npcRoles: '', playerRole: ''}] 
+                scenarios: [{name: '主情境', lore: '', npcRoles: '', playerRole: '', transitionRule: ''}] 
             };
             activePresetId = newId; renderPresetSelector(); loadPresetToForm(newId);
         }
@@ -2917,7 +3184,7 @@
                     statsLocked: false,
                     playerDetails: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: '' },
                     npcs: [{ id: 'npc_1', name: '新角色', avatar: emptyAvatar, details: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: '' }, affection: 0 }],
-                    scenarios: [{name: '主情境', lore: '', npcRoles: '', playerRole: ''}]
+                    scenarios: [{name: '主情境', lore: '', npcRoles: '', playerRole: '', transitionRule: ''}]
                 };
                 Object.keys(blankPreset).forEach(k => { 
                     scenarioPresets[activePresetId][k] = JSON.parse(JSON.stringify(blankPreset[k])); 
@@ -2967,7 +3234,7 @@
                 return;
             }
             localStorage.setItem('sanko_active_preset_id', activePresetId);
-            currentScenario = { ...p }; 
+            currentScenario = clonePersistentValue(p); 
             renderPresetSelector(); 
             
             const statInputs = document.querySelectorAll('.stat-input');
@@ -3001,7 +3268,7 @@
                 return;
             }
             localStorage.setItem('sanko_active_preset_id', activePresetId);
-            currentScenario = { ...p }; renderPresetSelector(); loadPresetToForm(newId); alert(`已另存新檔為「${newPresetName}」！基礎屬性已被鎖定！`);
+            currentScenario = clonePersistentValue(p); renderPresetSelector(); loadPresetToForm(newId); alert(`已另存新檔為「${newPresetName}」！基礎屬性已被鎖定！`);
         }
 
         function cancelEdit() {
@@ -3043,6 +3310,8 @@
                 if (!n.details) n.details = {};
                 const eNname = document.getElementById(`edit-n-name-${idx}`);
                 if (eNname) n.name = eNname.value;
+                const eNaffection = document.getElementById(`edit-n-aff-${idx}`);
+                if (eNaffection) n.affection = clampAffectionValue(eNaffection.value, n.affection);
                 const eNage = document.getElementById(`edit-n-age-${idx}`);
                 if (eNage) n.details.age = eNage.value;
                 const eNspeech = document.getElementById(`edit-n-speech-${idx}`);
@@ -3066,6 +3335,10 @@
                 if(eSLore) sc.lore = eSLore.value;
                 const eSNpcs = document.getElementById(`edit-scen-npcs-${idx}`);
                 if(eSNpcs) sc.npcRoles = eSNpcs.value;
+                const eSPlayer = document.getElementById(`edit-scen-player-${idx}`);
+                if(eSPlayer) sc.playerRole = eSPlayer.value;
+                const eSTransition = document.getElementById(`edit-scen-transition-${idx}`);
+                if(eSTransition) sc.transitionRule = eSTransition.value;
             });
         }
 
@@ -3086,7 +3359,7 @@
 
         function modalAddScenario() {
             syncDomToCurrentScenario();
-            currentScenario.scenarios.push({name: '新情境', lore: '', npcRoles: '', playerRole: ''});
+            currentScenario.scenarios.push({name: '新情境', lore: '', npcRoles: '', playerRole: '', transitionRule: ''});
             chatScripts.push([]);
             openStatusModal();
         }
@@ -3134,7 +3407,7 @@
                 const newPresetName = userInput.trim() || defaultName;
                 const newId = 'preset_' + Date.now();
                 
-                let newPreset = JSON.parse(JSON.stringify(currentScenario));
+                let newPreset = createPresetSnapshotFromScenario(currentScenario);
                 newPreset.id = newId;
                 newPreset.presetName = newPresetName;
                 newPreset.isLocked = false;
@@ -3151,7 +3424,7 @@
                 currentScenario.presetName = newPresetName;
                 
                 saveCurrentProgress(); 
-                alert(`已成功將當前的角色與情境狀態，同步另存為系統新配置「${newPresetName}」！\n(接下來的儲存都會自動同步至這個新配置中)`);
+                alert(`已將目前的角色核心設定與情境資料另存為新配置「${newPresetName}」！\n動態狀態與冒險進度只保留在目前存檔中。`);
             } catch (e) {
                 console.error(e);
                 alert("儲存時發生錯誤：" + e.message);
@@ -3242,6 +3515,7 @@
                         </div>
                         <div class="anime-sheet u-inline-075">
                             <div class="full"><label>角色名稱</label><input type="text" id="edit-n-name-${idx}" value="${escapeStatusHtml(n.name)}" oninput="this.closest('details').querySelector('.summary-name').innerText = this.value || '未命名';"></div>
+                            <div><label>目前好感度</label><input type="number" id="edit-n-aff-${idx}" min="-100" max="100" value="${clampAffectionValue(n.affection, 0)}"></div>
                             <div><label>年齡 / 身高 / 體型</label><input type="text" id="edit-n-age-${idx}" value="${escapeStatusHtml(nDet.age)}"></div>
                             <div><label>說話習慣 / 語氣</label><input type="text" id="edit-n-speech-${idx}" value="${escapeStatusHtml(nDet.speech)}"></div>
                             <div><label>喜歡的事物</label><input type="text" id="edit-n-likes-${idx}" value="${escapeStatusHtml(nDet.likes)}"></div>
@@ -3281,6 +3555,10 @@
                         <textarea id="edit-scen-lore-${idx}" class="scenario-input" oninput="autoResize(this)">${escapeStatusHtml(sc.lore)}</textarea>
                         <div class="scenario-label">NPC 們在此的身分/狀態</div>
                         <textarea id="edit-scen-npcs-${idx}" class="scenario-input" oninput="autoResize(this)">${escapeStatusHtml(sc.npcRoles || '')}</textarea>
+                        <div class="scenario-label">玩家在此的身分/狀態</div>
+                        <input type="text" id="edit-scen-player-${idx}" class="scenario-input" value="${escapeStatusHtml(sc.playerRole || '')}">
+                        <div class="scenario-label">轉場規則（選填）</div>
+                        <textarea id="edit-scen-transition-${idx}" class="scenario-input" placeholder="例如：從遊戲世界切回時視為登出。" oninput="autoResize(this)">${escapeStatusHtml(sc.transitionRule || '')}</textarea>
                     </div>
                 </details>`;
             });
@@ -3303,7 +3581,7 @@
                     if (scenarioPresets[sourceId].isLocked) {
                         alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].presetName}] 已上鎖 (🔒)，\n本次變更僅儲存於「當前遊戲紀錄」中，不會覆蓋回大廳。\n(若要覆蓋回大廳，請先至大廳解鎖，或使用另存新配置)`);
                     } else {
-                        let syncPreset = JSON.parse(JSON.stringify(currentScenario));
+                        let syncPreset = createPresetSnapshotFromScenario(currentScenario, scenarioPresets[sourceId]);
                         syncPreset.id = sourceId;
                         syncPreset.presetName = scenarioPresets[sourceId].presetName; 
                         syncPreset.isLocked = false; 
@@ -3447,7 +3725,9 @@
 
             const saveName = userInput.trim() || defaultName;
             const id = Date.now().toString();
-            const newSave = { title: saveName, date: new Date().toLocaleString(), hp: 100, san: 100, items: [], scenIndex: 0, chatPageIndex: 0, scripts: [[]], log: "1. 故事剛開始，目前尚無重大事件發生。", flags: [], respecCount: 3, scenario: JSON.parse(JSON.stringify(currentScenario)) };
+            const selectedPreset = scenarioPresets[activePresetId] || defaultPreset;
+            const freshScenario = createFreshScenarioFromPreset(selectedPreset);
+            const newSave = { title: saveName, date: new Date().toLocaleString(), hp: 100, san: 100, items: [], scenIndex: 0, chatPageIndex: 0, scripts: [[]], log: "1. 故事剛開始，目前尚無重大事件發生。", flags: [], inputDraft: '', respecCount: 3, scenario: freshScenario };
             newSave.scenario.sourcePresetId = activePresetId;
             savesData[id] = newSave;
             if (!persistJson('sanko_saves_v8', savesData, '遊戲存檔')) { delete savesData[id]; return; }
@@ -3459,6 +3739,7 @@
                 const removedSave = savesData[id];
                 delete savesData[id];
                 if (!persistJson('sanko_saves_v8', savesData, '遊戲存檔')) { savesData[id] = removedSave; return; }
+                localStorage.removeItem(getInputDraftStorageKey(id));
                 if(currentSaveId === id) currentSaveId = null;
                 renderSaveList();
             }
@@ -3468,12 +3749,13 @@
             saveCurrentProgress();
             if (Object.keys(savesData).length === 0 && Object.keys(scenarioPresets).length === 0) { alert("目前沒有資料可以匯出。"); return; }
             const exportPayload = {
-                version: 3,
+                version: 4,
                 exportedAt: new Date().toISOString(),
                 saves: savesData,
                 scenarioPresets,
                 activePresetId,
                 apiUsageStats,
+                uiTheme,
                 homePic: document.getElementById('setup-pic')?.src || ''
             };
             const dataStr = JSON.stringify(exportPayload);
@@ -3539,6 +3821,9 @@
                         apiUsageStats = importedData.apiUsageStats;
                         saveApiUsageStats();
                     }
+                    if (isFullBackup && importedData.uiTheme && typeof importedData.uiTheme === 'object') {
+                        applyUiTheme(importedData.uiTheme, true);
+                    }
                     if (isFullBackup && typeof importedData.homePic === 'string' && importedData.homePic.startsWith('data:image/')) {
                         document.getElementById('setup-pic').src = importedData.homePic;
                         persistLargeValue('sanko_home_pic', importedData.homePic, '首頁頭像');
@@ -3566,16 +3851,102 @@
             savesData[currentSaveId].date = new Date().toLocaleString();
             savesData[currentSaveId].log = currentAdventureLog;
             savesData[currentSaveId].flags = currentFlags;
+            const currentInputDraft = document.getElementById('player-input')?.value || '';
+            savesData[currentSaveId].inputDraft = currentInputDraft;
+            try {
+                const draftKey = getInputDraftStorageKey(currentSaveId);
+                if (currentInputDraft) localStorage.setItem(draftKey, currentInputDraft);
+                else localStorage.removeItem(draftKey);
+            } catch (error) {
+                console.warn('輸入草稿暫存失敗', error);
+            }
             savesData[currentSaveId].scenario = currentScenario;
+            savesData[currentSaveId].sceneTransition = pendingSceneTransition;
             delete savesData[currentSaveId].script;
             return persistJson('sanko_saves_v8', savesData, '遊戲存檔');
         }
+
+        function getInputDraftStorageKey(saveId = currentSaveId) {
+            return `sanko_input_draft_${saveId || 'none'}`;
+        }
+
+        function persistActiveInputDraft() {
+            if (activeInputDraftTimer) {
+                clearTimeout(activeInputDraftTimer);
+                activeInputDraftTimer = null;
+            }
+            if (!currentSaveId || !savesData[currentSaveId]) return;
+            const draft = document.getElementById('player-input')?.value || '';
+            savesData[currentSaveId].inputDraft = draft;
+            try {
+                const key = getInputDraftStorageKey();
+                if (draft) localStorage.setItem(key, draft);
+                else localStorage.removeItem(key);
+            } catch (error) {
+                console.warn('輸入草稿暫存失敗', error);
+            }
+        }
+
+        function scheduleInputDraftSave(delay = 300) {
+            if (!currentSaveId || !savesData[currentSaveId]) return;
+            if (activeInputDraftTimer) clearTimeout(activeInputDraftTimer);
+            activeInputDraftTimer = setTimeout(persistActiveInputDraft, delay);
+        }
+
+        function syncVisibleGameEditsForSave() {
+            if (!currentSaveId || !savesData[currentSaveId]) return;
+            const statusModal = document.getElementById('status-modal');
+            if (statusModal?.style.display === 'block') syncDomToCurrentScenario();
+        }
+
+        function flushActiveGameSave() {
+            if (activeGameSaveTimer) {
+                clearTimeout(activeGameSaveTimer);
+                activeGameSaveTimer = null;
+            }
+            if (!currentSaveId || !savesData[currentSaveId]) return;
+            try {
+                persistActiveInputDraft();
+                syncVisibleGameEditsForSave();
+                saveCurrentProgress();
+            } catch (error) {
+                console.warn('背景自動存檔失敗', error);
+            }
+        }
+
+        function scheduleActiveGameSave(delay = 900) {
+            if (!currentSaveId || !savesData[currentSaveId]) return;
+            if (activeGameSaveTimer) clearTimeout(activeGameSaveTimer);
+            activeGameSaveTimer = setTimeout(flushActiveGameSave, delay);
+        }
+
+        document.addEventListener('input', event => {
+            if (event.target?.id === 'player-input') scheduleInputDraftSave();
+            else if (event.target?.closest?.('#status-modal-content')) scheduleActiveGameSave();
+        }, true);
+        document.addEventListener('change', event => {
+            if (event.target?.id === 'player-input') scheduleInputDraftSave(100);
+            else if (event.target?.closest?.('#status-modal-content')) scheduleActiveGameSave(250);
+        }, true);
+        document.addEventListener('paste', event => {
+            if (event.target?.id === 'player-input') setTimeout(() => scheduleInputDraftSave(100), 0);
+            else if (event.target?.closest?.('#status-modal-content')) setTimeout(() => scheduleActiveGameSave(250), 0);
+        }, true);
+        document.addEventListener('compositionend', event => {
+            if (event.target?.id === 'player-input') scheduleInputDraftSave(100);
+            else if (event.target?.closest?.('#status-modal-content')) scheduleActiveGameSave(250);
+        }, true);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') flushActiveGameSave();
+        });
+        window.addEventListener('pagehide', flushActiveGameSave);
 
         function openMidGameScenarioModal() {
             document.getElementById('mid-scen-name').value = '';
             document.getElementById('mid-scen-lore').value = '';
             document.getElementById('mid-scen-npcs').value = '';
             document.getElementById('mid-scen-player').value = '';
+            document.getElementById('mid-scen-transition').value = '';
             document.getElementById('midgame-scen-modal').style.display = 'flex';
         }
 
@@ -3584,8 +3955,9 @@
             const lore = document.getElementById('mid-scen-lore').value.trim();
             const npcRoles = document.getElementById('mid-scen-npcs').value.trim();
             const playerRole = document.getElementById('mid-scen-player').value.trim();
+            const transitionRule = document.getElementById('mid-scen-transition').value.trim();
             
-            const newScen = { name, lore, npcRoles, playerRole };
+            const newScen = { name, lore, npcRoles, playerRole, transitionRule };
             currentScenario.scenarios.push(newScen);
             const newIndex = currentScenario.scenarios.length - 1;
             chatScripts[newIndex] = []; 
@@ -3643,7 +4015,8 @@
 【目前場景與多重世界連貫性 (極重要)】
 目前場景 / 支線：【${currentScen.name}】
 世界觀與物理法則：${currentScen.lore}
-(DM 絕對指令：如果場景從「虛擬遊戲」切換到「現實」，代表視角拉回到了「真實玩家與朋友」。大家在各個情境中的記憶是完全同步且連續的！)
+情境轉場規則：${currentScen.transitionRule || '未指定；預設視為鏡頭切換，不得擅自判定傳送、夢醒或時間跳躍。'}
+(DM 絕對指令：角色核心關係與長期記憶預設跨情境延續；物理地點、當下身分與事件進度必須依目前情境及交接包判斷，不得把不同支線直接混成同一空間。)
 
 【登場的 NPC 們 (請依照這些設定進行扮演與判定)】
 ${npcDescriptions}
@@ -3688,25 +4061,28 @@ ${flagsText}
 3. 六屬性加值與難度 DC 已經反映在程式結果中，禁止再次用角色數值修改結果。Flags、傷勢與情境只能影響後果描寫，不可改變已算定的成功等級。
 4. 玩家輸入沒有「系統硬判定」時，不要擅自宣稱玩家已經擲骰；可以在 options 建議玩家使用擲骰按鈕。
 5. 【事件對數值的影響】：重大事件可利用 new_flags 發放狀態標籤。使用或消耗道具時，將效果反映在 hp_change、san_change 或 lost_items；贈送 NPC 時可反映在 npc_love_change。
+6. 玩家明確要求「把某 NPC 好感度設為某數字」時，使用 npc_love_set；一般劇情造成的增減才使用 npc_love_change。禁止只在 narrative 宣稱修改完成卻漏填數值欄位。
 
 【🚨 角色動態狀態與好感度演進機制 (極重要)】
+目前 AI 重要紀錄追加：${currentScenario.memoryNotesPaused ? '已暫停。memoryNotes 必須回傳空陣列或省略，不得新增任何條目。' : '開啟中。僅在符合下列重大事件規則時新增。'}
 1. 核心人設（年齡、背景、性格、語氣、喜好與厭惡）由玩家建立，絕對不可自動改寫或摘要覆蓋。
 2. mood 可在角色情緒明顯轉換時即時更新；不要只是換同義詞，也不要每回合更新。
 3. condition 只有實際受傷、痊癒、換裝、裝備或外觀改變時才更新；普通動作不算變化。
 4. relationship 與 goal 屬於持久狀態。只有信任/敵意/界線發生明顯改變，或正式接受、完成、放棄一個目標時才更新，並必須回傳 persistent: true。當下想做的動作不等於長期目標。
-5. memoryNotes 是角色專屬長期記憶，只記錄重大約定、秘密、關係里程碑、不可逆選擇與尚未履行的承諾。只能回傳本回合要新增的條目陣列，必須 persistent: true；禁止重寫、摘要或重複既有條目。
+5. memoryNotes 是角色專屬的長期記憶索引，只記錄重大約定、秘密、關係里程碑、不可逆選擇與尚未履行的承諾。每條必須寫成 4～12 個中文字的短標題，最多 16 字；不得寫成完整句子、不得以「玩家」開頭、不得補充原因或心理分析。例如「約好前往天堂島冒險並約會」只寫「天堂島冒險約定」；「深夜互相袒露心情與愛意」只寫「深夜坦承愛意」。只能回傳本回合要新增的條目陣列，必須 persistent: true；禁止重寫、摘要或重複既有條目。每位角色每回合通常最多新增一條。
 6. 若本回合沒有真正的狀態改變，npc_state_updates 回傳 []、player_state_update 回傳 {}。不要為了填欄位而更新。
 7. 若玩家的行為符合某位 NPC 的喜好、提供實質幫助或展現魅力，請增加其好感度；惹惱對方則減少。好感度突破 50 或 80 時，可主動觸發專屬事件。
 
 【回傳 JSON 格式與嚴格規定 (支援多人)】
 - "hp_change": 整數。若需扣除或恢復體力填寫此欄位 (例: -10)。
 - "san_change": 整數。若需扣除或恢復理智填寫此欄位 (例: -5)。
-- "npc_love_change": 物件 (Object)。指定個別 NPC 的好感度增減 (例: {"宮崎三高": 2, "亞里莎": -1})。請盡量使用完整的 NPC 名稱。無變動請回傳 {}。
+- "npc_love_change": 物件 (Object)。指定個別 NPC 的好感度「增減量」(例: {"宮崎三高": 2, "亞里莎": -1})。請盡量使用完整的 NPC 名稱。無變動請回傳 {}。
+- "npc_love_set": 物件 (Object)。只有玩家明確要求指定數值時使用，代表直接設定最終好感度 (例: {"宮崎三高": 50})。無指定請回傳 {}。
 - "new_items": 字串陣列 [Array]。若玩家獲得新道具寫入此處。
 - "lost_items": 字串陣列 [Array]。若玩家消耗或失去道具寫入此處。
 - "new_flags": 字串陣列 [Array]。若玩家獲得長期 Buff/Debuff 或解鎖重要承諾/事件寫入此處。(注意：標籤名稱不要加「狀態：」前綴，直接寫名稱即可)
-- "npc_state_updates": 物件陣列。即時情緒範例：[{"name":"宮崎三高","changes":{"mood":"警戒"},"reason":"察覺門外動靜"}]。持久變化必須加 persistent:true，例如：[{"name":"宮崎三高","persistent":true,"changes":{"relationship":"開始信任玩家","goal":"履行護送約定","memoryNotes":["答應護送玩家離開遺跡"]},"reason":"玩家替他擋下攻擊"}]。無變動回傳 []。
-- "player_state_update": 物件。即時狀態只填 changes；需要更新 relationship、goal 或 memoryNotes 時必須加 persistent:true。重要紀錄格式：{"persistent":true,"changes":{"condition":"右臂擦傷","memoryNotes":["為保護隊友承受了遺跡陷阱"]},"reason":"陷阱判定失敗"}。無變動回傳 {}。
+- "npc_state_updates": 物件陣列。即時情緒範例：[{"name":"宮崎三高","changes":{"mood":"警戒"},"reason":"察覺門外動靜"}]。持久變化必須加 persistent:true，例如：[{"name":"宮崎三高","persistent":true,"changes":{"relationship":"開始信任玩家","goal":"履行護送約定","memoryNotes":["遺跡護送約定"]},"reason":"玩家替他擋下攻擊"}]。無變動回傳 []。
+- "player_state_update": 物件。即時狀態只填 changes；需要更新 relationship、goal 或 memoryNotes 時必須加 persistent:true。重要紀錄格式：{"persistent":true,"changes":{"condition":"右臂擦傷","memoryNotes":["替隊友承受陷阱"]},"reason":"陷阱判定失敗"}。無變動回傳 {}。
 - "adventure_log": 字串 (String)。只回傳「本回合新增的重要事件」，一行一則；不要重抄、改寫或刪除舊紀錄，程式會自動去重後追加。沒有重大事件時回傳空字串。
 - "narrative": 第三方旁白視角。進行情境描寫、NPC之間的動作、判定結果宣告。
 - "dialogues": 物件陣列 (Array of Objects)。只有真正開口說話的 NPC 才列入此陣列！名稱必須完全符合上述 NPC 列表。格式範例：[{"speaker": "宮崎三高", "text": "退後。"}]。如果沒人講話，回傳 []。
@@ -3794,26 +4170,95 @@ ${flagsText}
             }
         }
 
+        function truncateSceneTransitionText(value, maxChars = 300) {
+            const text = valueToText(value).replace(/\s+/g, ' ').trim();
+            if (text.length <= maxChars) return text;
+            return `${text.slice(0, Math.max(0, maxChars - 1))}…`;
+        }
+
+        function getSceneTransitionHistory(pageIndex, maxLines = 3) {
+            const page = Array.isArray(chatScripts[pageIndex]) ? chatScripts[pageIndex] : [];
+            const lines = page
+                .filter(line => !valueToText(line).startsWith('【系統提示】'))
+                .map(line => truncateSceneTransitionText(stripHardDiceDirective(line), 150))
+                .filter(Boolean)
+                .slice(-maxLines);
+            return truncateSceneTransitionText(lines.join(' / '), 420);
+        }
+
+        function normalizeSceneTransition(value) {
+            if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+            const fromIndex = Number.parseInt(value.fromIndex, 10);
+            const toIndex = Number.parseInt(value.toIndex, 10);
+            if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex)) return null;
+            return {
+                version: 1,
+                type: value.type === 'resume' ? 'resume' : 'first-entry',
+                fromIndex,
+                toIndex,
+                fromName: valueToText(value.fromName, '未命名情境'),
+                toName: valueToText(value.toName, '未命名情境'),
+                sourceTail: valueToText(value.sourceTail),
+                targetTail: valueToText(value.targetTail),
+                createdAt: valueToText(value.createdAt)
+            };
+        }
+
+        function createSceneTransition(fromIndex, toIndex) {
+            const fromScene = currentScenario.scenarios?.[fromIndex] || {};
+            const toScene = currentScenario.scenarios?.[toIndex] || {};
+            const targetTail = getSceneTransitionHistory(toIndex);
+            return normalizeSceneTransition({
+                version: 1,
+                type: targetTail ? 'resume' : 'first-entry',
+                fromIndex,
+                toIndex,
+                fromName: fromScene.name || '未命名情境',
+                toName: toScene.name || '未命名情境',
+                sourceTail: getSceneTransitionHistory(fromIndex),
+                targetTail,
+                createdAt: new Date().toISOString()
+            });
+        }
+
+        function buildSceneTransitionPrompt() {
+            const transition = normalizeSceneTransition(pendingSceneTransition);
+            if (!transition || transition.toIndex !== currentScenarioIndex) return '';
+            const targetScene = currentScenario.scenarios?.[transition.toIndex] || {};
+            const typeLabel = transition.type === 'resume' ? '返回既有支線' : '首次進入新情境';
+            const targetHistory = transition.targetTail || '此情境尚無先前對話。';
+            const sourceHistory = transition.sourceTail || '來源情境沒有可用的近期對話。';
+            const transitionRule = truncateSceneTransitionText(targetScene.transitionRule, 260)
+                || '未指定。採用安全的鏡頭切換，不得自行發明傳送、夢醒或時間跳躍。';
+            return `
+
+【情境交接包－本回合最高優先】
+切換類型：${typeLabel}
+來源情境：${transition.fromName}
+目標情境：${transition.toName}
+來源上一幕：${sourceHistory}
+目標支線既有進度：${targetHistory}
+轉場規則：${transitionRule}
+
+交接要求：
+1. narrative 第一段先讓讀者明白目前的時間、空間與在場角色，再直接回應玩家本回合行動。
+2. 返回既有支線時，優先接續「目標支線既有進度」；來源上一幕只作為跨支線共同記憶，不得把兩地物理場景混在一起。
+3. 首次進入時，依目標情境設定建立自然入口；未指定轉場方式時只做鏡頭切換，不可擅自創造穿越機制。
+4. 核心人設、關係、重大約定與長期記憶延續；當下身分與環境法則以目標情境為準。`;
+        }
+
         function changeScenario(indexStr) {
-            const newIndex = parseInt(indexStr);
+            const newIndex = Number.parseInt(indexStr, 10);
+            if (!Number.isInteger(newIndex) || !currentScenario.scenarios?.[newIndex]) return;
             if (newIndex === currentScenarioIndex && newIndex === currentChatPageIndex) return;
 
-            const sc = currentScenario.scenarios[newIndex];
-            
+            const fromIndex = currentScenarioIndex;
+            pendingSceneTransition = createSceneTransition(fromIndex, newIndex);
             currentScenarioIndex = newIndex;
             currentChatPageIndex = newIndex;
             
-            if (!chatScripts[currentChatPageIndex]) {
-                chatScripts[currentChatPageIndex] = [];
-            }
-
+            if (!chatScripts[currentChatPageIndex]) chatScripts[currentChatPageIndex] = [];
             renderChatPage(currentChatPageIndex);
-
-            if (chatScripts[currentChatPageIndex].length === 0) {
-                pendingMetaPrompt = "";
-            } else {
-                pendingMetaPrompt = `(DM絕對指令：視角已切換回「${sc.name}」的專屬支線。請緊扣此頁面稍早發生的歷史對話做出回應。)`;
-            }
 
             saveCurrentProgress();
             document.getElementById('btn-location').value = currentScenarioIndex;
@@ -3922,6 +4367,7 @@ ${flagsText}
                 currentScenario = saveData.scenario; 
                 if(!currentScenario.languageMode) currentScenario.languageMode = 'zh-tw';
                 if(!currentScenario.gameDifficulty) currentScenario.gameDifficulty = 'standard';
+                currentScenario.memoryNotesPaused = currentScenario.memoryNotesPaused === true;
                 if(!currentScenario.playerStats) currentScenario.playerStats = {str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10};
                 currentScenario.playerStats = normalizePlayerStats(currentScenario.playerStats);
                 if(!Array.isArray(currentScenario.npcs)) {
@@ -3938,8 +4384,12 @@ ${flagsText}
                     if(currentScenario.scenarios.length === 0) currentScenario.scenarios.push({name: '預設場景', lore: '', npcRoles:'', playerRole:''});
                 } else {
                     currentScenario.scenarios = currentScenario.scenarios.filter(sc => sc && typeof sc === 'object' && !Array.isArray(sc));
-                    currentScenario.scenarios.forEach(sc => { if(sc.npcRoles === undefined) sc.npcRoles = sc.targetRole || ''; });
-                    if (!currentScenario.scenarios.length) currentScenario.scenarios.push({name: '預設場景', lore: '', npcRoles: '', playerRole: ''});
+                    currentScenario.scenarios.forEach(sc => {
+                        if(sc.npcRoles === undefined) sc.npcRoles = sc.targetRole || '';
+                        if(sc.playerRole === undefined) sc.playerRole = '';
+                        if(sc.transitionRule === undefined) sc.transitionRule = '';
+                    });
+                    if (!currentScenario.scenarios.length) currentScenario.scenarios.push({name: '預設場景', lore: '', npcRoles: '', playerRole: '', transitionRule: ''});
                 }
             }
             
@@ -3954,6 +4404,8 @@ ${flagsText}
             currentChatPageIndex = saveData.chatPageIndex !== undefined ? saveData.chatPageIndex : currentScenarioIndex;
             if (currentChatPageIndex >= currentScenario.scenarios.length) currentChatPageIndex = currentScenarioIndex;
             if (currentChatPageIndex !== currentScenarioIndex) currentChatPageIndex = currentScenarioIndex;
+            pendingSceneTransition = normalizeSceneTransition(saveData.sceneTransition);
+            if (pendingSceneTransition && pendingSceneTransition.toIndex !== currentScenarioIndex) pendingSceneTransition = null;
             
             currentScenario.scenarios.forEach((_, i) => {
                 if (!chatScripts[i]) chatScripts[i] = [];
@@ -3964,6 +4416,10 @@ ${flagsText}
             currentItems = Array.isArray(saveData.items) ? saveData.items.map(item => valueToText(item)).filter(Boolean) : [];
             currentAdventureLog = valueToText(saveData.log, "1. 故事剛開始，目前尚無重大事件發生。");
             currentFlags = Array.isArray(saveData.flags) ? saveData.flags.map(flag => valueToText(flag)).filter(Boolean) : [];
+            const playerInput = document.getElementById('player-input');
+            const lightweightDraft = localStorage.getItem(getInputDraftStorageKey(id));
+            playerInput.value = lightweightDraft !== null ? lightweightDraft : valueToText(saveData.inputDraft);
+            adjustInputHeight();
             const loadSurvivalOutcome = resolveSurvivalOutcome();
             if (loadSurvivalOutcome.rescued || loadSurvivalOutcome.gameOver) saveCurrentProgress();
 
@@ -4143,7 +4599,7 @@ ${flagsText}
                 const gameDifficultyText = check.gameDifficultyDcModifier ? `｜遊戲難度 ${check.gameDifficultyLabel}：DC +${check.gameDifficultyDcModifier}` : `｜遊戲難度 ${check.gameDifficultyLabel}`;
                 const survivalText = check.survivalModifier ? `｜生存狀態修正 ${check.survivalModifier}` : '';
                 const directive = `(系統硬判定：${check.code} ${check.label}｜屬性 ${check.score}（加值 ${signedAbility}）｜行動難度 ${check.difficultyLabel}：基礎 DC ${check.difficultyDc}${gameDifficultyText}${survivalText}｜最終 DC ${check.dc}｜D20 ${check.roll} ${signedTotal} = ${check.total}｜結果【${check.result}】｜判定理由：${classification.reason}。此結果由程式計算，AI 不得更改。)`;
-                pendingDiceSummary = `— ${check.code} ${check.label}檢定：${check.result}（D20 ${check.roll} ${signedTotal} = ${check.total}／DC ${check.dc}）—`;
+                pendingDiceSummary = `${check.code} ${check.label}｜${check.result}｜${check.roll}${signedTotal}=${check.total}／DC${check.dc}`;
                 inputEl.value = `${playerText}\n${directive}`;
                 document.getElementById('ui-target-typing').innerText = '引擎 (DM)';
                 await sendChoice();
@@ -4163,10 +4619,39 @@ ${flagsText}
 
         function checkInputKey(e) { adjustInputHeight(); const isMobile = window.innerWidth <= 600; if (!isMobile) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChoice(); } } }
 
+        function applyMemoryNoteControlCommand(text) {
+            const commandPattern = /[［\[【]\s*(暫停追加|恢復追加)\s*[］\]】]/g;
+            let lastCommand = '';
+            const cleanedText = valueToText(text).replace(commandPattern, (match, command) => {
+                lastCommand = command;
+                return '';
+            }).replace(/\s{2,}/g, ' ').trim();
+
+            if (!lastCommand) return { text: valueToText(text).trim(), handled: false, paused: currentScenario.memoryNotesPaused === true };
+
+            const paused = lastCommand === '暫停追加';
+            currentScenario.memoryNotesPaused = paused;
+            createSystemNote(paused
+                ? '重要紀錄：已暫停 AI 自動追加（仍可在面板手動修改）'
+                : '重要紀錄：已恢復 AI 自動追加');
+            return { text: cleanedText, handled: true, paused };
+        }
+
         async function sendChoice() {
             if (getCurrentGameOver()) { applyGameOverUi(); return; }
             const inputEl = document.getElementById('player-input'); const sendBtn = document.getElementById('send-btn'); const diceBtn = document.getElementById('dice-btn'); 
-            const playerText = inputEl.value.trim(); if(!playerText) return;
+            const rawPlayerText = inputEl.value.trim(); if(!rawPlayerText) return;
+            const memoryControl = applyMemoryNoteControlCommand(rawPlayerText);
+            const playerText = memoryControl.text;
+            if (memoryControl.handled) {
+                inputEl.value = '';
+                inputEl.style.height = 'auto';
+                delete inputEl.dataset.diceSuggestedText;
+                delete inputEl.dataset.diceStat;
+                delete inputEl.dataset.diceDifficulty;
+                saveCurrentProgress();
+                if (!playerText) { inputEl.focus(); return; }
+            }
             const suggestedStat = normalizeDiceStatKey(inputEl.dataset.diceStat);
             const shouldAutoRoll = !playerText.includes('系統硬判定')
                 && inputEl.dataset.diceSuggestedText === playerText
@@ -4188,11 +4673,13 @@ ${flagsText}
                 appendMessage(currentScenario.playerName, displayText); chatScripts[currentChatPageIndex].push(`${currentScenario.playerName}：${playerText}`);
             }
             if (diceSummary) createSystemAlert(diceSummary);
+            const manualAffectionUpdates = applyManualAffectionCommands(displayText);
+            const manualAffectionPrompt = buildManualAffectionPrompt(manualAffectionUpdates);
+            const manualAffectionNpcIds = manualAffectionUpdates.map(update => update.npcId);
             
             saveCurrentProgress();
             try {
-                await callAI_JSON(pendingMetaPrompt, false, playerText);
-                pendingMetaPrompt = "";
+                await callAI_JSON(manualAffectionPrompt, false, playerText, manualAffectionNpcIds);
             } finally {
                 const gameOver = getCurrentGameOver();
                 inputEl.disabled = Boolean(gameOver);
@@ -4423,7 +4910,7 @@ ${flagsText}
             try {
                 return JSON.parse(extractJsonText(rawText));
             } catch (firstError) {
-                const repairPrompt = `請把以下 AI 回覆修正成「合法 JSON 物件」。不要新增解釋，不要使用 Markdown，只輸出 JSON。必須保留這些欄位名稱：hp_change, san_change, npc_love_change, new_items, lost_items, new_flags, npc_state_updates, player_state_update, adventure_log, narrative, dialogues, options。\n\n原始任務摘要：\n${fullPrompt.slice(0, 3500)}\n\n需要修正的回覆：\n${rawText.slice(0, 12000)}`;
+                const repairPrompt = `請把以下 AI 回覆修正成「合法 JSON 物件」。不要新增解釋，不要使用 Markdown，只輸出 JSON。必須保留這些欄位名稱：hp_change, san_change, npc_love_change, npc_love_set, new_items, lost_items, new_flags, npc_state_updates, player_state_update, adventure_log, narrative, dialogues, options。\n\n原始任務摘要：\n${fullPrompt.slice(0, 3500)}\n\n需要修正的回覆：\n${rawText.slice(0, 12000)}`;
                 const repairedText = await requestAIText(repairPrompt, { kind: 'repair' });
                 try {
                     return JSON.parse(extractJsonText(repairedText));
@@ -4497,41 +4984,32 @@ ${flagsText}
             return `\n\n【本回合玩家最新輸入 - 必須優先判讀】\n${actionText}\n\n【本回合 DM 回應要求】\n1. 先理解玩家此刻的具體意圖、目標、手段與語氣。\n2. narrative 的第一段必須直接回饋這個動作造成的立即結果。\n3. 若有「系統硬判定」，必須逐字遵守其中已算定的屬性、加值、DC 與結果，不得重新解讀。\n4. 只讓真正會在此刻反應的 NPC 說話；其餘角色可用動作或沉默呈現。\n5. options 必須接續這個結果，提供 3 個下一步行動。`;
         }
 
-        async function callAI_JSON(extraPrompt = "", isOpening = false, latestPlayerAction = "") {
+        async function callAI_JSON(extraPrompt = "", isOpening = false, latestPlayerAction = "", manualAffectionNpcIds = []) {
             const recentChatText = getRecentChatText(currentChatPageIndex);
             const latestActionPrompt = buildLatestActionPrompt(latestPlayerAction);
-            const fullPrompt = `${getSystemInstruction()}\n\n目前對話紀錄（僅保留最近 ${MAX_RECENT_CHAT_LINES} 則，長期記憶請以事件日誌與 Flags 為準）：\n${recentChatText}${latestActionPrompt}\n\n${extraPrompt}`;
+            const sceneTransitionPrompt = buildSceneTransitionPrompt();
+            const fullPrompt = `${getSystemInstruction()}${sceneTransitionPrompt}\n\n目前對話紀錄（僅保留最近 ${MAX_RECENT_CHAT_LINES} 則，長期記憶請以事件日誌與 Flags 為準）：\n${recentChatText}${latestActionPrompt}\n\n${extraPrompt}`;
 
             try {
                 const rawText = await requestAIText(fullPrompt);
                 const parsedData = await parseAIJsonWithRepair(rawText, fullPrompt);
                 
-                if(parsedData.npc_love_change && typeof parsedData.npc_love_change === 'object') {
-                    for (const npcName in parsedData.npc_love_change) {
-                        const foundNpc = currentScenario.npcs.find(n => n.name.includes(npcName) || npcName.includes(n.name));
-                        if (foundNpc) {
-                            const changeVal = parseInt(parsedData.npc_love_change[npcName]);
-                            if (changeVal !== 0 && !isNaN(changeVal)) {
-                                foundNpc.affection = (foundNpc.affection || 0) + changeVal;
-                                const sign = changeVal > 0 ? "+" : "";
-                                createSystemAlert(`— ${foundNpc.name} 的好感度 ${sign}${changeVal} —`);
-                            }
-                        }
-                    }
-                }
+                const manuallyHandledNpcIds = new Set(Array.isArray(manualAffectionNpcIds) ? manualAffectionNpcIds : []);
+                applyAffectionPayload(parsedData.npc_love_set, 'set', manuallyHandledNpcIds);
+                applyAffectionPayload(parsedData.npc_love_change, 'change', manuallyHandledNpcIds);
 
                 if (parsedData.npc_state_updates && Array.isArray(parsedData.npc_state_updates)) {
                     parsedData.npc_state_updates.forEach(update => {
                         const npcName = valueToText(update?.name);
                         const foundNpc = findNpcByName(npcName) || ensureNpcForSpeaker(npcName);
                         if (!foundNpc) return;
-                        const result = applyDynamicStatePatch(foundNpc.dynamic, update);
+                        const result = applyDynamicStatePatch(foundNpc.dynamic, update, !currentScenario.memoryNotesPaused);
                         foundNpc.dynamic = result.state;
                     });
                 }
 
                 if (parsedData.player_state_update && typeof parsedData.player_state_update === 'object') {
-                    const result = applyDynamicStatePatch(currentScenario.playerDynamic, parsedData.player_state_update);
+                    const result = applyDynamicStatePatch(currentScenario.playerDynamic, parsedData.player_state_update, !currentScenario.memoryNotesPaused);
                     currentScenario.playerDynamic = result.state;
                 }
 
@@ -4541,12 +5019,12 @@ ${flagsText}
                         const foundNpc = findNpcByName(update?.name) || ensureNpcForSpeaker(update?.name);
                         const legacyText = valueToText(update?.new_persona);
                         if (!foundNpc || !legacyText) return;
-                        const result = applyDynamicStatePatch(foundNpc.dynamic, { persistent: true, changes: { memoryNotes: [legacyText] }, reason: '舊格式的劇情更新' });
+                        const result = applyDynamicStatePatch(foundNpc.dynamic, { persistent: true, changes: { memoryNotes: [legacyText] }, reason: '舊格式的劇情更新' }, !currentScenario.memoryNotesPaused);
                         foundNpc.dynamic = result.state;
                     });
                 }
                 if (typeof parsedData.player_persona_update === 'string' && parsedData.player_persona_update.trim()) {
-                    const result = applyDynamicStatePatch(currentScenario.playerDynamic, { persistent: true, changes: { memoryNotes: [parsedData.player_persona_update] }, reason: '舊格式的劇情更新' });
+                    const result = applyDynamicStatePatch(currentScenario.playerDynamic, { persistent: true, changes: { memoryNotes: [parsedData.player_persona_update] }, reason: '舊格式的劇情更新' }, !currentScenario.memoryNotesPaused);
                     currentScenario.playerDynamic = result.state;
                 }
 
@@ -4639,6 +5117,7 @@ ${flagsText}
                 }
                 
                 syncSurvivalFlags({ announce: true });
+                if (sceneTransitionPrompt) pendingSceneTransition = null;
                 saveCurrentProgress();
                 applyGameOverUi();
                 document.getElementById('loading').style.display = 'none';
