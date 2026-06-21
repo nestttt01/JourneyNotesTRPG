@@ -84,10 +84,10 @@
         .foldable-content { padding: 15px; position: relative; display: flex; flex-direction: column; gap: 8px;}
 
                 /* ======= 遊戲內：新版深色卡片 UI ======= */
-        details.dark-card { background: #fff; border: 2px solid var(--border-dark); border-radius: 8px; margin-bottom: 12px; overflow: hidden; box-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
-        details.dark-card summary { background: #333; color: #fff; padding: 12px 15px; font-size: 15px; font-weight: 800; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s; }
+        details.dark-card { background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; margin-bottom: 12px; overflow: hidden; box-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+        details.dark-card summary { background: var(--border-dark); color: var(--card-bg); padding: 12px 15px; font-size: 15px; font-weight: 800; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s; }
         details.dark-card summary::-webkit-details-marker { display: none; }
-        details.dark-card[open] summary { background: #222; }
+        details.dark-card[open] summary { background: var(--border-dark); }
         
         .summary-left { display: flex; align-items: center; gap: 15px; flex-grow: 1;}
         .summary-name { font-size: 15px; font-weight: 900;}
@@ -111,11 +111,11 @@
             background: transparent;   /* 透明底色 */
         }
         
-        .dark-card-content { padding: 15px; background: #fff; position: relative; }
+        .dark-card-content { padding: 15px; background: var(--card-bg); position: relative; }
 
         .section-header-flex { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--border-dark); padding-bottom: 8px; margin-top: 25px; margin-bottom: 15px; }
         .section-header-flex h4 { font-size: 14px; margin: 0; color: var(--text-main); font-weight: 900;}
-        .section-add-btn { background: #333; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s;}
+        .section-add-btn { background: var(--border-dark); color: var(--card-bg); border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s;}
         .section-add-btn:hover { background: var(--border-dark); box-shadow: 2px 2px 0px var(--accent-neon); transform: translate(-1px,-1px); }
 
         .delete-btn-red { background: #ff4444; color: #fff; border: 2px solid var(--border-dark); border-radius: 6px; font-size: 11px; padding: 4px 12px; cursor: pointer; font-weight: bold; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); transition: all 0.2s;}
@@ -127,7 +127,7 @@
         .anime-sheet { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--surface-muted); padding: 12px; border-radius: 8px; border: 2px solid var(--border-dark); margin-top: 5px; margin-bottom: 10px; }
         .anime-sheet .full { grid-column: 1 / -1; }
         .anime-sheet label { font-size: 11px; font-weight: 900; color: var(--border-dark); display: block; margin-bottom: 2px; }
-        .anime-sheet input, .anime-sheet textarea { width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 8px; font-size: 13px; font-weight: 600; font-family: inherit; background: #fff; transition: all 0.2s; resize: none; overflow: hidden; line-height: 1.5;}
+        .anime-sheet input, .anime-sheet textarea { width: 100%; border: 1px solid var(--text-sub); border-radius: 4px; padding: 8px; font-size: 13px; font-weight: 600; font-family: inherit; background: var(--card-bg); color: var(--text-main); transition: all 0.2s; resize: none; overflow: hidden; line-height: 1.5;}
         .anime-sheet input:focus, .anime-sheet textarea:focus { border-color: var(--accent-neon); outline: none; box-shadow: 2px 2px 0px var(--accent-neon); }
 
         textarea.scenario-input { resize: none; overflow: hidden; min-height: 48px; line-height: 1.5; }
@@ -186,9 +186,9 @@
         .item-remove-btn:hover, .item-remove-btn:focus-visible { background: #ff4444; color: #fff; outline: none; }
         
         #flag-input-area { display: flex; gap: 8px; margin-bottom: 25px; }
-        #new-flag-input { flex: 1; padding: 10px; border: 2px solid var(--border-dark); border-radius: 8px; font-size: 13px; font-weight: 600; }
+        #new-flag-input { flex: 1; padding: 10px; border: 2px solid var(--border-dark); border-radius: 8px; font-size: 13px; font-weight: 600; background: var(--card-bg); color: var(--text-main); }
 
-        #ui-adventure-log { width: 100%; min-height: 120px; border: 2px solid var(--border-dark); border-radius: 8px; padding: 12px; font-size: 13px; margin-bottom: 25px; resize: vertical; line-height: 1.6; background: #fff; font-weight: 600;}
+        #ui-adventure-log { width: 100%; min-height: 120px; border: 2px solid var(--border-dark); border-radius: 8px; padding: 12px; font-size: 13px; margin-bottom: 25px; resize: vertical; line-height: 1.6; background: var(--card-bg); color: var(--text-main); font-weight: 600;}
         #ui-stats-display { margin-bottom: 20px;}
 
         .scenario-label { font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; letter-spacing: 1px; display: block; }
@@ -235,6 +235,9 @@
 
         .mini-add-btn { background: #fff; border: 2px solid var(--border-dark); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; color: var(--text-main); transition: all 0.2s; flex-shrink: 0; white-space: nowrap; }
         .mini-add-btn:hover { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
+        .creator-mode-btn { width: 32px; height: 30px; padding: 0; display: inline-grid; place-items: center; font-size: 13px; border-radius: 7px; }
+        .creator-mode-btn.active { background: var(--accent-neon); color: var(--border-dark); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
+        .creator-mode-btn:disabled { opacity: 0.45; box-shadow: none; transform: none; cursor: not-allowed; }
 
         #dialogue-box { background: transparent; padding: 5px; margin: 5px 0; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         
@@ -251,6 +254,8 @@
         .msg-wrapper.player .msg-text { background-color: #ffffff; border-radius: 16px; border-bottom-right-radius: 4px; border-bottom-left-radius: 16px; box-shadow: 4px 4px 0px var(--accent-neon); }
         
         .system-msg { color: var(--text-sub); text-align: center; font-style: italic; font-weight: 800; font-size: 12px; padding: 10px 0; letter-spacing: 1px; }
+        .creator-instruction { margin: 2px 12px; padding: 6px 10px; border-left: 3px solid var(--accent-neon); color: var(--text-sub); font-size: 12px; font-style: italic; font-weight: 700; line-height: 1.55; white-space: pre-line; }
+        .creator-instruction strong { color: var(--text-main); font-style: normal; margin-right: 6px; }
 
         .alert-msg { background-color: var(--border-dark); color: var(--accent-neon); text-align: center; font-weight: 800; font-size: 13px; padding: 10px 15px; border-radius: 8px; margin: 10px 10px; letter-spacing: 1px; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); animation: fadeIn 0.4s ease-out; font-style: italic;}
 
@@ -1110,7 +1115,7 @@
         #edit-scen-name-\24 \7b idx\7d  { margin-bottom:10px; }
         #edit-scen-lore-\24 \7b idx\7d  { margin-bottom:10px; }
         #edit-scen-npcs-\24 \7b idx\7d  { margin-bottom:10px; }
-        .u-inline-076 { font-size:12px; color:#888; }
+        .u-inline-076 { font-size:12px; color:var(--text-sub); }
         .u-inline-077 { text-align:center; color:var(--text-sub); font-size:13px; font-weight:bold; }
         .u-inline-078 { margin-top:5px; }
         /* ===== End consolidated inline styles ===== */
@@ -1340,12 +1345,15 @@
                 <p class="u-inline-020">直接輸入任何對話或動作。標有屬性檢定的 AI 選項會自動擲骰，其他行動也可自由使用骰點按鈕。判定採 D20 加六圍加值，總和大於或等於 DC 即成功；天然 20 為大成功、天然 1 為大失敗。</p>
 
                 <p class="u-inline-019">5. 動態狀態與重要紀錄</p>
-                <p class="u-inline-020">AI 會依劇情更新情緒、傷勢、關係與目標；重大約定或關係里程碑會以短標題追加到角色的重要紀錄。若暫時不想累積，在遊戲輸入框單獨送出 <code>［暫停追加］</code>；要重新開啟時送出 <code>［恢復追加］</code>。這兩個指令不會呼叫 API，且只影響目前存檔。</p>
+                <p class="u-inline-020">AI 會依劇情更新情緒、傷勢、關係與目標；重大約定或關係里程碑會以短標題追加到角色的重要紀錄。若暫時不想累積，在遊戲輸入框單獨送出 <code>［暫停追加］</code>；要重新開啟時送出 <code>［恢復追加］</code>。</p>
 
-                <p class="u-inline-019">6. 生存、道具與好感度</p>
+                <p class="u-inline-019">6. 「神」創作者指令</p>
+                <p class="u-inline-020">遊戲上方「＋新情境」右側的「神」是持續創作者模式。白色代表關閉，按下變成黃色後，之後送出的內容都會成為角色外最高權限舞台指示，直到再次按「神」取消；切換情境或讀檔也會自動關閉。NPC 不會聽見神模式內容或把它當成玩家台詞。可用它安排鏡頭、時間、在場角色與支線走向；宣告操作者轉換為引導 NPC／旁白角色時，程式會記住該支線的引導身分。指令明確寫出原玩家回到現場或離場時，後續普通輸入模式也會隨之切換。仍可手動輸入 <code>［創作者指令］</code>，效果相同。</p>
+
+                <p class="u-inline-019">7. 生存、道具與好感度</p>
                 <p class="u-inline-020">受傷或精神打擊會改變 HP 與 SAN，道具可獲得、使用或失去，NPC 好感度會依互動增減。這些資料都能在角色面板檢視與手動修正。</p>
 
-                <p class="u-inline-019">7. 存檔、備份與命運重鑄</p>
+                <p class="u-inline-019">8. 存檔、備份與命運重鑄</p>
                 <p class="u-inline-020">每個存檔各自保存劇情、動態狀態與重要紀錄，不會污染新遊戲。可匯出完整備份；每個存檔也有 3 次找守墓人重新洗點的機會。首頁配色只保存在本機，並會包含於完整備份中。</p>
 
                 <div class="u-inline-021">
@@ -1423,7 +1431,7 @@
             </div>
             <div class="theme-reset-row"><button type="button" class="theme-reset-btn" onclick="resetUiTheme()">恢復預設</button></div>
         </details>
-        <p class="setup-version">測試版 v0.26 · 2026/06/21</p>
+        <p class="setup-version">測試版 v0.29 · 2026/06/21</p>
     </div>
 
     <div id="edit-scenario-screen">
@@ -1562,6 +1570,7 @@
             <div class="scroll-row">
                 <select id="btn-location" class="btn-location" onchange="changeScenario(this.value)"></select>
                 <button class="mini-add-btn" onclick="openMidGameScenarioModal()">+ 新情境</button>
+                <button id="creator-mode-btn" class="mini-add-btn creator-mode-btn" type="button" onclick="toggleCreatorInputMode()" aria-pressed="false" title="切換持續創作者指令模式">神</button>
                 
                 <div class="spacer"></div>
                 <select id="game-model-choice" class="game-model-select" onchange="syncModelSelection(this.value)">
@@ -1634,6 +1643,7 @@
         let savesData = {}; 
         let pendingSceneTransition = null;
         let pendingDiceSummary = null;
+        let creatorInputArmed = false;
         let activeGameSaveTimer = null;
         let activeInputDraftTimer = null;
         let activeStatusTab = "state";
@@ -2459,6 +2469,9 @@
             delete snapshot.playerDynamic;
             delete snapshot.sourcePresetId;
             if (!Array.isArray(snapshot.npcs)) snapshot.npcs = [];
+            if (Array.isArray(snapshot.scenarios)) {
+                snapshot.scenarios.forEach(scene => { delete scene.runtimePlayerPresence; delete scene.runtimeGuideRole; });
+            }
             snapshot.npcs = snapshot.npcs.map(npc => {
                 const cleanNpc = clonePersistentValue(npc);
                 delete cleanNpc.dynamic;
@@ -2909,8 +2922,27 @@
             document.getElementById('model-choice').value = modelName; document.getElementById('game-model-choice').value = modelName;
         }
 
+        function normalizeChatLineForScenePrompt(line, pageIndex = currentChatPageIndex) {
+            const text = valueToText(line);
+            const scene = currentScenario.scenarios?.[pageIndex] || {};
+            if (!text || (!sceneUsesNarratorDefinition(scene) && getSceneParticipationMode(scene) !== 'narrator')) return text;
+
+            const playerPrefix = `${currentScenario.playerName}：`;
+            if (text.startsWith(playerPrefix)) {
+                const legacyInput = text.slice(playerPrefix.length).trim();
+                const context = parseSceneInputContext(legacyInput, scene);
+                return context.mode === 'creator'
+                    ? `【歷史創作者指令】：${context.content}`
+                    : `【歷史輔助旁白】：${context.content}`;
+            }
+            if (text.startsWith('【旁白】：玩家行動 - ')) {
+                return `【歷史輔助旁白】：${text.replace('【旁白】：玩家行動 - ', '').trim()}`;
+            }
+            return text;
+        }
+
         function getRecentChatText(pageIndex = currentChatPageIndex) {
-            const log = chatScripts[pageIndex] || [];
+            const log = (chatScripts[pageIndex] || []).map(line => normalizeChatLineForScenePrompt(line, pageIndex));
             if (log.length <= MAX_RECENT_CHAT_LINES) return log.join('\n\n');
             const omitted = log.length - MAX_RECENT_CHAT_LINES;
             return `（系統摘要提示：較早的 ${omitted} 則對話已省略，請以「先前的事件日誌」、Flags、角色狀態作為長期記憶。）\n\n` + log.slice(-MAX_RECENT_CHAT_LINES).join('\n\n');
@@ -3999,6 +4031,7 @@
             return `\n【輸出語言規則】\n${languageInstruction}\n
 【系統防護指令 (最高優先級)】
 你是一個「TRPG 沉浸式群像劇引擎」與「DM(地下城主)」。
+凡是標示為「創作者指令」的內容，都是操作者在角色外下達的最高權限舞台指示，絕對不是 ${currentScenario.playerName} 的台詞、行動或情緒；NPC 不得聽見、評論、責怪或對該指令產生好感變化。
 
 【語言風格核心守則：拒絕直譯、追求日系翻譯文學感】
 1. 【口吻要求】對話台詞保持日文語感，依照日本人說話的習慣與邏輯（例如：善用省略主語、弦外之音的暗示、以及讀空氣的留白，避免將內心想法全部直白地說出口）。
@@ -4027,19 +4060,21 @@ ${npcDescriptions}
 (基礎六圍數值) ${statsStr}
 【核心人設：禁止自動改寫】\n${pDetailsStr}
 【可流動的當前狀態】\n${pDynamicStr}
-(當下情境身分) ${currentScen.playerRole}
+(情境欄位設定的身分／視角) ${currentScen.playerRole || '未指定'}
+${buildSceneParticipationInstruction(currentScen)}
 
 【🚨 群像劇 NPC 互動與發言邏輯】
 1. 絕對禁止「每次每個 NPC 都輪流講話」！這非常機械化且不自然。
-2. 請像個真正的導演一樣判斷：玩家當下的動作或對話，是針對誰？誰的性格會立刻搶話？誰會選擇旁觀沉默？
+2. 請像真正的導演一樣判斷本回合輸入影響了誰、誰會立刻反應、誰會旁觀沉默。若玩家角色不在場，只能描寫在場 NPC 對事件與彼此的反應。
 3. 很多時候【只需要一位 NPC 回話】，甚至【沒有人說話】（只有動作描寫）。只有在激烈討論時，才會有兩位以上的 NPC 發言。
 
-【🚨 本回合玩家行動判讀規則 - 最高優先】
-每次回覆時，必須先處理「本回合玩家最新輸入」，不要只延續上一段氣氛。
-請在內部先判斷：玩家現在想做什麼、目標是誰/哪裡、使用什麼手段、是否需要 D20 判定、成功/失敗的直接後果是什麼。
-若玩家輸入含糊，請不要擅自大幅推進劇情；先給出環境或 NPC 的即時反應，並在 options 中提供可釐清的行動。
-若玩家做出具體動作，narrative 必須在第一段就回饋該動作的立即結果，不要跳過、不換話題、不讓 NPC 無視。
-NPC 的回應要針對玩家剛剛的行動與語氣，不要只講通用台詞。
+【🚨 本回合操作者輸入判讀規則 - 最高優先】
+每次回覆必須先判斷輸入模式：角色行動、輔助旁白，或創作者指令。
+1. 角色行動：只有玩家角色在場且輸入不是場外指示時，才可視為 ${currentScenario.playerName} 的台詞或動作，並判斷是否需要 D20。
+2. 輔助旁白：用來安排鏡頭、環境與 NPC 行動，不是 ${currentScenario.playerName} 在場說話；NPC 不得把旁白當成可聽見的台詞。
+3. 創作者指令：必須直接服從並調整場景事實，不得讓 NPC 質疑指令、責怪玩家或把指令內容改寫成角色行動。
+4. 玩家角色被設定為不在場時，未收到明確「回歸、登場、上線或回到現場」指示前，禁止擅自讓玩家角色出現、說話、被 NPC 看見或成為衝突來源。
+5. 輸入含糊時不要擅自大幅推進；先呈現當下可確認的場景反應。options 必須符合目前視角：旁白模式提供導演下一步，不得假裝玩家角色在場，也不得觸發玩家六圍檢定。
 
 【玩家生存狀態與安全機制】
 目前 HP (生命/體力)：${currentHp}/100
@@ -4239,12 +4274,16 @@ ${flagsText}
 來源上一幕：${sourceHistory}
 目標支線既有進度：${targetHistory}
 轉場規則：${transitionRule}
+目標情境 NPC 身分／狀態：${targetScene.npcRoles || '未指定'}
+目標情境玩家身分／視角：${targetScene.playerRole || '未指定'}
+玩家在場判定：${getSceneParticipationMode(targetScene) === 'narrator' ? `玩家角色 ${currentScenario.playerName} 目前不視為在場；操作者輸入採輔助旁白／導演模式。` : `玩家角色 ${currentScenario.playerName} 預設在場；除非當前指令另有說明。`}
 
 交接要求：
-1. narrative 第一段先讓讀者明白目前的時間、空間與在場角色，再直接回應玩家本回合行動。
+1. narrative 第一段先讓讀者明白目前的時間、空間與在場角色，再直接回應操作者本回合輸入；旁白／創作者模式不得改寫成玩家角色行動。
 2. 返回既有支線時，優先接續「目標支線既有進度」；來源上一幕只作為跨支線共同記憶，不得把兩地物理場景混在一起。
 3. 首次進入時，依目標情境設定建立自然入口；未指定轉場方式時只做鏡頭切換，不可擅自創造穿越機制。
-4. 核心人設、關係、重大約定與長期記憶延續；當下身分與環境法則以目標情境為準。`;
+4. 核心人設、關係、重大約定與長期記憶延續；當下身分與環境法則以目標情境為準。
+5. 若目標情境是輔助旁白／玩家不在場模式，禁止把操作者輸入當成玩家角色發言；只有明確回歸指令才能讓玩家角色重新登場。`;
         }
 
         function changeScenario(indexStr) {
@@ -4259,6 +4298,7 @@ ${flagsText}
             
             if (!chatScripts[currentChatPageIndex]) chatScripts[currentChatPageIndex] = [];
             renderChatPage(currentChatPageIndex);
+            setCreatorInputMode(false, false);
 
             saveCurrentProgress();
             document.getElementById('btn-location').value = currentScenarioIndex;
@@ -4276,6 +4316,12 @@ ${flagsText}
                 currentLog.forEach(line => {
                     if (line.startsWith(`【旁白】：`)) { 
                         appendNarrative(stripHardDiceDirective(line.replace(`【旁白】：`, ""))); 
+                    }
+                    else if (line.startsWith(`【創作者指令】：`)) {
+                        appendCreatorInstruction('創作者指令', line.replace(`【創作者指令】：`, ''));
+                    }
+                    else if (line.startsWith(`【輔助旁白】：`)) {
+                        appendCreatorInstruction('輔助旁白', line.replace(`【輔助旁白】：`, ''));
                     }
                     else if (line.startsWith(`【系統提示】：`)) {
                         const rawMsg = line.replace(`【系統提示】：`, ""); 
@@ -4311,6 +4357,19 @@ ${flagsText}
         function appendNarrative(text) {
             if (!text) return; const dialogueBox = document.getElementById('dialogue-box'); const navDiv = document.createElement('div'); navDiv.className = 'msg-narrative'; navDiv.innerText = text;
             dialogueBox.appendChild(navDiv); dialogueBox.scrollTop = dialogueBox.scrollHeight;
+        }
+
+        function appendCreatorInstruction(label, text) {
+            if (!text) return;
+            const dialogueBox = document.getElementById('dialogue-box');
+            const note = document.createElement('div');
+            note.className = 'creator-instruction';
+            const heading = document.createElement('strong');
+            heading.textContent = label;
+            note.appendChild(heading);
+            note.appendChild(document.createTextNode(text));
+            dialogueBox.appendChild(note);
+            dialogueBox.scrollTop = dialogueBox.scrollHeight;
         }
 
         function appendMessage(speaker, text) {
@@ -4443,7 +4502,7 @@ ${flagsText}
             input.disabled = false;
             document.getElementById('send-btn').disabled = false;
             document.getElementById('dice-btn').disabled = false;
-            input.placeholder = '輸入你的開局動作，或點選上方選項...';
+            setCreatorInputMode(false, false);
             if (!applyGameOverUi()) input.focus();
         }
 
@@ -4575,6 +4634,15 @@ ${flagsText}
             const inputEl = document.getElementById('player-input');
             const playerText = inputEl.value.trim();
             if (!playerText) { alert('請先輸入你打算做什麼，再來擲骰子喔！'); return; }
+            if (creatorInputArmed) {
+                alert('「神」模式是創作者指令，不使用玩家六圍。請按一般發送。');
+                return;
+            }
+            const inputContext = parseSceneInputContext(stripHardDiceDirective(playerText));
+            if (inputContext.mode !== 'character') {
+                alert('目前是輔助旁白／創作者視角，不會使用玩家六圍擲骰。請改用一般送出。');
+                return;
+            }
 
             const suggestedText = inputEl.dataset.diceSuggestedText || '';
             const suggestedStat = normalizeDiceStatKey(inputEl.dataset.diceStat);
@@ -4637,12 +4705,113 @@ ${flagsText}
             return { text: cleanedText, handled: true, paused };
         }
 
+        function sceneUsesNarratorDefinition(scene = currentScenario.scenarios?.[currentScenarioIndex] || {}) {
+            const playerRole = valueToText(scene?.playerRole);
+            const transitionRule = valueToText(scene?.transitionRule);
+            const combined = `${playerRole}
+${transitionRule}`;
+            const narratorRole = /輔助旁白|場外旁白|旁白視角|旁白模式|創作者視角|導演視角|觀察者視角/.test(combined);
+            const playerName = valueToText(currentScenario.playerName);
+            const mentionsPlayer = /玩家|主角|player/i.test(combined) || (playerName && combined.includes(playerName));
+            const explicitAbsence = /不在場|目前不在|暫時不在|離線|離場|缺席|未登場|尚未登場|場外/.test(combined);
+            return narratorRole || (mentionsPlayer && explicitAbsence);
+        }
+
+        function getSceneParticipationMode(scene = currentScenario.scenarios?.[currentScenarioIndex] || {}) {
+            if (scene?.runtimePlayerPresence === 'present') return 'character';
+            if (scene?.runtimePlayerPresence === 'absent') return 'narrator';
+            return sceneUsesNarratorDefinition(scene) ? 'narrator' : 'character';
+        }
+
+        function parseSceneInputContext(text, scene = currentScenario.scenarios?.[currentScenarioIndex] || {}) {
+            const rawText = valueToText(text).trim();
+            const creatorPattern = /^\s*[［\[【]\s*創作者指令\s*[］\]】]\s*/i;
+            if (creatorPattern.test(rawText)) {
+                return { mode: 'creator', content: rawText.replace(creatorPattern, '').trim(), rawText, explicit: true };
+            }
+            const mode = getSceneParticipationMode(scene);
+            return { mode, content: rawText, rawText, explicit: false };
+        }
+
+        function applyCreatorPresenceDirective(context) {
+            if (context?.mode !== 'creator' || !context.content) return '';
+            const scene = currentScenario.scenarios?.[currentScenarioIndex];
+            if (!scene) return '';
+            const playerName = valueToText(currentScenario.playerName);
+            const content = context.content;
+            const notices = [];
+            const mentionsPlayer = /玩家|主角|player/i.test(content) || (playerName && content.includes(playerName));
+            const guideMatch = content.match(/(?:轉換為|切換為|改為|成為)\s*([^，。；\n]{1,24})/);
+            const guideRole = guideMatch ? valueToText(guideMatch[1]).replace(/角色$/, '').trim() : '';
+
+            if (guideRole && /引導|旁白|導演|NPC|配角|角色/.test(guideRole)) {
+                scene.runtimeGuideRole = guideRole;
+                scene.runtimePlayerPresence = 'absent';
+                notices.push(`操作者已轉換為「${guideRole}」引導身分；原玩家角色不預設在場`);
+            }
+
+            if (mentionsPlayer) {
+                const absenceNow = /目前.{0,8}不在|仍然?.{0,6}(?:離線|不在)|暫時.{0,6}不在|尚未回歸|離線|離場|退場|不在場/.test(content);
+                const returnNow = /回到現場|現在.{0,6}回歸|重新.{0,6}(?:登場|上線)|回來了|讓.{0,12}回來|加入.{0,8}(?:現場|支線)|正式登場/.test(content);
+                if (absenceNow) {
+                    scene.runtimePlayerPresence = 'absent';
+                    notices.push(`玩家角色 ${playerName} 已設為不在場；後續普通輸入採輔助旁白模式`);
+                } else if (returnNow) {
+                    scene.runtimePlayerPresence = 'present';
+                    delete scene.runtimeGuideRole;
+                    notices.push(`玩家角色 ${playerName} 已設為在場；後續普通輸入恢復角色行動模式`);
+                }
+            }
+            return notices.join('；');
+        }
+
+        function buildSceneParticipationInstruction(scene = currentScenario.scenarios?.[currentScenarioIndex] || {}) {
+            if (getSceneParticipationMode(scene) === 'narrator') {
+                const guideRole = valueToText(scene?.runtimeGuideRole);
+                const guideText = guideRole ? `操作者目前以「${guideRole}」身分引導場景。` : '操作者目前是輔助旁白／導演。';
+                return `【場景視角與在場規則】${guideText}玩家角色 ${currentScenario.playerName} 不預設在場。普通輸入不得解讀為玩家角色說話或行動。只有當前指令或既有紀錄明確建立「回歸、登場、上線或回到現場」後，才能讓玩家角色出現。`;
+            }
+            return `【場景視角與在場規則】玩家角色 ${currentScenario.playerName} 預設在場，普通輸入視為角色行動；標有［創作者指令］的內容仍是角色外最高權限指示。`;
+        }
+
+        function updatePlayerInputPlaceholder() {
+            const input = document.getElementById('player-input');
+            if (!input) return;
+            if (creatorInputArmed) {
+                input.placeholder = '輸入本回合的創作者指令...';
+                return;
+            }
+            input.placeholder = getSceneParticipationMode() === 'narrator'
+                ? '輸入輔助旁白，或點「神」下達創作者指令...'
+                : '輸入角色行動，或點「神」下達創作者指令...';
+        }
+
+        function setCreatorInputMode(enabled, focusInput = true) {
+            creatorInputArmed = Boolean(enabled);
+            const button = document.getElementById('creator-mode-btn');
+            if (button) {
+                button.classList.toggle('active', creatorInputArmed);
+                button.setAttribute('aria-pressed', String(creatorInputArmed));
+                button.title = creatorInputArmed ? '關閉持續創作者指令模式' : '開啟持續創作者指令模式';
+            }
+            updatePlayerInputPlaceholder();
+            const input = document.getElementById('player-input');
+            if (focusInput && input && !input.disabled) input.focus();
+        }
+
+        function toggleCreatorInputMode() {
+            setCreatorInputMode(!creatorInputArmed);
+        }
+
         async function sendChoice() {
             if (getCurrentGameOver()) { applyGameOverUi(); return; }
             const inputEl = document.getElementById('player-input'); const sendBtn = document.getElementById('send-btn'); const diceBtn = document.getElementById('dice-btn'); 
             const rawPlayerText = inputEl.value.trim(); if(!rawPlayerText) return;
             const memoryControl = applyMemoryNoteControlCommand(rawPlayerText);
-            const playerText = memoryControl.text;
+            let playerText = memoryControl.text;
+            if (creatorInputArmed && playerText && !/^\s*[［\[【]\s*創作者指令\s*[］\]】]/i.test(playerText)) {
+                playerText = `［創作者指令］${playerText}`;
+            }
             if (memoryControl.handled) {
                 inputEl.value = '';
                 inputEl.style.height = 'auto';
@@ -4652,8 +4821,20 @@ ${flagsText}
                 saveCurrentProgress();
                 if (!playerText) { inputEl.focus(); return; }
             }
+            const inputContext = parseSceneInputContext(stripHardDiceDirective(playerText));
+            if (inputContext.mode === 'creator' && !inputContext.content) {
+                inputEl.value = '';
+                inputEl.style.height = 'auto';
+                createSystemNote('創作者指令後方沒有內容，尚未送出給 AI');
+                saveCurrentProgress();
+                inputEl.focus();
+                return;
+            }
+            const presenceUpdate = applyCreatorPresenceDirective(inputContext);
+            if (presenceUpdate) createSystemNote(presenceUpdate);
             const suggestedStat = normalizeDiceStatKey(inputEl.dataset.diceStat);
-            const shouldAutoRoll = !playerText.includes('系統硬判定')
+            const shouldAutoRoll = inputContext.mode === 'character'
+                && !playerText.includes('系統硬判定')
                 && inputEl.dataset.diceSuggestedText === playerText
                 && DICE_STATS[suggestedStat];
             if (shouldAutoRoll) { await sendDiceChoice(); return; }
@@ -4667,7 +4848,13 @@ ${flagsText}
             delete inputEl.dataset.diceDifficulty;
             document.getElementById('options-area').innerHTML = ''; document.getElementById('loading').style.display = 'block';
 
-            if(displayText.startsWith("（") || displayText.startsWith("(")) {
+            if (inputContext.mode === 'creator') {
+                appendCreatorInstruction('創作者指令', inputContext.content);
+                chatScripts[currentChatPageIndex].push(`【創作者指令】：${inputContext.content}`);
+            } else if (inputContext.mode === 'narrator') {
+                appendCreatorInstruction('輔助旁白', inputContext.content);
+                chatScripts[currentChatPageIndex].push(`【輔助旁白】：${inputContext.content}`);
+            } else if(displayText.startsWith("（") || displayText.startsWith("(")) {
                 chatScripts[currentChatPageIndex].push(`【旁白】：玩家行動 - ${playerText}`); appendNarrative(`玩家行動：\n${displayText}`);
             } else {
                 appendMessage(currentScenario.playerName, displayText); chatScripts[currentChatPageIndex].push(`${currentScenario.playerName}：${playerText}`);
@@ -4979,9 +5166,47 @@ ${flagsText}
         }
 
         function buildLatestActionPrompt(latestPlayerAction = "") {
-            const actionText = valueToText(latestPlayerAction);
-            if (!actionText) return "";
-            return `\n\n【本回合玩家最新輸入 - 必須優先判讀】\n${actionText}\n\n【本回合 DM 回應要求】\n1. 先理解玩家此刻的具體意圖、目標、手段與語氣。\n2. narrative 的第一段必須直接回饋這個動作造成的立即結果。\n3. 若有「系統硬判定」，必須逐字遵守其中已算定的屬性、加值、DC 與結果，不得重新解讀。\n4. 只讓真正會在此刻反應的 NPC 說話；其餘角色可用動作或沉默呈現。\n5. options 必須接續這個結果，提供 3 個下一步行動。`;
+            const context = parseSceneInputContext(stripHardDiceDirective(latestPlayerAction));
+            if (!context.content) return "";
+            if (context.mode === 'creator') {
+                return `
+
+【本回合創作者指令－系統最高優先】
+${context.content}
+${currentScenario.scenarios?.[currentScenarioIndex]?.runtimeGuideRole ? `
+目前持續引導身分：${currentScenario.scenarios[currentScenarioIndex].runtimeGuideRole}` : ''}
+
+執行規則：
+1. 這是角色外的舞台事實與導演要求，不是 ${currentScenario.playerName} 的台詞或行動。
+2. 直接依指令調整時間、空間、在場角色、事件先後或敘事焦點。
+3. NPC 不得聽見、質疑、責怪或對此產生好感變化。
+4. 若指令說玩家不在場，禁止讓玩家角色發言或被 NPC 當成衝突來源；若指令明確要求回歸，才安排合理登場。
+5. narrative 第一段必須呈現指令已生效的結果；options 提供符合新場景的後續方向。`;
+            }
+            if (context.mode === 'narrator') {
+                return `
+
+【本回合輔助旁白／導演輸入－必須優先判讀】
+${context.content}
+
+執行規則：
+1. 這不是 ${currentScenario.playerName} 的台詞、動作或情緒，NPC 無法聽見旁白。
+2. 操作者正在安排鏡頭、環境、事件或在場 NPC 的行動，請直接承接。
+3. 玩家角色目前不預設在場；除非此輸入明確說明回歸、登場、上線或回到現場。
+4. 不得對玩家角色扣 HP、SAN、好感度或套用 D20 判定。
+5. options 應提供 3 個場外導演方向或 NPC 支線走向。`;
+            }
+            return `
+
+【本回合玩家角色最新輸入－必須優先判讀】
+${context.content}
+
+【本回合 DM 回應要求】
+1. 理解玩家角色此刻的具體意圖、目標、手段與語氣。
+2. narrative 第一段必須直接回饋動作造成的立即結果。
+3. 若有系統硬判定，逐字遵守已算定的屬性、加值、DC 與結果。
+4. 只讓真正會在此刻反應的 NPC 說話。
+5. options 接續結果並提供 3 個下一步行動。`;
         }
 
         async function callAI_JSON(extraPrompt = "", isOpening = false, latestPlayerAction = "", manualAffectionNpcIds = []) {
@@ -4993,10 +5218,14 @@ ${flagsText}
             try {
                 const rawText = await requestAIText(fullPrompt);
                 const parsedData = await parseAIJsonWithRepair(rawText, fullPrompt);
+                const inputContext = parseSceneInputContext(stripHardDiceDirective(latestPlayerAction));
+                const playerEffectsAllowed = inputContext.mode === 'character';
                 
                 const manuallyHandledNpcIds = new Set(Array.isArray(manualAffectionNpcIds) ? manualAffectionNpcIds : []);
-                applyAffectionPayload(parsedData.npc_love_set, 'set', manuallyHandledNpcIds);
-                applyAffectionPayload(parsedData.npc_love_change, 'change', manuallyHandledNpcIds);
+                if (playerEffectsAllowed) {
+                    applyAffectionPayload(parsedData.npc_love_set, 'set', manuallyHandledNpcIds);
+                    applyAffectionPayload(parsedData.npc_love_change, 'change', manuallyHandledNpcIds);
+                }
 
                 if (parsedData.npc_state_updates && Array.isArray(parsedData.npc_state_updates)) {
                     parsedData.npc_state_updates.forEach(update => {
@@ -5008,7 +5237,7 @@ ${flagsText}
                     });
                 }
 
-                if (parsedData.player_state_update && typeof parsedData.player_state_update === 'object') {
+                if (playerEffectsAllowed && parsedData.player_state_update && typeof parsedData.player_state_update === 'object') {
                     const result = applyDynamicStatePatch(currentScenario.playerDynamic, parsedData.player_state_update, !currentScenario.memoryNotesPaused);
                     currentScenario.playerDynamic = result.state;
                 }
@@ -5023,13 +5252,13 @@ ${flagsText}
                         foundNpc.dynamic = result.state;
                     });
                 }
-                if (typeof parsedData.player_persona_update === 'string' && parsedData.player_persona_update.trim()) {
+                if (playerEffectsAllowed && typeof parsedData.player_persona_update === 'string' && parsedData.player_persona_update.trim()) {
                     const result = applyDynamicStatePatch(currentScenario.playerDynamic, { persistent: true, changes: { memoryNotes: [parsedData.player_persona_update] }, reason: '舊格式的劇情更新' }, !currentScenario.memoryNotesPaused);
                     currentScenario.playerDynamic = result.state;
                 }
 
-                const hpDelta = parseNumericDelta(parsedData.hp_change);
-                const sanDelta = parseNumericDelta(parsedData.san_change);
+                const hpDelta = playerEffectsAllowed ? parseNumericDelta(parsedData.hp_change) : 0;
+                const sanDelta = playerEffectsAllowed ? parseNumericDelta(parsedData.san_change) : 0;
                 if (hpDelta) currentHp = applySurvivalDelta(currentHp, hpDelta);
                 if (sanDelta) currentSan = applySurvivalDelta(currentSan, sanDelta);
                 document.getElementById('ui-hp').innerText = currentHp;
@@ -5039,7 +5268,7 @@ ${flagsText}
                     currentAdventureLog = mergeAdventureLog(currentAdventureLog, parsedData.adventure_log);
                 }
                 
-                if(parsedData.new_items && Array.isArray(parsedData.new_items) && parsedData.new_items.length > 0) {
+                if(playerEffectsAllowed && parsedData.new_items && Array.isArray(parsedData.new_items) && parsedData.new_items.length > 0) {
                     parsedData.new_items.forEach(item => {
                         const itemText = valueToText(item);
                         if(itemText && !currentItems.includes(itemText)) {
@@ -5049,7 +5278,7 @@ ${flagsText}
                     });
                 }
                 
-                if(parsedData.lost_items && Array.isArray(parsedData.lost_items) && parsedData.lost_items.length > 0) { 
+                if(playerEffectsAllowed && parsedData.lost_items && Array.isArray(parsedData.lost_items) && parsedData.lost_items.length > 0) { 
                     parsedData.lost_items.forEach(aiItem => { 
                         const itemText = valueToText(aiItem);
                         if (!itemText) return;
@@ -5130,9 +5359,12 @@ ${flagsText}
                     const dialogueBox = document.getElementById('dialogue-box');
                     if (dialogueBox?.lastChild) dialogueBox.removeChild(dialogueBox.lastChild);
                 }
-                if(chatScripts[currentChatPageIndex].length > 0 && (chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith(currentScenario.playerName) || chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith("【旁白】：玩家行動"))) {
+                if(chatScripts[currentChatPageIndex].length > 0 && (chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith(currentScenario.playerName) || chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith("【旁白】：玩家行動") || chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith("【創作者指令】：") || chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith("【輔助旁白】："))) {
                     const lastPlayerText = chatScripts[currentChatPageIndex].pop(); let restoreText = "";
-                    if(lastPlayerText.startsWith("【旁白】：玩家行動 - ")) { restoreText = lastPlayerText.replace("【旁白】：玩家行動 - \n", "").replace("【旁白】：玩家行動 - ", ""); } else { restoreText = lastPlayerText.replace(`${currentScenario.playerName}：`, ""); }
+                    if(lastPlayerText.startsWith("【旁白】：玩家行動 - ")) restoreText = lastPlayerText.replace("【旁白】：玩家行動 - \n", "").replace("【旁白】：玩家行動 - ", "");
+                    else if(lastPlayerText.startsWith("【創作者指令】：")) restoreText = `［創作者指令］${lastPlayerText.replace("【創作者指令】：", "")}`;
+                    else if(lastPlayerText.startsWith("【輔助旁白】：")) restoreText = lastPlayerText.replace("【輔助旁白】：", "");
+                    else restoreText = lastPlayerText.replace(`${currentScenario.playerName}：`, "");
                     restoreText = restoreText.replace(new RegExp("\\n\\(系統硬判定：[\\s\\S]*?AI 不得更改。\\)"), "");
                     restoreText = restoreText.replace(new RegExp("\\n\\(系統判定：玩家進行了 D20 檢定，擲出 \\d+ 點\\)"), "");
                     const playerInput = document.getElementById('player-input'); if (playerInput) playerInput.value = restoreText;
