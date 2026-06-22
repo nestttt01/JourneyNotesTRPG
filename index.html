@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -19,16 +19,20 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif; }
         body, html { 
-            width: 100%; min-height: 100%; 
+            width: 100%; max-width: 100%; min-height: 100%; overflow-x: hidden;
+            overscroll-behavior-x: none;
             background-color: var(--bg-main); color: var(--text-main); 
         }
+        body { min-width: 0; }
+        img, input, textarea, select, button { max-width: 100%; }
 
         ::-webkit-scrollbar { display: none; }
 
-        #setup-screen, #edit-scenario-screen, #save-menu-screen { 
+        #setup-screen, #edit-scenario-screen, #save-menu-screen, #journal-screen { 
             width: 100%; max-width: 550px; margin: 0 auto; 
             padding: 40px 20px; display: none; flex-direction: column; 
         }
+        #journal-screen { max-width: 760px; min-height: 100dvh; padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
         
         #setup-screen { min-height: 100vh; justify-content: center; align-items: center; padding: 20px; }
 
@@ -188,7 +192,34 @@
         #flag-input-area { display: flex; gap: 8px; margin-bottom: 25px; }
         #new-flag-input { flex: 1; padding: 10px; border: 2px solid var(--border-dark); border-radius: 8px; font-size: 13px; font-weight: 600; background: var(--card-bg); color: var(--text-main); }
 
-        #ui-adventure-log { width: 100%; min-height: 120px; border: 2px solid var(--border-dark); border-radius: 8px; padding: 12px; font-size: 13px; margin-bottom: 25px; resize: vertical; line-height: 1.6; background: var(--card-bg); color: var(--text-main); font-weight: 600;}
+        #ui-story-summary, #ui-relationship-summary { width: 100%; min-height: 96px; border: 2px solid var(--border-dark); border-radius: 8px; padding: 12px; font-size: 13px; margin-bottom: 14px; resize: vertical; line-height: 1.6; background: var(--card-bg); color: var(--text-main); font-weight: 600;}
+        .memory-brief-card { background: #fff; border: 2px solid var(--border-dark); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 3px 3px 0 var(--accent-neon); }
+        .memory-brief-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .memory-field-title { font-size: 12px; font-weight: 900; color: var(--text-main); margin-bottom: 5px; letter-spacing: 1px; }
+        .memory-field-hint { font-size: 11px; color: var(--text-sub); font-weight: 800; line-height: 1.45; margin: -2px 0 8px; }
+        .memory-action-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+        .memory-action-btn { width: auto; min-height: 34px; padding: 7px 12px; border: 2px solid var(--border-dark); border-radius: 8px; background: #fff; color: var(--text-main); font-size: 12px; font-weight: 900; box-shadow: 2px 2px 0 var(--accent-neon); }
+        .memory-action-btn:disabled { opacity: 0.55; cursor: wait; }
+        .memory-action-note { flex-basis: 100%; color: var(--text-sub); font-size: 10px; font-weight: 700; line-height: 1.4; }
+        .memory-task-block { width: min(100%, 520px); margin-bottom: 14px; }
+        .memory-task-list { display: grid; gap: 7px; }
+        .memory-task-empty { margin: 0; padding: 10px 12px; border: 2px dashed #b8b8b8; border-radius: 8px; color: var(--text-sub); font-size: 12px; font-weight: 800; }
+        .memory-task-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) 30px; align-items: center; gap: 7px; padding: 7px 8px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); }
+        .memory-task-row.done { opacity: 0.72; background: #efefef; }
+        .memory-task-check { width: 18px; height: 18px; accent-color: var(--accent-neon); cursor: pointer; }
+        .memory-task-text { min-width: 0; width: 100%; padding: 5px 6px; border: 0; border-bottom: 1px dashed #aaa; outline: none; background: transparent; color: var(--text-main); font-size: 12px; font-weight: 800; }
+        .memory-task-row.done .memory-task-text { text-decoration: line-through; color: var(--text-sub); }
+        .memory-task-remove { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #9b3942; font-size: 16px; font-weight: 900; cursor: pointer; }
+        .memory-task-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; margin-top: 8px; }
+        .memory-task-add input { min-width: 0; padding: 9px 10px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 700; }
+        .memory-task-add button { width: auto; padding: 8px 11px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--accent-neon); color: var(--text-main); font-size: 12px; font-weight: 900; }
+        .memory-log-details { margin-top: 12px; }
+        .memory-log-details .dark-card-content { padding: 14px; }
+        @media screen and (max-width: 600px) {
+            #ui-story-summary, #ui-relationship-summary { min-height: 86px; }
+            .memory-brief-card { padding: 12px; }
+            .memory-task-block { width: 100%; }
+        }
         #ui-stats-display { margin-bottom: 20px;}
 
         .scenario-label { font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; letter-spacing: 1px; display: block; }
@@ -200,6 +231,37 @@
         .save-slot:hover .save-info { color: var(--text-main); }
         
         .delete-save-btn { position: absolute; top: 12px; right: 12px; background: #fff; border: 2px solid var(--border-dark); color: var(--text-main); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s; z-index: 2; }
+
+        .journal-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+        .journal-header h2 { margin: 0; text-align: left; }
+        .journal-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px; }
+        .journal-toolbar select, .journal-toolbar input { width: 100%; min-width: 0; padding: 11px 12px; border: 2px solid var(--border-dark); border-radius: 8px; background: #fff; color: var(--text-main); font-size: 16px; font-weight: 800; }
+        .journal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .journal-actions .btn { flex: 0 1 auto; padding: 8px 11px; font-size: 12px; }
+        .journal-meta { margin-bottom: 10px; color: var(--text-sub); font-size: 12px; font-weight: 800; }
+        .journal-entry-list { display: grid; gap: 9px; min-width: 0; }
+        .journal-empty { padding: 20px 14px; border: 2px dashed #aaa; border-radius: 10px; color: var(--text-sub); text-align: center; font-size: 13px; font-weight: 800; }
+        .journal-entry { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: start; gap: 9px; padding: 11px 12px; border: 2px solid var(--border-dark); border-radius: 9px; background: var(--card-bg); box-shadow: 2px 2px 0 var(--accent-neon); min-width: 0; }
+        .journal-entry-index { color: var(--text-sub); font-size: 11px; font-weight: 900; padding-top: 3px; }
+        .journal-entry-text { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-main); font-size: 14px; font-weight: 700; line-height: 1.6; }
+        .journal-entry-edit { width: auto; padding: 6px 9px; border: 2px solid var(--border-dark); border-radius: 7px; background: #fff; color: var(--text-main); font-size: 11px; font-weight: 900; }
+        .journal-pagination { display: grid; grid-template-columns: auto minmax(110px, 1fr) auto; align-items: center; gap: 8px; margin: 14px 0; }
+        .journal-pagination span { text-align: center; color: var(--text-main); font-size: 12px; font-weight: 900; }
+        #journal-edit-content { width: min(92vw, 520px); margin: auto; padding: 16px; background: var(--bg-main); border: 3px solid var(--border-dark); border-radius: 12px; }
+        #journal-edit-text { width: 100%; min-height: 180px; max-height: 50dvh; overflow-y: auto; resize: vertical; padding: 12px; border: 2px solid var(--border-dark); border-radius: 8px; background: #fff; color: var(--text-main); font-size: 16px; line-height: 1.6; font-weight: 700; }
+        .journal-edit-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .journal-edit-actions .btn { flex: 1 1 100px; }
+        @media screen and (max-width: 600px) {
+            #journal-screen { padding: 18px 12px calc(22px + env(safe-area-inset-bottom)); }
+            .journal-header { align-items: flex-start; }
+            .journal-header h2 { font-size: 24px; }
+            .journal-toolbar { grid-template-columns: 1fr; }
+            .journal-entry { grid-template-columns: 32px minmax(0, 1fr); }
+            .journal-entry-edit { grid-column: 2; justify-self: start; }
+            .journal-entry-text { font-size: 15px; line-height: 1.65; }
+            .journal-pagination { grid-template-columns: 1fr 1.2fr 1fr; }
+            #journal-edit-content { width: calc(100vw - 16px); }
+        }
 
         #game-container {
             width: 100%; max-width: 950px; height: 100vh;
@@ -234,10 +296,17 @@
         .game-model-select { max-width: 130px; text-overflow: ellipsis; overflow: hidden; }
 
         .mini-add-btn { background: #fff; border: 2px solid var(--border-dark); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; color: var(--text-main); transition: all 0.2s; flex-shrink: 0; white-space: nowrap; }
-        .mini-add-btn:hover { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
-        .creator-mode-btn { width: 26px; height: 24px; padding: 0; display: inline-grid; place-items: center; font-size: 13px; border-radius: 7px; }
+        .mini-add-btn:active { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
+        .creator-mode-btn { width: auto; height: auto; padding: 5px 10px; display: inline-grid; place-items: center; font-size: 11px; border-radius: 8px; }
         .creator-mode-btn.active { background: var(--accent-neon); color: var(--border-dark); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
+        .creator-mode-btn:not(.active) { background: #fff !important; box-shadow: none !important; transform: none !important; }
         .creator-mode-btn:disabled { opacity: 0.45; box-shadow: none; transform: none; cursor: not-allowed; }
+        @media (hover: hover) and (pointer: fine) {
+            .mini-add-btn:hover { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
+        }
+        @media (hover: none), (pointer: coarse) {
+            .mini-add-btn:hover:not(.active), .mini-add-btn:focus:not(.active) { background: #fff; box-shadow: none; transform: none; }
+        }
 
         #dialogue-box { background: transparent; padding: 5px; margin: 5px 0; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
         
@@ -271,7 +340,10 @@
         #player-input:focus { outline: none; box-shadow: 4px 4px 0px var(--accent-neon); transform: translate(-2px, -2px); }
 
         .btn { background: #ffffff; border: 2px solid var(--border-dark); color: var(--text-main); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 900; transition: all 0.2s; white-space: nowrap; letter-spacing: 1px; }
-        .btn:hover { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-2px, -2px); }
+        .btn:active { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-2px, -2px); }
+        @media (hover: hover) and (pointer: fine) {
+            .btn:hover { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-2px, -2px); }
+        }
         .btn:disabled { background: #ddd !important; border-color: var(--text-sub) !important; color: var(--text-sub) !important; cursor: not-allowed; transform: none; box-shadow: none !important; }
         
         #dice-btn { background: var(--accent-neon); color: var(--border-dark); border: 2px solid var(--border-dark); padding: 12px 14px; }
@@ -328,6 +400,9 @@
             #dice-btn { padding: 8px 10px; }
             #options-area { gap: 6px; margin-bottom: 6px; }
             .opt-btn { padding: 10px 12px; font-size: 13px; }
+            .modal-overlay { padding: max(8px, env(safe-area-inset-top)) 6px max(8px, env(safe-area-inset-bottom)); overflow-x: hidden !important; touch-action: pan-y; overscroll-behavior: contain; }
+            #status-modal-content { width: 100% !important; max-height: none !important; min-height: calc(100dvh - 16px); margin: 0 auto !important; overflow: visible !important; box-shadow: none; }
+            #status-modal-content > .u-inline-012 { flex: none; min-height: auto; overflow: visible !important; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
         }
     
         input[type="file"].hidden-file-input,
@@ -1192,6 +1267,22 @@
         @media screen and (max-width: 600px) {
             input:not([type="checkbox"]):not([type="radio"]), textarea, select { font-size: 16px !important; }
             #player-input { font-size: 16px !important; }
+            html, body { width: 100%; max-width: 100%; overflow-x: hidden !important; }
+            #game-container, #status-bar, .top-row, .scroll-row, #dialogue-box, #input-area,
+            #status-modal, #status-modal-content, #status-modal-content > .u-inline-012,
+            .status-page, .anime-sheet, .dynamic-state-grid { min-width: 0; max-width: 100%; }
+            .scroll-row { overscroll-behavior-x: contain; }
+            .top-row { gap: 6px; }
+            .u-inline-058 { min-width: 0; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+            .u-inline-059 { display: none; }
+            #input-area { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; width: 100%; }
+            #player-input { min-width: 0; width: 100%; }
+            .key-input:focus, .model-select:focus, .scenario-input:focus, #player-input:focus { transform: none !important; box-shadow: 2px 2px 0 var(--accent-neon); }
+            #status-modal { overflow-y: auto !important; overflow-x: hidden !important; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+            #status-modal-content { width: 100% !important; max-height: none !important; min-height: calc(100dvh - 16px); margin: 0 auto !important; overflow: visible !important; box-shadow: none !important; }
+            #status-modal-content > .u-inline-012 { flex: none !important; min-height: auto !important; overflow: visible !important; touch-action: pan-y; }
+            #status-modal-content .status-tabs { max-width: 100%; overscroll-behavior-x: contain; }
+            #status-page-settings textarea { overflow-y: hidden !important; resize: none !important; }
         }
     </style>
 </head>
@@ -1315,9 +1406,39 @@
                 </div>
 
                 <div id="status-page-log" class="status-page">
-                    <p class="u-inline-016">冒險紀錄 / 長期記憶</p>
-                    <p class="u-inline-014">AI 會優先依據這裡、Flags 與角色狀態銜接長篇劇情。</p>
-                    <textarea id="ui-adventure-log" oninput="autoResize(this)"></textarea>
+                    <p class="u-inline-016">AI 讀取摘要</p>
+                    <p class="u-inline-014">AI 每回合會自動更新重點、任務與關係；完整冒險紀錄仍保留在下方，不會自動刪除。</p>
+
+                    <div class="memory-action-row">
+                        <button id="organize-summary-btn" class="memory-action-btn" onclick="organizeMemoryWithAI('summary')">整理摘要</button>
+                        <button class="memory-action-btn" onclick="openAdventureJournal(currentSaveId)">開啟完整冒險日誌</button>
+                        <span class="memory-action-note">完整紀錄已移到獨立日誌頁；AI 仍會讀取同一份存檔資料，不受畫面位置影響。</span>
+                    </div>
+
+                    <div class="memory-brief-card">
+                        <div class="memory-brief-grid">
+                            <div>
+                                <div class="memory-field-title">重點劇情</div>
+                                <p class="memory-field-hint">用 3～8 條保留目前劇情主線、最近重大轉折與當前場景狀況。</p>
+                                <textarea id="ui-story-summary" placeholder="例如：&#10;• 秀芙與三高已確認戀人關係&#10;• 目前準備進入週六現實約會" oninput="autoResize(this)" onblur="normalizeMemoryTextarea(this)"></textarea>
+                            </div>
+                            <div class="memory-task-block">
+                                <div class="memory-field-title">任務清單</div>
+                                <p class="memory-field-hint">AI 遇到新任務會新增空格；事件完成後會自動打勾，也可以手動修改。</p>
+                                <div id="ui-open-tasks" class="memory-task-list"></div>
+                                <div class="memory-task-add">
+                                    <input id="ui-new-memory-task" type="text" placeholder="手動新增任務..." onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addMemoryTaskFromInput(); }">
+                                    <button type="button" onclick="addMemoryTaskFromInput()">＋新增</button>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="memory-field-title">角色關係</div>
+                                <p class="memory-field-hint">記錄重要角色之間的關係現況、界線、承諾與未說出口的張力。</p>
+                                <textarea id="ui-relationship-summary" placeholder="例如：&#10;• 秀芙與三高已成為戀人&#10;• SY 知道兩人關係升溫" oninput="autoResize(this)" onblur="normalizeMemoryTextarea(this)"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div id="status-page-api" class="status-page">
@@ -1334,42 +1455,58 @@
         <div id="tutorial-modal-content">
             
             <div class="modal-header-sticky u-inline-017">
-                <h3 class="u-inline-005">系統指南與遊玩須知</h3>
-            </div>
-            
-            <div class="u-inline-018">⁠
-                <p class="u-inline-019">1. 核心啟動 (API Key)</p>
-                <p class="u-inline-020">請至 Google AI Studio 或 OpenRouter 申請金鑰。金鑰只會送往目前選擇的 AI 供應商驗證，且不會包含在匯出備份中。</p>
-                
-                <p class="u-inline-019">2. 創角、語言與難度</p>
-                <p class="u-inline-020">六圍總點數固定為 72，可自行分配或交給守墓人隨機擲出。輸出語言與遊戲難度會跟隨角色配置；困難與極限模式會提高檢定 DC，並可能觸發 Game Over。</p>
+          
+<h3 class="u-inline-005">新手教學與遊戲指南</h3>
+</div>
 
-                <p class="u-inline-019">3. 情境切換與交接</p>
-                <p class="u-inline-020">每個情境可設定不同世界法則、角色身分與轉場規則。切換時系統會整理交接資訊，協助 AI 銜接先前事件；必要時仍可在事件日誌補上一句前情提要。</p>
+<div class="u-inline-018">
+    <p class="u-inline-019">1. 這是什麼？</p>
+    <p class="u-inline-020">這是一個單人用的 AI TRPG／劇情模擬器。你可以建立角色、NPC、世界觀與多個情境，讓 AI 擔任 DM、旁白與 NPC，陪你進行自由劇情、跑團、戀愛劇、冒險或日常互動。</p>
 
-                <p class="u-inline-019">4. 自由行動與擲骰判定</p>
-                <p class="u-inline-020">直接輸入任何對話或動作。標有屬性檢定的 AI 選項會自動擲骰，其他行動也可自由使用骰點按鈕。判定採 D20 加六圍加值，總和大於或等於 DC 即成功；天然 20 為大成功、天然 1 為大失敗。</p>
+    <p class="u-inline-019">2. 核心啟動（API Key）</p>
+    <p class="u-inline-020">請先至 Google AI Studio 或 OpenRouter 申請金鑰。金鑰只會送往目前選擇的 AI 供應商驗證與呼叫，不會包含在匯出備份中。驗證成功後，可以選擇大腦核心並開始遊玩。</p>
 
-                <p class="u-inline-019">5. 動態狀態與重要紀錄</p>
-                <p class="u-inline-020">AI 會依劇情更新情緒、傷勢、關係與目標；重大約定或關係里程碑會以短標題追加到角色的重要紀錄。若暫時不想累積，在遊戲輸入框單獨送出 <code>［暫停追加］</code>；要重新開啟時送出 <code>［恢復追加］</code>。</p>
+    <p class="u-inline-019">3. 劇本創角</p>
+    <p class="u-inline-020">在「劇本創角」中可以設定玩家角色、NPC、頭像、六圍、語言、難度、世界觀與情境規則。六圍總點數固定為 72，可自行分配，也可以交給守墓人隨機擲出。困難與極限模式會提高檢定 DC，並可能觸發 Game Over。</p>
 
-                <p class="u-inline-019">6. 「神」創作者指令</p>
-                <p class="u-inline-020">遊戲上方「＋新情境」右側的「神」是持續創作者模式。白色代表關閉，按下變成黃色後，之後送出的內容都會成為角色外最高權限舞台指示，直到再次按「神」取消；切換情境或讀檔也會自動關閉。NPC 不會聽見神模式內容或把它當成玩家台詞。可用它安排鏡頭、時間、在場角色與支線走向；宣告操作者轉換為引導 NPC／旁白角色時，程式會記住該支線的引導身分。指令明確寫出原玩家回到現場或離場時，後續普通輸入模式也會隨之切換。仍可手動輸入 <code>［創作者指令］</code>，效果相同。</p>
+    <p class="u-inline-019">4. 情境與支線</p>
+    <p class="u-inline-020">每個情境都可以設定不同的世界法則、角色身分、玩家視角與轉場規則。情境可以用來表示主線、夢境、回憶、現實世界、其他角色視角，或玩家暫時不在場的支線。切換情境時，系統會整理交接資訊，協助 AI 銜接先前事件。</p>
 
-                <p class="u-inline-019">7. 生存、道具與好感度</p>
-                <p class="u-inline-020">受傷或精神打擊會改變 HP 與 SAN，道具可獲得、使用或失去，NPC 好感度會依互動增減。這些資料都能在角色面板檢視與手動修正。</p>
+    <p class="u-inline-019">5. 自由行動與擲骰判定</p>
+    <p class="u-inline-020">你可以直接輸入角色的對話、動作或想法。標有 STR、DEX、CON、INT、WIS、CHA 等屬性檢定的 AI 選項會自動擲骰；其他行動也可以自由使用骰點按鈕。判定採 D20 加六圍加值，總和大於或等於 DC 即成功；天然 20 為大成功，天然 1 為大失敗。</p>
 
-                <p class="u-inline-019">8. 存檔、備份與命運重鑄</p>
-                <p class="u-inline-020">每個存檔各自保存劇情、動態狀態與重要紀錄，不會污染新遊戲。遊玩途中可直接點擊玩家或 NPC 的對話頭像新增／更換圖片；頭像會存入目前紀錄，角色配置未上鎖時也會同步回配置。可匯出完整備份；每個存檔也有 3 次找守墓人重新洗點的機會。首頁配色只保存在本機，並會包含於完整備份中。</p>
+    <p class="u-inline-019">6. 玩家、旁白與「神」模式</p>
+    <p class="u-inline-020">普通輸入會被視為玩家角色的行動。若要改用場外視角，可以輸入 <code>［旁白］、［切換輔助旁白］</code>；要回到角色行動，則輸入 <code>［玩家］</code>、<code>［切回玩家］</code>。遊戲上方「＋新情境」右側的「神」是持續創作者模式，開啟後送出的內容會成為最高權限舞台指示，直到再次按下關閉。NPC 不會聽見神模式內容，也不會把它當成玩家台詞。</p>
 
-                <div class="u-inline-021">
-                    <p class="u-inline-019">💡 提示：玩家即是神 (手動覆寫)</p>
-                    <p class="u-inline-022">如果 AI 忘記了某個設定，或是你想強行推進劇情，隨時可以打開「角色面板」，手動修改事件日誌、增刪背包道具，甚至直接改寫 NPC 的好感度與人設背景。</p>
-                    
-                    <p class="u-inline-019">💡 提示：若感覺情境錯亂</p>
-                    <p class="u-inline-023">如果 AI 混淆了空間設定，試著在「事件日誌」中手動補充當下的環境限制，或切換為「神」創作者指令協助 AI 抓取重點，這能幫助 AI 迅速找回當下劇本的焦點。</p>
-                </div>
-            </div>
+    <p class="u-inline-019">7. HP、SAN、道具與好感度</p>
+    <p class="u-inline-020">受傷、疲勞或危險事件可能改變 HP；恐懼、壓力或精神打擊可能改變 SAN。道具可以取得、使用、消耗或失去。NPC 好感度會依互動增減，也可以在角色面板中手動修正。</p>
+
+    <p class="u-inline-019">8. 角色面板</p>
+    <p class="u-inline-020">角色面板可以查看與編輯玩家狀態、NPC 設定、好感度、背包道具、狀態標籤、重點劇情、未完成任務、角色關係與完整冒險紀錄。這些資料會影響 AI 理解目前劇情；如果 AI 忘記設定、關係或角色個性，可以在這裡手動修正。</p>
+
+    <p class="u-inline-019">9. 記憶與冒險日誌</p>
+    <p class="u-inline-020">系統目前分成兩層記憶：重點劇情、未完成任務與角色關係是 AI 每回合優先讀取的摘要；完整冒險紀錄則保留過去發生過的事件，方便玩家查閱、搜尋與備份。建議把重點劇情寫成短條列，不要把所有小事都塞進摘要，這樣 AI 才比較容易抓到真正重要的主線。</p>
+
+    <p class="u-inline-019">10. 整理摘要與整理冒險紀錄</p>
+    <p class="u-inline-020">如果紀錄太長，可以使用「整理摘要」讓 AI 從目前紀錄中整理出重點劇情、任務與角色關係；也可以使用「整理冒險紀錄」合併重複事件、壓縮過長紀錄。整理前建議先匯出備份；若結果不理想，可以使用復原功能回到整理前狀態。</p>
+
+    <p class="u-inline-019">11. 存檔、備份與命運重鑄</p>
+    <p class="u-inline-020">每個存檔各自保存劇情、角色狀態、NPC、道具、好感度、記憶摘要與冒險紀錄，不會污染新遊戲。遊玩途中可以點擊玩家或 NPC 的對話頭像新增／更換圖片；頭像會存入目前紀錄，角色配置未上鎖時也會同步回配置。每個存檔有 3 次找守墓人重新洗點的機會。</p>
+
+    <p class="u-inline-019">12. 冒險日誌</p>
+    <p class="u-inline-020">首頁的「冒險日誌」可以查看不同存檔的完整冒險紀錄，並支援搜尋、分頁與編輯單條紀錄。它適合用來回顧長篇劇情、整理過去事件，或確認 AI 是否漏掉重要發展。</p>
+
+    <div class="u-inline-021">
+        <p class="u-inline-019">💡 提示：玩家即是神</p>
+        <p class="u-inline-022">如果 AI 忘記了某個設定，或你想強行推進劇情，可以打開「角色面板」手動修改重點劇情、任務、角色關係、冒險紀錄、背包道具、NPC 好感度與人設背景。</p>
+
+        <p class="u-inline-019">💡 提示：讓角色不要跑偏</p>
+        <p class="u-inline-022">角色設定越清楚，AI 越容易穩定扮演。建議把角色的語氣、行為模式、重要關係、不能跑偏的地方寫進人設或角色關係裡。</p>
+
+        <p class="u-inline-019">💡 提示：若感覺情境錯亂</p>
+        <p class="u-inline-023">如果 AI 混淆地點、時間線或在場角色，可以先補充重點劇情，或切換為「神」創作者指令，直接告訴 AI 目前場景、誰在場、誰不在場，以及接下來要聚焦的劇情。</p>
+    </div>
+</div>
 
             <div class="u-inline-024">
                 <button class="btn u-inline-025" onclick="closeTutorialModal()">我瞭解了</button>
@@ -1414,8 +1551,9 @@
             <select id="model-choice" class="model-select" onchange="syncModelSelection(this.value)"></select>
             
             <div class="action-buttons">
-                <button class="btn" onclick="openEditScenario()">管理劇本與創角</button>
+                <button class="btn" onclick="openEditScenario()">劇本創角</button>
                 <button class="btn" id="start-btn" onclick="openSaveMenu()">進入存檔選單</button>
+                <button class="btn" onclick="openAdventureJournal()">冒險日誌</button>
             </div>
             
             <div class="u-inline-030">
@@ -1437,7 +1575,7 @@
             </div>
             <div class="theme-reset-row"><button type="button" class="theme-reset-btn" onclick="resetUiTheme()">恢復預設</button></div>
         </details>
-        <p class="setup-version">測試版 v0.30 · 2026/06/21</p>
+        <p class="setup-version"> Threads @ miyazaki.617 · 測試版 v0.31 · 2026/06/22</p>
     </div>
 
     <div id="edit-scenario-screen">
@@ -1560,6 +1698,41 @@
         </div>
     </div>
 
+    <div id="journal-screen">
+        <div class="journal-header">
+            <h2>冒險日誌</h2>
+            <button class="btn" onclick="closeAdventureJournal()">返回</button>
+        </div>
+        <div class="journal-toolbar">
+            <select id="journal-save-select" aria-label="選擇日誌存檔" onchange="selectAdventureJournalSave(this.value)"></select>
+            <input id="journal-search" type="search" placeholder="搜尋事件、角色或地點..." aria-label="搜尋冒險日誌" oninput="filterAdventureJournal(this.value)">
+        </div>
+        <div class="journal-actions">
+            <button id="journal-organize-btn" class="btn" onclick="organizeSelectedJournalLog()">整理重複事件</button>
+            <button class="btn" onclick="restoreSelectedJournalBackup()">↶ 復原上次整理</button>
+            <button class="btn" onclick="jumpAdventureJournalToLatest()">跳到最新</button>
+        </div>
+        <p id="journal-meta" class="journal-meta"></p>
+        <div id="journal-entry-list" class="journal-entry-list"></div>
+        <div class="journal-pagination">
+            <button id="journal-prev-btn" class="btn" onclick="changeAdventureJournalPage(-1)">上一頁</button>
+            <span id="journal-page-label">第 1 / 1 頁</span>
+            <button id="journal-next-btn" class="btn" onclick="changeAdventureJournalPage(1)">下一頁</button>
+        </div>
+    </div>
+
+    <div id="journal-edit-modal" class="modal-overlay">
+        <div id="journal-edit-content">
+            <h3>編輯單筆冒險紀錄</h3>
+            <textarea id="journal-edit-text" aria-label="冒險紀錄內容"></textarea>
+            <div class="journal-edit-actions">
+                <button class="btn" onclick="saveJournalEntryEdit()">儲存</button>
+                <button class="btn" onclick="deleteJournalEntryEdit()">刪除此筆</button>
+                <button class="btn" onclick="closeJournalEntryEditor()">取消</button>
+            </div>
+        </div>
+    </div>
+
     <div id="game-container">
         
         <div id="floating-menu-btn" onclick="openStatusModal()">角色面板</div>
@@ -1643,7 +1816,10 @@
         let chatScripts = [[]]; 
         let currentChatPageIndex = 0; 
 
-        let currentAdventureLog = "1. 故事剛開始，目前尚無重大事件發生。"; 
+        let currentAdventureLog = "• 故事剛開始，目前尚無重大事件發生。"; 
+        let currentStorySummary = "";
+        let currentOpenTasks = "";
+        let currentRelationshipSummary = "";
         let currentFlags = []; 
         let currentSaveId = null; 
         let savesData = {}; 
@@ -1653,6 +1829,12 @@
         let activeGameSaveTimer = null;
         let activeInputDraftTimer = null;
         let activeStatusTab = "state";
+        const JOURNAL_PAGE_SIZE = 50;
+        let journalSelectedSaveId = '';
+        let journalPageIndex = 0;
+        let journalSearchText = '';
+        let journalEditingEntryIndex = -1;
+        let journalReturnTarget = 'setup';
         let apiUsageStats = {};
 
         const UI_THEME_STORAGE_KEY = 'sanko_ui_theme_v1';
@@ -2420,19 +2602,41 @@
             return normalizeSurvivalValue(current + parseNumericDelta(deltaValue), current);
         }
 
+        function stripMemoryListPrefix(value) {
+            return valueToText(value)
+                .replace(/^\s*(?:(?:[-•*・▪◦])|(?:\d+[.)、]))\s*/, '')
+                .trim();
+        }
+
         function normalizeAdventureLogKey(line) {
-            return valueToText(line)
-                .replace(/^\s*(?:[-•*]|\d+[.)、])\s*/, '')
+            return stripMemoryListPrefix(line)
                 .replace(/\s+/g, ' ')
                 .trim()
                 .toLowerCase();
         }
 
         function splitAdventureLog(value) {
-            return valueToText(value)
-                .split(/\n+/)
-                .map(line => line.trim())
-                .filter(Boolean);
+            const source = Array.isArray(value) ? value : valueToText(value).split(/\n+/);
+            return source.map(stripMemoryListPrefix).filter(Boolean);
+        }
+
+        function formatBulletListText(value, fallback = '', dedupe = false) {
+            const seen = new Set();
+            const lines = [];
+            splitAdventureLog(value).forEach(line => {
+                const key = normalizeAdventureLogKey(line);
+                if (!key || (dedupe && seen.has(key))) return;
+                seen.add(key);
+                lines.push(`• ${line}`);
+            });
+            return lines.join('\n') || fallback;
+        }
+
+        function normalizeMemoryTextarea(textarea) {
+            if (!textarea) return;
+            const fallback = textarea.id === 'ui-adventure-log' ? '• 故事剛開始，目前尚無重大事件發生。' : '';
+            textarea.value = formatBulletListText(textarea.value, fallback, textarea.id !== 'ui-adventure-log');
+            autoResize(textarea);
         }
 
         function mergeAdventureLog(existingLog, incomingLog) {
@@ -2444,7 +2648,174 @@
                 seen.add(key);
                 merged.push(line);
             });
-            return merged.join('\n') || '1. 故事剛開始，目前尚無重大事件發生。';
+            return formatBulletListText(merged, '• 故事剛開始，目前尚無重大事件發生。');
+        }
+
+        function normalizeTaskText(value) {
+            return stripMemoryListPrefix(valueToText(value)
+                .replace(/^\s*(?:☑|✅|✔|✓|☐|⬜|□|\[[xX ]\])\s*/, ''));
+        }
+
+        function normalizeTaskKey(value) {
+            return normalizeTaskText(value).replace(/[\s，。！？、；：,.!?;:「」『』]/g, '').toLowerCase();
+        }
+
+        function parseTaskChecklist(value) {
+            const source = Array.isArray(value) ? value : valueToText(value).split(/\n+/);
+            const tasks = [];
+            const seen = new Map();
+            source.forEach(entry => {
+                const objectEntry = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : null;
+                const raw = objectEntry ? valueToText(objectEntry.text || objectEntry.task || objectEntry.title) : valueToText(entry);
+                const text = normalizeTaskText(raw);
+                if (!text) return;
+                const done = objectEntry
+                    ? Boolean(objectEntry.done || ['done', 'completed', 'complete'].includes(valueToText(objectEntry.status).toLowerCase()))
+                    : /^\s*(?:☑|✅|✔|✓|\[[xX]\])/.test(raw);
+                const key = normalizeTaskKey(text);
+                if (!key) return;
+                if (seen.has(key)) {
+                    const existing = tasks[seen.get(key)];
+                    if (done) existing.done = true;
+                    return;
+                }
+                seen.set(key, tasks.length);
+                tasks.push({ text, done });
+            });
+            return tasks;
+        }
+
+        function serializeTaskChecklist(tasks) {
+            return parseTaskChecklist(tasks).map(task => `${task.done ? '☑' : '☐'} ${task.text}`).join('\n');
+        }
+
+        function readTaskChecklistFromDom() {
+            const container = document.getElementById('ui-open-tasks');
+            if (!container || container.dataset.rendered !== 'true') return parseTaskChecklist(currentOpenTasks);
+            return Array.from(container.querySelectorAll('.memory-task-row')).map(row => ({
+                done: Boolean(row.querySelector('.memory-task-check')?.checked),
+                text: normalizeTaskText(row.querySelector('.memory-task-text')?.value)
+            })).filter(task => task.text);
+        }
+
+        function renderTaskChecklist(value = currentOpenTasks) {
+            const container = document.getElementById('ui-open-tasks');
+            if (!container) return;
+            const tasks = parseTaskChecklist(value);
+            currentOpenTasks = serializeTaskChecklist(tasks);
+            container.dataset.rendered = 'true';
+            if (!tasks.length) {
+                container.innerHTML = '<p class="memory-task-empty">目前沒有任務。接到新委託時，AI 會自動加在這裡。</p>';
+                return;
+            }
+            container.innerHTML = tasks.map((task, index) => `
+                <div class="memory-task-row ${task.done ? 'done' : ''}" data-task-index="${index}">
+                    <input class="memory-task-check" type="checkbox" aria-label="完成任務：${escapeStatusHtml(task.text)}" ${task.done ? 'checked' : ''} onchange="handleMemoryTaskChange()">
+                    <input class="memory-task-text" type="text" value="${escapeStatusHtml(task.text)}" aria-label="任務內容" onchange="handleMemoryTaskChange()">
+                    <button class="memory-task-remove" type="button" aria-label="刪除任務" onclick="removeMemoryTask(${index})">×</button>
+                </div>`).join('');
+        }
+
+        function handleMemoryTaskChange() {
+            currentOpenTasks = serializeTaskChecklist(readTaskChecklistFromDom());
+            renderTaskChecklist(currentOpenTasks);
+            saveCurrentProgress();
+        }
+
+        function addMemoryTaskFromInput() {
+            const input = document.getElementById('ui-new-memory-task');
+            const text = normalizeTaskText(input?.value);
+            if (!text) return;
+            const tasks = readTaskChecklistFromDom();
+            if (!tasks.some(task => normalizeTaskKey(task.text) === normalizeTaskKey(text))) tasks.push({ text, done: false });
+            currentOpenTasks = serializeTaskChecklist(tasks);
+            if (input) input.value = '';
+            renderTaskChecklist(currentOpenTasks);
+            saveCurrentProgress();
+        }
+
+        function removeMemoryTask(index) {
+            const tasks = readTaskChecklistFromDom();
+            if (index < 0 || index >= tasks.length) return;
+            tasks.splice(index, 1);
+            currentOpenTasks = serializeTaskChecklist(tasks);
+            renderTaskChecklist(currentOpenTasks);
+            saveCurrentProgress();
+        }
+
+        function findMemoryTaskIndex(tasks, targetText) {
+            const targetKey = normalizeTaskKey(targetText);
+            if (!targetKey) return -1;
+            const exactIndex = tasks.findIndex(task => normalizeTaskKey(task.text) === targetKey);
+            if (exactIndex >= 0) return exactIndex;
+            if (targetKey.length < 4) return -1;
+            return tasks.findIndex(task => {
+                const taskKey = normalizeTaskKey(task.text);
+                return taskKey.length >= 4 && (taskKey.includes(targetKey) || targetKey.includes(taskKey));
+            });
+        }
+
+        function applyTaskUpdates(updates) {
+            if (!Array.isArray(updates) || !updates.length) return false;
+            const tasks = parseTaskChecklist(currentOpenTasks);
+            let changed = false;
+            updates.forEach(update => {
+                if (!update || typeof update !== 'object') return;
+                const text = normalizeTaskText(update.text || update.task || update.title);
+                const action = valueToText(update.action || update.status).trim().toLowerCase();
+                if (!text || !action) return;
+                const index = findMemoryTaskIndex(tasks, text);
+                if (['add', 'new', 'open'].includes(action)) {
+                    if (index < 0) { tasks.push({ text, done: false }); changed = true; }
+                    else if (tasks[index].done && action === 'open') { tasks[index].done = false; changed = true; }
+                } else if (['done', 'complete', 'completed', 'finish', 'finished'].includes(action)) {
+                    if (index >= 0 && !tasks[index].done) { tasks[index].done = true; changed = true; }
+                } else if (['reopen', 'undo'].includes(action)) {
+                    if (index >= 0 && tasks[index].done) { tasks[index].done = false; changed = true; }
+                } else if (['remove', 'delete'].includes(action) && index >= 0) {
+                    tasks.splice(index, 1); changed = true;
+                }
+            });
+            if (changed) {
+                currentOpenTasks = serializeTaskChecklist(tasks);
+                renderTaskChecklist(currentOpenTasks);
+            }
+            return changed;
+        }
+
+        function normalizeSummaryPayload(value, maxItems = 12) {
+            const source = Array.isArray(value) ? value : valueToText(value).split(/\n+/);
+            const seen = new Set();
+            const items = [];
+            source.forEach(entry => {
+                const text = stripMemoryListPrefix(entry);
+                const key = normalizeAdventureLogKey(text);
+                if (!key || seen.has(key)) return;
+                seen.add(key);
+                items.push(text);
+            });
+            return items.slice(0, maxItems);
+        }
+
+        function applyAutomaticMemoryUpdate(update) {
+            if (!update || typeof update !== 'object' || Array.isArray(update)) return false;
+            let changed = false;
+            const storyItems = normalizeSummaryPayload(update.story_summary ?? update.story, 8);
+            if (storyItems.length) {
+                const nextStory = formatBulletListText(storyItems, '', true);
+                if (nextStory !== currentStorySummary) { currentStorySummary = nextStory; changed = true; }
+            }
+            const relationshipItems = normalizeSummaryPayload(update.relationship_summary ?? update.relationships, 10);
+            if (relationshipItems.length) {
+                const nextRelationships = formatBulletListText(relationshipItems, '', true);
+                if (nextRelationships !== currentRelationshipSummary) { currentRelationshipSummary = nextRelationships; changed = true; }
+            }
+            if (applyTaskUpdates(update.task_updates)) changed = true;
+            const storyField = document.getElementById('ui-story-summary');
+            const relationshipField = document.getElementById('ui-relationship-summary');
+            if (storyField) { storyField.value = currentStorySummary; autoResize(storyField); }
+            if (relationshipField) { relationshipField.value = currentRelationshipSummary; autoResize(relationshipField); }
+            return changed;
         }
 
         function getAdventureLogForPrompt(log = currentAdventureLog) {
@@ -2453,6 +2824,34 @@
             const headLength = 1400;
             const tailLength = MAX_ADVENTURE_LOG_PROMPT_CHARS - headLength - 80;
             return `${text.slice(0, headLength)}\n（中段較舊紀錄僅保留於本機面板）\n${text.slice(-tailLength)}`;
+        }
+
+        function getRecentAdventureLogForPrompt(log = currentAdventureLog, maxChars = 1800) {
+            const text = valueToText(log, '尚無重大事件。').trim();
+            if (text.length <= maxChars) return text;
+            return `（完整冒險紀錄已保留於本機面板；以下只截取最近片段）\n${text.slice(-maxChars)}`;
+        }
+
+        function hasMemoryBrief() {
+            return [currentStorySummary, currentOpenTasks, currentRelationshipSummary].some(value => valueToText(value).trim());
+        }
+
+        function getMemoryBriefForPrompt() {
+            const story = valueToText(currentStorySummary).trim();
+            const tasks = valueToText(currentOpenTasks).trim();
+            const relationships = valueToText(currentRelationshipSummary).trim();
+            if (!story && !tasks && !relationships) {
+                return `【重點劇情摘要】\n尚未整理摘要，暫時參考下方事件日誌。\n\n【先前事件日誌】\n${getAdventureLogForPrompt()}`;
+            }
+            const recentLog = getRecentAdventureLogForPrompt();
+            return `【重點劇情摘要】\n${story || '尚未整理。'}\n\n【任務清單（☐ 未完成／☑ 已完成）】\n${tasks || '目前沒有任務。'}\n\n【角色關係摘要】\n${relationships || '尚未整理；請以角色面板、好感度與核心人設為準。'}\n\n【防止劇情重播規則】\n摘要、☑ 已完成任務與事件日誌中已發生的事都是既定事實，不得再次當成尚未發生；若角色已上船、抵達、見面、取得物品或完成委託，不得無故重演同一段流程。\n\n【最近冒險紀錄（輔助，不得覆蓋上方摘要）】\n${recentLog}`;
+        }
+
+        function resizeMemoryTextareas() {
+            ['ui-story-summary', 'ui-relationship-summary'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) autoResize(el);
+            });
         }
 
         function persistJson(storageKey, data, label = '資料') {
@@ -2855,7 +3254,7 @@
             document.querySelectorAll('.status-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.statusTab === activeStatusTab));
             document.querySelectorAll('.status-page').forEach(page => page.classList.toggle('active', page.id === `status-page-${activeStatusTab}`));
             if (activeStatusTab === "api") renderApiUsageStats();
-            if (activeStatusTab === "log") autoResize(document.getElementById('ui-adventure-log'));
+            if (activeStatusTab === "log") resizeMemoryTextareas();
             if (activeStatusTab === "settings") initTextareas();
         }
 
@@ -2954,7 +3353,7 @@
             const log = (chatScripts[pageIndex] || []).map(line => normalizeChatLineForScenePrompt(line, pageIndex));
             if (log.length <= MAX_RECENT_CHAT_LINES) return log.join('\n\n');
             const omitted = log.length - MAX_RECENT_CHAT_LINES;
-            return `（系統摘要提示：較早的 ${omitted} 則對話已省略，請以「先前的事件日誌」、Flags、角色狀態作為長期記憶。）\n\n` + log.slice(-MAX_RECENT_CHAT_LINES).join('\n\n');
+            return `（系統摘要提示：較早的 ${omitted} 則對話已省略，請以「重點劇情、任務清單、Flags、角色狀態」作為長期記憶；不得重演 ☑ 已完成任務。）\n\n` + log.slice(-MAX_RECENT_CHAT_LINES).join('\n\n');
         }
 
         function scoreModelForTRPG(model) {
@@ -3328,7 +3727,10 @@
 
         /* ==== 遊戲內面板功能模組化 ==== */
         function syncDomToCurrentScenario() {
-            currentAdventureLog = document.getElementById('ui-adventure-log').value.trim() || "無紀錄，故事剛開始。";
+            currentStorySummary = formatBulletListText(document.getElementById('ui-story-summary')?.value, '', true);
+            const taskContainer = document.getElementById('ui-open-tasks');
+            if (taskContainer?.dataset.rendered === 'true') currentOpenTasks = serializeTaskChecklist(readTaskChecklistFromDom());
+            currentRelationshipSummary = formatBulletListText(document.getElementById('ui-relationship-summary')?.value, '', true);
             
             // 同步 Player Details
             if (!currentScenario.playerDetails) currentScenario.playerDetails = {};
@@ -3474,7 +3876,13 @@
 
         function openStatusModal() {
             if(!currentSaveId) return;
-            document.getElementById('ui-adventure-log').value = currentAdventureLog;
+            currentStorySummary = formatBulletListText(currentStorySummary, '', true);
+            currentOpenTasks = serializeTaskChecklist(currentOpenTasks);
+            currentRelationshipSummary = formatBulletListText(currentRelationshipSummary, '', true);
+            currentAdventureLog = formatBulletListText(currentAdventureLog, "• 故事剛開始，目前尚無重大事件發生。");
+            document.getElementById('ui-story-summary').value = currentStorySummary;
+            renderTaskChecklist(currentOpenTasks);
+            document.getElementById('ui-relationship-summary').value = currentRelationshipSummary;
             syncLanguageMode(currentScenario.languageMode || 'zh-tw');
             
             const pStats = currentScenario.playerStats || {str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10};
@@ -3606,7 +4014,10 @@
 
             document.getElementById('ui-stats-display').innerHTML = statsHtml;
             
-            renderStatusSummary(); renderFlags(); renderItems(); renderApiUsageStats(); document.getElementById('status-modal').style.display = 'block'; 
+            renderStatusSummary(); renderFlags(); renderItems(); renderApiUsageStats();
+            const statusModal = document.getElementById('status-modal');
+            statusModal.style.display = 'block';
+            statusModal.scrollTop = 0;
             switchStatusTab(activeStatusTab);
             initTextareas();
         }
@@ -3709,6 +4120,254 @@
             });
         }
 
+        function getAdventureJournalSaveKeys() {
+            return Object.keys(savesData).filter(id => savesData[id] && typeof savesData[id] === 'object' && !Array.isArray(savesData[id]))
+                .sort((a, b) => String(b).localeCompare(String(a)));
+        }
+
+        function openAdventureJournal(preferredSaveId = '') {
+            const gameVisible = document.getElementById('game-container')?.style.display === 'flex';
+            const saveMenuVisible = document.getElementById('save-menu-screen')?.style.display === 'flex';
+            journalReturnTarget = gameVisible ? 'game' : (saveMenuVisible ? 'save-menu' : 'setup');
+            if (gameVisible && currentSaveId) {
+                const statusModal = document.getElementById('status-modal');
+                if (statusModal?.style.display === 'block') syncDomToCurrentScenario();
+                saveCurrentProgress();
+                if (statusModal) statusModal.style.display = 'none';
+            }
+            ['setup-screen', 'edit-scenario-screen', 'save-menu-screen', 'game-container'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            document.getElementById('journal-screen').style.display = 'flex';
+            const keys = getAdventureJournalSaveKeys();
+            journalSelectedSaveId = (preferredSaveId && savesData[preferredSaveId])
+                ? String(preferredSaveId)
+                : (journalSelectedSaveId && savesData[journalSelectedSaveId] ? journalSelectedSaveId : (keys[0] || ''));
+            journalPageIndex = 0;
+            journalSearchText = '';
+            const search = document.getElementById('journal-search');
+            if (search) search.value = '';
+            renderAdventureJournalSaveSelector();
+            renderAdventureJournal();
+            window.scrollTo(0, 0);
+        }
+
+        function closeAdventureJournal() {
+            document.getElementById('journal-edit-modal').style.display = 'none';
+            document.getElementById('journal-screen').style.display = 'none';
+            if (journalReturnTarget === 'game' && currentSaveId) {
+                document.getElementById('game-container').style.display = 'flex';
+                updatePlayerInputPlaceholder();
+                return;
+            }
+            if (journalReturnTarget === 'save-menu') {
+                document.getElementById('save-menu-screen').style.display = 'flex';
+                renderSaveList();
+                return;
+            }
+            document.getElementById('setup-screen').style.display = 'flex';
+        }
+
+        function renderAdventureJournalSaveSelector() {
+            const select = document.getElementById('journal-save-select');
+            if (!select) return;
+            const keys = getAdventureJournalSaveKeys();
+            select.innerHTML = '';
+            if (!keys.length) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = '目前沒有存檔';
+                select.appendChild(option);
+                select.disabled = true;
+                return;
+            }
+            select.disabled = false;
+            keys.forEach(id => {
+                const save = savesData[id];
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = `${valueToText(save.title, '未命名紀錄')} · ${valueToText(save.date, '未知時間')}`;
+                option.selected = id === journalSelectedSaveId;
+                select.appendChild(option);
+            });
+        }
+
+        function selectAdventureJournalSave(saveId) {
+            if (!savesData[saveId]) return;
+            journalSelectedSaveId = String(saveId);
+            journalPageIndex = 0;
+            renderAdventureJournal();
+        }
+
+        function filterAdventureJournal(value) {
+            journalSearchText = valueToText(value).toLowerCase();
+            journalPageIndex = 0;
+            renderAdventureJournal();
+        }
+
+        function getAdventureJournalEntries(saveId = journalSelectedSaveId) {
+            const save = savesData[saveId];
+            if (!save) return [];
+            return splitAdventureLog(save.log).map((text, index) => ({ text, index }));
+        }
+
+        function renderAdventureJournal() {
+            const list = document.getElementById('journal-entry-list');
+            const meta = document.getElementById('journal-meta');
+            const pageLabel = document.getElementById('journal-page-label');
+            const prevButton = document.getElementById('journal-prev-btn');
+            const nextButton = document.getElementById('journal-next-btn');
+            const organizeButton = document.getElementById('journal-organize-btn');
+            if (!list || !meta || !pageLabel) return;
+            const save = savesData[journalSelectedSaveId];
+            if (!save) {
+                list.innerHTML = '<p class="journal-empty">目前沒有可查看的冒險紀錄。</p>';
+                meta.textContent = '請先建立遊戲存檔。';
+                pageLabel.textContent = '第 0 / 0 頁';
+                if (prevButton) prevButton.disabled = true;
+                if (nextButton) nextButton.disabled = true;
+                if (organizeButton) organizeButton.disabled = true;
+                return;
+            }
+            if (organizeButton) organizeButton.disabled = false;
+            const allEntries = getAdventureJournalEntries();
+            const filteredEntries = journalSearchText
+                ? allEntries.filter(entry => entry.text.toLowerCase().includes(journalSearchText))
+                : allEntries;
+            const pageCount = Math.max(1, Math.ceil(filteredEntries.length / JOURNAL_PAGE_SIZE));
+            journalPageIndex = Math.max(0, Math.min(journalPageIndex, pageCount - 1));
+            const start = journalPageIndex * JOURNAL_PAGE_SIZE;
+            const visibleEntries = filteredEntries.slice(start, start + JOURNAL_PAGE_SIZE);
+            meta.textContent = journalSearchText
+                ? `找到 ${filteredEntries.length} / ${allEntries.length} 條紀錄`
+                : `共 ${allEntries.length} 條紀錄；每頁最多 ${JOURNAL_PAGE_SIZE} 條`;
+            pageLabel.textContent = `第 ${journalPageIndex + 1} / ${pageCount} 頁`;
+            if (prevButton) prevButton.disabled = journalPageIndex <= 0;
+            if (nextButton) nextButton.disabled = journalPageIndex >= pageCount - 1;
+            if (!visibleEntries.length) {
+                list.innerHTML = '<p class="journal-empty">沒有符合搜尋條件的紀錄。</p>';
+                return;
+            }
+            list.innerHTML = visibleEntries.map(entry => `
+                <article class="journal-entry">
+                    <span class="journal-entry-index">#${entry.index + 1}</span>
+                    <p class="journal-entry-text">${escapeStatusHtml(entry.text)}</p>
+                    <button class="journal-entry-edit" type="button" onclick="openJournalEntryEditor(${entry.index})">編輯</button>
+                </article>`).join('');
+        }
+
+        function changeAdventureJournalPage(delta) {
+            journalPageIndex += Number(delta) || 0;
+            renderAdventureJournal();
+            window.scrollTo(0, 0);
+        }
+
+        function jumpAdventureJournalToLatest() {
+            const entries = getAdventureJournalEntries().filter(entry => !journalSearchText || entry.text.toLowerCase().includes(journalSearchText));
+            journalPageIndex = Math.max(0, Math.ceil(entries.length / JOURNAL_PAGE_SIZE) - 1);
+            renderAdventureJournal();
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        function openJournalEntryEditor(entryIndex) {
+            const entries = getAdventureJournalEntries();
+            const entry = entries.find(item => item.index === Number(entryIndex));
+            if (!entry) return;
+            journalEditingEntryIndex = entry.index;
+            document.getElementById('journal-edit-text').value = entry.text;
+            document.getElementById('journal-edit-modal').style.display = 'flex';
+            document.getElementById('journal-edit-text').focus();
+        }
+
+        function closeJournalEntryEditor() {
+            journalEditingEntryIndex = -1;
+            document.getElementById('journal-edit-modal').style.display = 'none';
+        }
+
+        function saveJournalEntryEdit() {
+            const save = savesData[journalSelectedSaveId];
+            const entries = getAdventureJournalEntries().map(entry => entry.text);
+            if (!save || journalEditingEntryIndex < 0 || journalEditingEntryIndex >= entries.length) return;
+            const text = valueToText(document.getElementById('journal-edit-text').value).replace(/\s*\n+\s*/g, ' ').trim();
+            if (!text) { alert('這筆紀錄不能是空白；若要移除請按「刪除此筆」。'); return; }
+            entries[journalEditingEntryIndex] = stripMemoryListPrefix(text);
+            save.log = formatBulletListText(entries, '• 故事剛開始，目前尚無重大事件發生。');
+            save.date = new Date().toLocaleString();
+            if (journalSelectedSaveId === currentSaveId) currentAdventureLog = save.log;
+            persistJson('sanko_saves_v8', savesData, '冒險日誌');
+            closeJournalEntryEditor();
+            renderAdventureJournal();
+        }
+
+        function deleteJournalEntryEdit() {
+            const save = savesData[journalSelectedSaveId];
+            const entries = getAdventureJournalEntries().map(entry => entry.text);
+            if (!save || journalEditingEntryIndex < 0 || journalEditingEntryIndex >= entries.length) return;
+            if (!confirm('確定要刪除這一筆冒險紀錄嗎？')) return;
+            entries.splice(journalEditingEntryIndex, 1);
+            save.log = formatBulletListText(entries, '• 故事剛開始，目前尚無重大事件發生。');
+            save.date = new Date().toLocaleString();
+            if (journalSelectedSaveId === currentSaveId) currentAdventureLog = save.log;
+            persistJson('sanko_saves_v8', savesData, '冒險日誌');
+            closeJournalEntryEditor();
+            renderAdventureJournal();
+        }
+
+        function buildSelectedJournalOrganizerPrompt(save) {
+            const scenario = save?.scenario || {};
+            const memory = save?.memoryBrief || {};
+            return `你是 TRPG 冒險紀錄整理器。請整理下列完整紀錄：合併語意重複的事件（例如同一次上船被寫了數次），依實際發生順序排列，保留所有不重複的重要事實、任務結果、角色關係轉折、地點移動與取得／失去的物品。不得捏造、不得把已完成事件寫成尚未發生。\n只輸出 JSON：{"adventure_log":["事件一","事件二"]}。陣列每項是一條簡短紀錄，不要自行加項目符號。\n\n玩家：${valueToText(scenario.playerName, '玩家')}\nNPC：${(scenario.npcs || []).map(npc => npc.name).filter(Boolean).join('、') || '無'}\nFlags：${(save.flags || []).join('、') || '無'}\n重點劇情：\n${valueToText(memory.story, '無')}\n任務清單：\n${valueToText(memory.tasks, '無')}\n角色關係：\n${valueToText(memory.relationships, '無')}\n完整冒險紀錄：\n${valueToText(save.log, '無')}`;
+        }
+
+        async function organizeSelectedJournalLog() {
+            const save = savesData[journalSelectedSaveId];
+            if (!save) return;
+            if (!confirm('整理會合併語意重複的事件。系統會先保留備份，確定要繼續嗎？')) return;
+            const button = document.getElementById('journal-organize-btn');
+            const originalLabel = button?.innerText || '';
+            if (button) { button.disabled = true; button.innerText = '整理中…'; }
+            const prompt = buildSelectedJournalOrganizerPrompt(save);
+            try {
+                const rawText = await requestAIText(prompt, { kind: 'normal', maxTokens: 5000 });
+                const data = await parseMemoryOrganizerJson(rawText, prompt);
+                const organizedLog = formatBulletListText(data.adventure_log, '', true);
+                if (!organizedLog) throw new Error('AI 沒有回傳可用的冒險紀錄。');
+                if (!Array.isArray(save.memoryLogBackups)) save.memoryLogBackups = [];
+                save.memoryLogBackups.push({ date: new Date().toLocaleString(), log: save.log });
+                save.memoryLogBackups = save.memoryLogBackups.slice(-3);
+                save.log = organizedLog;
+                save.date = new Date().toLocaleString();
+                if (journalSelectedSaveId === currentSaveId) currentAdventureLog = organizedLog;
+                persistJson('sanko_saves_v8', savesData, '整理冒險日誌');
+                journalPageIndex = 0;
+                renderAdventureJournalSaveSelector();
+                renderAdventureJournal();
+                alert('冒險紀錄已整理完成；如不滿意可按「復原上次整理」。');
+            } catch (error) {
+                console.error(error);
+                alert(`整理失敗：${error.message || 'AI 暫時無法完成整理。'}\n原本內容沒有被刪除。`);
+            } finally {
+                if (button) { button.disabled = false; button.innerText = originalLabel; }
+            }
+        }
+
+        function restoreSelectedJournalBackup() {
+            const save = savesData[journalSelectedSaveId];
+            const backups = Array.isArray(save?.memoryLogBackups) ? save.memoryLogBackups : [];
+            if (!backups.length) { alert('這份存檔目前沒有可復原的整理備份。'); return; }
+            const latest = backups[backups.length - 1];
+            if (!confirm(`要復原 ${latest.date || '上一次'} 整理前的冒險紀錄嗎？`)) return;
+            save.log = formatBulletListText(latest.log, '• 故事剛開始，目前尚無重大事件發生。');
+            backups.pop();
+            save.memoryLogBackups = backups;
+            save.date = new Date().toLocaleString();
+            if (journalSelectedSaveId === currentSaveId) currentAdventureLog = save.log;
+            persistJson('sanko_saves_v8', savesData, '復原冒險日誌');
+            renderAdventureJournalSaveSelector();
+            renderAdventureJournal();
+        }
+
         function openSaveMenu() {
             refreshApiCredentials();
             if(!apiKey || !selectedModel) { alert(`請先驗證 ${apiProvider === 'openrouter' ? 'OpenRouter' : 'Google Gemini'} 金鑰並選擇模型。`); return; }
@@ -3768,7 +4427,7 @@
             const id = Date.now().toString();
             const selectedPreset = scenarioPresets[activePresetId] || defaultPreset;
             const freshScenario = createFreshScenarioFromPreset(selectedPreset);
-            const newSave = { title: saveName, date: new Date().toLocaleString(), hp: 100, san: 100, items: [], scenIndex: 0, chatPageIndex: 0, scripts: [[]], log: "1. 故事剛開始，目前尚無重大事件發生。", flags: [], inputDraft: '', respecCount: 3, scenario: freshScenario };
+            const newSave = { title: saveName, date: new Date().toLocaleString(), hp: 100, san: 100, items: [], scenIndex: 0, chatPageIndex: 0, scripts: [[]], log: "• 故事剛開始，目前尚無重大事件發生。", memoryBrief: { story: "", tasks: "", relationships: "" }, flags: [], inputDraft: '', respecCount: 3, scenario: freshScenario };
             newSave.scenario.sourcePresetId = activePresetId;
             savesData[id] = newSave;
             if (!persistJson('sanko_saves_v8', savesData, '遊戲存檔')) { delete savesData[id]; return; }
@@ -3891,6 +4550,11 @@
             savesData[currentSaveId].scenIndex = currentScenarioIndex;
             savesData[currentSaveId].date = new Date().toLocaleString();
             savesData[currentSaveId].log = currentAdventureLog;
+            savesData[currentSaveId].memoryBrief = {
+                story: currentStorySummary,
+                tasks: currentOpenTasks,
+                relationships: currentRelationshipSummary
+            };
             savesData[currentSaveId].flags = currentFlags;
             const currentInputDraft = document.getElementById('player-input')?.value || '';
             savesData[currentSaveId].inputDraft = currentInputDraft;
@@ -4097,7 +4761,7 @@ ${buildSurvivalInstruction()}
 ${flagsText}
 
 【DM 核心記憶庫】
-先前的事件日誌：\n${getAdventureLogForPrompt()}
+${getMemoryBriefForPrompt()}
 
 【🚨 TRPG 硬判定與數值影響】
 1. 玩家輸入若包含「系統硬判定」，代表程式已依指定六屬性、難度與 D20 骰點算出結果。結果【大成功／成功／失敗／大失敗】具有最高優先級，DM 絕對不得翻案、升降級或重新擲骰。
@@ -4107,7 +4771,7 @@ ${flagsText}
 5. 【事件對數值的影響】：重大事件可利用 new_flags 發放狀態標籤。使用或消耗道具時，將效果反映在 hp_change、san_change 或 lost_items；贈送 NPC 時可反映在 npc_love_change。
 6. 玩家明確要求「把某 NPC 好感度設為某數字」時，使用 npc_love_set；一般劇情造成的增減才使用 npc_love_change。禁止只在 narrative 宣稱修改完成卻漏填數值欄位。
 
-【🚨 角色動態狀態與好感度演進機制 (極重要)】
+        【🚨 角色動態狀態與好感度演進機制 (極重要)】
 目前 AI 重要紀錄追加：${currentScenario.memoryNotesPaused ? '已暫停。memoryNotes 必須回傳空陣列或省略，不得新增任何條目。' : '開啟中。僅在符合下列重大事件規則時新增。'}
 1. 核心人設（年齡、背景、性格、語氣、喜好與厭惡）由玩家建立，絕對不可自動改寫或摘要覆蓋。
 2. mood 可在角色情緒明顯轉換時即時更新；不要只是換同義詞，也不要每回合更新。
@@ -4116,6 +4780,13 @@ ${flagsText}
 5. memoryNotes 是角色專屬的長期記憶索引，只記錄重大約定、秘密、關係里程碑、不可逆選擇與尚未履行的承諾。每條必須寫成 4～12 個中文字的短標題，最多 16 字；不得寫成完整句子、不得以「玩家」開頭、不得補充原因或心理分析。例如「約好前往天堂島冒險並約會」只寫「天堂島冒險約定」；「深夜互相袒露心情與愛意」只寫「深夜坦承愛意」。只能回傳本回合要新增的條目陣列，必須 persistent: true；禁止重寫、摘要或重複既有條目。每位角色每回合通常最多新增一條。
 6. 若本回合沒有真正的狀態改變，npc_state_updates 回傳 []、player_state_update 回傳 {}。不要為了填欄位而更新。
 7. 若玩家的行為符合某位 NPC 的喜好、提供實質幫助或展現魅力，請增加其好感度；惹惱對方則減少。好感度突破 50 或 80 時，可主動觸發專屬事件。
+
+【🚨 自動雙層記憶更新（每回合必做）】
+1. memory_update.story_summary：回傳完整的最新劇情摘要陣列，保持 3～8 條短句。遇見新 NPC、接到／完成任務、抵達新地點、關係或局勢重大轉折時必須更新；沒變化時原樣保留既有重點。不得加入尚未發生的事。
+2. memory_update.relationship_summary：回傳完整的最新角色關係陣列，保留重要關係、界線、承諾與張力，最多 10 條；只有實際變化才改寫內容。
+3. memory_update.task_updates：只回傳本回合的任務異動。接到任務用 {"action":"add","text":"任務內容"}；完成用 {"action":"complete","text":"必須與既有任務文字相同或高度一致"}；重新開啟用 reopen；刪除錯誤項目才用 remove。無異動回傳 []。
+4. ☑ 已完成任務必須視為歷史事實，不得改回未完成，也不得安排角色再次從頭執行同一任務。相似的上船、抵達、見面、領取委託事件要先對照摘要與日誌，避免重播。
+5. adventure_log 只追加本回合重要事實；memory_update 則維護精簡的「現在狀態」。兩者用途不同，不得用摘要取代或刪除完整紀錄。
 
 【回傳 JSON 格式與嚴格規定 (支援多人)】
 - "hp_change": 整數。若需扣除或恢復體力填寫此欄位 (例: -10)。
@@ -4127,6 +4798,7 @@ ${flagsText}
 - "new_flags": 字串陣列 [Array]。若玩家獲得長期 Buff/Debuff 或解鎖重要承諾/事件寫入此處。(注意：標籤名稱不要加「狀態：」前綴，直接寫名稱即可)
 - "npc_state_updates": 物件陣列。即時情緒範例：[{"name":"宮崎三高","changes":{"mood":"警戒"},"reason":"察覺門外動靜"}]。持久變化必須加 persistent:true，例如：[{"name":"宮崎三高","persistent":true,"changes":{"relationship":"開始信任玩家","goal":"履行護送約定","memoryNotes":["遺跡護送約定"]},"reason":"玩家替他擋下攻擊"}]。無變動回傳 []。
 - "player_state_update": 物件。即時狀態只填 changes；需要更新 relationship、goal 或 memoryNotes 時必須加 persistent:true。重要紀錄格式：{"persistent":true,"changes":{"condition":"右臂擦傷","memoryNotes":["替隊友承受陷阱"]},"reason":"陷阱判定失敗"}。無變動回傳 {}。
+- "memory_update": 物件。格式：{"story_summary":["目前主線短句"],"relationship_summary":["角色關係短句"],"task_updates":[{"action":"add|complete|reopen|remove","text":"任務內容"}]}。story_summary 與 relationship_summary 是完整最新快照；task_updates 只列本回合異動。
 - "adventure_log": 字串 (String)。只回傳「本回合新增的重要事件」，一行一則；不要重抄、改寫或刪除舊紀錄，程式會自動去重後追加。沒有重大事件時回傳空字串。
 - "narrative": 第三方旁白視角。進行情境描寫、NPC之間的動作、判定結果宣告。
 - "dialogues": 物件陣列 (Array of Objects)。只有真正開口說話的 NPC 才列入此陣列！名稱必須完全符合上述 NPC 列表。格式範例：[{"speaker": "宮崎三高", "text": "退後。"}]。如果沒人講話，回傳 []。
@@ -4597,7 +5269,11 @@ ${flagsText}
             currentHp = normalizeSurvivalValue(saveData.hp, 100);
             currentSan = normalizeSurvivalValue(saveData.san, 100);
             currentItems = Array.isArray(saveData.items) ? saveData.items.map(item => valueToText(item)).filter(Boolean) : [];
-            currentAdventureLog = valueToText(saveData.log, "1. 故事剛開始，目前尚無重大事件發生。");
+            currentAdventureLog = formatBulletListText(saveData.log, "• 故事剛開始，目前尚無重大事件發生。");
+            const memoryBrief = saveData.memoryBrief && typeof saveData.memoryBrief === 'object' ? saveData.memoryBrief : {};
+            currentStorySummary = formatBulletListText(memoryBrief.story, '', true);
+            currentOpenTasks = serializeTaskChecklist(memoryBrief.tasks);
+            currentRelationshipSummary = formatBulletListText(memoryBrief.relationships, '', true);
             currentFlags = Array.isArray(saveData.flags) ? saveData.flags.map(flag => valueToText(flag)).filter(Boolean) : [];
             const playerInput = document.getElementById('player-input');
             const lightweightDraft = localStorage.getItem(getInputDraftStorageKey(id));
@@ -4847,14 +5523,37 @@ ${transitionRule}`;
             return sceneUsesNarratorDefinition(scene) ? 'narrator' : 'character';
         }
 
+        function normalizeModeSwitchCommandText(text) {
+            return valueToText(text)
+                .trim()
+                .replace(/^\s*[［\[【]\s*/, '')
+                .replace(/\s*[］\]】]\s*$/, '')
+                .trim();
+        }
+
+        function getLocalModeSwitchType(text) {
+            const command = normalizeModeSwitchCommandText(text);
+            if (!command) return '';
+            if (/^(?:切換|切到|切成|改成|改為|轉成|轉換為)?\s*(?:輔助旁白|旁白模式|輔助旁白模式|旁白|導演模式|創作者視角)$/.test(command)) return 'narrator';
+            if (/^(?:切回|切換為|切換|回到|恢復|改回|轉回)?\s*(?:玩家|玩家模式|角色行動|角色行動模式)$/.test(command)) return 'player';
+            if (/^(?:玩家登入|玩家回來|玩家回歸|玩家登場|玩家上線|恢復玩家模式|回到玩家模式|恢復角色行動|普通輸入恢復角色行動)$/.test(command)) return 'player';
+            if (/^(?:玩家離場|玩家退場|玩家離線|玩家不在場|切換為輔助旁白|切換輔助旁白|切到輔助旁白|切換旁白|切到旁白)$/.test(command)) return 'narrator';
+            return '';
+        }
+
         function parseSceneInputContext(text, scene = currentScenario.scenarios?.[currentScenarioIndex] || {}) {
             const rawText = valueToText(text).trim();
             const creatorPattern = /^\s*[［\[【]\s*創作者指令\s*[］\]】]\s*/i;
             if (creatorPattern.test(rawText)) {
-                return { mode: 'creator', content: rawText.replace(creatorPattern, '').trim(), rawText, explicit: true };
+                const content = rawText.replace(creatorPattern, '').trim();
+                return { mode: 'creator', content, rawText, explicit: true, localOnly: Boolean(getLocalModeSwitchType(content)) };
+            }
+            const shortcutModeSwitch = getLocalModeSwitchType(rawText);
+            if (shortcutModeSwitch) {
+                return { mode: 'creator', content: normalizeModeSwitchCommandText(rawText), rawText, explicit: true, localOnly: true };
             }
             const mode = getSceneParticipationMode(scene);
-            return { mode, content: rawText, rawText, explicit: false };
+            return { mode, content: rawText, rawText, explicit: false, localOnly: false };
         }
 
         function applyCreatorPresenceDirective(context) {
@@ -4862,27 +5561,47 @@ ${transitionRule}`;
             const scene = currentScenario.scenarios?.[currentScenarioIndex];
             if (!scene) return '';
             const playerName = valueToText(currentScenario.playerName);
-            const content = context.content;
+            const content = normalizeModeSwitchCommandText(context.content);
             const notices = [];
+            const directModeSwitch = getLocalModeSwitchType(content);
+
+            if (directModeSwitch === 'narrator') {
+                scene.runtimeGuideRole = '輔助旁白';
+                scene.runtimePlayerPresence = 'absent';
+                if (typeof setCreatorInputMode === 'function') setCreatorInputMode(false, false);
+                notices.push(`已切換為輔助旁白模式；玩家角色 ${playerName} 不預設在場`);
+                return notices.join('；');
+            }
+            if (directModeSwitch === 'player') {
+                scene.runtimePlayerPresence = 'present';
+                delete scene.runtimeGuideRole;
+                if (typeof setCreatorInputMode === 'function') setCreatorInputMode(false, false);
+                notices.push(`玩家角色 ${playerName} 已設為在場；後續普通輸入恢復角色行動模式`);
+                return notices.join('；');
+            }
+
             const mentionsPlayer = /玩家|主角|player/i.test(content) || (playerName && content.includes(playerName));
-            const guideMatch = content.match(/(?:轉換為|切換為|改為|成為)\s*([^，。；\n]{1,24})/);
+            const guideMatch = content.match(/(?:轉換為|切換為|切到|改為|成為)\s*([^，。；\n]{1,24})/);
             const guideRole = guideMatch ? valueToText(guideMatch[1]).replace(/角色$/, '').trim() : '';
 
             if (guideRole && /引導|旁白|導演|NPC|配角|角色/.test(guideRole)) {
                 scene.runtimeGuideRole = guideRole;
                 scene.runtimePlayerPresence = 'absent';
+                if (typeof setCreatorInputMode === 'function') setCreatorInputMode(false, false);
                 notices.push(`操作者已轉換為「${guideRole}」引導身分；原玩家角色不預設在場`);
             }
 
             if (mentionsPlayer) {
                 const absenceNow = /目前.{0,8}不在|仍然?.{0,6}(?:離線|不在)|暫時.{0,6}不在|尚未回歸|離線|離場|退場|不在場/.test(content);
-                const returnNow = /回到現場|現在.{0,6}回歸|重新.{0,6}(?:登場|上線)|回來了|讓.{0,12}回來|加入.{0,8}(?:現場|支線)|正式登場/.test(content);
+                const returnNow = /回到現場|現在.{0,6}回歸|重新.{0,6}(?:登場|上線)|回來了|讓.{0,12}回來|加入.{0,8}(?:現場|支線)|正式登場|玩家.{0,4}(?:登入|回來|回歸|登場|上線)|(?:切回|回到|恢復|改回|轉回).{0,4}(?:玩家|玩家模式|角色行動)|普通輸入.{0,8}恢復(?:角色行動|玩家)/.test(content);
                 if (absenceNow) {
                     scene.runtimePlayerPresence = 'absent';
+                    if (typeof setCreatorInputMode === 'function') setCreatorInputMode(false, false);
                     notices.push(`玩家角色 ${playerName} 已設為不在場；後續普通輸入採輔助旁白模式`);
                 } else if (returnNow) {
                     scene.runtimePlayerPresence = 'present';
                     delete scene.runtimeGuideRole;
+                    if (typeof setCreatorInputMode === 'function') setCreatorInputMode(false, false);
                     notices.push(`玩家角色 ${playerName} 已設為在場；後續普通輸入恢復角色行動模式`);
                 }
             }
@@ -4917,6 +5636,7 @@ ${transitionRule}`;
                 button.classList.toggle('active', creatorInputArmed);
                 button.setAttribute('aria-pressed', String(creatorInputArmed));
                 button.title = creatorInputArmed ? '關閉持續創作者指令模式' : '開啟持續創作者指令模式';
+                if (!creatorInputArmed) button.blur();
             }
             updatePlayerInputPlaceholder();
             const input = document.getElementById('player-input');
@@ -4955,7 +5675,22 @@ ${transitionRule}`;
                 return;
             }
             const presenceUpdate = applyCreatorPresenceDirective(inputContext);
-            if (presenceUpdate) createSystemNote(presenceUpdate);
+            if (presenceUpdate) {
+                createSystemNote(presenceUpdate);
+                updatePlayerInputPlaceholder();
+                if (inputContext.localOnly || Boolean(getLocalModeSwitchType(inputContext.content))) {
+                    inputEl.value = '';
+                    inputEl.style.height = 'auto';
+                    delete inputEl.dataset.diceSuggestedText;
+                    delete inputEl.dataset.diceStat;
+                    delete inputEl.dataset.diceDifficulty;
+                    const options = document.getElementById('options-area');
+                    if (options) options.innerHTML = '';
+                    saveCurrentProgress();
+                    inputEl.focus();
+                    return;
+                }
+            }
             const suggestedStat = normalizeDiceStatKey(inputEl.dataset.diceStat);
             const shouldAutoRoll = inputContext.mode === 'character'
                 && !playerText.includes('系統硬判定')
@@ -5221,7 +5956,7 @@ ${transitionRule}`;
             try {
                 return JSON.parse(extractJsonText(rawText));
             } catch (firstError) {
-                const repairPrompt = `請把以下 AI 回覆修正成「合法 JSON 物件」。不要新增解釋，不要使用 Markdown，只輸出 JSON。必須保留這些欄位名稱：hp_change, san_change, npc_love_change, npc_love_set, new_items, lost_items, new_flags, npc_state_updates, player_state_update, adventure_log, narrative, dialogues, options。\n\n原始任務摘要：\n${fullPrompt.slice(0, 3500)}\n\n需要修正的回覆：\n${rawText.slice(0, 12000)}`;
+                const repairPrompt = `請把以下 AI 回覆修正成「合法 JSON 物件」。不要新增解釋，不要使用 Markdown，只輸出 JSON。必須保留這些欄位名稱：hp_change, san_change, npc_love_change, npc_love_set, new_items, lost_items, new_flags, npc_state_updates, player_state_update, memory_update, adventure_log, narrative, dialogues, options。\n\n原始任務摘要：\n${fullPrompt.slice(0, 3500)}\n\n需要修正的回覆：\n${rawText.slice(0, 12000)}`;
                 const repairedText = await requestAIText(repairPrompt, { kind: 'repair' });
                 try {
                     return JSON.parse(extractJsonText(repairedText));
@@ -5229,6 +5964,91 @@ ${transitionRule}`;
                     throw new Error(`AI 回傳的 JSON 格式不正確，已自動修復一次仍失敗：${secondError.message}`);
                 }
             }
+        }
+
+        async function parseMemoryOrganizerJson(rawText, originalPrompt) {
+            try {
+                return JSON.parse(extractJsonText(rawText));
+            } catch (firstError) {
+                const repairPrompt = `請把以下內容修正為合法 JSON 物件。只輸出 JSON，不要 Markdown、不要解釋，也不得新增原文沒有的劇情。\n\n原始整理要求：\n${originalPrompt.slice(0, 2500)}\n\n待修正內容：\n${rawText.slice(0, 16000)}`;
+                const repairedText = await requestAIText(repairPrompt, { kind: 'repair', maxTokens: 5000 });
+                return JSON.parse(extractJsonText(repairedText));
+            }
+        }
+
+        function refreshMemoryEditorFields() {
+            const storyField = document.getElementById('ui-story-summary');
+            const relationshipField = document.getElementById('ui-relationship-summary');
+            const logField = document.getElementById('ui-adventure-log');
+            if (storyField) { storyField.value = currentStorySummary; autoResize(storyField); }
+            if (relationshipField) { relationshipField.value = currentRelationshipSummary; autoResize(relationshipField); }
+            if (logField) { logField.value = currentAdventureLog; autoResize(logField); }
+            renderTaskChecklist(currentOpenTasks);
+        }
+
+        function buildMemoryOrganizerPrompt(kind) {
+            const scene = currentScenario.scenarios?.[currentScenarioIndex] || {};
+            const tasks = parseTaskChecklist(currentOpenTasks);
+            const sharedContext = `目前場景：${scene.name || '未命名'}\n玩家：${currentScenario.playerName || '玩家'}\nNPC：${(currentScenario.npcs || []).map(npc => npc.name).filter(Boolean).join('、') || '無'}\nFlags：${currentFlags.join('、') || '無'}\n\n目前重點劇情：\n${currentStorySummary || '無'}\n\n目前任務：\n${serializeTaskChecklist(tasks) || '無'}\n\n目前角色關係：\n${currentRelationshipSummary || '無'}\n\n完整冒險紀錄：\n${currentAdventureLog || '無'}\n\n最近對話：\n${getRecentChatText(currentChatPageIndex) || '無'}`;
+            if (kind === 'log') {
+                return `你是 TRPG 冒險紀錄整理器。請整理下列完整紀錄：合併語意重複的事件（例如同一次上船被寫了數次），依實際發生順序排列，保留所有不重複的重要事實、任務結果、角色關係轉折、地點移動與取得／失去的物品。不得捏造、不得把已完成事件寫成尚未發生。\n只輸出 JSON：{"adventure_log":["事件一","事件二"]}。陣列每項是一條簡短紀錄，不要自行加項目符號。\n\n${sharedContext}`;
+            }
+            return `你是 TRPG 雙層記憶整理器。請根據資料產生精簡而完整的目前狀態，並消除重複描述。不得捏造、不得把 ☑ 已完成任務改回未完成；任務除非重複，全部保留。\n只輸出 JSON：{"story_summary":["3～8 條目前主線與重大轉折"],"tasks":[{"text":"任務內容","done":false}],"relationship_summary":["最多 10 條重要角色關係"]}。陣列文字不要自行加項目符號。\n\n${sharedContext}`;
+        }
+
+        async function organizeMemoryWithAI(kind) {
+            if (!['summary', 'log'].includes(kind) || !currentSaveId) return;
+            if (kind === 'log' && !window.confirm('整理完整冒險紀錄會合併重複事件。系統會先保留備份，確定要繼續嗎？')) return;
+            syncDomToCurrentScenario();
+            const summaryButton = document.getElementById('organize-summary-btn');
+            const logButton = document.getElementById('organize-log-btn');
+            const activeButton = kind === 'log' ? logButton : summaryButton;
+            const originalLabel = activeButton?.innerText || '';
+            [summaryButton, logButton].forEach(button => { if (button) button.disabled = true; });
+            if (activeButton) activeButton.innerText = '整理中…';
+            const prompt = buildMemoryOrganizerPrompt(kind);
+            try {
+                const rawText = await requestAIText(prompt, { kind: 'normal', maxTokens: kind === 'log' ? 5000 : 2400 });
+                const data = await parseMemoryOrganizerJson(rawText, prompt);
+                if (kind === 'log') {
+                    const organizedLog = formatBulletListText(data.adventure_log, '', true);
+                    if (!organizedLog) throw new Error('AI 沒有回傳可用的冒險紀錄。');
+                    const save = savesData[currentSaveId];
+                    if (!Array.isArray(save.memoryLogBackups)) save.memoryLogBackups = [];
+                    save.memoryLogBackups.push({ date: new Date().toLocaleString(), log: currentAdventureLog });
+                    save.memoryLogBackups = save.memoryLogBackups.slice(-3);
+                    currentAdventureLog = organizedLog;
+                } else {
+                    const storyItems = normalizeSummaryPayload(data.story_summary, 8);
+                    const relationshipItems = normalizeSummaryPayload(data.relationship_summary, 10);
+                    if (storyItems.length) currentStorySummary = formatBulletListText(storyItems, '', true);
+                    if (relationshipItems.length) currentRelationshipSummary = formatBulletListText(relationshipItems, '', true);
+                    if (Array.isArray(data.tasks)) currentOpenTasks = serializeTaskChecklist(data.tasks);
+                }
+                refreshMemoryEditorFields();
+                saveCurrentProgress();
+                alert(kind === 'log' ? '冒險紀錄已整理完成；如不滿意可按「復原上次整理」。' : '摘要與任務清單已整理完成。');
+            } catch (error) {
+                console.error(error);
+                alert(`整理失敗：${error.message || 'AI 暫時無法完成整理。'}\n原本的內容沒有被刪除。`);
+            } finally {
+                [summaryButton, logButton].forEach(button => { if (button) button.disabled = false; });
+                if (activeButton) activeButton.innerText = originalLabel;
+            }
+        }
+
+        function restoreLatestAdventureLogBackup() {
+            const save = savesData[currentSaveId];
+            const backups = Array.isArray(save?.memoryLogBackups) ? save.memoryLogBackups : [];
+            if (!backups.length) { alert('目前沒有可復原的整理備份。'); return; }
+            const latest = backups[backups.length - 1];
+            if (!window.confirm(`要復原 ${latest.date || '上一次'} 整理前的完整冒險紀錄嗎？`)) return;
+            currentAdventureLog = formatBulletListText(latest.log, currentAdventureLog);
+            backups.pop();
+            save.memoryLogBackups = backups;
+            refreshMemoryEditorFields();
+            saveCurrentProgress();
+            alert('已復原整理前的完整冒險紀錄。');
         }
 
 
@@ -5337,7 +6157,7 @@ ${context.content}
             const recentChatText = getRecentChatText(currentChatPageIndex);
             const latestActionPrompt = buildLatestActionPrompt(latestPlayerAction);
             const sceneTransitionPrompt = buildSceneTransitionPrompt();
-            const fullPrompt = `${getSystemInstruction()}${sceneTransitionPrompt}\n\n目前對話紀錄（僅保留最近 ${MAX_RECENT_CHAT_LINES} 則，長期記憶請以事件日誌與 Flags 為準）：\n${recentChatText}${latestActionPrompt}\n\n${extraPrompt}`;
+            const fullPrompt = `${getSystemInstruction()}${sceneTransitionPrompt}\n\n目前對話紀錄（僅保留最近 ${MAX_RECENT_CHAT_LINES} 則，長期記憶請以重點摘要、任務清單、Flags 與角色狀態為準）：\n${recentChatText}${latestActionPrompt}\n\n${extraPrompt}`;
 
             try {
                 const rawText = await requestAIText(fullPrompt);
@@ -5391,6 +6211,7 @@ ${context.content}
                 if(parsedData.adventure_log) {
                     currentAdventureLog = mergeAdventureLog(currentAdventureLog, parsedData.adventure_log);
                 }
+                applyAutomaticMemoryUpdate(parsedData.memory_update);
                 
                 if(playerEffectsAllowed && parsedData.new_items && Array.isArray(parsedData.new_items) && parsedData.new_items.length > 0) {
                     parsedData.new_items.forEach(item => {
