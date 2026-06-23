@@ -1102,7 +1102,7 @@
             .msg-text { padding: 8px 12px; font-size: 14px; line-height: 1.5; }
             .msg-narrative { padding: 8px 12px; font-size: 13px; line-height: 1.5; margin: 0 5px; }
             #dialogue-box { gap: 12px; padding: 0; }
-            #status-bar { padding-bottom: 8px; margin-bottom: 8px; gap: 6px; }
+            #status-bar { padding-bottom: 2px; margin-bottom: 0px; gap: 6px; }
             #input-area { padding-top: 8px; gap: 6px; }
             #player-input { padding: 10px; font-size: 14px; min-height: 40px; }
             .btn { padding: 8px 12px; font-size: 13px; }
