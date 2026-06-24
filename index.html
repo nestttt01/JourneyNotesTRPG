@@ -86,6 +86,15 @@
                     <p class="u-inline-014">目前持有、失去或劇情產生的重要物品。</p>
                     <div id="ui-items-container"></div>
 
+                    <div class="language-setting-row interface-language-setting">
+                        <div class="scenario-label">介面語言</div>
+                        <select data-ui-language-select class="language-mode-select" onchange="setUiLanguage(this.value)">
+                            <option value="zh-TW">繁體中文</option>
+                            <option value="en">English</option>
+                            <option value="ja">日本語</option>
+                        </select>
+                    </div>
+
                     <div class="language-setting-row">
                         <div class="scenario-label">輸出語言</div>
                         <select id="modal-language-mode" class="language-mode-select" onchange="syncLanguageMode(this.value)">
@@ -106,8 +115,8 @@
                 </div>
 
                 <div id="status-page-log" class="status-page">
-                    <p class="u-inline-016">AI 讀取摘要</p>
-                    <p class="u-inline-014">AI 每回合會自動更新重點、任務與關係；完整冒險紀錄仍保留在下方，不會自動刪除。</p>
+                    <p class="u-inline-016">讀取摘要</p>
+                    <p class="u-inline-014">每回合會自動更新重點、任務與關係；完整冒險紀錄仍保留在下方，不會自動刪除。</p>
 
                     <div class="memory-action-row">
                         <button id="organize-summary-btn" class="memory-action-btn" onclick="organizeMemoryWithAI('summary')">整理摘要</button>
@@ -126,7 +135,7 @@
                             </div>
                             <div class="memory-task-block">
                                 <div class="memory-field-title">任務清單</div>
-                                <p class="memory-field-hint">AI 遇到新任務會新增空格；事件完成後會自動打勾，也可以手動修改。</p>
+                                <p class="memory-field-hint">遇到新任務會新增空格；事件完成後會自動打勾，也可以手動修改。</p>
                                 <div id="ui-open-tasks" class="memory-task-list"></div>
                                 <div class="memory-task-add">
                                     <input id="ui-new-memory-task" type="text" placeholder="手動新增任務..." onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addMemoryTaskFromInput(); }">
@@ -158,22 +167,22 @@
             
             <div class="modal-header-sticky u-inline-017">
           
-<h3 class="u-inline-005">新手教學與遊戲指南</h3>
+<h3 class="u-inline-005">遊戲玩法與系統指南</h3>
 </div>
 
 <div class="u-inline-018">
   <div style="height: 18px;"></div>
   <p class="u-inline-019">第一次玩，從這裡開始</p>
-    <p class="u-inline-020">你只需要完成 API 驗證、建立角色，然後輸入第一個行動就能開始。角色面板、冒險日誌與其他進階功能，可以等實際需要時再使用。</p>
+    <p class="u-inline-020">API 金鑰的設定、隱私與錯誤排除請直接查看首頁說明。完成驗證並選好模型後，依序建立角色與情境、進入存檔，再輸入第一個行動即可開始。</p>
 
     <p class="u-inline-019">1. 這是什麼？</p>
     <p class="u-inline-020">這是一個單人 AI TRPG／劇情模擬器。你可以建立自己的角色、NPC 與世界觀，讓 AI 擔任 DM、旁白及其他角色，陪你進行冒險、戀愛、日常、懸疑或任何想玩的故事。</p>
 
-    <p class="u-inline-019">2. 驗證 API Key</p>
-    <p class="u-inline-020">開始前，請先準備 Google AI Studio 或 OpenRouter 的 API Key。貼上金鑰並完成驗證後，選擇一個 AI 模型即可進入遊戲。想節省用量可以先選擇輕量模型；重視劇情與角色演出，可以優先嘗試清單中標有 ★ 的模型。API Key 不會包含在匯出備份中。</p>
+    <p class="u-inline-019">2. 建立角色、NPC 與情境</p>
+    <p class="u-inline-020">進入「劇本創角」後，使用左側的「角色設定」、「情境設定」與「遊戲設定」切換不同內容。角色設定可編輯玩家與每一位 NPC 的頭像、名稱及人物資料；情境設定用來建立世界觀、身分與轉場規則。切換標籤時，尚未離開頁面的修改不會被重置。</p>
 
-    <p class="u-inline-019">3. 建立角色與故事</p>
-    <p class="u-inline-020">在「劇本創角」中設定玩家名稱、頭像、能力值與人物背景，也可以建立多位 NPC。接著設定故事的世界觀與情境；也能保留人物只隨機產生世界，或讓 AI 將人物與世界全部隨機生成。生成結果會先預覽，套用後仍需按下儲存，不會直接覆蓋原設定。</p>
+    <p class="u-inline-019">3. 遊戲設定與隨機生成</p>
+    <p class="u-inline-020">遊戲設定集中管理配置名稱、輸出語言、遊戲難度與隨機生成。你可以保留人物只隨機產生情境，也可以讓 AI 將人物與情境全部隨機。生成結果會先讓你確認，不會在未套用前直接覆蓋目前內容；返回首頁時，系統會保存目前配置。</p>
 
     <p class="u-inline-019">4. 怎麼玩？</p>
     <p class="u-inline-020">進入遊戲後，直接在下方輸入角色想說的話或想做的事。你也可以點選 AI 提供的選項。若行動具有風險，可以使用骰子按鈕進行 D20 判定；系統會依角色能力、難度與骰點決定成功或失敗。NPC 只有在劇情明確確認時才會死亡；標準模式可由劇情或「神」復活，困難模式每次死亡只有一次復活檢定，極限模式則永久死亡。</p>
@@ -182,10 +191,10 @@
     <p class="u-inline-020">一般輸入會被視為玩家角色的行動。輸入 <code>［切換旁白］</code> 可以改用場外視角安排環境、鏡頭與 NPC 行動；輸入 <code>［切換玩家］</code> 就能回到玩家角色。「神」按鈕則是創作者模式，可以直接調整場景、時間、人物或事件。神模式的內容不會被 NPC 當成玩家說出口的話。</p>
 
     <p class="u-inline-019">6. 角色面板與冒險日誌</p>
-    <p class="u-inline-020">角色面板可以查看與修改玩家狀態、NPC、道具、Flags、任務、劇情摘要及角色關係。AI 每回合會優先參考這些重點資料，幫助故事保持連貫。完整的歷史事件則保存在「冒險日誌」，可以搜尋、分頁、編輯或整理，不會因為摘要更新而自動消失。</p>
+    <p class="u-inline-020">角色面板可以查看與修改玩家狀態、NPC、道具、Flags、任務、劇情摘要及角色關係；AI 每回合會參考這些重點資料來延續故事。面板內的冒險日誌只顯示目前這份遊戲紀錄，完整事件可以搜尋、分頁、編輯或整理，不會因摘要更新而自動消失。桌機版按「儲存」後面板會保持開啟，可點側邊標籤收回；手機版則使用「儲存並返回」。</p>
 
-    <p class="u-inline-019">7. 存檔與備份</p>
-    <p class="u-inline-020">每個遊戲紀錄會分開保存，不會和其他故事混在一起。資料主要保存在目前裝置的瀏覽器，不會自動同步到其他手機或電腦。建議定期在存檔選單按「匯出」保存備份；更換裝置時，再使用「匯入」恢復資料。</p>
+    <p class="u-inline-019">7. 遊戲紀錄、配置與備份</p>
+    <p class="u-inline-020">每份遊戲紀錄都會綁定目前使用的角色配置，彼此的摘要、任務、關係與冒險日誌會分開保存。使用「另存新配置」後，該紀錄會改綁新配置；仍被遊戲紀錄使用的配置無法直接刪除，上鎖配置也不會被遊戲內修改覆蓋。資料主要保存在目前裝置的瀏覽器，不會自動同步，請定期在存檔選單使用「匯出」備份，並在更換裝置後使用「匯入」恢復。</p>
 
     <div class="u-inline-021">
         <p class="u-inline-019">💡 AI 忘記事情怎麼辦？</p>
@@ -194,8 +203,6 @@
         <p class="u-inline-019">💡 劇情重複或場景錯亂怎麼辦？</p>
         <p class="u-inline-022">先確認摘要與冒險日誌是否正確。如果 AI 仍然混淆，可以開啟「神」模式，直接說明目前場景、在場角色與接下來希望聚焦的方向。</p>
 
-        <p class="u-inline-019">💡 AI 一直沒有回應怎麼辦？</p>
-        <p class="u-inline-023">系統遇到暫時性連線問題時會自動重試一次。若等待太久，可以按「取消等待」停止本次請求，再檢查網路、API 額度或更換模型。尚未完成的輸入會盡量放回輸入框。</p>
     </div>
 </div>
             <div class="u-inline-024">
@@ -205,13 +212,47 @@
         </div>
     </div>
 
+    <div id="api-guide-modal" class="modal-overlay">
+        <div id="api-guide-modal-content">
+            <div class="modal-header-sticky u-inline-017">
+                <h3 class="u-inline-005">API 金鑰與模型指南</h3>
+            </div>
+            <div class="u-inline-018">
+                <div style="height: 18px;"></div>
+                <p class="u-inline-019">開始前先知道這些</p>
+                <p class="u-inline-020">本遊戲需要使用你自己的 API Key 才能呼叫 AI。請先在首頁選擇供應商、貼上對應金鑰並完成驗證；金鑰不會包含在遊戲備份中，共用裝置也不建議開啟保存功能。</p>
+
+                <p class="u-inline-019">1. API Key 是什麼？</p>
+                <p class="u-inline-020">API Key 是 AI 服務用來辨識使用者與計算用量的金鑰，不是遊戲帳號或遊戲密碼。請向 Google AI Studio 或 OpenRouter 申請，並妥善保管；不要把金鑰貼到公開貼文、截圖或傳給其他人。</p>
+
+                <p class="u-inline-019">2. Google Gemini 與 OpenRouter</p>
+                <p class="u-inline-020">選擇 Google Gemini 時，請使用 Google AI Studio 提供的金鑰；選擇 OpenRouter 時，請使用 OpenRouter 金鑰。兩種金鑰不能互換。OpenRouter 可提供多家模型，Gemini 則直接使用 Google 模型；實際可用清單會在驗證後載入。</p>
+
+                <p class="u-inline-019">3. 模型怎麼選？</p>
+                <p class="u-inline-020">輕量模型通常回覆較快、用量較省，適合測試設定或日常遊玩；較大型模型通常更擅長長篇劇情、人物語氣與複雜指令。清單中的 ★ 代表較適合目前遊戲用途的優先選項。模型表現與費用可能不同，請以供應商顯示的資訊為準。</p>
+
+                <p class="u-inline-019">4. 金鑰會保存在哪裡？</p>
+                <p class="u-inline-020">未開啟「在這台裝置保留金鑰」時，金鑰只在目前頁面使用，重新開啟後需要再次輸入；開啟後才會保存在這台裝置的瀏覽器。匯出備份不包含 API Key，因此在新裝置匯入遊戲資料後仍需重新驗證。</p>
+
+                <p class="u-inline-019">5. 哪些資料會傳給 AI？</p>
+                <p class="u-inline-020">為了產生回覆，角色設定、目前情境、必要的劇情摘要與近期對話會送往所選供應商。角色照片與完整本機存檔不會隨一般對話請求上傳；照片與遊戲進度主要保存在目前裝置。</p>
+
+                <p class="u-inline-019">6. 驗證或回覆失敗怎麼辦？</p>
+                <p class="u-inline-020">請依序確認供應商是否選對、金鑰是否完整、帳戶額度與模型權限是否有效，以及網路是否正常。若只有特定模型失敗，可以改選其他模型；等待過久時可按「取消等待」，未完成的輸入會盡量放回輸入框。</p>
+            </div>
+            <div class="u-inline-024">
+                <button class="btn u-inline-025" onclick="closeApiGuideModal()">我瞭解了</button>
+            </div>
+        </div>
+    </div>
+
     <div id="setup-screen">
         <img id="setup-pic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" title="點擊上傳首頁照片" onclick="document.getElementById('pic-input').click();">
         <input type="file" id="pic-input" accept="image/*" onchange="loadPic(this)" hidden class="hidden-file-input">
 
         <h2>TRPG模擬器 (測試)</h2>
         <p class="u-inline-026">W H I S P E R</p>
-        
+
         <select id="api-provider" class="model-select" onchange="changeApiProvider(this.value)">
             <option value="google">Google Gemini</option>
             <option value="openrouter">OpenRouter</option>
@@ -231,10 +272,11 @@
             <button class="btn" id="verify-btn" onclick="fetchAvailableModels()">驗證金鑰</button>
         </div>
 
-        <p class="u-inline-028">
-            🔒 <b>隱私說明</b>：API Key 只會送往目前選擇的 AI 供應商；開啟上方選項時，才會保留在這台裝置的瀏覽器中。匯出備份不包含 API Key。<br>
-            ⚠️ <b>資料提醒</b>：角色設定與對話內容會隨請求傳給該 AI 供應商；照片與遊戲進度保存在本機。請妥善保管金鑰並留意使用額度。
-        </p>
+        <div class="api-home-guide">
+            <strong>開始前請先準備 API 金鑰</strong>
+            <p>請選擇 Google Gemini 或 OpenRouter，貼上對應的 API Key 並完成驗證。金鑰不會包含在匯出備份中；共用裝置請勿開啟保存功能。</p>
+            <button type="button" class="api-guide-open-btn" onclick="openApiGuideModal()">查看 API 詳細說明與模型選擇</button>
+        </div>
         
         <div id="model-selection-area">
             <p class="u-inline-029">驗證成功。請選擇大腦核心：</p>
@@ -247,7 +289,7 @@
             </div>
             
             <div class="u-inline-030">
-                <button onclick="openTutorialModal()" class="u-inline-031">閱讀新手教學與系統指南</button>
+                <button onclick="openTutorialModal()" class="u-inline-031">閱讀遊戲玩法與系統指南</button>
             </div>
             
             <div class="u-inline-032">
@@ -265,12 +307,109 @@
             </div>
             <div class="theme-reset-row"><button type="button" class="theme-reset-btn" onclick="resetUiTheme()">恢復預設</button></div>
         </details>
+        <label class="ui-language-picker">
+            <span>介面語言</span>
+            <select data-ui-language-select onchange="setUiLanguage(this.value)">
+                <option value="zh-TW">繁體中文</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+            </select>
+        </label>
         <p class="setup-version"> Threads @ miyazaki.617 · 測試版 v0.35 · 2026/06/23</p>
     </div>
 
     <div id="edit-scenario-screen">
-        <h2>劇本與創角配置</h2>
-        
+        <aside id="desktop-config-overview" aria-label="角色配置總覽">
+            <div class="desktop-config-tabs" aria-label="配置分類">
+                <button type="button" class="desktop-config-tab active" data-config-section="characters" onclick="switchDesktopConfigWorkspace('characters')">角色設定</button>
+                <button type="button" class="desktop-config-tab" data-config-section="scenarios" onclick="switchDesktopConfigWorkspace('scenarios')">情境設定</button>
+                <button type="button" class="desktop-config-tab" data-config-section="game" onclick="switchDesktopConfigWorkspace('game')">遊戲設定</button>
+            </div>
+            <div class="desktop-config-overview-inner">
+                <section class="desktop-workspace-view active" data-workspace-view="characters" aria-label="角色設定總覽">
+                    <button type="button" class="desktop-player-card" onclick="openDesktopConfigEditor('player')" aria-label="編輯玩家角色">
+                        <img id="desktop-player-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="玩家頭像">
+                        <strong id="desktop-player-name">玩家</strong>
+                    </button>
+                    <div class="desktop-npc-overview">
+                        <div class="desktop-overview-heading"><strong>登場 NPC</strong></div>
+                        <div id="desktop-npc-avatar-list" class="desktop-npc-avatar-list"></div>
+                    </div>
+                </section>
+
+                <section class="desktop-workspace-view" data-workspace-view="scenarios" aria-label="情境設定總覽">
+                    <div class="desktop-workspace-heading">
+                        <h2>情境設定</h2>
+                    </div>
+                    <div id="desktop-scenario-card-list" class="desktop-overview-card-list"></div>
+                </section>
+
+                <section class="desktop-workspace-view" data-workspace-view="game" aria-label="遊戲設定總覽">
+                    <div class="desktop-workspace-heading">
+                        <h2>遊戲設定</h2>
+                    </div>
+                    <div class="desktop-game-settings-card">
+                        <div class="desktop-game-setting-row desktop-game-preset-row">
+                            <label for="desktop-preset-selector">目前配置</label>
+                            <div class="desktop-game-inline-control">
+                                <select id="desktop-preset-selector" onchange="selectDesktopPreset(this.value)"></select>
+                                <button type="button" class="desktop-game-add-btn" onclick="createNewPreset()">＋ 新增</button>
+                            </div>
+                        </div>
+                        <div class="desktop-game-setting-row">
+                            <div class="desktop-game-label-line">
+                                <label for="desktop-preset-name-input">配置檔案名稱</label>
+                                <button id="desktop-preset-lock-btn" type="button" onclick="togglePresetLock()" title="切換配置鎖定">🔓</button>
+                            </div>
+                            <input id="desktop-preset-name-input" type="text" oninput="updateDesktopPresetName(this.value)">
+                        </div>
+                        <div class="desktop-game-setting-row desktop-random-setting">
+                            <label>AI 隨機生成</label>
+                            <div class="desktop-game-two-buttons">
+                                <button type="button" onclick="openRandomGenerator('world')">保留人物，隨機情境</button>
+                                <button type="button" onclick="openRandomGenerator('all')">人物與情境全部隨機</button>
+                            </div>
+                        </div>
+                        <div class="desktop-game-setting-grid">
+                            <label>介面語言
+                                <select data-ui-language-select onchange="setUiLanguage(this.value)">
+                                    <option value="zh-TW">繁體中文</option>
+                                    <option value="en">English</option>
+                                    <option value="ja">日本語</option>
+                                </select>
+                            </label>
+                            <label>輸出語言
+                                <select id="desktop-language-mode" onchange="setDesktopLanguageMode(this.value)">
+                                    <option value="zh-tw">繁體中文</option>
+                                    <option value="en">English</option>
+                                    <option value="ja">日本語</option>
+                                    <option value="ja-zh">日文台詞 + 繁中翻譯</option>
+                                    <option value="en-zh">英文台詞 + 繁中翻譯</option>
+                                    <option value="auto">自動依玩家語言</option>
+                                </select>
+                            </label>
+                            <label>遊戲難度
+                                <select id="desktop-game-difficulty" onchange="setDesktopGameDifficulty(this.value)">
+                                    <option value="standard">標準模式</option>
+                                    <option value="hard">困難模式</option>
+                                    <option value="nightmare">極限模式</option>
+                                </select>
+                            </label>
+                        </div>
+                        <p class="desktop-game-difficulty-note">困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定。極限模式：檢定 DC +4，歸零必定 Game Over，NPC 死亡後無法復活。</p>
+                        <div class="desktop-game-management-actions">
+                            <button type="button" onclick="saveAsNewPreset()">另存新配置</button>
+                            <button type="button" onclick="restoreDefaultPreset()">清空欄位</button>
+                            <button type="button" class="danger" onclick="deleteCurrentPreset()">刪除配置</button>
+                        </div>
+                        <p class="desktop-game-autosave-note">角色與情境的修改會保留，返回大廳時自動儲存目前配置。</p>
+                    </div>
+                </section>
+            </div>
+            <button type="button" class="desktop-config-back" onclick="cancelEdit()">返回</button>
+        </aside>
+
+        <div id="desktop-config-editor">
         <div class="u-inline-033">
             <select id="preset-selector" class="model-select" onchange="loadPresetToForm(this.value)"></select>
             <button class="btn u-inline-034" onclick="createNewPreset()">新增</button>
@@ -281,14 +420,14 @@
                 <span>配置檔案名稱</span>
                 <span id="preset-lock-toggle" onclick="togglePresetLock()" title="點擊切換鎖定狀態">🔓</span>
             </div>
-            <input type="text" id="input-preset-name" class="scenario-input">
+            <input type="text" id="input-preset-name" class="scenario-input" oninput="renderDesktopPresetOverview()">
 
             <div class="random-generator-actions">
                 <button class="btn" type="button" onclick="openRandomGenerator('world')">保留人物隨機情境</button>
                 <button class="btn" type="button" onclick="openRandomGenerator('all')">人物情境全部隨機</button>
             </div>
 
-            <div class="u-inline-036">
+            <div id="preset-player-editor" class="u-inline-036">
                 <h4 class="u-inline-037">玩家自己設定</h4>
                 <div class="avatar-setup-area u-inline-038">
                     <div class="avatar-box" onclick="document.getElementById('upload-player').click();">
@@ -298,7 +437,7 @@
                     </div>
                 </div>
                 <div class="scenario-label">玩家名稱</div>
-                <input type="text" id="input-player-name" class="scenario-input">
+                <input type="text" id="input-player-name" class="scenario-input" oninput="syncDesktopCharacterNameWidth(this); renderDesktopPresetOverview()">
                 
                 <div class="u-inline-039">
                     <div class="scenario-label u-inline-040">基礎六圍屬性</div>
@@ -331,9 +470,17 @@
                     </div>
                 </details>
 
+                <div class="language-setting-row interface-language-setting">
+                    <div class="scenario-label">介面語言</div>
+                    <select data-ui-language-select class="language-mode-select" onchange="setUiLanguage(this.value)">
+                        <option value="zh-TW">繁體中文</option>
+                        <option value="en">English</option>
+                        <option value="ja">日本語</option>
+                    </select>
+                </div>
                 <div class="language-setting-row">
                     <div class="scenario-label">輸出語言</div>
-                    <select id="input-language-mode" class="language-mode-select" onchange="syncLanguageMode(this.value)">
+                    <select id="input-language-mode" class="language-mode-select" onchange="syncLanguageMode(this.value); renderDesktopPresetOverview()">
                         <option value="zh-tw">繁體中文</option>
                         <option value="en">English</option>
                         <option value="ja">日本語</option>
@@ -345,7 +492,7 @@
 
                 <div class="game-difficulty-row">
                     <div class="scenario-label">遊戲難度</div>
-                    <select id="input-game-difficulty" class="language-mode-select">
+                    <select id="input-game-difficulty" class="language-mode-select" onchange="renderDesktopPresetOverview()">
                         <option value="standard">標準模式</option>
                         <option value="hard">困難模式</option>
                         <option value="nightmare">極限模式</option>
@@ -355,13 +502,13 @@
                 
             </div>
 
-            <div class="u-inline-045">
+            <div id="preset-npc-heading" class="u-inline-045">
                 <h3 class="u-inline-046">登場 NPC 列表</h3>
                 <button class="btn u-inline-047" onclick="addNpcBlock()">+ 新增 NPC</button>
             </div>
             <div id="npc-list-container"></div>
 
-            <div class="u-inline-045">
+            <div id="preset-scenario-heading" class="u-inline-045">
                 <h3 class="u-inline-046">動態情境列表</h3>
                 <button class="btn u-inline-048" onclick="addScenarioBlock()">+ 新增情境</button>
             </div>
@@ -378,6 +525,7 @@
         </div>
         <div class="action-buttons u-inline-053">
             <button class="btn u-inline-054" onclick="cancelEdit()">返回選單</button>
+        </div>
         </div>
     </div>
 
@@ -485,6 +633,7 @@
             <button class="btn" id="send-btn" onclick="sendChoice()">發送</button>
         </div>
     </div>
+    <script src="i18n.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

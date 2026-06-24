@@ -20,6 +20,12 @@ window.onerror = function(message, source, lineno, colno, error) {
         function closeTutorialModal() {
             document.getElementById('tutorial-modal').style.display = 'none';
         }
+        function openApiGuideModal() {
+            document.getElementById('api-guide-modal').style.display = 'flex';
+        }
+        function closeApiGuideModal() {
+            document.getElementById('api-guide-modal').style.display = 'none';
+        }
 
 /* ==================== Script section 2 ==================== */
 /* ======= 系統核心變數 ======= */
@@ -132,6 +138,15 @@ window.onerror = function(message, source, lineno, colno, error) {
         let journalEmbedded = false;
         let apiUsageStats = {};
         let lastPromptDiagnostics = {};
+
+        window.addEventListener('ui-language-change', event => {
+            const locale = event.detail?.locale || (window.getUiLanguage ? getUiLanguage() : 'zh-TW');
+            const gameVisible = document.getElementById('game-container')?.style.display === 'flex';
+            if (!gameVisible || !currentSaveId || !savesData[currentSaveId]) return;
+            savesData[currentSaveId].uiLocale = locale;
+            if (currentScenario && typeof currentScenario === 'object') currentScenario.uiLocale = locale;
+            scheduleActiveGameSave(80);
+        });
 
         const UI_THEME_STORAGE_KEY = 'sanko_ui_theme_v1';
         const LAST_BACKUP_STORAGE_KEY = 'sanko_last_backup_at_v1';
@@ -1033,6 +1048,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             } else if (cropTargetRole === 'game') {
                 commitGameAvatar(finalBase64);
             }
+            if (cropTargetRole === 'player' || cropTargetRole.startsWith('npc-')) renderDesktopPresetOverview();
             closeCropModal();
         }
 
@@ -1276,7 +1292,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             currentOpenTasks = serializeTaskChecklist(tasks);
             container.dataset.rendered = 'true';
             if (!tasks.length) {
-                container.innerHTML = '<p class="memory-task-empty">目前沒有任務。接到新委託時，AI 會自動加在這裡。</p>';
+                container.innerHTML = '<p class="memory-task-empty">目前沒有任務。接到新委託時，會自動加在這裡。</p>';
                 return;
             }
             container.innerHTML = tasks.map((task, index) => `
@@ -2157,6 +2173,211 @@ window.onerror = function(message, source, lineno, colno, error) {
             document.getElementById('setup-screen').style.display = 'none'; 
             document.getElementById('edit-scenario-screen').style.display = 'flex'; 
             renderPresetSelector(); loadPresetToForm(activePresetId);
+            switchDesktopConfigWorkspace('characters');
+        }
+
+        function isDesktopConfigLayout() {
+            return window.matchMedia('(min-width: 1100px)').matches;
+        }
+
+        function syncDesktopCharacterNameWidth(input) {
+            if (!input) return;
+            if (!isDesktopConfigLayout()) {
+                input.style.removeProperty('width');
+                return;
+            }
+            const characterCount = Math.max(1, Array.from(valueToText(input.value, '角色')).length);
+            input.style.width = `${Math.max(112, Math.min(320, characterCount * 22 + 36))}px`;
+        }
+
+        function setDesktopConfigTab(section = 'characters') {
+            document.querySelectorAll('.desktop-config-tab').forEach(button => {
+                button.classList.toggle('active', button.dataset.configSection === section);
+            });
+        }
+
+        let desktopConfigWorkspace = 'characters';
+
+        function switchDesktopConfigWorkspace(section = 'characters') {
+            const screen = document.getElementById('edit-scenario-screen');
+            if (!screen) return;
+            if (screen.classList.contains('random-generator-inline-open')) closeRandomGenerator();
+            if (isDesktopConfigLayout() && screen.style.display === 'flex') syncEditingDataFromDOM();
+            desktopConfigWorkspace = ['characters', 'scenarios', 'game'].includes(section) ? section : 'characters';
+            screen.classList.remove('desktop-editor-open');
+            screen.classList.toggle('game-workspace-active', desktopConfigWorkspace === 'game');
+            delete screen.dataset.editorSection;
+            setDesktopConfigTab(desktopConfigWorkspace);
+            document.querySelectorAll('.desktop-workspace-view').forEach(view => {
+                view.classList.toggle('active', view.dataset.workspaceView === desktopConfigWorkspace);
+            });
+            renderDesktopPresetOverview();
+        }
+
+        function showDesktopConfigOverview() {
+            switchDesktopConfigWorkspace('characters');
+        }
+
+        function closeDesktopConfigEditor() {
+            const screen = document.getElementById('edit-scenario-screen');
+            if (!screen) return;
+            screen.classList.remove('desktop-editor-open');
+            delete screen.dataset.editorSection;
+            renderDesktopPresetOverview();
+        }
+
+        function openDesktopConfigEditor(section = 'player', itemIndex = -1) {
+            if (!isDesktopConfigLayout()) return;
+            const screen = document.getElementById('edit-scenario-screen');
+            if (!screen) return;
+            const workspace = section === 'scenario' ? 'scenarios' : (section === 'game' ? 'game' : 'characters');
+            desktopConfigWorkspace = workspace;
+            setDesktopConfigTab(workspace);
+            document.querySelectorAll('.desktop-workspace-view').forEach(view => {
+                view.classList.toggle('active', view.dataset.workspaceView === workspace);
+            });
+            screen.classList.remove('game-workspace-active');
+            screen.classList.add('desktop-editor-open');
+            screen.dataset.editorSection = section;
+
+            document.querySelectorAll('#npc-list-container details, #scenario-list-container details').forEach(card => {
+                card.classList.remove('desktop-active-card');
+            });
+
+            if (section === 'player') {
+                document.querySelector('#preset-player-editor > details')?.setAttribute('open', '');
+                syncDesktopCharacterNameWidth(document.getElementById('input-player-name'));
+            }
+            if (section === 'npc') {
+                const card = document.getElementById('npc-list-container')?.querySelectorAll('details')[itemIndex];
+                if (card) {
+                    card.open = true;
+                    card.classList.add('desktop-active-card');
+                }
+                syncDesktopCharacterNameWidth(document.getElementById(`npc-name-${itemIndex}`));
+            }
+            if (section === 'scenario') {
+                const card = document.getElementById('scenario-list-container')?.querySelectorAll('details')[itemIndex];
+                if (card) {
+                    card.open = true;
+                    card.classList.add('desktop-active-card');
+                }
+            }
+            requestAnimationFrame(() => {
+                const editor = document.getElementById('desktop-config-editor');
+                if (editor) editor.scrollTop = 0;
+            });
+        }
+
+        function renderDesktopPresetOverview() {
+            const avatar = document.getElementById('desktop-player-avatar');
+            const preview = document.getElementById('preview-player');
+            const name = document.getElementById('desktop-player-name');
+            const nameInput = document.getElementById('input-player-name');
+            if (avatar) avatar.src = preview?.src || scenarioPresets[activePresetId]?.playerAvatar || emptyAvatar;
+            if (name) name.textContent = valueToText(nameInput?.value, '玩家');
+
+            const list = document.getElementById('desktop-npc-avatar-list');
+            if (!list) return;
+            list.innerHTML = '';
+            editingNpcs.forEach((npc, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'desktop-npc-avatar-button';
+                button.setAttribute('aria-label', `編輯 NPC：${valueToText(npc.name, `角色 ${index + 1}`)}`);
+                button.onclick = () => openDesktopConfigEditor('npc', index);
+                const currentPreview = document.getElementById(`preview-npc-${index}`)?.src;
+                const image = document.createElement('img');
+                image.src = currentPreview || npc.avatar || emptyAvatar;
+                image.alt = '';
+                const label = document.createElement('span');
+                label.textContent = valueToText(document.getElementById(`npc-name-${index}`)?.value || npc.name, `角色 ${index + 1}`);
+                button.append(image, label);
+                list.appendChild(button);
+            });
+
+            const addButton = document.createElement('button');
+            addButton.type = 'button';
+            addButton.className = 'desktop-npc-avatar-button desktop-npc-add-button';
+            addButton.setAttribute('aria-label', '新增 NPC');
+            addButton.innerHTML = '<span class="desktop-npc-add-icon">＋</span><span>新增</span>';
+            addButton.onclick = () => {
+                addNpcBlock();
+                openDesktopConfigEditor('npc', editingNpcs.length - 1);
+            };
+            list.appendChild(addButton);
+
+            const scenarioList = document.getElementById('desktop-scenario-card-list');
+            if (scenarioList) {
+                scenarioList.innerHTML = '';
+                editingScenarios.forEach((scenario, index) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'desktop-overview-card desktop-scenario-card';
+                    button.onclick = () => openDesktopConfigEditor('scenario', index);
+                    const nameValue = valueToText(document.getElementById(`scen-name-${index}`)?.value || scenario.name, `情境 ${index + 1}`);
+                    const fullLoreValue = valueToText(document.getElementById(`scen-lore-${index}`)?.value || scenario.lore, '尚未填寫世界觀');
+                    const loreValue = fullLoreValue.length > 72 ? `${fullLoreValue.slice(0, 72)}…` : fullLoreValue;
+                    button.innerHTML = `<span class="desktop-scenario-number">${index + 1}</span><span><strong>${escapeStatusHtml(nameValue)}</strong><small>${escapeStatusHtml(loreValue)}</small></span>`;
+                    scenarioList.appendChild(button);
+                });
+                const addScenarioButton = document.createElement('button');
+                addScenarioButton.type = 'button';
+                addScenarioButton.className = 'desktop-overview-card desktop-overview-add-card';
+                addScenarioButton.innerHTML = '<span class="desktop-scenario-number">＋</span><span><strong>新增情境</strong><small>建立新的世界或場景</small></span>';
+                addScenarioButton.onclick = () => {
+                    addScenarioBlock();
+                    openDesktopConfigEditor('scenario', editingScenarios.length - 1);
+                };
+                scenarioList.appendChild(addScenarioButton);
+            }
+
+            renderDesktopGameSettings();
+        }
+
+        function renderDesktopGameSettings() {
+            const selector = document.getElementById('desktop-preset-selector');
+            if (selector) {
+                selector.innerHTML = '';
+                Object.entries(scenarioPresets).forEach(([id, preset]) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = `${valueToText(preset?.presetName, '未命名配置')}${preset?.isLocked ? ' 🔒' : ''}`;
+                    option.selected = id === activePresetId;
+                    selector.appendChild(option);
+                });
+            }
+            const nameInput = document.getElementById('desktop-preset-name-input');
+            if (nameInput && document.activeElement !== nameInput) nameInput.value = document.getElementById('input-preset-name')?.value || '';
+            const language = document.getElementById('desktop-language-mode');
+            if (language) language.value = document.getElementById('input-language-mode')?.value || 'zh-tw';
+            const difficulty = document.getElementById('desktop-game-difficulty');
+            if (difficulty) difficulty.value = document.getElementById('input-game-difficulty')?.value || 'standard';
+            const lockButton = document.getElementById('desktop-preset-lock-btn');
+            if (lockButton) lockButton.textContent = scenarioPresets[activePresetId]?.isLocked ? '🔒' : '🔓';
+        }
+
+        function selectDesktopPreset(id) {
+            if (!scenarioPresets[id] || id === activePresetId) return;
+            commitCurrentPresetSilently();
+            loadPresetToForm(id);
+            localStorage.setItem('sanko_active_preset_id', id);
+            renderDesktopPresetOverview();
+        }
+
+        function updateDesktopPresetName(value) {
+            const input = document.getElementById('input-preset-name');
+            if (input) input.value = value;
+        }
+
+        function setDesktopLanguageMode(value) {
+            syncLanguageMode(value);
+            renderDesktopGameSettings();
+        }
+
+        function setDesktopGameDifficulty(value) {
+            const input = document.getElementById('input-game-difficulty');
+            if (input) input.value = normalizeGameDifficulty(value);
         }
 
         function renderPresetSelector() {
@@ -2167,6 +2388,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 opt.textContent = scenarioPresets[id].presetName + lockStatus;
                 if (id === activePresetId) opt.selected = true; selector.appendChild(opt);
             }
+            renderDesktopGameSettings();
         }
 
         function updatePresetLockUI() {
@@ -2174,11 +2396,16 @@ window.onerror = function(message, source, lineno, colno, error) {
             const isLocked = p ? p.isLocked : false;
             document.getElementById('preset-lock-toggle').innerText = isLocked ? "🔒" : "🔓";
             renderPresetSelector();
+            renderDesktopGameSettings();
         }
 
         function togglePresetLock() {
             let p = scenarioPresets[activePresetId];
             if (!p) return;
+            if (!p.isLocked) {
+                commitCurrentPresetSilently();
+                p = scenarioPresets[activePresetId];
+            }
             p.isLocked = !p.isLocked;
             persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置');
             updatePresetLockUI();
@@ -2208,7 +2435,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         <div class="u-inline-061">
                             <div class="u-inline-062">
                                 <div class="scenario-label">NPC 名稱</div>
-                                <input type="text" class="scenario-input" id="npc-name-${index}" value="${escapeStatusHtml(npc.name)}" oninput="document.getElementById('npc-title-${index}').innerText = this.value || '新角色';">
+                                <input type="text" class="scenario-input" id="npc-name-${index}" value="${escapeStatusHtml(npc.name)}" oninput="document.getElementById('npc-title-${index}').innerText = this.value || '新角色'; syncDesktopCharacterNameWidth(this); renderDesktopPresetOverview();">
                             </div>
                             <div class="u-inline-063">
                                 <div class="scenario-label">開局好感</div>
@@ -2231,6 +2458,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             });
             initTextareas();
             forceOpenNpcIndex = -1; 
+            renderDesktopPresetOverview();
         }
 
         let forceOpenScenIndex = -1;
@@ -2247,9 +2475,9 @@ window.onerror = function(message, source, lineno, colno, error) {
                     <div class="foldable-content">
                         <button class="delete-scen-btn" onclick="removeScenarioBlock(${index})">刪除</button>
                         <div class="scenario-label">情境名稱</div>
-                        <input type="text" class="scenario-input" id="scen-name-${index}" value="${escapeStatusHtml(scen.name)}" oninput="document.getElementById('scen-title-${index}').innerText = this.value || '未命名';">
+                        <input type="text" class="scenario-input" id="scen-name-${index}" value="${escapeStatusHtml(scen.name)}" oninput="document.getElementById('scen-title-${index}').innerText = this.value || '未命名'; renderDesktopPresetOverview();">
                         <div class="scenario-label">該情境下的物理法則與世界觀</div>
-                        <textarea class="scenario-input" id="scen-lore-${index}" oninput="autoResize(this)">${escapeStatusHtml(scen.lore)}</textarea>
+                        <textarea class="scenario-input" id="scen-lore-${index}" oninput="autoResize(this); renderDesktopPresetOverview();">${escapeStatusHtml(scen.lore)}</textarea>
                         <div class="scenario-label">NPC 們在此情境下的總體身分/狀態</div>
                         <textarea class="scenario-input" id="scen-npcRoles-${index}" oninput="autoResize(this)">${escapeStatusHtml(scen.npcRoles || '')}</textarea>
                         <div class="scenario-label">玩家在此的專屬身份/狀態</div>
@@ -2261,7 +2489,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                 container.appendChild(details);
             });
             initTextareas();
-            forceOpenScenIndex = -1; 
+            forceOpenScenIndex = -1;
+            renderDesktopPresetOverview();
         }
 
         function syncEditingDataFromDOM() {
@@ -2309,13 +2538,47 @@ window.onerror = function(message, source, lineno, colno, error) {
             const runButton = document.getElementById('random-generator-run-btn');
             runButton.disabled = false;
             runButton.innerText = '開始生成';
-            document.getElementById('random-generator-modal').style.display = 'flex';
+            const modal = document.getElementById('random-generator-modal');
+            const box = document.querySelector('.random-generator-inline-panel') || modal?.querySelector('.modal-box');
+            const screen = document.getElementById('edit-scenario-screen');
+            const editor = document.getElementById('desktop-config-editor');
+            if (!box || !modal) {
+                if (modal) modal.style.display = 'none';
+                console.error('Random generator panel is unavailable; blocked an empty modal overlay.');
+                return;
+            }
+            const useDesktopColumn = isDesktopConfigLayout()
+                && desktopConfigWorkspace === 'game'
+                && screen?.style.display === 'flex'
+                && box && editor;
+            if (useDesktopColumn) {
+                modal.style.display = 'none';
+                editor.appendChild(box);
+                box.classList.add('random-generator-inline-panel');
+                screen.classList.add('desktop-editor-open', 'random-generator-inline-open');
+                screen.dataset.editorSection = 'random-generator';
+            } else {
+                if (box.parentElement !== modal) modal.appendChild(box);
+                box.classList.remove('random-generator-inline-panel');
+                modal.style.display = 'flex';
+            }
         }
 
         function closeRandomGenerator() {
             const runButton = document.getElementById('random-generator-run-btn');
             if (runButton?.disabled) cancelActiveAIRequest();
-            document.getElementById('random-generator-modal').style.display = 'none';
+            const modal = document.getElementById('random-generator-modal');
+            const box = document.querySelector('.random-generator-inline-panel') || modal?.querySelector('.modal-box');
+            const screen = document.getElementById('edit-scenario-screen');
+            if (box && modal && box.parentElement !== modal) modal.appendChild(box);
+            box?.classList.remove('random-generator-inline-panel');
+            modal.style.display = 'none';
+            if (screen?.classList.contains('random-generator-inline-open')) {
+                screen.classList.remove('desktop-editor-open', 'random-generator-inline-open');
+                delete screen.dataset.editorSection;
+                screen.classList.add('game-workspace-active');
+                setDesktopConfigTab('game');
+            }
             pendingGeneratedPreset = null;
         }
 
@@ -2475,9 +2738,11 @@ window.onerror = function(message, source, lineno, colno, error) {
             }
             renderScenarioList();
             initTextareas();
-            document.getElementById('random-generator-modal').style.display = 'none';
-            pendingGeneratedPreset = null;
-            alert('隨機設定已套用到表單；確認內容後請按「儲存變更」或「另存新檔」。');
+            closeRandomGenerator();
+            renderDesktopPresetOverview();
+            alert(isDesktopConfigLayout()
+                ? '隨機設定已套用；切換標籤不會重置內容，返回首頁時會自動儲存目前配置。'
+                : '隨機設定已套用到表單；確認內容後即可繼續編輯。');
         }
 
         function addNpcBlock() {
@@ -2547,6 +2812,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             
             renderNpcList(); renderScenarioList();
             initTextareas();
+            renderDesktopPresetOverview();
         }
 
         function createNewPreset() {
@@ -2562,11 +2828,26 @@ window.onerror = function(message, source, lineno, colno, error) {
             activePresetId = newId; renderPresetSelector(); loadPresetToForm(newId);
         }
 
+        function getPresetBoundSaves(presetId) {
+            return Object.entries(savesData).filter(([, save]) => {
+                const scenario = save?.scenario;
+                if (!scenario || typeof scenario !== 'object') return false;
+                return String(scenario.sourcePresetId || scenario.id || '') === String(presetId);
+            });
+        }
+
         function deleteCurrentPreset() {
             if (Object.keys(scenarioPresets).length <= 1) { alert("系統至少需要保留一組配置喔！"); return; }
             const pOld = scenarioPresets[activePresetId];
             if (pOld && pOld.isLocked) {
                 alert("🔒 此配置已受玩家保護，為防誤刪無法進行操作！\n若確定要刪除，請先點擊上方解鎖。");
+                return;
+            }
+            const boundSaves = getPresetBoundSaves(activePresetId);
+            if (boundSaves.length) {
+                const saveNames = boundSaves.slice(0, 6).map(([, save]) => `• ${valueToText(save.title, save.date || '未命名紀錄')}`);
+                const more = boundSaves.length > 6 ? `\n…以及另外 ${boundSaves.length - 6} 份紀錄` : '';
+                alert(`無法刪除「${valueToText(pOld?.presetName, '此配置')}」。\n\n目前仍有 ${boundSaves.length} 份遊戲紀錄綁定這個配置：\n${saveNames.join('\n')}${more}\n\n請先在對應遊戲中使用「另存新配置」切換綁定，再回來刪除。`);
                 return;
             }
             if (confirm(`確定要刪除「${scenarioPresets[activePresetId].presetName}」這個配置嗎？`)) {
@@ -2595,7 +2876,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                     scenarioPresets[activePresetId][k] = JSON.parse(JSON.stringify(blankPreset[k])); 
                 });
                 loadPresetToForm(activePresetId); 
-                alert("已清空所有欄位！請開始你的創作，完成後記得點擊「儲存變更」或「另存新檔」。");
+                alert("已清空所有欄位！請開始創作；返回大廳時會自動儲存目前配置。");
             }
         }
 
@@ -2620,6 +2901,23 @@ window.onerror = function(message, source, lineno, colno, error) {
                 npcs: JSON.parse(JSON.stringify(editingNpcs)),
                 scenarios: JSON.parse(JSON.stringify(editingScenarios))
             };
+        }
+
+        function commitCurrentPresetSilently() {
+            const pOld = scenarioPresets[activePresetId];
+            if (!pOld || pOld.isLocked) return false;
+            const presetName = document.getElementById('input-preset-name').value.trim() || '未命名配置';
+            const p = gatherPresetData(activePresetId, presetName);
+            p.statsLocked = pOld.statsLocked === true;
+            scenarioPresets[activePresetId] = p;
+            if (!persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置')) {
+                scenarioPresets[activePresetId] = pOld;
+                return false;
+            }
+            localStorage.setItem('sanko_active_preset_id', activePresetId);
+            currentScenario = clonePersistentValue(p);
+            renderPresetSelector();
+            return true;
         }
 
         function saveCurrentPreset() {
@@ -2677,7 +2975,9 @@ window.onerror = function(message, source, lineno, colno, error) {
         }
 
         function cancelEdit() {
-            activePresetId = localStorage.getItem('sanko_active_preset_id') || Object.keys(scenarioPresets)[0];
+            if (document.getElementById('edit-scenario-screen')?.classList.contains('random-generator-inline-open')) closeRandomGenerator();
+            syncEditingDataFromDOM();
+            commitCurrentPresetSilently();
             document.getElementById('edit-scenario-screen').style.display = 'none'; 
             document.getElementById('setup-screen').style.display = 'flex';
         }
@@ -3250,9 +3550,11 @@ window.onerror = function(message, source, lineno, colno, error) {
                 document.getElementById('journal-screen').style.display = 'flex';
             }
             const keys = getAdventureJournalSaveKeys();
-            journalSelectedSaveId = (preferredSaveId && savesData[preferredSaveId])
-                ? String(preferredSaveId)
-                : (journalSelectedSaveId && savesData[journalSelectedSaveId] ? journalSelectedSaveId : (keys[0] || ''));
+            journalSelectedSaveId = journalEmbedded && currentSaveId && savesData[currentSaveId]
+                ? String(currentSaveId)
+                : ((preferredSaveId && savesData[preferredSaveId])
+                    ? String(preferredSaveId)
+                    : (journalSelectedSaveId && savesData[journalSelectedSaveId] ? journalSelectedSaveId : (keys[0] || '')));
             journalPageIndex = 0;
             journalSearchText = '';
             const search = document.getElementById('journal-search');
@@ -3298,7 +3600,9 @@ window.onerror = function(message, source, lineno, colno, error) {
         function renderAdventureJournalSaveSelector() {
             const select = document.getElementById('journal-save-select');
             if (!select) return;
-            const keys = getAdventureJournalSaveKeys();
+            const keys = journalEmbedded && currentSaveId && savesData[currentSaveId]
+                ? [String(currentSaveId)]
+                : getAdventureJournalSaveKeys();
             select.innerHTML = '';
             if (!keys.length) {
                 const option = document.createElement('option');
@@ -3320,6 +3624,7 @@ window.onerror = function(message, source, lineno, colno, error) {
         }
 
         function selectAdventureJournalSave(saveId) {
+            if (journalEmbedded && String(saveId) !== String(currentSaveId)) return;
             if (!savesData[saveId]) return;
             journalSelectedSaveId = String(saveId);
             journalPageIndex = 0;
@@ -3632,7 +3937,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             const id = Date.now().toString();
             const selectedPreset = scenarioPresets[activePresetId] || defaultPreset;
             const freshScenario = createFreshScenarioFromPreset(selectedPreset);
-            const newSave = { title: saveName, date: new Date().toLocaleString(), hp: 100, san: 100, items: [], scenIndex: 0, chatPageIndex: 0, scripts: [[]], log: "• 故事剛開始，目前尚無重大事件發生。", memoryBrief: { story: "", tasks: "", relationships: "" }, flags: [], inputDraft: '', respecCount: 3, scenario: freshScenario };
+            const newSave = { title: saveName, date: new Date().toLocaleString(), uiLocale: window.getUiLanguage ? getUiLanguage() : 'zh-TW', hp: 100, san: 100, items: [], scenIndex: 0, chatPageIndex: 0, scripts: [[]], log: "• 故事剛開始，目前尚無重大事件發生。", memoryBrief: { story: "", tasks: "", relationships: "" }, flags: [], inputDraft: '', respecCount: 3, scenario: freshScenario };
             newSave.scenario.sourcePresetId = activePresetId;
             savesData[id] = newSave;
             if (!persistSingleSave(id, '遊戲存檔')) { delete savesData[id]; return; }
@@ -3661,6 +3966,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 activePresetId,
                 apiUsageStats,
                 uiTheme,
+                uiLanguage: window.getUiLanguage ? getUiLanguage() : 'zh-TW',
                 homePic: document.getElementById('setup-pic')?.src || ''
             };
             const dataStr = JSON.stringify(exportPayload);
@@ -3731,6 +4037,9 @@ window.onerror = function(message, source, lineno, colno, error) {
                     if (isFullBackup && importedData.uiTheme && typeof importedData.uiTheme === 'object') {
                         applyUiTheme(importedData.uiTheme, true);
                     }
+                    if (isFullBackup && importedData.uiLanguage && window.setUiLanguage) {
+                        setUiLanguage(importedData.uiLanguage, { notify: false });
+                    }
                     if (isFullBackup && typeof importedData.homePic === 'string' && importedData.homePic.startsWith('data:image/')) {
                         document.getElementById('setup-pic').src = importedData.homePic;
                         persistLargeValue('sanko_home_pic', importedData.homePic, '首頁頭像');
@@ -3763,6 +4072,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 relationships: currentRelationshipSummary
             };
             savesData[currentSaveId].flags = currentFlags;
+            savesData[currentSaveId].uiLocale = window.getUiLanguage ? getUiLanguage() : 'zh-TW';
             const currentInputDraft = document.getElementById('player-input')?.value || '';
             savesData[currentSaveId].inputDraft = currentInputDraft;
             try {
@@ -4568,6 +4878,9 @@ dialogues 只列真正開口者。options 必須恰好 3 個，通常最多 1 �
                 return;
             }
             currentSaveId = id;
+            if (window.setUiLanguage) {
+                setUiLanguage(saveData.uiLocale || (window.getUiLanguage ? getUiLanguage() : 'zh-TW'), { notify: false });
+            }
             const fallbackScenario = scenarioPresets[activePresetId] || defaultPreset;
             if (!saveData.scenario || typeof saveData.scenario !== 'object' || Array.isArray(saveData.scenario)) {
                 saveData.scenario = JSON.parse(JSON.stringify(fallbackScenario));
