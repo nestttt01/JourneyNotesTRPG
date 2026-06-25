@@ -15,17 +15,84 @@ window.onerror = function(message, source, lineno, colno, error) {
         }
 
         function openTutorialModal() {
+            if (showHomeInfoView('guide')) return;
             document.getElementById('tutorial-modal').style.display = 'flex';
         }
         function closeTutorialModal() {
             document.getElementById('tutorial-modal').style.display = 'none';
         }
         function openApiGuideModal() {
+            if (showHomeInfoView('api')) return;
             document.getElementById('api-guide-modal').style.display = 'flex';
         }
         function closeApiGuideModal() {
             document.getElementById('api-guide-modal').style.display = 'none';
         }
+function showHomeInfoView(viewName = 'main', options = {}) {
+const setupScreen = document.getElementById('setup-screen');
+if (!setupScreen || getComputedStyle(setupScreen).display === 'none') return false;
+if (!window.matchMedia('(min-width: 1100px)').matches) return false;
+const requested = ['main', 'api', 'guide', 'saves', 'journal'].includes(viewName) ? viewName : 'main';
+const activeView = document.querySelector('.setup-home-view.active')?.dataset.homeView || 'main';
+const nextView = !options.force && activeView === requested && requested !== 'main' ? 'main' : requested;
+            document.querySelectorAll('.setup-home-view').forEach(view => {
+                view.classList.toggle('active', view.dataset.homeView === nextView);
+            });
+            document.querySelectorAll('.setup-side-tab[data-home-tab]').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.homeTab === nextView);
+            });
+return true;
+}
+
+function canUseSetupHomeView() {
+const setupScreen = document.getElementById('setup-screen');
+return !!setupScreen
+&& getComputedStyle(setupScreen).display !== 'none'
+&& window.matchMedia('(min-width: 1100px)').matches;
+}
+
+function embedSaveMenuInSetupHome() {
+const host = document.getElementById('setup-save-host');
+const screen = document.getElementById('save-menu-screen');
+if (!host || !screen) return false;
+host.appendChild(screen);
+screen.classList.add('setup-embedded-screen');
+screen.style.display = 'flex';
+const backButton = screen.querySelector('.u-inline-056');
+if (backButton) backButton.hidden = true;
+return true;
+}
+
+function restoreSaveMenuFromSetupHome() {
+const anchor = document.getElementById('save-menu-screen-home');
+const screen = document.getElementById('save-menu-screen');
+if (!anchor || !screen || screen.parentElement?.id !== 'setup-save-host') return;
+screen.classList.remove('setup-embedded-screen');
+screen.style.display = 'none';
+const backButton = screen.querySelector('.u-inline-056');
+if (backButton) backButton.hidden = false;
+anchor.after(screen);
+}
+
+function embedJournalInSetupHome() {
+const host = document.getElementById('setup-journal-host');
+const screen = document.getElementById('journal-screen');
+if (!host || !screen) return false;
+host.appendChild(screen);
+screen.classList.remove('journal-screen-embedded');
+screen.classList.add('journal-screen-home-embedded');
+screen.style.display = 'flex';
+return true;
+}
+
+function restoreJournalFromSetupHome() {
+const anchor = document.getElementById('journal-screen-home');
+const screen = document.getElementById('journal-screen');
+if (!anchor || !screen || screen.parentElement?.id !== 'setup-journal-host') return;
+screen.classList.remove('journal-screen-home-embedded');
+screen.style.display = 'none';
+anchor.after(screen);
+}
 
 /* ==================== Script section 2 ==================== */
 /* ======= 系統核心變數 ======= */
@@ -151,20 +218,22 @@ window.onerror = function(message, source, lineno, colno, error) {
         const UI_THEME_STORAGE_KEY = 'sanko_ui_theme_v1';
         const LAST_BACKUP_STORAGE_KEY = 'sanko_last_backup_at_v1';
         const BACKUP_REMINDER_DAYS = 14;
-        const DEFAULT_UI_THEME = Object.freeze({
-            background: '#EEEEEE',
-            surface: '#FAFAFA',
-            ink: '#282828',
-            accent: '#EDFF66',
-            dialogue: '#BFB3B8'
-        });
-        const UI_THEME_VARIABLES = Object.freeze({
-            background: '--bg-main',
-            surface: '--card-bg',
-            ink: '--border-dark',
-            accent: '--accent-neon',
-            dialogue: '--accent-gray'
-        });
+const DEFAULT_UI_THEME = Object.freeze({
+background: '#EEEEEE',
+paper: '#EEEEEE',
+surface: '#FAFAFA',
+ink: '#282828',
+accent: '#EDFF66',
+dialogue: '#BFB3B8'
+});
+const UI_THEME_VARIABLES = Object.freeze({
+background: '--bg-main',
+paper: '--paper-bg',
+surface: '--card-bg',
+ink: '--border-dark',
+accent: '--accent-neon',
+dialogue: '--accent-gray'
+});
         let uiTheme = { ...DEFAULT_UI_THEME };
 
         function normalizeThemeColor(value, fallback) {
@@ -703,10 +772,11 @@ window.onerror = function(message, source, lineno, colno, error) {
                     apiKey = savedKey;
                     document.getElementById('api-key').value = savedKey;
                     document.getElementById('delete-key-btn').style.display = 'inline-block';
-                }
-                selectedModel = localStorage.getItem(getModelStorageKey(apiProvider)) || '';
-                
-                const savedPic = await readPersistentValue('sanko_home_pic', '');
+            }
+            selectedModel = localStorage.getItem(getModelStorageKey(apiProvider)) || '';
+            setHomeModelAreaVisible(selectedModel && apiKey);
+
+            const savedPic = await readPersistentValue('sanko_home_pic', '');
                 if (savedPic) { document.getElementById('setup-pic').src = savedPic; }
 
                 savesData = await loadSaveCollection();
@@ -780,6 +850,23 @@ window.onerror = function(message, source, lineno, colno, error) {
 
         function loadPic(input) {
             triggerCrop(input, 'home');
+        }
+
+        function setHomeModelAreaVisible(visible) {
+            const isVisible = Boolean(visible);
+            const area = document.getElementById('model-selection-area');
+            if (area) area.style.display = isVisible ? 'block' : 'none';
+            document.getElementById('setup-screen')?.classList.toggle('home-has-model', isVisible);
+        }
+
+        function cycleUiLanguageFromHome() {
+            const order = ['zh-TW', 'ja', 'en'];
+            const current = window.getUiLanguage
+                ? getUiLanguage()
+                : (document.querySelector('[data-ui-language-select]')?.value || 'zh-TW');
+            const index = order.indexOf(current);
+            const next = order[(index + 1 + order.length) % order.length] || 'zh-TW';
+            if (window.setUiLanguage) setUiLanguage(next);
         }
 
         const PLAYER_STAT_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
@@ -1191,6 +1278,26 @@ window.onerror = function(message, source, lineno, colno, error) {
             }[ch]));
         }
 
+        function uiText(value) {
+            return window.uiMessage ? window.uiMessage(value) : value;
+        }
+
+        function uiLocale() {
+            return window.getUiLanguage ? getUiLanguage() : 'zh-TW';
+        }
+
+        function uiCharacterName(value, fallback = '新角色') {
+            const text = valueToText(value, fallback);
+            return text === '新角色' ? uiText('新角色') : text;
+        }
+
+        function uiJournalEntryText(value) {
+            const text = valueToText(value);
+            return text === '故事剛開始，目前尚無重大事件發生。'
+                ? uiText('故事剛開始，目前尚無重大事件發生。')
+                : text;
+        }
+
         function normalizeSurvivalValue(value, fallback = 100) {
             const parsed = Number(value);
             return Number.isFinite(parsed) ? Math.max(0, Math.min(100, Math.round(parsed))) : fallback;
@@ -1244,22 +1351,32 @@ window.onerror = function(message, source, lineno, colno, error) {
             autoResize(textarea);
         }
 
-        function mergeAdventureLog(existingLog, incomingLog) {
-            const merged = splitAdventureLog(existingLog);
-            const seen = new Set(merged.map(normalizeAdventureLogKey).filter(Boolean));
-            splitAdventureLog(incomingLog).forEach(line => {
+function mergeAdventureLog(existingLog, incomingLog) {
+const merged = splitAdventureLog(existingLog);
+const seen = new Set(merged.map(normalizeAdventureLogKey).filter(Boolean));
+splitAdventureLog(incomingLog).forEach(line => {
                 const key = normalizeAdventureLogKey(line);
                 if (!key || seen.has(key)) return;
                 seen.add(key);
                 merged.push(line);
-            });
-            return formatBulletListText(merged, '• 故事剛開始，目前尚無重大事件發生。');
-        }
+});
+return formatBulletListText(merged, '• 故事剛開始，目前尚無重大事件發生。');
+}
 
-        function normalizeTaskText(value) {
-            return stripMemoryListPrefix(valueToText(value)
-                .replace(/^\s*(?:☑|✅|✔|✓|☐|⬜|□|\[[xX ]\])\s*/, ''));
-        }
+function appendTaskJournalEntry(status, taskText, reason = '') {
+const text = normalizeTaskText(taskText);
+if (!text) return false;
+const label = status === 'failed' ? '任務失敗' : '任務完成';
+const detail = reason ? `（${truncatePromptText(reason, 80)}）` : '';
+currentAdventureLog = mergeAdventureLog(currentAdventureLog, `${label}：${text}${detail}`);
+return true;
+}
+
+function normalizeTaskText(value) {
+return stripMemoryListPrefix(valueToText(value)
+.replace(/^\s*(?:☑|✅|✔|✓|☒|✗|✘|❌|☐|⬜|□|\[[xX!?\- ]\])\s*/, '')
+.replace(/^\s*(?:完成|已完成|失敗|已失敗|任務完成|任務失敗)[：:]\s*/, ''));
+}
 
         function normalizeTaskKey(value) {
             return normalizeTaskText(value).replace(/[\s，。！？、；：,.!?;:「」『』]/g, '').toLowerCase();
@@ -1274,36 +1391,79 @@ window.onerror = function(message, source, lineno, colno, error) {
                 const raw = objectEntry ? valueToText(objectEntry.text || objectEntry.task || objectEntry.title) : valueToText(entry);
                 const text = normalizeTaskText(raw);
                 if (!text) return;
-                const done = objectEntry
-                    ? Boolean(objectEntry.done || ['done', 'completed', 'complete'].includes(valueToText(objectEntry.status).toLowerCase()))
-                    : /^\s*(?:☑|✅|✔|✓|\[[xX]\])/.test(raw);
-                const key = normalizeTaskKey(text);
+const done = objectEntry
+? Boolean(objectEntry.done || ['done', 'completed', 'complete'].includes(valueToText(objectEntry.status).toLowerCase()))
+: /^\s*(?:☑|✅|✔|✓|\[[xX]\])/.test(raw);
+const failed = objectEntry
+? Boolean(objectEntry.failed || ['failed', 'fail', 'lost', 'dead', 'impossible'].includes(valueToText(objectEntry.status).toLowerCase()))
+: /^\s*(?:☒|✗|✘|❌|\[[!?\-]\])/.test(raw) || /^\s*(?:失敗|已失敗|任務失敗)[：:]/.test(raw);
+const key = normalizeTaskKey(text);
+if (!key) return;
+if (seen.has(key)) {
+const existing = tasks[seen.get(key)];
+if (done) existing.done = true;
+if (failed) { existing.failed = true; existing.done = false; }
+return;
+}
+seen.set(key, tasks.length);
+tasks.push({ text, done: failed ? false : done, failed });
+});
+return tasks;
+}
+
+function serializeTaskChecklist(tasks) {
+return parseTaskChecklist(tasks).map(task => `${task.failed ? '☒' : task.done ? '☑' : '☐'} ${task.text}`).join('\n');
+}
+
+function readTaskChecklistFromDom() {
+const container = document.getElementById('ui-open-tasks');
+if (!container || container.dataset.rendered !== 'true') return parseTaskChecklist(currentOpenTasks);
+return Array.from(container.querySelectorAll('.memory-task-row')).map(row => ({
+done: Boolean(row.querySelector('.memory-task-check')?.checked),
+failed: row.dataset.taskStatus === 'failed',
+text: normalizeTaskText(row.querySelector('.memory-task-text')?.value)
+})).filter(task => task.text);
+}
+
+function recordTaskStatusTransitions(previousTasks, nextTasks, reason = '') {
+const previousByKey = new Map(parseTaskChecklist(previousTasks).map(task => [normalizeTaskKey(task.text), task]));
+let changed = false;
+            parseTaskChecklist(nextTasks).forEach(task => {
+                const key = normalizeTaskKey(task.text);
                 if (!key) return;
-                if (seen.has(key)) {
-                    const existing = tasks[seen.get(key)];
-                    if (done) existing.done = true;
-                    return;
-                }
-                seen.set(key, tasks.length);
-                tasks.push({ text, done });
+                const previous = previousByKey.get(key);
+                const wasDone = Boolean(previous?.done);
+                const wasFailed = Boolean(previous?.failed);
+                if (task.done && !wasDone) changed = appendTaskJournalEntry('done', task.text, reason) || changed;
+                if (task.failed && !wasFailed) changed = appendTaskJournalEntry('failed', task.text, reason) || changed;
             });
-            return tasks;
-        }
+return changed;
+}
 
-        function serializeTaskChecklist(tasks) {
-            return parseTaskChecklist(tasks).map(task => `${task.done ? '☑' : '☐'} ${task.text}`).join('\n');
-        }
+function failTasksRelatedToNpcEvents(events) {
+const names = (Array.isArray(events) ? events : [])
+.map(event => valueToText(event).match(/^(.+?)\s*已死亡/)?.[1]?.trim())
+.filter(Boolean);
+if (!names.length) return false;
+const tasks = parseTaskChecklist(currentOpenTasks);
+const previousTasks = parseTaskChecklist(tasks);
+let changed = false;
+tasks.forEach(task => {
+if (task.done || task.failed) return;
+const matchedName = names.find(name => name && task.text.includes(name));
+if (!matchedName) return;
+task.failed = true;
+task.done = false;
+changed = true;
+});
+if (!changed) return false;
+recordTaskStatusTransitions(previousTasks, tasks, '相關角色死亡或離場');
+currentOpenTasks = serializeTaskChecklist(tasks);
+renderTaskChecklist(currentOpenTasks);
+return true;
+}
 
-        function readTaskChecklistFromDom() {
-            const container = document.getElementById('ui-open-tasks');
-            if (!container || container.dataset.rendered !== 'true') return parseTaskChecklist(currentOpenTasks);
-            return Array.from(container.querySelectorAll('.memory-task-row')).map(row => ({
-                done: Boolean(row.querySelector('.memory-task-check')?.checked),
-                text: normalizeTaskText(row.querySelector('.memory-task-text')?.value)
-            })).filter(task => task.text);
-        }
-
-        function renderTaskChecklist(value = currentOpenTasks) {
+function renderTaskChecklist(value = currentOpenTasks) {
             const container = document.getElementById('ui-open-tasks');
             if (!container) return;
             const tasks = parseTaskChecklist(value);
@@ -1313,19 +1473,35 @@ window.onerror = function(message, source, lineno, colno, error) {
                 container.innerHTML = '<p class="memory-task-empty">目前沒有任務。接到新委託時，會自動加在這裡。</p>';
                 return;
             }
-            container.innerHTML = tasks.map((task, index) => `
-                <div class="memory-task-row ${task.done ? 'done' : ''}" data-task-index="${index}">
-                    <input class="memory-task-check" type="checkbox" aria-label="完成任務：${escapeStatusHtml(task.text)}" ${task.done ? 'checked' : ''} onchange="handleMemoryTaskChange()">
-                    <input class="memory-task-text" type="text" value="${escapeStatusHtml(task.text)}" aria-label="任務內容" onchange="handleMemoryTaskChange()">
-                    <button class="memory-task-remove" type="button" aria-label="刪除任務" onclick="removeMemoryTask(${index})">×</button>
-                </div>`).join('');
-        }
+container.innerHTML = tasks.map((task, index) => `
+<div class="memory-task-row ${task.done ? 'done' : ''} ${task.failed ? 'failed' : ''}" data-task-index="${index}" data-task-status="${task.failed ? 'failed' : task.done ? 'done' : 'open'}">
+<input class="memory-task-check" type="checkbox" aria-label="完成任務：${escapeStatusHtml(task.text)}" ${task.done ? 'checked' : ''} onchange="setMemoryTaskStatus(${index}, this.checked ? 'done' : 'open')">
+<input class="memory-task-text" type="text" value="${escapeStatusHtml(task.text)}" aria-label="任務內容" onchange="handleMemoryTaskChange()">
+<button class="memory-task-fail" type="button" aria-label="標記任務失敗" title="標記任務失敗" onclick="setMemoryTaskStatus(${index}, '${task.failed ? 'open' : 'failed'}')">!</button>
+<button class="memory-task-remove" type="button" aria-label="刪除任務" onclick="removeMemoryTask(${index})">×</button>
+</div>`).join('');
+}
 
-        function handleMemoryTaskChange() {
-            currentOpenTasks = serializeTaskChecklist(readTaskChecklistFromDom());
-            renderTaskChecklist(currentOpenTasks);
-            saveCurrentProgress();
-        }
+function handleMemoryTaskChange() {
+const previousTasks = parseTaskChecklist(currentOpenTasks);
+const nextTasks = readTaskChecklistFromDom();
+recordTaskStatusTransitions(previousTasks, nextTasks);
+currentOpenTasks = serializeTaskChecklist(nextTasks);
+renderTaskChecklist(currentOpenTasks);
+saveCurrentProgress();
+}
+
+function setMemoryTaskStatus(index, status) {
+const tasks = readTaskChecklistFromDom();
+if (index < 0 || index >= tasks.length) return;
+const previousTasks = parseTaskChecklist(currentOpenTasks);
+tasks[index].done = status === 'done';
+tasks[index].failed = status === 'failed';
+recordTaskStatusTransitions(previousTasks, tasks);
+currentOpenTasks = serializeTaskChecklist(tasks);
+renderTaskChecklist(currentOpenTasks);
+saveCurrentProgress();
+}
 
         function addMemoryTaskFromInput() {
             const input = document.getElementById('ui-new-memory-task');
@@ -1362,8 +1538,9 @@ window.onerror = function(message, source, lineno, colno, error) {
 
         function applyTaskUpdates(updates) {
             if (!Array.isArray(updates) || !updates.length) return false;
-            const tasks = parseTaskChecklist(currentOpenTasks);
-            let changed = false;
+const tasks = parseTaskChecklist(currentOpenTasks);
+const previousTasks = parseTaskChecklist(tasks);
+let changed = false;
             updates.forEach(update => {
                 if (!update || typeof update !== 'object') return;
                 const text = normalizeTaskText(update.text || update.task || update.title);
@@ -1371,18 +1548,21 @@ window.onerror = function(message, source, lineno, colno, error) {
                 if (!text || !action) return;
                 const index = findMemoryTaskIndex(tasks, text);
                 if (['add', 'new', 'open'].includes(action)) {
-                    if (index < 0) { tasks.push({ text, done: false }); changed = true; }
-                    else if (tasks[index].done && action === 'open') { tasks[index].done = false; changed = true; }
+if (index < 0) { tasks.push({ text, done: false, failed: false }); changed = true; }
+else if ((tasks[index].done || tasks[index].failed) && action === 'open') { tasks[index].done = false; tasks[index].failed = false; changed = true; }
                 } else if (['done', 'complete', 'completed', 'finish', 'finished'].includes(action)) {
-                    if (index >= 0 && !tasks[index].done) { tasks[index].done = true; changed = true; }
-                } else if (['reopen', 'undo'].includes(action)) {
-                    if (index >= 0 && tasks[index].done) { tasks[index].done = false; changed = true; }
+if (index >= 0 && (!tasks[index].done || tasks[index].failed)) { tasks[index].done = true; tasks[index].failed = false; changed = true; }
+} else if (['fail', 'failed', 'failure', 'lost', 'dead', 'impossible', 'cancelled', 'canceled'].includes(action)) {
+if (index >= 0 && !tasks[index].failed) { tasks[index].failed = true; tasks[index].done = false; changed = true; }
+} else if (['reopen', 'undo'].includes(action)) {
+if (index >= 0 && (tasks[index].done || tasks[index].failed)) { tasks[index].done = false; tasks[index].failed = false; changed = true; }
                 } else if (['remove', 'delete'].includes(action) && index >= 0) {
                     tasks.splice(index, 1); changed = true;
                 }
             });
-            if (changed) {
-                currentOpenTasks = serializeTaskChecklist(tasks);
+if (changed) {
+recordTaskStatusTransitions(previousTasks, tasks);
+currentOpenTasks = serializeTaskChecklist(tasks);
                 renderTaskChecklist(currentOpenTasks);
             }
             return changed;
@@ -1461,10 +1641,11 @@ window.onerror = function(message, source, lineno, colno, error) {
             const storyItems = normalizeSummaryPayload(currentStorySummary, 8, MAX_SUMMARY_ITEM_CHARS);
             const relationshipItems = normalizeSummaryPayload(currentRelationshipSummary, 8, MAX_RELATIONSHIP_ITEM_CHARS);
             const allTasks = parseTaskChecklist(currentOpenTasks);
-            const openTasks = allTasks.filter(task => !task.done).slice(0, 12);
+            const openTasks = allTasks.filter(task => !task.done && !task.failed).slice(0, 12);
             const completedTasks = allTasks.filter(task => task.done).slice(-4);
-            const taskText = [...openTasks, ...completedTasks]
-                .map(task => `${task.done ? '☑' : '☐'} ${truncatePromptText(task.text, 120)}`)
+            const failedTasks = allTasks.filter(task => task.failed).slice(-4);
+            const taskText = [...openTasks, ...completedTasks, ...failedTasks]
+                .map(task => `${task.failed ? '☒' : task.done ? '☑' : '☐'} ${truncatePromptText(task.text, 120)}`)
                 .join('\n');
             const storyText = storyItems.length
                 ? storyItems.map(item => `• ${item}`).join('\n')
@@ -2103,7 +2284,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             keyInput.value = apiKey || '';
             document.getElementById('model-choice').innerHTML = '';
             document.getElementById('game-model-choice').innerHTML = '';
-            document.getElementById('model-selection-area').style.display = selectedModel && apiKey ? 'block' : 'none';
+            setHomeModelAreaVisible(selectedModel && apiKey);
             document.getElementById('verify-btn').style.display = 'inline-block';
             document.getElementById('verify-btn').disabled = false;
             document.getElementById('verify-btn').innerText = '驗證金鑰';
@@ -2293,7 +2474,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             const name = document.getElementById('desktop-player-name');
             const nameInput = document.getElementById('input-player-name');
             if (avatar) avatar.src = preview?.src || scenarioPresets[activePresetId]?.playerAvatar || emptyAvatar;
-            if (name) name.textContent = valueToText(nameInput?.value, '玩家');
+            if (name) name.textContent = valueToText(nameInput?.value, uiText('玩家'));
 
             const list = document.getElementById('desktop-npc-avatar-list');
             if (!list) return;
@@ -2302,14 +2483,15 @@ window.onerror = function(message, source, lineno, colno, error) {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'desktop-npc-avatar-button';
-                button.setAttribute('aria-label', `編輯 NPC：${valueToText(npc.name, `角色 ${index + 1}`)}`);
+                const displayName = uiCharacterName(document.getElementById(`npc-name-${index}`)?.value || npc.name, `角色 ${index + 1}`);
+                button.setAttribute('aria-label', `${uiText('編輯')} NPC：${displayName}`);
                 button.onclick = () => openDesktopConfigEditor('npc', index);
                 const currentPreview = document.getElementById(`preview-npc-${index}`)?.src;
                 const image = document.createElement('img');
                 image.src = currentPreview || npc.avatar || emptyAvatar;
                 image.alt = '';
                 const label = document.createElement('span');
-                label.textContent = valueToText(document.getElementById(`npc-name-${index}`)?.value || npc.name, `角色 ${index + 1}`);
+                label.textContent = displayName;
                 button.append(image, label);
                 list.appendChild(button);
             });
@@ -2317,8 +2499,8 @@ window.onerror = function(message, source, lineno, colno, error) {
             const addButton = document.createElement('button');
             addButton.type = 'button';
             addButton.className = 'desktop-npc-avatar-button desktop-npc-add-button';
-            addButton.setAttribute('aria-label', '新增 NPC');
-            addButton.innerHTML = '<span class="desktop-npc-add-icon">＋</span><span>新增</span>';
+            addButton.setAttribute('aria-label', uiText('新增 NPC'));
+            addButton.innerHTML = `<span class="desktop-npc-add-icon">＋</span><span>${escapeStatusHtml(uiText('新增'))}</span>`;
             addButton.onclick = () => {
                 addNpcBlock();
                 openDesktopConfigEditor('npc', editingNpcs.length - 1);
@@ -2333,8 +2515,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                     button.type = 'button';
                     button.className = 'desktop-overview-card desktop-scenario-card';
                     button.onclick = () => openDesktopConfigEditor('scenario', index);
-                    const nameValue = valueToText(document.getElementById(`scen-name-${index}`)?.value || scenario.name, `情境 ${index + 1}`);
-                    const fullLoreValue = valueToText(document.getElementById(`scen-lore-${index}`)?.value || scenario.lore, '尚未填寫世界觀');
+                    const nameValue = valueToText(document.getElementById(`scen-name-${index}`)?.value || scenario.name, `${uiText('情境')} ${index + 1}`);
+                    const fullLoreValue = valueToText(document.getElementById(`scen-lore-${index}`)?.value || scenario.lore, uiText('尚未填寫世界觀'));
                     const loreValue = fullLoreValue.length > 72 ? `${fullLoreValue.slice(0, 72)}…` : fullLoreValue;
                     button.innerHTML = `<span class="desktop-scenario-number">${index + 1}</span><span><strong data-no-i18n>${escapeStatusHtml(nameValue)}</strong><small data-no-i18n>${escapeStatusHtml(loreValue)}</small></span>`;
                     scenarioList.appendChild(button);
@@ -2342,7 +2524,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 const addScenarioButton = document.createElement('button');
                 addScenarioButton.type = 'button';
                 addScenarioButton.className = 'desktop-overview-card desktop-overview-add-card';
-                addScenarioButton.innerHTML = '<span class="desktop-scenario-number">＋</span><span><strong>新增情境</strong><small>建立新的世界或場景</small></span>';
+                addScenarioButton.innerHTML = `<span class="desktop-scenario-number">＋</span><span><strong>${escapeStatusHtml(uiText('新增情境'))}</strong><small>${escapeStatusHtml(uiText('建立新的世界或場景'))}</small></span>`;
                 addScenarioButton.onclick = () => {
                     addScenarioBlock();
                     openDesktopConfigEditor('scenario', editingScenarios.length - 1);
@@ -2544,10 +2726,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             randomGeneratorMode = mode === 'all' ? 'all' : 'world';
             pendingGeneratedPreset = null;
             const isAll = randomGeneratorMode === 'all';
-            document.getElementById('random-generator-title').innerText = isAll ? '人物與世界全部隨機' : '保留人物，隨機世界／情境';
-            document.getElementById('random-generator-description').innerText = isAll
+            document.getElementById('random-generator-title').innerText = uiText(isAll ? '人物與世界全部隨機' : '保留人物，隨機世界／情境');
+            document.getElementById('random-generator-description').innerText = uiText(isAll
                 ? 'AI 會重新產生玩家設定、NPC 與情境；頭像不會傳給 AI，套用前可先預覽。'
-                : '保留目前玩家與 NPC 設定，只產生適合這些人物的世界觀與情境。';
+                : '保留目前玩家與 NPC 設定，只產生適合這些人物的世界觀與情境。');
             document.getElementById('random-generator-theme').value = '';
             const preview = document.getElementById('random-generator-preview');
             preview.style.display = 'none';
@@ -2555,7 +2737,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             document.getElementById('random-generator-apply-btn').style.display = 'none';
             const runButton = document.getElementById('random-generator-run-btn');
             runButton.disabled = false;
-            runButton.innerText = '開始生成';
+            runButton.innerText = uiText('開始生成');
             const modal = document.getElementById('random-generator-modal');
             const box = document.querySelector('.random-generator-inline-panel') || modal?.querySelector('.modal-box');
             const screen = document.getElementById('edit-scenario-screen');
@@ -3220,8 +3402,8 @@ window.onerror = function(message, source, lineno, colno, error) {
             // NPC Section
             statsHtml += `
             <div class="section-header-flex">
-                <h4>登場 NPC 管理</h4>
-                <button class="section-add-btn" onclick="modalAddNpc()">+ 新增 NPC</button>
+                <h4>${escapeStatusHtml(uiText('登場 NPC 管理'))}</h4>
+                <button class="section-add-btn" onclick="modalAddNpc()">${escapeStatusHtml(uiText('+ 新增 NPC'))}</button>
             </div>`;
 
             currentScenario.npcs.forEach((n, idx) => {
@@ -3543,14 +3725,15 @@ window.onerror = function(message, source, lineno, colno, error) {
                 .sort((a, b) => String(b).localeCompare(String(a)));
         }
 
-        function openAdventureJournal(preferredSaveId = '') {
-            const gameVisible = document.getElementById('game-container')?.style.display === 'flex';
-            const saveMenuVisible = document.getElementById('save-menu-screen')?.style.display === 'flex';
-            journalReturnTarget = gameVisible ? 'game' : (saveMenuVisible ? 'save-menu' : 'setup');
-            if (gameVisible && currentSaveId) {
-                const statusModal = document.getElementById('status-modal');
-                if (statusModal?.style.display === 'block') syncDomToCurrentScenario();
-                saveCurrentProgress();
+function openAdventureJournal(preferredSaveId = '') {
+const gameVisible = document.getElementById('game-container')?.style.display === 'flex';
+const saveMenuVisible = document.getElementById('save-menu-screen')?.style.display === 'flex';
+const setupHomeVisible = canUseSetupHomeView();
+journalReturnTarget = gameVisible ? 'game' : (saveMenuVisible ? 'save-menu' : (setupHomeVisible ? 'setup-home' : 'setup'));
+if (gameVisible && currentSaveId) {
+const statusModal = document.getElementById('status-modal');
+if (statusModal?.style.display === 'block') syncDomToCurrentScenario();
+saveCurrentProgress();
                 const host = document.getElementById('inline-journal-host');
                 const journalScreen = document.getElementById('journal-screen');
                 if (host && journalScreen) {
@@ -3561,13 +3744,15 @@ window.onerror = function(message, source, lineno, colno, error) {
                     document.getElementById('status-page-log')?.classList.add('journal-inline-open');
                     const toggleButton = document.getElementById('inline-journal-toggle-btn');
                     if (toggleButton) toggleButton.textContent = '收起完整冒險日誌';
-                    const closeButton = document.getElementById('journal-close-btn');
-                    if (closeButton) closeButton.textContent = '收起';
-                }
-            } else {
-                ['setup-screen', 'edit-scenario-screen', 'save-menu-screen', 'game-container'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.style.display = 'none';
+const closeButton = document.getElementById('journal-close-btn');
+if (closeButton) closeButton.textContent = '收起';
+}
+} else if (setupHomeVisible) {
+if (embedJournalInSetupHome()) showHomeInfoView('journal');
+} else {
+['setup-screen', 'edit-scenario-screen', 'save-menu-screen', 'game-container'].forEach(id => {
+const el = document.getElementById(id);
+if (el) el.style.display = 'none';
                 });
                 document.getElementById('journal-screen').style.display = 'flex';
             }
@@ -3591,14 +3776,19 @@ window.onerror = function(message, source, lineno, colno, error) {
             else openAdventureJournal(preferredSaveId);
         }
 
-        function closeAdventureJournal() {
-            document.getElementById('journal-edit-modal').style.display = 'none';
-            const journalScreen = document.getElementById('journal-screen');
-            journalScreen.style.display = 'none';
-            if (journalEmbedded) {
-                journalScreen.classList.remove('journal-screen-embedded');
-                document.getElementById('journal-screen-home')?.after(journalScreen);
-                journalEmbedded = false;
+function closeAdventureJournal() {
+document.getElementById('journal-edit-modal').style.display = 'none';
+const journalScreen = document.getElementById('journal-screen');
+journalScreen.style.display = 'none';
+if (journalScreen.classList.contains('journal-screen-home-embedded')) {
+restoreJournalFromSetupHome();
+showHomeInfoView('main');
+return;
+}
+if (journalEmbedded) {
+journalScreen.classList.remove('journal-screen-embedded');
+document.getElementById('journal-screen-home')?.after(journalScreen);
+journalEmbedded = false;
                 document.getElementById('status-page-log')?.classList.remove('journal-inline-open');
                 const toggleButton = document.getElementById('inline-journal-toggle-btn');
                 if (toggleButton) toggleButton.textContent = '開啟完整冒險日誌';
@@ -3675,9 +3865,9 @@ window.onerror = function(message, source, lineno, colno, error) {
             if (!list || !meta || !pageLabel) return;
             const save = savesData[journalSelectedSaveId];
             if (!save) {
-                list.innerHTML = '<p class="journal-empty">目前沒有可查看的冒險紀錄。</p>';
-                meta.textContent = '請先建立遊戲存檔。';
-                pageLabel.textContent = '第 0 / 0 頁';
+                list.innerHTML = `<p class="journal-empty">${escapeStatusHtml(uiText('目前沒有可查看的冒險紀錄。'))}</p>`;
+                meta.textContent = uiText('請先建立遊戲存檔。');
+                pageLabel.textContent = uiText('第 0 / 0 頁');
                 if (prevButton) prevButton.disabled = true;
                 if (nextButton) nextButton.disabled = true;
                 if (organizeButton) organizeButton.disabled = true;
@@ -3692,21 +3882,22 @@ window.onerror = function(message, source, lineno, colno, error) {
             journalPageIndex = Math.max(0, Math.min(journalPageIndex, pageCount - 1));
             const start = journalPageIndex * JOURNAL_PAGE_SIZE;
             const visibleEntries = filteredEntries.slice(start, start + JOURNAL_PAGE_SIZE);
+            const locale = uiLocale();
             meta.textContent = journalSearchText
-                ? `找到 ${filteredEntries.length} / ${allEntries.length} 條紀錄`
-                : `共 ${allEntries.length} 條紀錄；每頁最多 ${JOURNAL_PAGE_SIZE} 條`;
-            pageLabel.textContent = `第 ${journalPageIndex + 1} / ${pageCount} 頁`;
+                ? (locale === 'en' ? `Found ${filteredEntries.length} / ${allEntries.length} entries` : locale === 'ja' ? `${filteredEntries.length} / ${allEntries.length} 件見つかりました` : `找到 ${filteredEntries.length} / ${allEntries.length} 條紀錄`)
+                : (locale === 'en' ? `${allEntries.length} entries; up to ${JOURNAL_PAGE_SIZE} per page` : locale === 'ja' ? `全 ${allEntries.length} 件；1ページ最大 ${JOURNAL_PAGE_SIZE} 件` : `共 ${allEntries.length} 條紀錄；每頁最多 ${JOURNAL_PAGE_SIZE} 條`);
+            pageLabel.textContent = locale === 'en' ? `Page ${journalPageIndex + 1} / ${pageCount}` : locale === 'ja' ? `${journalPageIndex + 1} / ${pageCount} ページ` : `第 ${journalPageIndex + 1} / ${pageCount} 頁`;
             if (prevButton) prevButton.disabled = journalPageIndex <= 0;
             if (nextButton) nextButton.disabled = journalPageIndex >= pageCount - 1;
             if (!visibleEntries.length) {
-                list.innerHTML = '<p class="journal-empty">沒有符合搜尋條件的紀錄。</p>';
+                list.innerHTML = `<p class="journal-empty">${escapeStatusHtml(uiText('沒有符合搜尋條件的紀錄。'))}</p>`;
                 return;
             }
             list.innerHTML = visibleEntries.map(entry => `
                 <article class="journal-entry">
                     <span class="journal-entry-index">#${entry.index + 1}</span>
-                    <p class="journal-entry-text">${escapeStatusHtml(entry.text)}</p>
-                    <button class="journal-entry-edit" type="button" onclick="openJournalEntryEditor(${entry.index})">編輯</button>
+                    <p class="journal-entry-text">${escapeStatusHtml(uiJournalEntryText(entry.text))}</p>
+                    <button class="journal-entry-edit" type="button" onclick="openJournalEntryEditor(${entry.index})">${escapeStatusHtml(uiText('編輯'))}</button>
                 </article>`).join('');
         }
 
@@ -3878,12 +4069,21 @@ window.onerror = function(message, source, lineno, colno, error) {
                 }
                 const persisted = navigator.storage?.persisted ? await navigator.storage.persisted() : false;
                 const ratio = quota > 0 ? usage / quota : 0;
+                const locale = uiLocale();
                 usageText.textContent = quota > 0
-                    ? `瀏覽器目前使用 ${formatStorageBytes(usage)} / 可用約 ${formatStorageBytes(quota)}（${Math.round(ratio * 100)}%）；${persisted ? '瀏覽器已標記為較不易自動清除' : '仍建議定期匯出備份'}。`
-                    : `目前資料量約 ${formatStorageBytes(usage)}；此瀏覽器沒有提供可用容量上限。`;
+                    ? (locale === 'en'
+                        ? `Browser storage used ${formatStorageBytes(usage)} / about ${formatStorageBytes(quota)} available (${Math.round(ratio * 100)}%); ${persisted ? 'marked as less likely to be cleared automatically' : 'regular exports are still recommended'}.`
+                        : locale === 'ja'
+                            ? `ブラウザ使用量 ${formatStorageBytes(usage)} / 利用可能 約 ${formatStorageBytes(quota)}（${Math.round(ratio * 100)}%）；${persisted ? '自動削除されにくい状態です' : '定期的なエクスポートをおすすめします'}。`
+                            : `瀏覽器目前使用 ${formatStorageBytes(usage)} / 可用約 ${formatStorageBytes(quota)}（${Math.round(ratio * 100)}%）；${persisted ? '瀏覽器已標記為較不易自動清除' : '仍建議定期匯出備份'}。`)
+                    : (locale === 'en'
+                        ? `Current data size is about ${formatStorageBytes(usage)}; this browser does not report available quota.`
+                        : locale === 'ja'
+                            ? `現在のデータ量は約 ${formatStorageBytes(usage)} です。このブラウザは空き容量の上限を提供していません。`
+                            : `目前資料量約 ${formatStorageBytes(usage)}；此瀏覽器沒有提供可用容量上限。`);
                 usageText.classList.toggle('backup-warning', ratio >= 0.8);
             } catch (error) {
-                usageText.textContent = '暫時無法取得瀏覽器容量資訊；存檔功能仍可正常使用。';
+                usageText.textContent = uiText('暫時無法取得瀏覽器容量資訊；存檔功能仍可正常使用。');
             }
 
             const lastBackupValue = localStorage.getItem(LAST_BACKUP_STORAGE_KEY);
@@ -3891,34 +4091,63 @@ window.onerror = function(message, source, lineno, colno, error) {
             const daysSinceBackup = Number.isFinite(lastBackupTime) ? Math.floor((Date.now() - lastBackupTime) / 86400000) : null;
             const hasSaves = Object.keys(savesData).length > 0;
             const overdue = hasSaves && (daysSinceBackup === null || daysSinceBackup >= BACKUP_REMINDER_DAYS);
+            const locale = uiLocale();
             backupText.textContent = !hasSaves
-                ? '目前沒有遊戲存檔；建立存檔後會在這裡提醒備份。'
+                ? uiText('目前沒有遊戲存檔；建立存檔後會在這裡提醒備份。')
                 : daysSinceBackup === null
-                    ? '尚未記錄到匯出備份；建議現在按下方「匯出」。'
-                    : `最近一次匯出：${new Date(lastBackupTime).toLocaleString()}（${daysSinceBackup === 0 ? '今天' : `${daysSinceBackup} 天前`}）。${overdue ? '建議再備份一次。' : '備份狀態正常。'}`;
+                    ? uiText('尚未記錄到匯出備份；建議現在按下方「匯出」。')
+                    : (locale === 'en'
+                        ? `Last export: ${new Date(lastBackupTime).toLocaleString()} (${daysSinceBackup === 0 ? 'today' : `${daysSinceBackup} days ago`}). ${overdue ? 'Please back up again.' : 'Backup status is OK.'}`
+                        : locale === 'ja'
+                            ? `最終エクスポート：${new Date(lastBackupTime).toLocaleString()}（${daysSinceBackup === 0 ? '今日' : `${daysSinceBackup} 日前`}）。${overdue ? 'もう一度バックアップしてください。' : 'バックアップ状態は正常です。'}`
+                            : `最近一次匯出：${new Date(lastBackupTime).toLocaleString()}（${daysSinceBackup === 0 ? '今天' : `${daysSinceBackup} 天前`}）。${overdue ? '建議再備份一次。' : '備份狀態正常。'}`);
             backupText.classList.toggle('backup-warning', overdue);
         }
 
-        function openSaveMenu() {
-            refreshApiCredentials();
-            if(!apiKey || !selectedModel) { alert(`請先驗證 ${apiProvider === 'openrouter' ? 'OpenRouter' : 'Google Gemini'} 金鑰並選擇模型。`); return; }
-            document.getElementById('setup-screen').style.display = 'none'; document.getElementById('game-container').style.display = 'none';
-            document.getElementById('save-menu-screen').style.display = 'flex'; renderSaveList();
-        }
+function openSaveMenu() {
+refreshApiCredentials();
+if(!apiKey || !selectedModel) { alert(`請先驗證 ${apiProvider === 'openrouter' ? 'OpenRouter' : 'Google Gemini'} 金鑰並選擇模型。`); return; }
+if (canUseSetupHomeView()) {
+embedSaveMenuInSetupHome();
+showHomeInfoView('saves');
+renderSaveList();
+return;
+}
+document.getElementById('setup-screen').style.display = 'none'; document.getElementById('game-container').style.display = 'none';
+document.getElementById('save-menu-screen').style.display = 'flex'; renderSaveList();
+}
 
-        function backToSetup() { document.getElementById('save-menu-screen').style.display = 'none'; document.getElementById('setup-screen').style.display = 'flex'; }
-        function backToSaveMenu() { saveCurrentProgress(); if (journalEmbedded) closeAdventureJournal(); setStatusPanelOpen(false); document.getElementById('game-container').style.display = 'none'; document.getElementById('save-menu-screen').style.display = 'flex'; renderSaveList(); }
+function backToSetup() { restoreSaveMenuFromSetupHome(); restoreJournalFromSetupHome(); document.getElementById('save-menu-screen').style.display = 'none'; document.getElementById('setup-screen').style.display = 'flex'; showHomeInfoView('main'); }
+function backToSaveMenu() {
+saveCurrentProgress();
+if (journalEmbedded) closeAdventureJournal();
+const saveMenuScreen = document.getElementById('save-menu-screen');
+const returnToSetupSave = saveMenuScreen?.parentElement?.id === 'setup-save-host'
+&& window.matchMedia('(min-width: 1100px)').matches;
+setStatusPanelOpen(false);
+document.getElementById('game-container').style.display = 'none';
+if (returnToSetupSave) {
+document.getElementById('setup-screen').style.display = 'flex';
+saveMenuScreen.style.display = 'flex';
+renderSaveList();
+showHomeInfoView('saves', { force: true });
+return;
+}
+restoreSaveMenuFromSetupHome();
+document.getElementById('save-menu-screen').style.display = 'flex';
+renderSaveList();
+}
 
         function renderSaveList() {
             const listDiv = document.getElementById('save-list');
             listDiv.innerHTML = '';
             updateStorageHealthDisplay();
             const saveKeys = Object.keys(savesData).sort((a, b) => String(b).localeCompare(String(a)));
-            if (saveKeys.length === 0) { listDiv.innerHTML = '<p class="u-inline-077">目前沒有任何存檔紀錄。</p>'; return; }
+            if (saveKeys.length === 0) { listDiv.innerHTML = `<p class="u-inline-077">${escapeStatusHtml(uiText('目前沒有任何存檔紀錄。'))}</p>`; return; }
             saveKeys.forEach(id => {
                 const saveData = savesData[id] && typeof savesData[id] === 'object' ? savesData[id] : {};
                 const scenario = saveData.scenario && typeof saveData.scenario === 'object' ? saveData.scenario : {};
-                const pName = valueToText(scenario.playerName, '玩家');
+                const pName = valueToText(scenario.playerName, uiText('玩家'));
                 let tName = '群像劇';
                 if (Array.isArray(scenario.npcs) && scenario.npcs.length > 0) tName = valueToText(scenario.npcs[0]?.name, tName);
                 else if (scenario.targetName) tName = valueToText(scenario.targetName, tName);
@@ -3928,20 +4157,22 @@ window.onerror = function(message, source, lineno, colno, error) {
 
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'delete-save-btn';
-                deleteButton.innerText = '刪除';
+                deleteButton.innerText = uiText('刪除');
                 deleteButton.onclick = event => { event.stopPropagation(); deleteSave(id); };
 
                 const title = document.createElement('div');
                 title.className = 'save-title';
-                title.innerText = valueToText(saveData.title, '未命名存檔');
+                title.innerText = valueToText(saveData.title, uiText('未命名存檔'));
 
                 const info = document.createElement('div');
                 info.className = 'save-info';
-                info.innerText = `代表NPC: ${tName} | 玩家: ${pName}`;
+                const locale = uiLocale();
+                info.innerText = locale === 'en' ? `Featured NPC: ${tName} | Player: ${pName}` : locale === 'ja' ? `代表NPC：${tName}｜プレイヤー：${pName}` : `代表NPC: ${tName} | 玩家: ${pName}`;
 
                 const date = document.createElement('div');
                 date.className = 'save-info u-inline-078';
-                date.innerText = `最後遊玩：${valueToText(saveData.date, '未知')}`;
+                const dateValue = valueToText(saveData.date, uiText('未知'));
+                date.innerText = locale === 'en' ? `Last played: ${dateValue}` : locale === 'ja' ? `最終プレイ：${dateValue}` : `最後遊玩：${dateValue}`;
 
                 slotDiv.append(deleteButton, title, info, date);
                 slotDiv.onclick = () => loadGame(id);
@@ -4564,7 +4795,7 @@ dialogues 只列真正開口者。options 必須恰好 3 個，通常最多 1 �
                 else removePersistedApiKeys();
 
                 document.getElementById('delete-key-btn').style.display = 'inline-block';
-                document.getElementById('model-selection-area').style.display = 'block';
+                setHomeModelAreaVisible(true);
                 verifyBtn.style.display = 'none';
             } catch (error) {
                 console.error('API 驗證技術資訊', error);
@@ -4983,7 +5214,7 @@ dialogues 只列真正開口者。options 必須恰好 3 個，通常最多 1 �
             });
             
             document.getElementById('game-model-choice').value = selectedModel; document.getElementById('dialogue-box').innerHTML = ''; document.getElementById('options-area').innerHTML = '';
-            document.getElementById('save-menu-screen').style.display = 'none'; document.getElementById('game-container').style.display = 'flex';
+document.getElementById('setup-screen').style.display = 'none'; document.getElementById('save-menu-screen').style.display = 'none'; document.getElementById('game-container').style.display = 'flex';
             
             renderChatPage(currentChatPageIndex);
             
@@ -6300,9 +6531,10 @@ ${rawAction}
                 const memoryEvent = validMemoryCategories.has(memoryCategory)
                     ? truncatePromptText(memoryPayload?.event, 180)
                     : valueToText(parsedData.adventure_log);
-                if (memoryEvent) currentAdventureLog = mergeAdventureLog(currentAdventureLog, memoryEvent);
-                npcLifeEvents.forEach(event => { currentAdventureLog = mergeAdventureLog(currentAdventureLog, event); });
-                if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEvents });
+if (memoryEvent) currentAdventureLog = mergeAdventureLog(currentAdventureLog, memoryEvent);
+npcLifeEvents.forEach(event => { currentAdventureLog = mergeAdventureLog(currentAdventureLog, event); });
+if (npcLifeEvents.length) failTasksRelatedToNpcEvents(npcLifeEvents);
+if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEvents });
                 if (memoryPayload) {
                     const automaticMemory = { ...memoryPayload };
                     if (memoryEvent && !automaticMemory.story_summary && !automaticMemory.story) {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>TRPG模擬器(測試版)</title>
+    <title>旅途筆記</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -246,77 +246,186 @@
         </div>
     </div>
 
-    <div id="setup-screen">
-        <img id="setup-pic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" title="點擊上傳首頁照片" onclick="document.getElementById('pic-input').click();">
-        <input type="file" id="pic-input" accept="image/*" onchange="loadPic(this)" hidden class="hidden-file-input">
+<div id="setup-screen">
+<div class="setup-home-frame">
+<nav class="setup-side-tabs" aria-label="首頁快捷選單">
+<button type="button" class="setup-side-tab" data-home-tab="api" onclick="openApiGuideModal()">API說明</button>
+<button type="button" class="setup-side-tab" data-home-tab="guide" onclick="openTutorialModal()">遊戲玩法</button>
+<div class="setup-side-unlocked" aria-label="已驗證功能">
+<button type="button" class="setup-side-tab" onclick="openEditScenario()">角色配置</button>
+<button type="button" class="setup-side-tab" data-home-tab="saves" onclick="openSaveMenu()">存檔</button>
+<button type="button" class="setup-side-tab" data-home-tab="journal" onclick="openAdventureJournal()">冒險日誌</button>
+</div>
+<button type="button" class="setup-side-tab setup-side-language" onclick="cycleUiLanguageFromHome()">語言切換</button>
+</nav>
 
-        <h2>TRPG模擬器 (測試)</h2>
-        <p class="u-inline-026">W H I S P E R</p>
+<main class="setup-home-panel" aria-label="TRPG模擬器首頁">
+<section class="setup-home-view active" data-home-view="main">
+<img id="setup-pic" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" title="點擊上傳首頁照片" onclick="document.getElementById('pic-input').click();">
+<input type="file" id="pic-input" accept="image/*" onchange="loadPic(this)" hidden class="hidden-file-input">
 
-        <select id="api-provider" class="model-select" onchange="changeApiProvider(this.value)">
-            <option value="google">Google Gemini</option>
-            <option value="openrouter">OpenRouter</option>
-        </select>
-        <input type="password" id="api-key" class="key-input" placeholder="請貼上你的 API Key">
+<h2>旅途筆記</h2>
+<p class="u-inline-026" data-no-i18n>Journey Notes</p>
 
-        <label class="api-key-retention">
-            <input type="checkbox" id="remember-api-key" onchange="setRememberApiKey(this.checked)">
-            <span class="api-key-switch" aria-hidden="true"></span>
-            <span class="api-key-retention-copy">
-                <strong>在這台裝置保留金鑰</strong>
-                <small>未開啟時只在本次頁面使用；共用裝置請勿開啟。</small>
-            </span>
-        </label>
-        
-        <div class="u-inline-027">
-            <button class="btn" id="verify-btn" onclick="fetchAvailableModels()">驗證金鑰</button>
-        </div>
+<select id="api-provider" class="model-select" onchange="changeApiProvider(this.value)">
+<option value="google">Google Gemini</option>
+<option value="openrouter">OpenRouter</option>
+</select>
+<input type="password" id="api-key" class="key-input" placeholder="請貼上你的 API Key">
 
-        <div class="api-home-guide">
-            <strong>開始前請先準備 API 金鑰</strong>
-            <p>請選擇 Google Gemini 或 OpenRouter，貼上對應的 API Key 並完成驗證。金鑰不會包含在匯出備份中；共用裝置請勿開啟保存功能。</p>
-            <button type="button" class="api-guide-open-btn" onclick="openApiGuideModal()">查看 API 詳細說明與模型選擇</button>
-        </div>
-        
-        <div id="model-selection-area">
-            <p class="u-inline-029">驗證成功。請選擇大腦核心：</p>
-            <select id="model-choice" class="model-select" onchange="syncModelSelection(this.value)"></select>
-            
-            <div class="action-buttons">
-                <button class="btn" onclick="openEditScenario()">劇本創角</button>
-                <button class="btn" id="start-btn" onclick="openSaveMenu()">進入存檔選單</button>
-                <button class="btn" onclick="openAdventureJournal()">冒險日誌</button>
-            </div>
-            
-            <div class="u-inline-030">
-                <button onclick="openTutorialModal()" class="u-inline-031">閱讀遊戲玩法與系統指南</button>
-            </div>
-            
-            <div class="u-inline-032">
-                <button id="delete-key-btn" onclick="deleteAllData()">清除設備所有資料</button>
-            </div>
-        </div>
-        <details class="theme-customizer">
-            <summary>外觀配色</summary>
-            <div class="theme-palette">
-                <label class="theme-color-field">背景<input id="theme-background" type="color" aria-label="背景顏色" oninput="updateUiThemeColor('background', this.value)"></label>
-                <label class="theme-color-field">面板<input id="theme-surface" type="color" aria-label="面板顏色" oninput="updateUiThemeColor('surface', this.value)"></label>
-                <label class="theme-color-field">線與字<input id="theme-ink" type="color" aria-label="線條與主要文字顏色" oninput="updateUiThemeColor('ink', this.value)"></label>
-                <label class="theme-color-field">重點<input id="theme-accent" type="color" aria-label="重點顏色" oninput="updateUiThemeColor('accent', this.value)"></label>
-                <label class="theme-color-field">對話<input id="theme-dialogue" type="color" aria-label="NPC 對話顏色" oninput="updateUiThemeColor('dialogue', this.value)"></label>
-            </div>
-            <div class="theme-reset-row"><button type="button" class="theme-reset-btn" onclick="resetUiTheme()">恢復預設</button></div>
-        </details>
-        <label class="ui-language-picker">
-            <span>介面語言</span>
-            <select data-ui-language-select onchange="setUiLanguage(this.value)">
-                <option value="zh-TW">繁體中文</option>
-                <option value="en">English</option>
-                <option value="ja">日本語</option>
-            </select>
-        </label>
-        <p class="setup-version"> Threads @ miyazaki.617 · 測試版 v0.4 · 2026/06/24</p>
-    </div>
+<label class="api-key-retention">
+<input type="checkbox" id="remember-api-key" onchange="setRememberApiKey(this.checked)">
+<span class="api-key-switch" aria-hidden="true"></span>
+<span class="api-key-retention-copy">
+<strong>在這台裝置保留金鑰</strong>
+<small>未開啟時只在本次頁面使用；共用裝置請勿開啟。</small>
+</span>
+</label>
+
+<div class="u-inline-027">
+<button class="btn" id="verify-btn" onclick="fetchAvailableModels()">驗證金鑰</button>
+</div>
+
+<div class="api-home-guide">
+<strong>開始前請先準備 API 金鑰</strong>
+<p>請選擇 Google Gemini 或 OpenRouter，貼上對應的 API Key 並完成驗證。金鑰不會包含在匯出備份中；共用裝置請勿開啟保存功能。</p>
+<button type="button" class="api-guide-open-btn" onclick="openApiGuideModal()">查看 API 詳細說明與模型選擇</button>
+</div>
+
+<div id="model-selection-area">
+<p class="u-inline-029">驗證成功。請選擇大腦核心：</p>
+<select id="model-choice" class="model-select" onchange="syncModelSelection(this.value)"></select>
+
+<div class="action-buttons setup-mobile-actions">
+<button class="btn" onclick="openEditScenario()">劇本創角</button>
+<button class="btn" id="start-btn" onclick="openSaveMenu()">進入存檔選單</button>
+<button class="btn" onclick="openAdventureJournal()">冒險日誌</button>
+</div>
+
+<div class="u-inline-030 setup-mobile-help">
+<button onclick="openTutorialModal()" class="u-inline-031">閱讀遊戲玩法與系統指南</button>
+</div>
+
+<div class="u-inline-032">
+<button id="delete-key-btn" onclick="deleteAllData()">清除設備所有資料</button>
+</div>
+</div>
+
+<div class="setup-home-footer">
+<details class="theme-customizer">
+<summary>外觀配色</summary>
+<div class="theme-palette">
+<label class="theme-color-field">背景<input id="theme-background" type="color" aria-label="背景顏色" oninput="updateUiThemeColor('background', this.value)"></label>
+<label class="theme-color-field">紙張<input id="theme-paper" type="color" aria-label="紙張顏色" oninput="updateUiThemeColor('paper', this.value)"></label>
+<label class="theme-color-field">面板<input id="theme-surface" type="color" aria-label="面板顏色" oninput="updateUiThemeColor('surface', this.value)"></label>
+<label class="theme-color-field">線與字<input id="theme-ink" type="color" aria-label="線條與主要文字顏色" oninput="updateUiThemeColor('ink', this.value)"></label>
+<label class="theme-color-field">重點<input id="theme-accent" type="color" aria-label="重點顏色" oninput="updateUiThemeColor('accent', this.value)"></label>
+<label class="theme-color-field">對話<input id="theme-dialogue" type="color" aria-label="NPC 對話顏色" oninput="updateUiThemeColor('dialogue', this.value)"></label>
+</div>
+<div class="theme-reset-row"><button type="button" class="theme-reset-btn" onclick="resetUiTheme()">恢復預設</button></div>
+</details>
+<label class="ui-language-picker">
+<span>介面語言</span>
+<select data-ui-language-select onchange="setUiLanguage(this.value)">
+<option value="zh-TW">繁體中文</option>
+<option value="en">English</option>
+<option value="ja">日本語</option>
+</select>
+</label>
+<p class="setup-version"> Threads @ miyazaki.617 · v1 · 2026/06/25</p>
+</div>
+</section>
+
+<section class="setup-home-view setup-info-view" data-home-view="api" aria-label="API 說明">
+<div class="setup-info-scroll">
+<h2>API 說明</h2>
+<p class="setup-info-lead">這個遊戲會用你的 API Key 呼叫 AI。請先選擇服務商、貼上對應金鑰並完成驗證；金鑰不會被放進遊戲備份。</p>
+<div class="setup-info-grid">
+<article>
+<h3>1. API 金鑰</h3>
+<p>API Key 是 AI 服務用來辨識使用者與計算用量的金鑰，不是遊戲帳號或遊戲密碼。請向 Google AI Studio 或 OpenRouter 申請，並妥善保管。</p>
+</article>
+<article>
+<h3>2. Gemini 與 OpenRouter</h3>
+<p>選擇 Google Gemini 時，請使用 Google AI Studio 提供的金鑰；選擇 OpenRouter 時，請使用 OpenRouter 金鑰。兩種金鑰不能互換。</p>
+</article>
+<article>
+<h3>3. 模型怎麼選？</h3>
+<p>輕量模型通常回覆較快、用量較省，適合測試設定或日常遊玩；較大型模型通常更擅長長篇劇情、人物語氣與複雜指令。</p>
+</article>
+<article>
+<h3>4. 金鑰保存</h3>
+<p>未開啟「在這台裝置保留金鑰」時，金鑰只在目前頁面使用。共用裝置請勿開啟保存功能；匯出備份不包含 API Key。</p>
+</article>
+<article>
+<h3>5. 驗證失敗時</h3>
+<p>請先確認服務商與金鑰來源一致，再檢查金鑰是否完整貼上、是否有多餘空白、帳號是否已開通 API 權限。OpenRouter 模型清單會依帳號與服務狀態變動。</p>
+</article>
+<article>
+<h3>6. 使用量與隱私</h3>
+<p>遊戲會把劇情上下文送到你選擇的 AI 服務商，用量與費用由該服務商計算。匯出遊戲備份不會包含 API Key；換裝置後需要重新驗證。</p>
+</article>
+<article>
+<h3>7. 模型建議</h3>
+<p>測試設定時可先用較快、較省的模型；長篇劇情、複雜角色語氣或需要穩定記憶整理時，再切換到較大型模型。模型可以在遊戲內切換。</p>
+</article>
+</div>
+</div>
+</section>
+
+<section class="setup-home-view setup-info-view" data-home-view="guide" aria-label="遊戲玩法">
+<div class="setup-info-scroll">
+<h2>第一次玩，從這裡開始</h2>
+<p class="setup-info-lead">API 金鑰的設定、隱私與錯誤排除請直接查看首頁說明。完成驗證並選好模型後，依序建立角色與情境、進入存檔，再輸入第一個行動即可開始。</p>
+<div class="setup-info-grid">
+<article>
+<h3>1. 這是什麼？</h3>
+<p>這是一個單人 AI TRPG／劇情模擬器。你可以建立自己的角色、NPC 與世界觀，讓 AI 擔任 DM、旁白及其他角色，陪你進行冒險、戀愛、日常、懸疑或任何想玩的故事。</p>
+</article>
+<article>
+<h3>2. 建立角色、NPC 與情境</h3>
+<p>進入「劇本創角」後，使用左側的「角色設定」、「情境設定」與「遊戲設定」切換不同內容。角色設定可編輯玩家與每一位 NPC 的頭像、名稱及人物資料；情境設定用來建立世界觀、身分與轉場規則。切換標籤時，尚未離開頁面的修改不會被重置。</p>
+</article>
+<article>
+<h3>3. 遊戲設定與隨機生成</h3>
+<p>遊戲設定集中管理配置名稱、輸出語言、遊戲難度與隨機生成。你可以保留人物只隨機產生情境，也可以讓 AI 將人物與情境全部隨機。生成結果會先讓你確認，不會在未套用前直接覆蓋目前內容；返回首頁時，系統會保存目前配置。</p>
+</article>
+<article>
+<h3>4. 怎麼玩？</h3>
+<p>進入遊戲後，直接在下方輸入角色想說的話或想做的事。你也可以點選 AI 提供的選項。若行動具有風險，可以使用骰子按鈕進行 D20 判定；系統會依角色能力、難度與骰點決定成功或失敗。NPC 只有在劇情明確確認時才會死亡；標準模式可由劇情或「神」復活，困難模式每次死亡只有一次復活檢定，極限模式則永久死亡。</p>
+</article>
+<article>
+<h3>5. 玩家、旁白與「神」模式</h3>
+<p>一般輸入會被視為玩家角色的行動。輸入 ［切換旁白］ 可以改用場外視角安排環境、鏡頭與 NPC 行動；輸入 ［切換玩家］ 就能回到玩家角色。「神」按鈕則是創作者模式，可以直接調整場景、時間、人物或事件。神模式的內容不會被 NPC 當成玩家說出口的話。</p>
+</article>
+<article>
+<h3>6. 角色面板與冒險日誌</h3>
+<p>角色面板可以查看與修改玩家狀態、NPC、道具、Flags、任務、劇情摘要及角色關係；AI 每回合會參考這些重點資料來延續故事。面板內的冒險日誌只顯示目前這份遊戲紀錄，完整事件可以搜尋、分頁、編輯或整理，不會因摘要更新而自動消失。桌機版按「儲存」後面板會保持開啟，可點側邊標籤收回；手機版則使用「儲存並返回」。</p>
+</article>
+<article>
+<h3>7. 遊戲紀錄、配置與備份</h3>
+<p>每份遊戲紀錄都會綁定目前使用的角色配置，彼此的摘要、任務、關係與冒險日誌會分開保存。使用「另存新配置」後，該紀錄會改綁新配置；仍被遊戲紀錄使用的配置無法直接刪除，上鎖配置也不會被遊戲內修改覆蓋。資料主要保存在目前裝置的瀏覽器，不會自動同步，請定期在存檔選單使用「匯出」備份，並在更換裝置後使用「匯入」恢復。</p>
+</article>
+<article>
+<h3>💡 AI 忘記事情怎麼辦？</h3>
+<p>打開角色面板，檢查重點劇情、任務、角色關係與 Flags 是否正確。你可以手動修正，或使用「整理摘要」重新整理目前狀態。</p>
+</article>
+<article>
+<h3>💡 劇情重複或場景錯亂怎麼辦？</h3>
+<p>先確認摘要與冒險日誌是否正確。如果 AI 仍然混淆，可以開啟「神」模式，直接說明目前場景、在場角色與接下來希望聚焦的方向。</p>
+</article>
+</div>
+</div>
+</section>
+<section class="setup-home-view setup-embedded-view" data-home-view="saves" aria-label="存檔">
+<div id="setup-save-host" class="setup-embedded-host"></div>
+</section>
+<section class="setup-home-view setup-embedded-view" data-home-view="journal" aria-label="冒險日誌">
+<div id="setup-journal-host" class="setup-embedded-host"></div>
+</section>
+</main>
+</div>
+</div>
 
     <div id="edit-scenario-screen">
         <aside id="desktop-config-overview" aria-label="角色配置總覽">
@@ -544,6 +653,7 @@
         </div>
     </div>
 
+    <div id="save-menu-screen-home" hidden></div>
     <div id="save-menu-screen">
         <h2>選擇記憶紀錄</h2>
         <div id="save-list"></div>
