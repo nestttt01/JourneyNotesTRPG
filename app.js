@@ -3155,28 +3155,46 @@ clearEditScenarioDirty();
             }
         }
 
-        function gatherPresetData(idToSave, nameToSave) {
-            syncEditingDataFromDOM();
-            return {
-                id: idToSave, presetName: nameToSave, 
-                playerName: document.getElementById('input-player-name').value.trim(),
-                languageMode: document.getElementById('input-language-mode')?.value || 'zh-tw',
-                gameDifficulty: normalizeGameDifficulty(document.getElementById('input-game-difficulty')?.value),
-                playerAvatar: document.getElementById('preview-player').src,
-                playerStats: readPlayerStatsFromInputs(),
-                isLocked: scenarioPresets[activePresetId] ? scenarioPresets[activePresetId].isLocked : false,
-                playerDetails: {
-                    age: document.getElementById('p-age').value.trim(),
-                    speech: document.getElementById('p-speech').value.trim(),
-                    likes: document.getElementById('p-likes').value.trim(),
-                    dislikes: document.getElementById('p-dislikes').value.trim(),
-                    app: document.getElementById('p-app').value.trim(),
-                    bg: document.getElementById('p-bg').value.trim()
-                },
-                npcs: JSON.parse(JSON.stringify(editingNpcs)),
-                scenarios: JSON.parse(JSON.stringify(editingScenarios))
-            };
-        }
+function gatherPresetData(idToSave, nameToSave) {
+ syncEditingDataFromDOM();
+ const previousPreset = scenarioPresets[activePresetId] || {};
+ const fallbackDetails = previousPreset.playerDetails || currentScenario.playerDetails || {};
+ const playerDetailsFromDom = {
+ age: document.getElementById('p-age')?.value.trim() || '',
+ speech: document.getElementById('p-speech')?.value.trim() || '',
+ likes: document.getElementById('p-likes')?.value.trim() || '',
+ dislikes: document.getElementById('p-dislikes')?.value.trim() || '',
+ app: document.getElementById('p-app')?.value.trim() || '',
+ bg: document.getElementById('p-bg')?.value.trim() || ''
+ };
+ const hasPlayerDetailsInDom = Object.values(playerDetailsFromDom).some(Boolean);
+ const safePlayerDetails = hasPlayerDetailsInDom ? playerDetailsFromDom : {
+ age: fallbackDetails.age || '',
+ speech: fallbackDetails.speech || '',
+ likes: fallbackDetails.likes || '',
+ dislikes: fallbackDetails.dislikes || '',
+ app: fallbackDetails.app || '',
+ bg: fallbackDetails.bg || previousPreset.playerPersona || ''
+ };
+ const safeNpcs = Array.isArray(editingNpcs) && editingNpcs.length
+ ? editingNpcs
+ : (Array.isArray(previousPreset.npcs) ? previousPreset.npcs : []);
+ const safeScenarios = Array.isArray(editingScenarios) && editingScenarios.length
+ ? editingScenarios
+ : (Array.isArray(previousPreset.scenarios) ? previousPreset.scenarios : []);
+ return {
+ id: idToSave, presetName: nameToSave, 
+ playerName: document.getElementById('input-player-name')?.value.trim() || previousPreset.playerName || '',
+ languageMode: document.getElementById('input-language-mode')?.value || 'zh-tw',
+ gameDifficulty: normalizeGameDifficulty(document.getElementById('input-game-difficulty')?.value),
+ playerAvatar: document.getElementById('preview-player')?.src || previousPreset.playerAvatar || emptyAvatar,
+ playerStats: readPlayerStatsFromInputs(),
+ isLocked: scenarioPresets[activePresetId] ? scenarioPresets[activePresetId].isLocked : false,
+ playerDetails: safePlayerDetails,
+ npcs: JSON.parse(JSON.stringify(safeNpcs)),
+ scenarios: JSON.parse(JSON.stringify(safeScenarios))
+ };
+ }
 
         function commitCurrentPresetSilently() {
             const pOld = scenarioPresets[activePresetId];
@@ -3406,12 +3424,16 @@ updateSetupCurrentPresetLabel();
                     return;
                 }
                 
-                // 將當前遊戲數據綁定到新配置 ID
-                currentScenario.sourcePresetId = newId;
-                currentScenario.presetName = newPresetName;
-                
-                saveCurrentProgress(); 
-                alert(`已將目前的角色核心設定與情境資料另存為新配置「${newPresetName}」！\n動態狀態與冒險進度只保留在目前存檔中。`);
+ // 將當前遊戲數據綁定到新配置 ID
+ activePresetId = newId;
+ localStorage.setItem('sanko_active_preset_id', activePresetId);
+ currentScenario.sourcePresetId = newId;
+ currentScenario.presetName = newPresetName;
+ 
+ saveCurrentProgress(); 
+ renderPresetSelector();
+ updateSetupCurrentPresetLabel();
+ alert(`已將目前的角色核心設定與情境資料另存為新配置「${newPresetName}」！\n動態狀態與冒險進度只保留在目前存檔中。`);
             } catch (e) {
                 console.error(e);
                 alert("儲存時發生錯誤：" + e.message);
