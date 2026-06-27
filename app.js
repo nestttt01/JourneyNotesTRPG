@@ -195,7 +195,7 @@ event.returnValue = '';
         const GAME_DIFFICULTIES = {
             standard: { label: '標準模式', dcModifier: 0, gameOver: 'none' },
             hard: { label: '困難模式', dcModifier: 2, gameOver: 'possible' },
-            nightmare: { label: '極限模式', dcModifier: 4, gameOver: 'forced' }
+            nightmare: { label: '極限模式', dcModifier: 3, gameOver: 'forced' }
         };
         const AUTO_SURVIVAL_FLAGS = {
             hpCritical: '重傷（HP 20 以下）',
@@ -811,9 +811,8 @@ dialogue: '--accent-gray'
 
                 const hasPersistedKey = Boolean(getPersistedApiKey('google') || getPersistedApiKey('openrouter'));
                 const savedRememberPreference = localStorage.getItem('sanko_remember_api_key');
-                rememberApiKey = savedRememberPreference === null ? hasPersistedKey : savedRememberPreference === 'true';
+                rememberApiKey = hasPersistedKey || savedRememberPreference === 'true';
                 localStorage.setItem('sanko_remember_api_key', String(rememberApiKey));
-                if (!rememberApiKey) removePersistedApiKeys();
                 const rememberToggle = document.getElementById('remember-api-key');
                 if (rememberToggle) rememberToggle.checked = rememberApiKey;
 
@@ -1274,10 +1273,23 @@ if (!sections.scenarios) delete safePreset.scenarios;
 return safePreset;
 }
 
-function sanitizePresetCollection(presets, sections = { characters: true, scenarios: true }) {
+function sanitizePresetCollection(presets, sections = { characters: true, scenarios: true }, presetIds = null) {
 const output = {};
+const allowed = presetIds ? new Set([...presetIds].map(String)) : null;
 Object.entries(presets || {}).forEach(([id, preset]) => {
+if (allowed && !allowed.has(String(id))) return;
 output[id] = filterPresetForSections(preset, sections);
+});
+return output;
+}
+
+function getPresetIdsReferencedBySaves(saveIds = null) {
+const allowedSaves = saveIds ? new Set(saveIds.map(String)) : null;
+const output = new Set();
+Object.entries(savesData || {}).forEach(([saveId, save]) => {
+if (allowedSaves && !allowedSaves.has(String(saveId))) return;
+const presetId = valueToText(save?.scenario?.sourcePresetId || save?.scenario?.id);
+if (presetId && scenarioPresets?.[presetId]) output.add(presetId);
 });
 return output;
 }
@@ -1293,15 +1305,14 @@ return output;
 
 function buildBackupPayload(saveIds = null, presetSections = { characters: true, scenarios: true }) {
 saveCurrentProgress();
+const referencedPresetIds = saveIds ? getPresetIdsReferencedBySaves(saveIds) : null;
 return {
 version: 5,
 type: 'journey-notes-backup',
 exportedAt: new Date().toISOString(),
 saves: sanitizeSavesCollection(savesData, saveIds),
-scenarioPresets: sanitizePresetCollection(scenarioPresets, presetSections),
+scenarioPresets: sanitizePresetCollection(scenarioPresets, presetSections, referencedPresetIds),
 activePresetId,
-uiTheme: stripImagesAndPrivateData(getJsonClone(uiTheme)),
-uiLanguage: window.getUiLanguage ? getUiLanguage() : 'zh-TW',
 privacy: {
 excludes: ['apiKeys', 'homePhoto', 'privateTokens']
 }
@@ -1409,6 +1420,98 @@ output.isLocked = false;
 return output;
 }
 
+function getPresetImportSignature(preset) {
+const copy = stripImagesAndPrivateData(getJsonClone(preset || {}));
+delete copy.id;
+delete copy.sourcePresetId;
+delete copy.isLocked;
+delete copy.statsLocked;
+delete copy.playerDynamic;
+if (Array.isArray(copy.npcs)) {
+copy.npcs = copy.npcs.map(npc => {
+const cleanNpc = getJsonClone(npc || {});
+delete cleanNpc.dynamic;
+return cleanNpc;
+});
+}
+if (Array.isArray(copy.scenarios)) {
+copy.scenarios = copy.scenarios.map(scene => {
+const cleanScene = getJsonClone(scene || {});
+delete cleanScene.runtimePlayerPresence;
+delete cleanScene.runtimeGuideRole;
+return cleanScene;
+});
+}
+return JSON.stringify(copy);
+}
+
+function findExistingPresetForImport(preset, options = {}) {
+const incomingSignature = getPresetImportSignature(preset);
+const incomingName = valueToText(preset?.presetName);
+const originalId = valueToText(options.originalId);
+const matchByNameAndContent = options.matchByNameAndContent !== false;
+return Object.entries(scenarioPresets || {}).find(([, existing]) => {
+if (!existing || typeof existing !== 'object') return false;
+const sameId = valueToText(existing.id) && (
+valueToText(existing.id) === valueToText(preset?.id)
+|| (originalId && valueToText(existing.id) === originalId)
+);
+const sameName = matchByNameAndContent && incomingName && valueToText(existing.presetName) === incomingName;
+if (!sameId && !sameName) return false;
+return getPresetImportSignature(existing) === incomingSignature;
+})?.[0] || '';
+}
+
+function importPresetWithoutDuplicate(rawPreset, sections = { characters: true, scenarios: true }, options = {}) {
+const preset = normalizeImportedPreset(rawPreset, sections);
+const existingId = findExistingPresetForImport(preset, {
+originalId: rawPreset?.id || options.originalId,
+matchByNameAndContent: options.matchByNameAndContent
+});
+if (existingId) return { id: existingId, imported: false, preset: scenarioPresets[existingId] };
+scenarioPresets[preset.id] = preset;
+return { id: preset.id, imported: true, preset };
+}
+
+function getSaveImportSignature(save) {
+const copy = stripImagesAndPrivateData(getJsonClone(save || {}));
+delete copy.date;
+delete copy.inputDraft;
+delete copy.importedAt;
+return JSON.stringify(copy);
+}
+
+function findExistingSaveForImport(save) {
+const signature = getSaveImportSignature(save);
+return Object.entries(savesData || {}).find(([, existing]) => {
+if (!existing || typeof existing !== 'object') return false;
+return getSaveImportSignature(existing) === signature;
+})?.[0] || '';
+}
+
+function normalizeImportPayload(importedData) {
+if (!importedData || typeof importedData !== 'object' || Array.isArray(importedData)) {
+return { saves: {}, presets: {} };
+}
+const saves = importedData.saves || importedData.savesData || {};
+const presets = importedData.scenarioPresets || importedData.presets || {};
+const normalizedSaves = saves && typeof saves === 'object' && !Array.isArray(saves) ? { ...saves } : {};
+const normalizedPresets = presets && typeof presets === 'object' && !Array.isArray(presets) ? { ...presets } : {};
+if (importedData.type === 'journey-notes-preset' && importedData.preset && typeof importedData.preset === 'object') {
+const presetId = valueToText(importedData.preset.id, `preset_imported_${Date.now()}`);
+normalizedPresets[presetId] = importedData.preset;
+}
+if (importedData.type === 'journey-notes-save' && importedData.save && typeof importedData.save === 'object') {
+const saveId = valueToText(importedData.saveId || importedData.id, `save_imported_${Date.now()}`);
+normalizedSaves[saveId] = importedData.save;
+}
+if (!Object.keys(normalizedSaves).length && importedData.scenario && (importedData.scripts || importedData.log || importedData.title)) {
+const saveId = valueToText(importedData.id || importedData.saveId, `save_imported_${Date.now()}`);
+normalizedSaves[saveId] = importedData;
+}
+return { saves: normalizedSaves, presets: normalizedPresets };
+}
+
 function importPresetConfig(input) {
 const file = input.files?.[0];
 if (!file) return;
@@ -1423,9 +1526,9 @@ const sections = importedData.exportSections || { characters: true, scenarios: t
 let count = 0;
 Object.values(importedPresets || {}).forEach(rawPreset => {
 if (!rawPreset || typeof rawPreset !== 'object' || Array.isArray(rawPreset)) return;
-const preset = normalizeImportedPreset(rawPreset, sections);
-scenarioPresets[preset.id] = preset;
-activePresetId = preset.id;
+const result = importPresetWithoutDuplicate(rawPreset, sections);
+activePresetId = result.id;
+if (!result.imported) return;
 count += 1;
 });
 if (!count) throw new Error('沒有找到可匯入的配置。');
@@ -1435,7 +1538,7 @@ currentScenario = getJsonClone(scenarioPresets[activePresetId]);
 renderPresetSelector();
 loadPresetToForm(activePresetId);
 renderDesktopPresetOverview();
-alert(`匯入完成：${count} 個配置。圖片與私密資料已略過。`);
+alert(uiText('已匯入 {count} 個配置。').replace('{count}', count));
 } catch (error) {
 alert(`匯入配置失敗：${error.message || '檔案格式不正確或已損毀。'}`);
 } finally {
@@ -3729,8 +3832,10 @@ alert(uiText('當前配置變更已成功儲存！基礎屬性已被鎖定！'))
                 activePresetId = previousActiveId;
                 return;
             }
-            localStorage.setItem('sanko_active_preset_id', activePresetId);
-currentScenario = clonePersistentValue(p); renderPresetSelector(); loadPresetToForm(newId); alert(uiText('已另存新檔為「{name}」！基礎屬性已被鎖定！').replace('{name}', newPresetName));
+localStorage.setItem('sanko_active_preset_id', activePresetId);
+currentScenario = clonePersistentValue(p);
+currentScenario.sourcePresetId = newId;
+renderPresetSelector(); loadPresetToForm(newId); alert(uiText('已另存新檔為「{name}」！基礎屬性已被鎖定！').replace('{name}', newPresetName));
         }
 
 function cancelEdit() {
@@ -4886,6 +4991,7 @@ excludes: ['apiKeys', 'homePhoto', 'privateTokens']
 };
 const safeName = valueToText(safePreset.presetName, '未命名配置').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 48);
 downloadJsonFile(payload, `Journey_Notes_Preset_${safeName}_${new Date().toISOString().slice(0,10)}.json`);
+alert(uiText('已匯出 {count} 份資料。').replace('{count}', '1'));
 }
 
 function importSaves(input) {
@@ -4894,41 +5000,67 @@ if (!file) return;
 const reader = new FileReader();
 reader.onload = event => {
 try {
+const preservedUiLanguage = window.getUiLanguage ? getUiLanguage() : null;
 const importedData = JSON.parse(event.target.result);
-const importedSaves = importedData.saves || importedData.savesData || {};
-const importedPresets = importedData.scenarioPresets || importedData.presets || {};
+const normalizedImport = normalizeImportPayload(importedData);
+const importedSaves = normalizedImport.saves;
+const importedPresets = normalizedImport.presets;
 if ((!importedSaves || typeof importedSaves !== 'object' || Array.isArray(importedSaves))
 && (!importedPresets || typeof importedPresets !== 'object' || Array.isArray(importedPresets))) {
 throw new Error('沒有可用的存檔或角色配置');
 }
 let presetCount = 0;
 let saveCount = 0;
+let skippedSaveCount = 0;
 const presetIdMap = {};
 Object.entries(importedPresets || {}).forEach(([sourceId, rawPreset]) => {
 if (!rawPreset || typeof rawPreset !== 'object' || Array.isArray(rawPreset)) return;
-const preset = normalizeImportedPreset(rawPreset, { characters: true, scenarios: true });
-presetIdMap[sourceId] = preset.id;
-scenarioPresets[preset.id] = preset;
+const result = importPresetWithoutDuplicate(rawPreset, { characters: true, scenarios: true }, {
+originalId: sourceId,
+matchByNameAndContent: false
+});
+presetIdMap[sourceId] = result.id;
+if (rawPreset.id) presetIdMap[rawPreset.id] = result.id;
+if (!result.imported) return;
 presetCount += 1;
 });
 Object.entries(importedSaves || {}).forEach(([sourceId, rawSave]) => {
 if (!rawSave || typeof rawSave !== 'object' || Array.isArray(rawSave)) return;
 const targetId = savesData[sourceId] ? `save_${Date.now()}_${Math.random().toString(36).slice(2, 7)}` : sourceId;
 const copiedSave = stripImagesAndPrivateData(getJsonClone(rawSave));
-if (copiedSave.scenario?.sourcePresetId && presetIdMap[copiedSave.scenario.sourcePresetId]) {
-copiedSave.scenario.sourcePresetId = presetIdMap[copiedSave.scenario.sourcePresetId];
+const originalPresetId = copiedSave.scenario?.sourcePresetId || copiedSave.scenario?.id || '';
+if (originalPresetId && presetIdMap[originalPresetId]) {
+copiedSave.scenario.sourcePresetId = presetIdMap[originalPresetId];
+if (copiedSave.scenario.id === originalPresetId) copiedSave.scenario.id = presetIdMap[originalPresetId];
+}
+if (findExistingSaveForImport(copiedSave)) {
+skippedSaveCount += 1;
+return;
 }
 savesData[targetId] = copiedSave;
 saveCount += 1;
 });
-if (!saveCount && !presetCount) throw new Error('沒有可用的存檔或角色配置');
-if (importedData.uiTheme && typeof importedData.uiTheme === 'object') applyUiTheme(stripImagesAndPrivateData(importedData.uiTheme), true);
-if (importedData.uiLanguage && window.setUiLanguage) setUiLanguage(importedData.uiLanguage, { notify: false });
+if (!saveCount && !presetCount && !skippedSaveCount) throw new Error('沒有可用的存檔或角色配置');
 persistJson('sanko_scenario_presets_v2', scenarioPresets, '匯入角色配置');
 persistJson('sanko_saves_v8', savesData, '匯入存檔');
 renderPresetSelector();
 renderSaveList();
-alert(`匯入完成：${saveCount} 個存檔、${presetCount} 個角色配置。圖片與私密資料已略過。`);
+if (preservedUiLanguage && window.setUiLanguage) {
+setUiLanguage(preservedUiLanguage, { persist: false, notify: false });
+} else if (window.translateUi) {
+translateUi(document.body);
+}
+if (!saveCount && !presetCount && skippedSaveCount) {
+alert(uiText('沒有新增資料，已略過 {count} 個重複存檔。').replace('{count}', skippedSaveCount));
+} else {
+const skippedText = skippedSaveCount
+? uiText('略過 {count} 個重複存檔。').replace('{count}', skippedSaveCount)
+: '';
+alert(uiText('匯入完成：{saveCount} 個存檔、{presetCount} 個角色配置。{skippedText}')
+.replace('{saveCount}', saveCount)
+.replace('{presetCount}', presetCount)
+.replace('{skippedText}', skippedText));
+}
 } catch (error) {
 alert(`匯入失敗：${error.message || '檔案格式不正確或已損毀。'}`);
 } finally {
@@ -4955,7 +5087,7 @@ reader.readAsText(file);
             };
             savesData[currentSaveId].flags = currentFlags;
 const currentInputDraft = document.getElementById('player-input')?.value || '';
-            savesData[currentSaveId].inputDraft = currentInputDraft;
+savesData[currentSaveId].inputDraft = currentInputDraft;
             try {
                 const draftKey = getInputDraftStorageKey(currentSaveId);
                 if (currentInputDraft) localStorage.setItem(draftKey, currentInputDraft);
@@ -4963,7 +5095,13 @@ const currentInputDraft = document.getElementById('player-input')?.value || '';
             } catch (error) {
                 console.warn('輸入草稿暫存失敗', error);
             }
-            savesData[currentSaveId].scenario = currentScenario;
+if (currentScenario && typeof currentScenario === 'object') {
+const boundPresetId = currentScenario.sourcePresetId
+|| (currentScenario.id && scenarioPresets?.[currentScenario.id] ? currentScenario.id : '')
+|| (activePresetId && scenarioPresets?.[activePresetId] ? activePresetId : '');
+if (boundPresetId) currentScenario.sourcePresetId = boundPresetId;
+}
+savesData[currentSaveId].scenario = currentScenario;
             savesData[currentSaveId].sceneTransition = pendingSceneTransition;
             delete savesData[currentSaveId].script;
             return persistSingleSave(currentSaveId, '遊戲存檔');
@@ -5305,6 +5443,7 @@ ${getMemoryBriefForPrompt()}
 【判定與狀態規則】
 - 輸入中的「系統硬判定」已由程式算定，必須直接承接，不得重擲或改變成敗。
 - 沒有硬判定時，不要假裝已擲骰；風險行動可在 options 建議檢定。
+- 困難或極限模式下，高風險場景應讓玩家有機會取得、交換、消耗或犧牲符合世界觀的抽象資源。資源可為物資、工具、防護、線索、通行權、人脈、信任、人情、承諾或其他故事優勢；不要固定生成特定物品名稱。玩家合理使用資源時，可降低風險、減輕失敗代價或打開新路線。
 - 創作者指令是角色外舞台命令；NPC 不得聽見，也不得因此改變好感。輔助旁白不是玩家角色的言行。
 - 只有角色行動模式才可改變玩家 HP、SAN、道具或好感；必須依實際事件填入 changes。
 - HP 或 SAN 歸零時遵守目前難度的結局規則；不可自行忽略程式狀態。
@@ -5882,14 +6021,15 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             return modifier;
         }
 
-        function calculateDiceCheck(statKey, difficultyKey = 'normal', forcedRoll = null) {
+        function calculateDiceCheck(statKey, difficultyKey = 'normal', forcedRoll = null, options = {}) {
             const statInfo = DICE_STATS[statKey];
             const difficulty = DICE_DIFFICULTIES[difficultyKey] || DICE_DIFFICULTIES.normal;
             const gameDifficulty = getGameDifficultyInfo();
-            const rawScore = Number(currentScenario?.playerStats?.[statKey] ?? 10);
+            const stats = options.stats || currentScenario?.playerStats || {};
+            const rawScore = Number(stats?.[statKey] ?? 10);
             const score = Number.isFinite(rawScore) ? Math.round(rawScore) : 10;
             const abilityModifier = Math.floor((score - 10) / 2);
-            const survivalModifier = getSurvivalDiceModifier(statKey);
+            const survivalModifier = options.applySurvivalModifier === false ? 0 : getSurvivalDiceModifier(statKey);
             const totalModifier = abilityModifier + survivalModifier;
             const dc = Math.max(2, Math.min(30, difficulty.dc + gameDifficulty.dcModifier));
             const roll = forcedRoll === null ? Math.floor(Math.random() * 20) + 1 : Math.max(1, Math.min(20, Math.round(forcedRoll)));
@@ -5914,7 +6054,8 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                 dc,
                 roll,
                 total,
-                result
+                result,
+                scope: options.scope || 'player'
             };
         }
 
@@ -5942,15 +6083,17 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             return aliases[clean] || 'normal';
         }
 
-        async function classifyDiceCheck(playerText) {
-            const stats = currentScenario.playerStats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+        async function classifyDiceCheck(playerText, options = {}) {
+            const stats = options.stats || currentScenario.playerStats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
             const scene = currentScenario.scenarios?.[currentScenarioIndex] || {};
+            const actorLabel = options.actorLabel || '玩家';
             const prompt = `你是 TRPG 檢定分類器。只判斷這個行動最適合哪一項六屬性與難度，不要擲骰、不要判斷成功失敗，也不要因為某項數值較高就偏袒它。
 
-玩家行動：${playerText}
+判定對象：${actorLabel}
+判定內容：${playerText}
 目前情境：${scene.name || '未命名'}
 情境法則：${scene.lore || '無特殊設定'}
-玩家六屬：STR ${stats.str}, DEX ${stats.dex}, CON ${stats.con}, INT ${stats.int}, WIS ${stats.wis}, CHA ${stats.cha}
+參考六屬：STR ${stats.str}, DEX ${stats.dex}, CON ${stats.con}, INT ${stats.int}, WIS ${stats.wis}, CHA ${stats.cha}
 
 選擇原則：
 - STR 力量：搬動、破壞、壓制、純肌力。
@@ -6054,10 +6197,12 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                 return;
             }
             const inputContext = parseSceneInputContext(stripHardDiceDirective(playerText));
-            if (inputContext.mode !== 'character') {
-                alert('目前是輔助旁白／創作者視角，不會使用玩家六圍擲骰。請改用一般送出。');
+            if (inputContext.mode === 'creator') {
+                alert('「神」模式是創作者指令，不使用玩家六圍。請按一般發送。');
                 return;
             }
+            const isNarratorDice = inputContext.mode === 'narrator';
+            const neutralNpcStats = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
 
             const suggestedText = inputEl.dataset.diceSuggestedText || '';
             const suggestedStat = normalizeDiceStatKey(inputEl.dataset.diceStat);
@@ -6075,7 +6220,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                         difficultyKey: normalizeDiceDifficulty(inputEl.dataset.diceDifficulty),
                         reason: '採用行動選項的預設檢定'
                     }
-                    : await classifyDiceCheck(playerText);
+                    : await classifyDiceCheck(playerText, isNarratorDice ? { stats: neutralNpcStats, actorLabel: 'NPC／旁白支線' } : {});
                 const resurrectionIntent = getResurrectionIntent(playerText);
                 if (resurrectionIntent && normalizeGameDifficulty(currentScenario?.gameDifficulty) === 'hard') {
                     if (isNpcRevivePermanentlyLocked(resurrectionIntent.npc)) throw new Error('這名 NPC 的復活機會已經失敗，無法再次嘗試。');
@@ -6083,13 +6228,22 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                     if ((rank[classification.difficultyKey] ?? 1) < rank.hard) classification.difficultyKey = 'hard';
                     classification.reason = `困難模式復活檢定：${resurrectionIntent.npc.name}`;
                 }
-                const check = calculateDiceCheck(classification.statKey, classification.difficultyKey);
+                const check = calculateDiceCheck(
+                    classification.statKey,
+                    classification.difficultyKey,
+                    null,
+                    isNarratorDice ? { stats: neutralNpcStats, applySurvivalModifier: false, scope: 'narrator' } : {}
+                );
                 const signedAbility = check.abilityModifier >= 0 ? `+${check.abilityModifier}` : String(check.abilityModifier);
                 const signedTotal = check.totalModifier >= 0 ? `+${check.totalModifier}` : String(check.totalModifier);
                 const gameDifficultyText = check.gameDifficultyDcModifier ? `｜遊戲難度 ${check.gameDifficultyLabel}：DC +${check.gameDifficultyDcModifier}` : `｜遊戲難度 ${check.gameDifficultyLabel}`;
                 const survivalText = check.survivalModifier ? `｜生存狀態修正 ${check.survivalModifier}` : '';
+                const scopeText = isNarratorDice ? '｜NPC／旁白支線判定，不得套用玩家 HP/SAN 或好感' : '';
+                const diceReason = `${classification.reason}${scopeText}`;
+                classification.reason = diceReason;
                 const directive = `(系統硬判定：${check.code} ${check.label}｜屬性 ${check.score}（加值 ${signedAbility}）｜行動難度 ${check.difficultyLabel}：基礎 DC ${check.difficultyDc}${gameDifficultyText}${survivalText}｜最終 DC ${check.dc}｜D20 ${check.roll} ${signedTotal} = ${check.total}｜結果【${check.result}】｜判定理由：${classification.reason}。此結果由程式計算，AI 不得更改。)`;
                 pendingDiceSummary = `${check.code} ${check.label}｜${check.result}｜${check.roll}${signedTotal}=${check.total}／DC${check.dc}`;
+                if (isNarratorDice) pendingDiceSummary = `支線判定｜${pendingDiceSummary}`;
                 inputEl.value = `${playerText}\n${directive}`;
                 document.getElementById('ui-target-typing').innerText = window.uiMessage ? window.uiMessage('引擎 (DM)') : '引擎 (DM)';
                 await sendChoice();
@@ -6425,8 +6579,9 @@ ${transitionRule}`;
 
         function getGameDifficultyInstruction() {
             const mode = getGameDifficultyInfo();
-            if (mode.gameOver === 'forced') return `【遊戲難度：${mode.label}】所有檢定 DC 額外 +${mode.dcModifier}。HP 或 SAN 歸零時程式會立即鎖定 Game Over，旁白必須承接壞結局。`;
-            if (mode.gameOver === 'possible') return `【遊戲難度：${mode.label}】所有檢定 DC 額外 +${mode.dcModifier}。HP 或 SAN 歸零時程式會在回覆完成後擲 D20 生死檢定：1–10 保命並回到 1 點，11–20 Game Over。你只能描寫倒下或崩潰，不可提前宣判最終生死。`;
+            const resourceRule = '高風險場景應允許玩家透過符合世界觀的抽象資源降低風險、減輕代價或打開新路線；資源可以是物資、工具、防護、線索、通行權、人脈、信任、人情、承諾或其他故事優勢，不要固定生成特定物品名稱。';
+            if (mode.gameOver === 'forced') return `【遊戲難度：${mode.label}】所有玩家角色檢定 DC 額外 +${mode.dcModifier}。HP 或 SAN 歸零時程式會立即鎖定 Game Over，旁白必須承接壞結局。${resourceRule}`;
+            if (mode.gameOver === 'possible') return `【遊戲難度：${mode.label}】所有玩家角色檢定 DC 額外 +${mode.dcModifier}。HP 或 SAN 歸零時程式會在回覆完成後擲 D20 生死檢定：1–10 保命並回到 1 點，11–20 Game Over。你只能描寫倒下或崩潰，不可提前宣判最終生死。${resourceRule}`;
             return `【遊戲難度：${mode.label}】沒有 Game Over。HP 或 SAN 歸零時程式會啟動保護機制並回到 1 點。`;
         }
 
@@ -7005,7 +7160,7 @@ ${context.content}
 1. 這不是 ${currentScenario.playerName} 的台詞、動作或情緒，NPC 無法聽見旁白。
 2. 操作者正在安排鏡頭、環境、事件或在場 NPC 的行動，請直接承接。
 3. 玩家角色目前不預設在場；除非此輸入明確說明回歸、登場、上線或回到現場。
-4. 不得對玩家角色扣 HP、SAN、好感度或套用 D20 判定。
+4. 不得對玩家角色扣 HP、SAN 或好感度；若輸入中附有「系統硬判定」，只能把它作為 NPC／旁白支線的成功、失敗或代價依據，不得套用到玩家 HP/SAN。
 5. options 應提供 3 個場外導演方向或 NPC 支線走向。`;
             }
             return `
