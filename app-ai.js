@@ -1,34 +1,72 @@
 // === [app.js 拆分] app-ai.js：原 app.js 第 6906–7661 行｜AI 請求/JSON 解析修復/語言修復/記憶整理/prompt 組裝/callAI_JSON(危險區)｜需依 index.html 既有順序與其他 app-*.js 一同載入，勿單獨重排。 ===
+        function getApiProviderLabel() {
+            if (apiProvider === 'openrouter') return 'OpenRouter';
+            if (apiProvider === 'anthropic') return 'Anthropic (Claude)';
+            return 'Google Gemini';
+        }
+
+        // 走 i18n 字典翻譯人看的句子；{provider} 以參數帶入；window.uiMessage 不在時退回中文並自行替換。
+        function translateErrorText(zh, params = {}) {
+            if (window.uiMessage) return window.uiMessage(zh, params);
+            let value = zh;
+            Object.entries(params).forEach(([key, replacement]) => { value = value.split(`{${key}}`).join(replacement); });
+            return value;
+        }
+
+        // 在友善訊息後附上「供應商｜HTTP 狀態｜原始原因」診斷尾巴；金鑰一律遮罩，不外洩。
+        function buildApiErrorDiagnostic(status = 0, rawMessage = '') {
+            const parts = [getApiProviderLabel()];
+            if (status) parts.push(`HTTP ${status}`);
+            const raw = valueToText(rawMessage)
+                .replace(/\s+/g, ' ')
+                .replace(/key=[\w.\-]+/gi, 'key=***')
+                .replace(/AIza[\w\-]{20,}/g, '***')
+                .replace(/sk-[\w\-]{10,}/gi, '***')
+                .trim();
+            if (raw) parts.push(truncatePromptText(raw, 140));
+            return `\n（${translateErrorText('診斷')}：${parts.join('｜')}）`;
+        }
+
         function getFriendlyApiErrorMessage(status = 0, rawMessage = '') {
+            const provider = getApiProviderLabel();
             const message = valueToText(rawMessage).toLowerCase();
+            const withTech = (zh, params = {}) => `${translateErrorText(zh, params)}${buildApiErrorDiagnostic(status, rawMessage)}`;
             if (status === 401 || status === 403 || /api.?key|unauthori[sz]ed|authentication|permission/.test(message)) {
-                return 'API Key 無效或沒有使用權限，請回首頁重新驗證。';
+                return withTech('{provider} 金鑰無效或沒有使用權限，請回首頁重新貼上並驗證金鑰。', { provider });
             }
-            if (status === 402 || /more credits|insufficient credits|can only afford|fewer max.?tokens|payment required|credit balance/.test(message)) {
-                return 'OpenRouter 可用額度不足，請補充餘額或改用其他模型。';
+            if (status === 402 || /more credits|insufficient credits|can only afford|fewer max.?tokens|payment required|credit balance|negative balance/.test(message)) {
+                return apiProvider === 'openrouter'
+                    ? withTech('OpenRouter 餘額不足（可能是 $0 或負值）。請到 openrouter.ai 的 Credits 頁儲值，或改用 Google Gemini。')
+                    : withTech('{provider} 因額度或付款問題拒絕了這次請求，請確認帳戶狀態或改用其他供應商。', { provider });
             }
             if (status === 429 || /quota|rate.?limit|resource.?exhausted|too many requests/.test(message)) {
-                return 'API 額度或請求次數已達上限，請稍後再試或改用其他模型。';
+                return withTech('{provider} 請求太頻繁或額度已達上限，請稍候再試或改用其他模型。', { provider });
             }
             if (/context length|maximum context|prompt.{0,12}too long|too many tokens|token limit|input tokens/.test(message)) {
-                return '送給 AI 的背景資料太長，請先整理摘要後再試。';
+                return withTech('送給 AI 的背景資料太長，請先用狀態面板的「整理摘要／整理紀錄」壓縮後再試。');
             }
             if (/json|response.?format|invalid schema/.test(message)) {
-                return 'AI 回覆格式異常，本次內容沒有套用，請重新發送。';
+                return withTech('AI 回覆格式異常，本次內容沒有套用，請重新發送一次。');
             }
-            if (/safety|blocked|content filter/.test(message)) {
-                return 'AI 因內容安全限制沒有回覆，請調整本回合文字後再試。';
+            if (/safety|blocked|content filter|安全|阻擋/.test(message)) {
+                return withTech('{provider} 因內容安全限制沒有回覆，請調整本回合的文字後再試。', { provider });
+            }
+            if (/no candidates|candidate|empty content|no response|空白|沒有回傳/.test(message)) {
+                return withTech('{provider} 這次沒有回傳內容（常見於安全機制或模型暫時不穩），通常再送一次就會好。', { provider });
+            }
+            if (status === 404 || /not found|no such model|unknown model|model.{0,12}(not|unavailable)/.test(message)) {
+                return withTech('找不到或無法使用所選模型，請回首頁重新選擇模型（{provider}）。', { provider });
             }
             if (status === 408 || /timeout|timed out/.test(message)) {
-                return 'AI 回覆逾時，請稍後再試。';
+                return withTech('AI 回覆逾時，請稍後再試；網路較慢時可改用較快的模型。');
             }
-            if (status >= 500 || /server error|service unavailable|overloaded/.test(message)) {
-                return 'AI 服務暫時忙碌，請稍後再試。';
+            if (status >= 500 || /server error|service unavailable|overloaded|bad gateway/.test(message)) {
+                return withTech('{provider} 服務暫時忙碌或過載，請稍後再試。', { provider });
             }
-            if (/network|failed to fetch|connection|offline/.test(message)) {
-                return '連線失敗，請確認網路後再試。';
+            if (/network|failed to fetch|connection|offline|load failed/.test(message)) {
+                return withTech('連線失敗，請確認網路後再試（手機切換 Wi-Fi／行動網路時容易中斷）。');
             }
-            return 'AI 暫時無法完成這次回覆，請稍後再試。';
+            return withTech('AI 暫時無法完成這次回覆；請看下方診斷資訊判斷原因，或稍後再試。');
         }
 
         function getFriendlyErrorMessage(error, fallback = '操作失敗，請稍後再試。') {
@@ -41,7 +79,7 @@
 
         function buildAIRequest(fullPrompt, maxTokens = MAX_AI_OUTPUT_TOKENS, kind = 'normal') {
             refreshApiCredentials();
-            if (!apiKey) throw new Error(`${apiProvider === 'openrouter' ? 'OpenRouter' : 'Google Gemini'} API Key 未載入，請回到首頁重新驗證金鑰。`);
+            if (!apiKey) throw new Error(`${getApiProviderLabel()} API Key 未載入，請回到首頁重新驗證金鑰。`);
             if (!selectedModel) throw new Error("尚未選擇模型，請回到首頁重新選擇模型。");
             const temperature = kind === 'generation' ? 0.9 : (kind === 'normal' ? 0.7 : (kind === 'journal' || kind === 'summary' ? 0.25 : 0.1));
             if (apiProvider === 'openrouter') {
@@ -65,6 +103,27 @@
                 };
             }
 
+            if (apiProvider === 'anthropic') {
+                return {
+                    url: 'https://api.anthropic.com/v1/messages',
+                    options: {
+                        method: 'POST',
+                        headers: {
+                            'x-api-key': apiKey,
+                            'anthropic-version': '2023-06-01',
+                            'anthropic-dangerous-direct-browser-access': 'true',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            model: selectedModel,
+                            max_tokens: maxTokens,
+                            temperature,
+                            messages: [{ role: 'user', content: fullPrompt }]
+                        })
+                    }
+                };
+            }
+
             const safetySettings = [{ category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" }, { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" }, { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" }, { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" }];
             return {
                 url: `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`,
@@ -79,6 +138,11 @@
         function getAIResponseText(data) {
             if (apiProvider === 'openrouter') {
                 return data.choices?.[0]?.message?.content || data.choices?.[0]?.text || "";
+            }
+            if (apiProvider === 'anthropic') {
+                return Array.isArray(data.content)
+                    ? data.content.filter(part => part && part.type === 'text').map(part => part.text || '').join('')
+                    : "";
             }
             if (data.candidates?.[0]?.finishReason === 'SAFETY') {
                 throw new Error("AI 回覆被安全系統阻擋，請調整輸入內容後再試。");
@@ -138,7 +202,9 @@
                     }
                     const finishReason = apiProvider === 'openrouter'
                         ? valueToText(data.choices?.[0]?.finish_reason).toLowerCase()
-                        : valueToText(data.candidates?.[0]?.finishReason).toLowerCase();
+                        : apiProvider === 'anthropic'
+                            ? valueToText(data.stop_reason).toLowerCase()
+                            : valueToText(data.candidates?.[0]?.finishReason).toLowerCase();
                     if (finishReason === 'length' || finishReason === 'max_tokens') {
                         const lengthError = new Error('AI 回覆太長而被截斷，本次內容沒有套用，請縮短要求後重試。');
                         lengthError.userFriendly = true;

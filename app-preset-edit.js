@@ -2,7 +2,7 @@
 async function testCharacterVoice(kind = 'npc', index = -1) {
 refreshApiCredentials();
 if (!apiKey || !selectedModel) {
-alert(`請先驗證 ${apiProvider === 'openrouter' ? 'OpenRouter' : 'Google Gemini'} 金鑰並選擇模型。`);
+alert(`請先驗證 ${getApiProviderLabel()} 金鑰並選擇模型。`);
 return;
 }
 syncEditingDataFromDOM();

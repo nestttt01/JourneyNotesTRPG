@@ -602,12 +602,12 @@ function normalizeMemoryNotes(value) {
             const day = apiUsageStats.days[today];
             const mon = apiUsageStats.months[month];
             const total = apiUsageStats.totals;
-            const providerText = apiProvider === 'openrouter' ? 'OpenRouter' : 'Google Gemini';
+            const providerText = getApiProviderLabel();
             const modelRows = Object.values(apiUsageStats.models || {})
                 .sort((a, b) => (b.requests || 0) - (a.requests || 0))
                 .slice(0, 8)
                 .map(entry => {
-                    const provider = entry.provider === 'openrouter' ? 'OpenRouter' : (entry.provider === 'google' ? 'Google' : valueToText(entry.provider, '未知'));
+                    const provider = entry.provider === 'openrouter' ? 'OpenRouter' : (entry.provider === 'google' ? 'Google' : (entry.provider === 'anthropic' ? 'Anthropic' : valueToText(entry.provider, '未知')));
                     const requestCount = Math.max(0, Number.parseInt(entry.requests, 10) || 0);
                     const repairCount = Math.max(0, Number.parseInt(entry.repairRequests, 10) || 0);
                     const repairs = repairCount ? ` / 修復 ${repairCount}` : '';

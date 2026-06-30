@@ -168,6 +168,14 @@ event.returnValue = '';
         function getModelRuntimeProfile() {
             const modelId = String(selectedModel || '').toLowerCase();
             const bilingual = ['ja-zh', 'en-zh'].includes(currentScenario?.languageMode);
+            if (apiProvider === 'anthropic') {
+                return {
+                    id: 'anthropic', normalMaxTokens: bilingual ? 1800 : 1500,
+                    repairMaxTokens: 900, summaryMaxTokens: 1600, journalMaxTokens: 2400,
+                    recentTurns: 8, recentChars: 6000, promptChars: 28000,
+                    loreChars: 3000, npcLimit: 8, memoryNotes: 10
+                };
+            }
             if (apiProvider === 'openrouter' && /(?:^|\/)gpt-4[.-]?1(?:$|[-:])/.test(modelId)) {
                 return {
                     id: 'gpt-4.1', normalMaxTokens: bilingual ? 1400 : 1100,

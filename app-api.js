@@ -125,7 +125,7 @@ async function fetchAvailableModelsFromGame() {
  apiProvider = providerSelect?.value || localStorage.getItem('sanko_api_provider') || apiProvider || 'google';
  let key = keyInput?.value.trim() || getStoredApiKey(apiProvider);
  if (!key) {
- const providerName = apiProvider === 'openrouter' ? 'OpenRouter' : 'Google Gemini';
+ const providerName = getApiProviderLabel();
  const input = prompt(`請貼上 ${providerName} API Key 來載入模型：`, '');
  if (input === null) {
  ensureGameModelSelectReady();
@@ -145,7 +145,7 @@ async function fetchAvailableModelsFromGame() {
  if (gameSelect) gameSelect.disabled = true;
  try {
  const preferredModel = localStorage.getItem(getModelStorageKey(apiProvider)) || selectedModel || '';
- const models = apiProvider === 'openrouter' ? await fetchOpenRouterModels() : await fetchGoogleModels();
+ const models = apiProvider === 'openrouter' ? await fetchOpenRouterModels() : apiProvider === 'anthropic' ? await fetchAnthropicModels() : await fetchGoogleModels();
  populateModelSelects(models, preferredModel);
  setHomeModelAreaVisible(true);
  document.getElementById('delete-key-btn').style.display = 'inline-block';
