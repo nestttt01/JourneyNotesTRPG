@@ -208,11 +208,11 @@ event.returnValue = '';
             cha: { code: 'CHA', label: '魅力' }
         };
         const DICE_DIFFICULTIES = {
-            trivial: { label: '超簡單', dc: 2, dcMin: 1, dcMax: 4 },
-            easy: { label: '簡單', dc: 8, dcMin: 6, dcMax: 9 },
-            normal: { label: '普通', dc: 10, dcMin: 9, dcMax: 13 },
-            hard: { label: '困難', dc: 14, dcMin: 13, dcMax: 16 },
-            extreme: { label: '極難', dc: 18, dcMin: 16, dcMax: 19 }
+            trivial: { label: '超簡單', dc: 4, dcMin: 3, dcMax: 5 },
+            easy: { label: '簡單', dc: 10, dcMin: 9, dcMax: 11 },
+            normal: { label: '普通', dc: 13, dcMin: 12, dcMax: 14 },
+            hard: { label: '困難', dc: 17, dcMin: 16, dcMax: 18 },
+            extreme: { label: '極難', dc: 21, dcMin: 20, dcMax: 22 }
         };
         const GAME_DIFFICULTIES = {
             standard: { label: '標準模式', dcModifier: 0, gameOver: 'none' },
