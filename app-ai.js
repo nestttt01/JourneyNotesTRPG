@@ -90,7 +90,7 @@
                         headers: {
                             'Authorization': `Bearer ${apiKey}`,
                             'Content-Type': 'application/json',
-                            'X-Title': 'TRPG Whisper'
+                            'X-Title': 'TRPG JourneyNotes'
                         },
                         body: JSON.stringify({
                             model: selectedModel,
