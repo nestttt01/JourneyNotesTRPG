@@ -440,8 +440,12 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
 - INT 智力：知識、推理、破解、分析技術。
 - WIS 感知：觀察、直覺、洞察、追蹤與察覺。
 - CHA 魅力：說服、欺瞞、威嚇、表演與社交影響。
-- 難度只能是 trivial、easy、normal、hard、extreme，依行動本身與情境風險決定。
-- trivial（超簡單）：幾乎穩過的瑣事或理所當然的小動作（撿起腳邊的東西、走幾步路、開沒上鎖的門），基本上只有大失敗才會出包。${profBlock}
+- 難度只能是 trivial、easy、normal、hard、extreme。請依「在這個世界觀與情境下，這件事相對有多難、失敗代價多大」判斷，不要套用特定作品或題材的固定假設。
+- trivial 超簡單：幾乎穩過的瑣事或理所當然的小動作，基本上只有大失敗才會出包。
+- easy 簡單：稍微需要留意或一點技巧，但條件有利，幾乎不會出大錯。
+- normal 普通：有明確阻力或不確定性，結果可成可敗。
+- hard 困難：明顯超出常態，遇到強阻力或有備而來的對抗，失敗代價不小。
+- extreme 極難：逼近能力極限或條件極度不利，失敗後果嚴重。${profBlock}
 
 只輸出 JSON：{"attribute":"str|dex|con|int|wis|cha","difficulty":"trivial|easy|normal|hard|extreme","proficient":true|false,"reason":"30字內理由"}`;
             const rawText = await requestAIText(prompt, { kind: 'dice', maxTokens: 190 });
