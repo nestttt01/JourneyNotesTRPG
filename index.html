@@ -86,6 +86,9 @@
                     <p class="u-inline-014">目前持有、失去或劇情產生的重要物品。</p>
                     <div id="ui-items-container"></div>
 
+                    <p class="u-inline-013">顯示與輸出設定</p>
+                    <p class="u-inline-014">介面與 AI 輸出的語言，以及每回合回覆的長度。</p>
+                    <div class="settings-group">
                     <div class="language-setting-row interface-language-setting">
                         <div class="scenario-label">介面語言</div>
                         <select data-ui-language-select class="language-mode-select" onchange="setUiLanguage(this.value)">
@@ -94,7 +97,6 @@
                             <option value="ja">日本語</option>
                         </select>
                     </div>
-
                     <div class="language-setting-row">
                         <div class="scenario-label">輸出語言</div>
                         <select id="modal-language-mode" class="language-mode-select" onchange="syncGameLanguageMode(this.value)">
@@ -105,6 +107,15 @@
                             <option value="en-zh">英文台詞 + 繁中翻譯</option>
                             <option value="auto">自動依玩家語言</option>
                         </select>
+                    </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">回覆長度</div>
+                        <select id="reply-length-select" class="language-mode-select" onchange="setReplyLength(this.value)">
+                            <option value="short">短（精簡）</option>
+                            <option value="medium">中（適中）</option>
+                            <option value="long">長（詳細）</option>
+                        </select>
+                    </div>
                     </div>
                 </div>
 
@@ -279,8 +290,17 @@
 <button id="home-update-tab" class="home-update-tab" type="button" onclick="toggleHomeUpdateNotes()" aria-label="更新內容" aria-expanded="false"></button>
 <aside id="home-update-drawer" class="home-update-drawer" aria-label="更新內容">
 <button class="home-update-close" type="button" onclick="toggleHomeUpdateNotes(false)" aria-label="關閉更新內容">×</button>
-<p class="home-update-kicker">v1.8 更新</p>
+<p class="home-update-kicker">v1.9 更新</p>
 <h3>更新內容</h3>
+<ul>
+<li>新增「回覆長度」設定（短／中／長）：可調整 AI 每回合回覆的詳細程度。</li>
+<li>修正部分 Claude 新模型（例如 Sonnet 5）第一則訊息就出現「回覆太長」錯誤的問題。</li>
+<li>骰點結果會依介面語言顯示（中／英／日）。</li>
+<li>骰點難度重新平衡、更有成敗張力；狀態旗標（Flags）加入嚴格判定，不再把瑣事都寫成標籤。</li>
+</ul>
+<details class="home-update-history">
+<summary>查看更早的更新紀錄</summary>
+<p class="home-update-kicker">v1.8 更新</p>
 <ul>
 <li>骰點難度改為範圍隨機：同一種難度每次的目標值（DC）會在區間內浮動，不再固定同一個數字，判定更有變化。</li>
 <li>新增「超簡單」檢定：理所當然的小動作幾乎必過，但骰到大失敗時仍可能意外出包。</li>
@@ -288,8 +308,6 @@
 <li>模型清單自動濾除程式碼、語音、審查等非寫作用途的模型，選單更精簡。</li>
 <li>新增「擅長領域」：角色設定頁可依角色性格與背景生成專長並鎖定，判定符合時 +2，讓你怎麼寫角色會影響骰點。</li>
 </ul>
-<details class="home-update-history">
-<summary>查看更早的更新紀錄</summary>
 <p class="home-update-kicker">v1.7 更新</p>
 <ul>
 <li>新增 Anthropic (Claude) 供應商：首頁可選 Anthropic，貼上官方金鑰即可遊玩。</li>
@@ -396,7 +414,7 @@
 <option value="ja">日本語</option>
 </select>
 </label>
-<p class="setup-version"> Threads @ miyazaki.617 · v1.8 · 2026/07/01</p>
+<p class="setup-version"> Threads @ miyazaki.617 · v1.9 · 2026/07/02</p>
 </div>
 </section>
 

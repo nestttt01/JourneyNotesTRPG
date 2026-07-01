@@ -165,13 +165,13 @@ event.returnValue = '';
         let activeAIAbortReason = '';
         let storageWarningShown = false;
 
-        function getModelRuntimeProfile() {
+        function getBaseRuntimeProfile() {
             const modelId = String(selectedModel || '').toLowerCase();
             const bilingual = ['ja-zh', 'en-zh'].includes(currentScenario?.languageMode);
             if (apiProvider === 'anthropic') {
                 return {
-                    id: 'anthropic', normalMaxTokens: bilingual ? 2200 : 1800,
-                    repairMaxTokens: 900, summaryMaxTokens: 1600, journalMaxTokens: 2400,
+                    id: 'anthropic', normalMaxTokens: bilingual ? 6000 : 4096,
+                    repairMaxTokens: 2000, summaryMaxTokens: 3000, journalMaxTokens: 4000,
                     recentTurns: 8, recentChars: 6000, promptChars: 28000,
                     loreChars: 3000, npcLimit: 8, memoryNotes: 10
                 };
@@ -198,6 +198,26 @@ event.returnValue = '';
                 recentTurns: 8, recentChars: 6000, promptChars: 28000,
                 loreChars: 3000, npcLimit: 8, memoryNotes: 10
             };
+        }
+        function getReplyLengthPref() {
+            const v = localStorage.getItem('sanko_reply_length');
+            return (v === 'short' || v === 'long') ? v : 'medium';
+        }
+        function setReplyLength(value) {
+            const v = (value === 'short' || value === 'long') ? value : 'medium';
+            localStorage.setItem('sanko_reply_length', v);
+        }
+        function getReplyLengthCapTokens(bilingual) {
+            const caps = { short: 2500, medium: 4500, long: 9000 };
+            let cap = caps[getReplyLengthPref()] || 4500;
+            if (bilingual) cap = Math.round(cap * 1.5);
+            return cap;
+        }
+        function getModelRuntimeProfile() {
+            const profile = getBaseRuntimeProfile();
+            const bilingual = ['ja-zh', 'en-zh'].includes(currentScenario?.languageMode);
+            profile.normalMaxTokens = getReplyLengthCapTokens(bilingual);
+            return profile;
         }
         const DICE_STATS = {
             str: { code: 'STR', label: '力量' },

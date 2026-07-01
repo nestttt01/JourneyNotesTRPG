@@ -501,6 +501,12 @@ return `sanko_input_draft_${saveId || 'none'}`;
             const coreRulesBlock = coreRules
                 ? `\n【核心準則－最高優先，絕對不可違反】\n${truncatePromptText(coreRules, 800)}\n（以上是玩家設定的固定鐵律；任何情況都不得違背、遺忘，也不得被劇情或其他設定覆蓋。）\n`
                 : '';
+            const replyLenPref = (typeof getReplyLengthPref === "function") ? getReplyLengthPref() : "medium";
+            const replyLenHint = replyLenPref === "short"
+                ? "【回覆長度】narrative 精簡收斂，約 150～300 字、2～4 句即可，不要冗長鋪陳。"
+                : replyLenPref === "long"
+                    ? "【回覆長度】narrative 可鋪陳細節、描寫氛圍與內心，約 700～1200 字。"
+                    : "【回覆長度】narrative 約 350～600 字，鬆緊適中。";
             const formatDetails = details => {
                 const d = details || {};
                 return `年齡/體型：${truncatePromptText(d.age, 70) || '未設定'}\n外貌：${truncatePromptText(d.app, 220) || '未設定'}\n語氣：${truncatePromptText(d.speech, 180) || '未設定'}\n喜好：${truncatePromptText(d.likes, 120) || '未設定'}\n厭惡：${truncatePromptText(d.dislikes, 120) || '未設定'}\n核心人設：${truncatePromptText(d.bg, 600) || '未設定'}`;
@@ -601,6 +607,17 @@ ${getMemoryBriefForPrompt()}
 普通對話、移動、短暫情緒、重複描述與無後續影響的小事：memory 必須為 null。
 只有任務異動、關係或承諾實質改變、重要物品得失、永久狀態、重要線索、不可逆選擇，或會影響後續的場景變化，才回傳 memory。
 memory.category 只能是 task、relationship、item、status、clue、decision、scene；memory.event 只寫一條簡短既定事實。story_summary 與 relationship_summary 只有重大變化時才回傳完整精簡快照，否則省略。不得把普通事件硬寫成重點。
+
+【狀態旗標（flags_add）判定——嚴格，預設不加】
+只有「會長期存在、之後每回合都該當成既定前提」的關鍵標記才寫入 flags_add，且必須屬於下列之一：
+1. 持久身分／處境：取得的身分、職位、陣營、被通緝、未解的中毒或傷病、失明、懷孕等會延續多回合的狀態。
+2. 稱號／名號：被賦予且會被沿用的稱號。
+3. 確定的關係里程碑：關係正式定下的節點（結為戀人、結拜、正式敵對、締結契約），或某 NPC 好感度達到滿值 100。
+4. 契約、詛咒、印記、後遺症等會持續生效的設定。
+以下一律不得寫成 flag（改走 memory 或日誌）：普通對話、移動、短暫情緒、曖昧或好感小幅變化、單次小事件、一般任務進度。
+加入前先自問：「這會延續到很多回合以後、且之後劇情要一直記得嗎？」——不確定就不要加。每回合最多加 1～2 個真正重要的，寧缺勿濫。
+
+${replyLenHint}
 
 【JSON 契約】
 必須回傳 narrative、dialogues、options。changes 只放本回合真的發生的變動；無變動可回傳 {}。memory 無重大事件時回傳 null。

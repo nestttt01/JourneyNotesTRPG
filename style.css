@@ -695,6 +695,23 @@ z-index: 10;
             margin-top: 16px;
             margin-bottom: 4px;
         }
+
+        #status-page-state .settings-group {
+            background: transparent;
+            padding: 0;
+            margin: 2px 0 12px;
+        }
+        #status-page-state .settings-group .language-setting-row { margin: 0 0 12px; }
+        #status-page-state .settings-group .language-setting-row:last-child { margin-bottom: 0; }
+        #status-page-state .settings-group .language-mode-select {
+            background: var(--accent-neon);
+            border-color: transparent;
+            border-radius: 0;
+            font-weight: 900;
+        }
+        :root[data-bg-mode="image"] #status-page-state .settings-group .language-mode-select {
+            background: var(--accent-neon);
+        }
         #status-page-state .u-inline-014,
         .status-panel-hint {
             font-size: 11px;
