@@ -424,6 +424,14 @@ const ms = Number(col && col.dateMs);
 if (Number.isFinite(ms) && ms > 0) return new Date(ms).toLocaleString(localeMap[lang] || 'zh-TW');
 const raw = valueToText(col && col.date);
 if (!raw) return getDiaryUiText('未知時間');
+const parsed = raw.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s*(上午|下午|AM|PM|午前|午後)?\s*(\d{1,2}):(\d{2})(?::(\d{2}))?/i);
+if (parsed) {
+let hour = Number(parsed[5]);
+const marker = parsed[4] || '';
+if (/下午|PM|午後/i.test(marker) && hour < 12) hour += 12;
+if (/上午|AM|午前/i.test(marker) && hour === 12) hour = 0;
+return new Date(Number(parsed[1]), Number(parsed[2]) - 1, Number(parsed[3]), hour, Number(parsed[6]), Number(parsed[7] || 0)).toLocaleString(localeMap[lang] || 'zh-TW');
+}
 if (lang === 'en') return raw.replaceAll('上午', 'AM').replaceAll('下午', 'PM');
 if (lang === 'ja') return raw.replaceAll('上午', '午前').replaceAll('下午', '午後');
 return raw;
@@ -523,7 +531,7 @@ function removeCollection(idx) {
             if (sec) sec.classList.remove('diary-fullscreen', 'active');
             if (typeof showHomeInfoView === 'function') showHomeInfoView('main');
         }
-        function renderDiary() {
+function renderDiary() {
             const content = document.getElementById('diary-content');
             if (!content) return;
             const saveSel = document.getElementById('diary-save-select');
@@ -540,22 +548,34 @@ function removeCollection(idx) {
             const cols = getCollections(diaryViewSaveId);
             if (diaryViewIndex >= cols.length) diaryViewIndex = cols.length - 1;
             if (diaryViewIndex < 0) diaryViewIndex = 0;
-            if (pager) {
-                pager.innerHTML = '';
-                cols.forEach((c, i) => {
-                    const b = document.createElement('button'); b.type = 'button'; b.className = 'diary-pg' + (i === diaryViewIndex ? ' active' : '');
-                    b.textContent = String(i + 1); b.onclick = () => { diaryViewIndex = i; renderDiary(); };
-                    pager.appendChild(b);
-                    if (i < cols.length - 1) { const sep = document.createElement('span'); sep.className = 'diary-pg-sep'; sep.textContent = '/'; pager.appendChild(sep); }
-                });
-                if (cols.length) {
-                    const del = document.createElement('button'); del.type = 'button'; del.className = 'diary-pg-del'; del.textContent = '\u2715';
+if (pager) {
+pager.innerHTML = '';
+const pageList = document.createElement('div');
+pageList.className = 'diary-pg-list';
+const pageActions = document.createElement('div');
+pageActions.className = 'diary-pg-actions';
+cols.forEach((c, i) => {
+const b = document.createElement('button'); b.type = 'button'; b.className = 'diary-pg' + (i === diaryViewIndex ? ' active' : '');
+b.textContent = String(i + 1); b.onclick = () => { diaryViewIndex = i; renderDiary(); };
+pageList.appendChild(b);
+if (i < cols.length - 1) { const sep = document.createElement('span'); sep.className = 'diary-pg-sep'; sep.textContent = '/'; pageList.appendChild(sep); }
+});
+pager.appendChild(pageList);
+pageList.onwheel = event => {
+if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+event.preventDefault();
+pageList.scrollLeft += event.deltaY;
+};
+if (cols.length) {
+const del = document.createElement('button'); del.type = 'button'; del.className = 'diary-pg-del'; del.textContent = '\u2715';
 del.title = getDiaryUiText('\u522a\u9664\u9019\u5247'); del.setAttribute('aria-label', getDiaryUiText('\u522a\u9664\u9019\u5247'));
-                    del.onclick = () => deleteCurrentDiary();
-                    pager.appendChild(del);
-                    const nx = document.createElement('button'); nx.type = 'button'; nx.className = 'diary-pg-next'; nx.textContent = '\u2794'; nx.onclick = () => { diaryViewIndex = (diaryViewIndex + 1) % cols.length; renderDiary(); }; pager.appendChild(nx);
-                }
-            }
+del.onclick = () => deleteCurrentDiary();
+pageActions.appendChild(del);
+const nx = document.createElement('button'); nx.type = 'button'; nx.className = 'diary-pg-next'; nx.textContent = '\u2794'; nx.onclick = () => { diaryViewIndex = (diaryViewIndex + 1) % cols.length; renderDiary(); };
+pageActions.appendChild(nx);
+pager.appendChild(pageActions);
+}
+}
             if (!cols.length) {
                 content.innerHTML = '';
                 const p = document.createElement('p'); p.className = 'diary-empty';
@@ -575,7 +595,11 @@ capEl.setAttribute('aria-label', getDiaryUiText('點擊編輯一句話'));
 capEl.onclick = () => beginDiaryCaptionEdit(capEl, col);
             }
 if (dateEl) dateEl.textContent = getDiaryDateText(col);
-        }
+}
+window.addEventListener('ui-language-change', () => {
+const diaryView = document.querySelector('.setup-home-view[data-home-view="diary"]');
+if (diaryView && diaryView.classList.contains('active')) renderDiary();
+});
 
 function openAdventureJournal(preferredSaveId = '') {
 const gameVisible = document.getElementById('game-container')?.style.display === 'flex';
