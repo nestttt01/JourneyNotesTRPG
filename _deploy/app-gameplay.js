@@ -249,7 +249,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             menu.className = 'msg-context-menu';
             const mk = (label, fn) => {
                 const b = document.createElement('button');
-            b.className = 'msg-menu-item'; b.textContent = (typeof uiText === 'function') ? uiText(label) : label;
+                b.className = 'msg-menu-item'; b.textContent = label;
                 b.onclick = ev => { ev.stopPropagation(); closeMsgMenu(); fn(); };
                 return b;
             };
@@ -257,7 +257,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             menu.appendChild(mk('收藏這段', () => startCollectSelect(wrapperEl)));
             menu.appendChild(mk('複製', () => {
                 try { if (navigator.clipboard) navigator.clipboard.writeText(textEl.textContent); } catch (e) {}
-        tinyToast('已複製');
+                tinyToast('已複製');
             }));
             document.body.appendChild(menu);
             const mw = menu.offsetWidth, mh = menu.offsetHeight;
@@ -274,8 +274,8 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             ta.className = 'msg-edit-area'; ta.value = textEl.textContent;
             ta.style.minHeight = Math.min(Math.max(140, originalH + 24), Math.round(window.innerHeight * 0.7)) + 'px';
             const bar = document.createElement('div'); bar.className = 'msg-edit-bar';
-        const saveBtn = document.createElement('button'); saveBtn.className = 'msg-edit-save'; saveBtn.textContent = (typeof uiText === 'function') ? uiText('儲存') : '儲存';
-        const cancelBtn = document.createElement('button'); cancelBtn.className = 'msg-edit-cancel'; cancelBtn.textContent = (typeof uiText === 'function') ? uiText('取消') : '取消';
+            const saveBtn = document.createElement('button'); saveBtn.className = 'msg-edit-save'; saveBtn.textContent = '儲存';
+            const cancelBtn = document.createElement('button'); cancelBtn.className = 'msg-edit-cancel'; cancelBtn.textContent = '取消';
             bar.appendChild(saveBtn); bar.appendChild(cancelBtn);
             textEl.style.display = 'none';
             host.insertBefore(ta, textEl.nextSibling);
@@ -307,8 +307,8 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             let banner = document.getElementById('diary-collect-banner');
             if (banner) banner.remove();
             banner = document.createElement('div'); banner.id = 'diary-collect-banner'; banner.className = 'diary-collect-banner';
-        const txt = document.createElement('span'); txt.textContent = (typeof uiText === 'function') ? uiText('已選起點 — 點另一則當結尾完成收藏（同一則＝只收那則）') : '已選起點 — 點另一則當結尾完成收藏（同一則＝只收那則）';
-        const cancel = document.createElement('button'); cancel.textContent = (typeof uiText === 'function') ? uiText('取消') : '取消'; cancel.onclick = cancelCollectSelect;
+            const txt = document.createElement('span'); txt.textContent = '已選起點 — 點另一則當結尾完成收藏（同一則＝只收那則）';
+            const cancel = document.createElement('button'); cancel.textContent = '取消'; cancel.onclick = cancelCollectSelect;
             banner.appendChild(txt); banner.appendChild(cancel);
             document.body.appendChild(banner);
         }
@@ -335,7 +335,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             if (banner) banner.remove();
         }
         function tinyToast(msg) {
-        const t = document.createElement('div'); t.className = 'tiny-toast'; t.textContent = (typeof uiText === 'function') ? uiText(msg) : msg;
+            const t = document.createElement('div'); t.className = 'tiny-toast'; t.textContent = msg;
             document.body.appendChild(t);
             requestAnimationFrame(() => t.classList.add('show'));
             setTimeout(() => t.remove(), 1400);
@@ -1178,3 +1178,4 @@ ${transitionRule}`;
             if (hpRecovered) createSystemAlert('HP 已恢復至安全區間，重傷狀態解除。');
             if (sanRecovered) createSystemAlert('SAN 已恢復至安全區間，精神危機狀態解除。');
         }
+

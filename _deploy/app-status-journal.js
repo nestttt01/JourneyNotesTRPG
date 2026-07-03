@@ -403,60 +403,17 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
         }
         function addCollectionRange(lines, caption) {
             if (!currentSaveId || !Array.isArray(lines) || !lines.length) { if (typeof tinyToast === 'function') tinyToast('請先載入存檔'); return; }
-const now = new Date();
-getCollections().push({ lines: lines.slice(), caption: valueToText(caption), date: now.toLocaleString(), dateMs: now.getTime() });
+            getCollections().push({ lines: lines.slice(), caption: valueToText(caption), date: new Date().toLocaleString() });
             if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
             if (typeof tinyToast === 'function') tinyToast('已收藏 ♥');
         }
         let diaryViewSaveId = '';
         let diaryViewIndex = 0;
-function persistDiarySave() {
-if (typeof persistSingleSave === 'function') persistSingleSave(diaryViewSaveId, '日記');
-else if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
-}
-function getDiaryUiText(text) {
-return (typeof uiText === 'function') ? uiText(text) : text;
-}
-function getDiaryDateText(col) {
-const localeMap = { 'zh-TW': 'zh-TW', en: 'en-US', ja: 'ja-JP' };
-const lang = (typeof getUiLanguage === 'function') ? getUiLanguage() : 'zh-TW';
-const ms = Number(col && col.dateMs);
-if (Number.isFinite(ms) && ms > 0) return new Date(ms).toLocaleString(localeMap[lang] || 'zh-TW');
-const raw = valueToText(col && col.date);
-if (!raw) return getDiaryUiText('未知時間');
-if (lang === 'en') return raw.replaceAll('上午', 'AM').replaceAll('下午', 'PM');
-if (lang === 'ja') return raw.replaceAll('上午', '午前').replaceAll('下午', '午後');
-return raw;
-}
-function beginDiaryCaptionEdit(capEl, col) {
-if (!capEl || !col || capEl.isContentEditable) return;
-const placeholder = getDiaryUiText('（點這裡寫一句話）');
-const current = valueToText(col.caption);
-capEl.contentEditable = 'true';
-capEl.spellcheck = false;
-capEl.classList.add('is-editing');
-capEl.textContent = current;
-capEl.focus();
-const range = document.createRange();
-range.selectNodeContents(capEl);
-range.collapse(false);
-const selection = window.getSelection();
-if (selection) { selection.removeAllRanges(); selection.addRange(range); }
-const finish = () => {
-capEl.removeEventListener('blur', finish);
-capEl.contentEditable = 'false';
-capEl.classList.remove('is-editing');
-col.caption = valueToText(capEl.textContent).trim();
-persistDiarySave();
-capEl.textContent = col.caption || placeholder;
-};
-capEl.addEventListener('blur', finish);
-capEl.onkeydown = event => {
-if (event.key === 'Enter') { event.preventDefault(); capEl.blur(); }
-if (event.key === 'Escape') { event.preventDefault(); capEl.textContent = current; capEl.blur(); }
-};
-}
-function removeCollection(idx) {
+        function persistDiarySave() {
+            if (typeof persistSingleSave === 'function') persistSingleSave(diaryViewSaveId, '日記');
+            else if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
+        }
+        function removeCollection(idx) {
             const list = getCollections(diaryViewSaveId);
             if (idx < 0 || idx >= list.length) return;
             list.splice(idx, 1);
@@ -550,7 +507,7 @@ function removeCollection(idx) {
                 });
                 if (cols.length) {
                     const del = document.createElement('button'); del.type = 'button'; del.className = 'diary-pg-del'; del.textContent = '\u2715';
-del.title = getDiaryUiText('\u522a\u9664\u9019\u5247'); del.setAttribute('aria-label', getDiaryUiText('\u522a\u9664\u9019\u5247'));
+                    del.title = '\u522a\u9664\u9019\u5247'; del.setAttribute('aria-label', '\u522a\u9664\u9019\u5247');
                     del.onclick = () => deleteCurrentDiary();
                     pager.appendChild(del);
                     const nx = document.createElement('button'); nx.type = 'button'; nx.className = 'diary-pg-next'; nx.textContent = '\u2794'; nx.onclick = () => { diaryViewIndex = (diaryViewIndex + 1) % cols.length; renderDiary(); }; pager.appendChild(nx);
@@ -559,7 +516,7 @@ del.title = getDiaryUiText('\u522a\u9664\u9019\u5247'); del.setAttribute('aria-l
             if (!cols.length) {
                 content.innerHTML = '';
                 const p = document.createElement('p'); p.className = 'diary-empty';
-p.textContent = getDiaryUiText('這份存檔還沒有收藏。遊戲中右鍵（手機長按）對話 →「收藏這段」，選一段連續對話收起來。');
+                p.textContent = '這份存檔還沒有收藏。遊戲中長按對話 →「收藏這段」，選一段連續對話收起來。';
                 content.appendChild(p);
                 if (capEl) capEl.textContent = ''; if (dateEl) dateEl.textContent = '';
                 return;
@@ -569,12 +526,10 @@ p.textContent = getDiaryUiText('這份存檔還沒有收藏。遊戲中右鍵（
             renderDiaryLines(content, col.lines || [], scenario);
             content.scrollTop = 0;
             if (capEl) {
-capEl.textContent = valueToText(col.caption) || getDiaryUiText('（點這裡寫一句話）');
-capEl.title = getDiaryUiText('點擊編輯一句話');
-capEl.setAttribute('aria-label', getDiaryUiText('點擊編輯一句話'));
-capEl.onclick = () => beginDiaryCaptionEdit(capEl, col);
+                capEl.textContent = valueToText(col.caption) || '（點這裡寫一句話）';
+                capEl.onclick = () => { const nc = prompt('這段收藏想說的一句話：', valueToText(col.caption)); if (nc !== null) { col.caption = valueToText(nc); persistDiarySave(); renderDiary(); } };
             }
-if (dateEl) dateEl.textContent = getDiaryDateText(col);
+            if (dateEl) dateEl.textContent = valueToText(col.date);
         }
 
 function openAdventureJournal(preferredSaveId = '') {
@@ -1014,3 +969,4 @@ renderAdventureJournal();
                             : `最近一次匯出：${new Date(lastBackupTime).toLocaleString()}（${daysSinceBackup === 0 ? '今天' : `${daysSinceBackup} 天前`}）。${overdue ? '建議再備份一次。' : '備份狀態正常。'}`);
             backupText.classList.toggle('backup-warning', overdue);
         }
+

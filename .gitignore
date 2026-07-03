@@ -1,0 +1,11 @@
+# 手動備份資料夾與舊備份檔（有 git 之後就不需要追蹤）
+_backup_*/
+_cleanup_bak/
+*.bak
+*.bak2
+*.beforeCSScleanup
+*.pre
+*.pre_*
+
+# 內部筆記／教學文件（不上傳到公開 repo）
+*.md
