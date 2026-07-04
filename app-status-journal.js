@@ -535,8 +535,8 @@ function removeCollection(idx) {
         async function exportDiaryImage() {
             const content = document.getElementById('diary-content');
             if (!content) return;
-            if (typeof html2canvas !== 'function') { alert('圖片元件還在載入，請稍等幾秒再試一次。'); return; }
-            if (!content.querySelector('.msg-wrapper, .msg-narrative, .system-msg')) { alert('這一篇日記沒有可存的對話內容。'); return; }
+            if (typeof html2canvas !== 'function') { alert(getDiaryUiText('圖片元件還在載入，請稍等幾秒再試一次。')); return; }
+            if (!content.querySelector('.msg-wrapper, .msg-narrative, .system-msg')) { alert(getDiaryUiText('這一篇日記沒有可存的對話內容。')); return; }
             const toast = m => { try { if (typeof tinyToast === 'function') tinyToast(m); } catch (e) {} };
 
             const capEl = document.getElementById('diary-caption');
@@ -565,7 +565,7 @@ function removeCollection(idx) {
             let bg = cs.backgroundColor;
             if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') bg = '#EEEEEE';
 
-            toast('產生圖片中…');
+            toast(getDiaryUiText('產生圖片中…'));
             try {
                 await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
                 const fullH = content.scrollHeight;
@@ -618,7 +618,7 @@ function removeCollection(idx) {
                     if (pages > 1 && i < pages - 1) await new Promise(r => setTimeout(r, 500));
                 }
             } catch (e) {
-                alert('存成圖片失敗：' + (e && e.message ? e.message : e));
+                alert(getDiaryUiText('存成圖片失敗：') + (e && e.message ? e.message : e));
             } finally {
                 if (foot && foot.parentNode) foot.remove();
                 content.setAttribute('style', savedStyle);
@@ -636,7 +636,7 @@ function removeCollection(idx) {
             menu.className = 'msg-context-menu';
             const b = document.createElement('button');
             b.className = 'msg-menu-item';
-            b.textContent = '保存圖片';
+            b.textContent = getDiaryUiText('保存圖片');
             b.onclick = ev => { ev.stopPropagation(); closeDiaryShotMenu(); exportDiaryImage(); };
             menu.appendChild(b);
             document.body.appendChild(menu);
@@ -649,7 +649,7 @@ function removeCollection(idx) {
             const bar = document.querySelector('#diary-pager');
             if (!bar || bar.dataset.shotWired) return;
             bar.dataset.shotWired = '1';
-            bar.title = '右鍵（手機長按）可存成圖片';
+            bar.title = getDiaryUiText('右鍵（手機長按）可存成圖片');
             bar.addEventListener('contextmenu', e => { e.preventDefault(); openDiaryShotMenu(e.clientX, e.clientY); });
             let timer = null, sx = 0, sy = 0;
             bar.addEventListener('touchstart', e => {
