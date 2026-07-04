@@ -210,6 +210,7 @@
 
     <p class="u-inline-019">7. 角色面板、任務與冒險日誌</p>
 <p class="u-inline-020">角色面板可以查看與修改玩家狀態、NPC、道具、Flags、任務、劇情摘要及角色關係；AI 每回合會參考這些重點資料來延續故事。冒險日誌記錄完整事件，日記則用來收起想保留的對話片段；選「收藏這段」後，再點另一則當結尾，就會把連續對話收進日記。</p>
+<p class="u-inline-020">在日記的翻頁列（1／2）按右鍵、手機長按，可把整篇日記存成長圖；內容過長會自動分頁，且不會把對話或旁白切成兩半。</p>
 
     <p class="u-inline-019">8. 遊戲紀錄、配置與備份</p>
     <p class="u-inline-020">每份遊戲紀錄只綁定一份配置。儲存配置只更新目前配置；另存配置只備份配置，不會改綁遊戲紀錄；另存新檔會複製目前遊戲紀錄並建立專屬配置。</p>
@@ -300,15 +301,19 @@
 <button id="home-update-tab" class="home-update-tab" type="button" onclick="toggleHomeUpdateNotes()" aria-label="更新內容" aria-expanded="false"></button>
 <aside id="home-update-drawer" class="home-update-drawer" aria-label="更新內容">
 <button class="home-update-close" type="button" onclick="toggleHomeUpdateNotes(false)" aria-label="關閉更新內容">×</button>
-<p class="home-update-kicker">v2.1 更新</p>
+<p class="home-update-kicker">v2.2 更新</p>
 <h3>更新內容</h3>
+<ul>
+<li>日記可存成長圖：在日記翻頁列（1／2）按右鍵、手機長按即可把整篇日記存成圖片；內容過長會自動分頁，且不會把對話或旁白切成兩半。</li>
+</ul>
+<details class="home-update-history">
+<summary>查看更早的更新紀錄</summary>
+<p class="home-update-kicker">v2.1 更新</p>
 <ul>
 <li>新增對話右鍵／手機長按選單：可編輯已送出的文字、複製對話，或把片段收藏到日記。</li>
 <li>日記可收藏連續對話，補一句話備註、翻頁查看，也能刪除單則收藏。</li>
 <li>補齊日記相關中英日介面文字，日期與提示也會跟著語言切換。</li>
 </ul>
-<details class="home-update-history">
-<summary>查看更早的更新紀錄</summary>
 <p class="home-update-kicker">v2.0 更新</p>
 <ul>
 <li>新增「關係里程碑標籤」：NPC 好感度達到滿值、關係徹底破裂，或 NPC 死亡時，系統會自動在 Flags 留下里程碑標籤，重大關係節點不再漏掉。</li>
@@ -437,7 +442,7 @@
 <option value="ja">日本語</option>
 </select>
 </label>
-<p class="setup-version"> Threads @ miyazaki.617 · v2.1 · 2026/07/04</p>
+<p class="setup-version"> Threads @ miyazaki.617 · v2.2 · 2026/07/04</p>
 </div>
 </section>
 
@@ -510,6 +515,7 @@
 <article>
 <h3>7. 角色面板、任務與冒險日誌</h3>
 <p>角色面板可以查看與修改玩家狀態、NPC、道具、Flags、任務、劇情摘要及角色關係；AI 每回合會參考這些重點資料來延續故事。冒險日誌記錄完整事件，日記則用來收起想保留的對話片段；選「收藏這段」後，再點另一則當結尾，就會把連續對話收進日記。</p>
+<p>在日記的翻頁列（1／2）按右鍵、手機長按，可把整篇日記存成長圖；內容過長會自動分頁，且不會把對話或旁白切成兩半。</p>
 </article>
 <article>
 <h3>8. 遊戲紀錄、配置與備份</h3>
@@ -953,6 +959,7 @@
             <button class="btn" id="send-btn" onclick="sendChoice()">發送</button>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="i18n.js"></script>
     <!-- app.js 已拆分為下列模組，請維持此載入順序（等同原 app.js 由上而下） -->
     <script src="app-core.js"></script>

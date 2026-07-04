@@ -525,11 +525,145 @@ function removeCollection(idx) {
                 if (sec) sec.classList.add('active', 'diary-fullscreen');
             }
             renderDiary();
+            wireDiaryShotGestures();
         }
         function closeDiary() {
             const sec = document.querySelector('.setup-home-view[data-home-view="diary"]');
             if (sec) sec.classList.remove('diary-fullscreen', 'active');
             if (typeof showHomeInfoView === 'function') showHomeInfoView('main');
+        }
+        async function exportDiaryImage() {
+            const content = document.getElementById('diary-content');
+            if (!content) return;
+            if (typeof html2canvas !== 'function') { alert('圖片元件還在載入，請稍等幾秒再試一次。'); return; }
+            if (!content.querySelector('.msg-wrapper, .msg-narrative, .system-msg')) { alert('這一篇日記沒有可存的對話內容。'); return; }
+            const toast = m => { try { if (typeof tinyToast === 'function') tinyToast(m); } catch (e) {} };
+
+            const capEl = document.getElementById('diary-caption');
+            const dateEl = document.getElementById('diary-date');
+            const capRaw = (capEl && capEl.textContent || '').trim();
+            const capText = (capRaw === '（點這裡寫一句話）') ? '' : capRaw;
+            const dateText = (dateEl && dateEl.textContent || '').trim();
+            const safe = s => (s || '').replace(/[\\/:*?"<>|\r\n\t]/g, '').slice(0, 24);
+            const base = '日記' + (capText ? '_' + safe(capText) : '');
+
+            let foot = null;
+            if (capText || dateText) {
+                foot = document.createElement('div');
+                foot.className = 'diary-shot-foot';
+                if (capText) { const c = document.createElement('div'); c.className = 'diary-shot-cap'; c.textContent = capText; foot.appendChild(c); }
+                if (dateText) { const d = document.createElement('div'); d.className = 'diary-shot-date'; d.textContent = dateText; foot.appendChild(d); }
+                content.appendChild(foot);
+            }
+
+            const savedStyle = content.getAttribute('style') || '';
+            content.style.maxHeight = 'none';
+            content.style.height = 'auto';
+            content.style.overflow = 'visible';
+
+            const cs = getComputedStyle(content);
+            let bg = cs.backgroundColor;
+            if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') bg = '#EEEEEE';
+
+            toast('產生圖片中…');
+            try {
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+                const fullH = content.scrollHeight;
+                const scale = Math.min(2, window.devicePixelRatio || 1) || 1;
+                const maxH = Math.max(300, Math.floor(16000 / scale));   // 每張最大高度（CSS px）
+
+                // 以「訊息／旁白區塊」為單位決定切點，避免把一則切成兩半
+                const cRect = content.getBoundingClientRect();
+                const items = Array.from(content.children).map(el => {
+                    const r = el.getBoundingClientRect();
+                    return { top: r.top - cRect.top, bottom: r.bottom - cRect.top };
+                }).filter(it => it.bottom > it.top);
+
+                const parts = [];
+                if (!items.length) {
+                    parts.push({ y: 0, h: fullH });
+                } else {
+                    let startY = 0, idx = 0;
+                    const n = items.length;
+                    while (startY < fullH - 1) {
+                        const limitY = startY + maxH;
+                        let lastFit = idx - 1;
+                        for (let k = idx; k < n; k++) { if (items[k].bottom <= limitY + 0.5) lastFit = k; else break; }
+                        let endY;
+                        if (lastFit < idx) {                       // 單一區塊本身就超過上限：只能硬切
+                            endY = Math.min(limitY, fullH);
+                            while (idx < n && items[idx].bottom <= endY + 0.5) idx++;
+                        } else {                                   // 切在下一則的頂端（把中間空隙留給上一張）
+                            const next = lastFit + 1;
+                            endY = (next < n) ? items[next].top : fullH;
+                            idx = next;
+                        }
+                        if (endY <= startY) endY = Math.min(startY + maxH, fullH);
+                        parts.push({ y: startY, h: endY - startY });
+                        startY = endY;
+                    }
+                }
+
+                const pages = parts.length;
+                for (let i = 0; i < pages; i++) {
+                    const canvas = await html2canvas(content, {
+                        backgroundColor: bg, scale, useCORS: true, logging: false,
+                        height: Math.ceil(parts[i].h), y: Math.floor(parts[i].y)
+                    });
+                    const url = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = (pages > 1 ? base + '_' + (i + 1) : base) + '.png';
+                    document.body.appendChild(a); a.click(); a.remove();
+                    if (pages > 1 && i < pages - 1) await new Promise(r => setTimeout(r, 500));
+                }
+            } catch (e) {
+                alert('存成圖片失敗：' + (e && e.message ? e.message : e));
+            } finally {
+                if (foot && foot.parentNode) foot.remove();
+                content.setAttribute('style', savedStyle);
+            }
+        }
+        function closeDiaryShotMenu() {
+            const m = document.getElementById('diary-shot-menu');
+            if (m) m.remove();
+            document.removeEventListener('click', closeDiaryShotMenu);
+        }
+        function openDiaryShotMenu(x, y) {
+            closeDiaryShotMenu();
+            const menu = document.createElement('div');
+            menu.id = 'diary-shot-menu';
+            menu.className = 'msg-context-menu';
+            const b = document.createElement('button');
+            b.className = 'msg-menu-item';
+            b.textContent = '保存圖片';
+            b.onclick = ev => { ev.stopPropagation(); closeDiaryShotMenu(); exportDiaryImage(); };
+            menu.appendChild(b);
+            document.body.appendChild(menu);
+            const mw = menu.offsetWidth, mh = menu.offsetHeight;
+            menu.style.left = Math.max(8, Math.min(x, window.innerWidth - mw - 8)) + 'px';
+            menu.style.top = Math.max(8, Math.min(y, window.innerHeight - mh - 8)) + 'px';
+            setTimeout(() => document.addEventListener('click', closeDiaryShotMenu), 0);
+        }
+        function wireDiaryShotGestures() {
+            const bar = document.querySelector('#diary-pager');
+            if (!bar || bar.dataset.shotWired) return;
+            bar.dataset.shotWired = '1';
+            bar.title = '右鍵（手機長按）可存成圖片';
+            bar.addEventListener('contextmenu', e => { e.preventDefault(); openDiaryShotMenu(e.clientX, e.clientY); });
+            let timer = null, sx = 0, sy = 0;
+            bar.addEventListener('touchstart', e => {
+                const t = e.touches && e.touches[0]; if (!t) return;
+                sx = t.clientX; sy = t.clientY;
+                timer = setTimeout(() => { timer = null; openDiaryShotMenu(sx, sy); }, 500);
+            }, { passive: true });
+            const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+            bar.addEventListener('touchend', cancel);
+            bar.addEventListener('touchcancel', cancel);
+            bar.addEventListener('touchmove', e => {
+                const t = e.touches && e.touches[0]; if (!t) return;
+                if (Math.abs(t.clientX - sx) > 10 || Math.abs(t.clientY - sy) > 10) cancel();
+            }, { passive: true });
         }
 function renderDiary() {
             const content = document.getElementById('diary-content');
