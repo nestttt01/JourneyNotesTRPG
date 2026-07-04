@@ -1063,14 +1063,6 @@ ${transitionRule}`;
             return flags;
         }
 
-        function getGameDifficultyInstruction() {
-            const mode = getGameDifficultyInfo();
-            const resourceRule = '高風險場景應允許玩家透過符合世界觀的抽象資源降低風險、減輕代價或打開新路線；資源可以是物資、工具、防護、線索、通行權、人脈、信任、人情、承諾或其他故事優勢，不要固定生成特定物品名稱。';
-            if (mode.gameOver === 'forced') return `【遊戲難度：${mode.label}】所有玩家角色檢定 DC 額外 +${mode.dcModifier}。HP 或 SAN 歸零時程式會立即鎖定 Game Over，旁白必須承接壞結局。${resourceRule}`;
-            if (mode.gameOver === 'possible') return `【遊戲難度：${mode.label}】所有玩家角色檢定 DC 額外 +${mode.dcModifier}。HP 或 SAN 歸零時程式會在回覆完成後擲 D20 生死檢定：1–10 保命並回到 1 點，11–20 Game Over。你只能描寫倒下或崩潰，不可提前宣判最終生死。${resourceRule}`;
-            return `【遊戲難度：${mode.label}】沒有 Game Over。HP 或 SAN 歸零時程式會啟動保護機制並回到 1 點。`;
-        }
-
         function getCurrentGameOver() {
             return currentSaveId && savesData[currentSaveId] ? savesData[currentSaveId].gameOver || null : null;
         }
@@ -1127,26 +1119,6 @@ ${transitionRule}`;
                 ? `— 生死檢定成功：D20 ${survivalRoll}，${reason}後保留 1 點 —`
                 : `— 保護機制啟動：${reason}後保留 1 點 —`);
             return { gameOver: false, rescued: true, roll: survivalRoll, reason };
-        }
-
-        function buildSurvivalInstruction() {
-            const instructions = [];
-            const mode = getGameDifficultyInfo();
-            if (currentHp <= 0) {
-                if (mode.gameOver === 'forced') instructions.push('【強制 Game Over】玩家 HP 已歸零。narrative 必須優先演出死亡、敗北或不可繼續冒險的壞結局；不得自動恢復 HP。');
-                else if (mode.gameOver === 'possible') instructions.push('【致命危機】玩家 HP 已歸零。可依先前鋪陳演出 Game Over；只有現場角色確實能救援時才可倖存，若倖存 hp_change 必須至少恢復到 1。');
-                else instructions.push('【強制保護事件】玩家 HP 已歸零。本回合不可照常冒險；narrative 必須先演出隊友救援、撤離或安全機制，且 hp_change 必須讓 HP 至少恢復到 1。');
-            } else if (currentHp <= 20) {
-                instructions.push('【重傷狀態】玩家 HP 僅剩 20 以下。行動能力、判定與 NPC 反應必須明顯受到重傷影響。');
-            }
-            if (currentSan <= 0) {
-                if (mode.gameOver === 'forced') instructions.push('【強制 Game Over】玩家 SAN 已歸零。narrative 必須優先演出精神崩潰、永久失控或不可繼續冒險的壞結局；不得自動恢復 SAN。');
-                else if (mode.gameOver === 'possible') instructions.push('【精神崩潰危機】玩家 SAN 已歸零。可依先前鋪陳演出 Game Over；只有現場角色確實能照護時才可倖存，若倖存 san_change 必須至少恢復到 1。');
-                else instructions.push('【強制照護事件】玩家 SAN 已歸零。本回合不可照常冒險；narrative 必須先演出精神崩潰、隊友安撫或安全撤離，且 san_change 必須讓 SAN 至少恢復到 1。');
-            } else if (currentSan <= 20) {
-                instructions.push('【精神危機】玩家 SAN 僅剩 20 以下。感知、情緒、判定與 NPC 反應必須明顯受到影響。');
-            }
-            return instructions.length ? `\n${instructions.join('\n')}` : '';
         }
 
         function syncSurvivalFlags({ announce = false } = {}) {
