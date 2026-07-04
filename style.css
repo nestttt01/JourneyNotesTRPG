@@ -1250,13 +1250,17 @@ background: var(--paper-bg);
                 height: 100dvh;
                 min-height: 0;
                 padding: 30px clamp(56px, 6vw, 96px);
-                overflow: hidden;
+                overflow: auto;
+                align-items: center;
+                justify-content: center;
             }
 
             .setup-home-frame {
                 width: min(680px, calc(100vw - 220px));
                 max-width: none;
-                height: calc(100dvh - 60px);
+                height: 850px;
+                max-height: calc(100dvh - 24px);
+                flex-shrink: 0;
                 min-height: 0;
             }
 
@@ -1589,14 +1593,14 @@ scrollbar-width: none;
             #edit-scenario-screen {
                 width: 100%; max-width: 1580px; min-height: 100dvh;
                 padding: 30px clamp(56px, 6vw, 96px);
-                flex-direction: row; align-items: flex-start; justify-content: center;
+                flex-direction: row; align-items: center; justify-content: center;
                 gap: 0; overflow: visible;
             }
 
             #desktop-config-overview {
-                position: sticky; top: 30px;
+                position: relative;
                 display: flex; flex: 0 1 680px; width: min(680px, 48vw);
-                min-width: 520px; height: calc(100dvh - 60px); min-height: 660px;
+                min-width: 520px; height: 850px; max-height: calc(100dvh - 24px); min-height: 660px;
                 flex-direction: column; justify-content: space-between;
                 padding: 34px 38px 30px;
 background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius: 16px;
@@ -1734,7 +1738,7 @@ margin: 0;
 
 #desktop-config-editor {
                 display: none; flex: 0 1 680px; width: min(680px, 48vw);
-                height: calc(100dvh - 60px); min-width: 430px;
+                height: 850px; max-height: calc(100dvh - 24px); min-width: 430px;
                 padding: 26px 28px 30px; overflow-y: auto; overscroll-behavior: contain;
 background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius: 16px;
                 box-shadow: 5px 5px 0 rgba(40,40,40,0.09);
