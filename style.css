@@ -1859,7 +1859,7 @@ border: 1px solid #808080; box-shadow: none; background: var(--card-bg);
             }
             #edit-scenario-screen.desktop-editor-open {
                 display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-                align-items: start;
+                align-items: center; align-content: center;
             }
             #edit-scenario-screen.game-workspace-active #desktop-config-overview {
                 flex: 0 1 680px; width: min(680px, calc(100vw - 130px)); min-width: 0;
@@ -3183,4 +3183,4 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
 .diary-shot-date { color: #d0d0d0; font-size: 12px; }
 .diary-fullscreen { position: fixed !important; inset: 0; z-index: 600; background: var(--paper-bg); display: flex !important; padding: 12px; box-sizing: border-box; }
 @media (min-width: 601px) { .diary-back-btn { display: none; } }
-@media (max-width: 600px) { .diary-top, .diary-toolbar, .diary-body { width: 100%; } }
+@media (max-width: 600px) { .diary-top, .diary-toolbar, .diary-
