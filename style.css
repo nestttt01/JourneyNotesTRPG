@@ -3114,8 +3114,8 @@ backdrop-filter: blur(8px);
 .msg-menu-item { background: transparent; border: none; text-align: left; padding: 9px 14px; font-size: 13px; font-weight: 800; color: var(--text-main); cursor: pointer; border-radius: 6px; white-space: nowrap; }
 .msg-menu-item:hover, .msg-menu-item:active { background: var(--surface-muted); }
 .msg-edit-area { width: 100%; box-sizing: border-box; align-self: stretch; border: 2px solid var(--accent-neon); border-radius: 6px; padding: 8px 10px; font-size: 14px; font-family: inherit; line-height: 1.6; resize: vertical; }
-/* 編輯中的角色訊息泡泡放寬,編輯框更好打字(蓋掉平常 80%/88% 上限)*/
-.msg-content:has(.msg-edit-area) { max-width: 96%; }
+/* 編輯中的角色訊息泡泡放寬到約兩倍(明確寬度,蓋掉平常 80%/88% 上限)*/
+.msg-content:has(.msg-edit-area) { width: min(600px, 84vw); max-width: min(600px, 84vw); flex: 0 0 auto; }
 .msg-edit-bar { display: flex; gap: 8px; margin-top: 6px; }
 .msg-edit-save, .msg-edit-cancel { padding: 5px 14px; border: 2px solid var(--border-dark); border-radius: 6px; font-weight: 900; font-size: 12px; cursor: pointer; color: var(--text-main); }
 .msg-edit-save { background: var(--accent-neon); }
