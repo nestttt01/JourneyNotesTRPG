@@ -3226,3 +3226,29 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
     font-size: 13px;
   }
 }
+
+/* 手機版封面重排:一顆英雄開始鈕 + 三顆小工作台膠囊(日記膠囊僅手機顯示) */
+.home-diary-chip { display: none; }
+@media screen and (max-width: 600px) {
+  .setup-mobile-actions {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; max-width: 300px; margin: 8px auto 0;
+  }
+  #setup-screen #start-btn {
+    flex: 0 0 100%; order: -1; width: 100%; max-width: none;
+    background: var(--accent-neon); color: var(--border-dark);
+    border: 3px solid var(--border-dark); border-radius: 13px;
+    box-shadow: 4px 4px 0 var(--border-dark);
+    padding: 15px; font-size: 19px; font-weight: 900; letter-spacing: 4px;
+  }
+  .setup-mobile-actions .home-config-chip,
+  .setup-mobile-actions .home-log-chip,
+  .setup-mobile-actions .home-diary-chip {
+    display: block; flex: 1 1 0; min-width: 0;
+    padding: 10px 4px; font-size: 13px; font-weight: 800;
+    background: var(--card-bg); color: var(--text-main);
+    border: 2px solid var(--border-dark); border-radius: 11px;
+    box-shadow: none;
+  }
+  #setup-screen.home-has-model .home-diary-tab { display: none !important; }
+}
