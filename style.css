@@ -3247,6 +3247,7 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
     width: 100%; margin: 2px auto 0;
   }
   .home-chip-bar > button {
+    display: block;
     background: transparent; border: 0; border-radius: 0; box-shadow: none;
     color: var(--text-main); font-size: 14px; font-weight: 800;
     padding: 6px 8px; cursor: pointer;
