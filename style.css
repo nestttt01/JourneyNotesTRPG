@@ -3292,11 +3292,14 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
   -moz-text-align-last: center;
 }
 
-/* 對話「載入更早的對話」按鈕(效能:畫面只留最近 N 則,舊的可點此載回) */
+/* 對話「載入更早的對話」按鈕:低調膠囊 + 底部螢光重點色硬陰影 */
 .chat-load-earlier {
-  align-self: center; margin: 6px auto 10px; padding: 6px 18px;
-  font-size: 12px; font-weight: 800; background: var(--card-bg);
-  color: var(--text-sub); border: 2px dashed var(--border-dark);
-  border-radius: 999px; cursor: pointer;
+  align-self: center; margin: 8px auto 12px; padding: 5px 20px;
+  font-size: 12px; font-weight: 800; letter-spacing: 1px;
+  background: var(--paper-bg); color: var(--text-main);
+  border: 0; border-radius: 999px; cursor: pointer;
+  box-shadow: 0 2px 0 var(--accent-neon);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.chat-load-earlier:hover { background: var(--surface-muted); }
+.chat-load-earlier:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--accent-neon); }
+.chat-load-earlier:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--accent-neon); }
