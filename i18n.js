@@ -30,6 +30,8 @@
 '這段收藏想說的一句話：': ['Write a note for this Diary entry:', 'この日記に一言メモ：'],
 'v2.1 更新': ['v2.1 Update', 'v2.1 更新'],
 'v2.2 更新': ['v2.2 Update', 'v2.2 更新'],
+"▲ 載入更早的對話（還有 {n} 則）": ['▲ Load earlier ({n} more)', '▲ 以前の会話を読み込む（残り {n} 件）'],
+'▲ 載入更早的對話': ['▲ Load earlier messages', '▲ 以前の会話を読み込む'],
 '保存圖片': ['Save as image', '画像として保存'],
 '右鍵（手機長按）可存成圖片': ['Right-click (long-press on mobile) to save as image', '右クリック（スマホは長押し）で画像として保存'],
 '圖片元件還在載入，請稍等幾秒再試一次。': ['The image tool is still loading. Please wait a few seconds and try again.', '画像ツールを読み込み中です。数秒待ってからもう一度お試しください。'],

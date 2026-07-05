@@ -13,7 +13,7 @@ optArea.innerHTML = '';
                 renderLog = currentLog.slice(-CHAT_RENDER_LIMIT);
                 const more = document.createElement('button');
                 more.className = 'chat-load-earlier';
-                more.textContent = ((typeof uiText === 'function') ? uiText('▲ 載入更早的對話') : '▲ 載入更早的對話') + `（還有 ${chatHidden} 則）`;
+                more.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話（還有 {n} 則）', { n: chatHidden }) : `▲ 載入更早的對話（還有 ${chatHidden} 則）`);
                 more.onclick = () => renderChatPage(pageIndex, true);
                 msgBox.appendChild(more);
             }
@@ -285,7 +285,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             if (!box.querySelector('.chat-load-earlier')) {
                 const b = document.createElement('button');
                 b.className = 'chat-load-earlier';
-                b.textContent = (typeof uiText === 'function') ? uiText('▲ 載入更早的對話') : '▲ 載入更早的對話';
+                b.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話') : '▲ 載入更早的對話');
                 b.onclick = () => renderChatPage(currentChatPageIndex, true);
                 box.insertBefore(b, box.firstChild);
             }
