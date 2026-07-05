@@ -133,7 +133,7 @@ function openStatusModal() {
                         <div class="scenario-label">NPC 們在此的身分/狀態</div>
                         <textarea id="edit-scen-npcs-${idx}" class="scenario-input" oninput="autoResize(this)">${escapeStatusHtml(sc.npcRoles || '')}</textarea>
                         <div class="scenario-label">玩家在此的身分/狀態</div>
-                        <input type="text" id="edit-scen-player-${idx}" class="scenario-input" value="${escapeStatusHtml(sc.playerRole || '')}">
+                        <textarea id="edit-scen-player-${idx}" class="scenario-input" oninput="autoResize(this)">${escapeStatusHtml(sc.playerRole || '')}</textarea>
                         <div class="scenario-label">本場目標（選填，DM 會朝此推進）</div>
 <textarea id="edit-scen-objective-${idx}" class="scenario-input" placeholder="${escapeStatusHtml(uiText('例如：讓玩家在天黑前找到出口。'))}" oninput="autoResize(this)">${escapeStatusHtml(sc.objective || '')}</textarea>
                         <div class="scenario-label">轉場規則（選填）</div>

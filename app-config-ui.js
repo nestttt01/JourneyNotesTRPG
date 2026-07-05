@@ -464,7 +464,7 @@ function selectDesktopPreset(id) {
                         <div class="scenario-label">NPC 們在此情境下的總體身分/狀態</div>
                         <textarea class="scenario-input" id="scen-npcRoles-${index}" oninput="autoResize(this)">${escapeStatusHtml(scen.npcRoles || '')}</textarea>
                         <div class="scenario-label">玩家在此的專屬身份/狀態</div>
-                        <input type="text" class="scenario-input" id="scen-player-${index}" value="${escapeStatusHtml(scen.playerRole)}">
+                        <textarea class="scenario-input" id="scen-player-${index}" oninput="autoResize(this)">${escapeStatusHtml(scen.playerRole)}</textarea>
                         <div class="scenario-label">本場目標（選填，DM 會朝此推進）</div>
 <textarea class="scenario-input" id="scen-objective-${index}" placeholder="${escapeStatusHtml(uiText('例如：讓玩家在天黑前找到出口。'))}" oninput="autoResize(this)">${escapeStatusHtml(scen.objective || '')}</textarea>
                         <div class="scenario-label">轉場規則（選填）</div>
