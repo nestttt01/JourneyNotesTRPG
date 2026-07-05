@@ -3257,3 +3257,24 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
   }
   #setup-screen.home-has-model .home-diary-tab { display: none !important; }
 }
+
+/* 手機版底部工具列(玩法·語言·外觀·更新),並隱藏被取代的散落控制項 */
+.setup-mobile-utils { display: none; }
+@media screen and (max-width: 600px) {
+  .setup-mobile-utils {
+    display: flex; justify-content: center; align-items: center;
+    gap: 0; margin: 12px auto 2px; max-width: 300px;
+  }
+  .setup-mobile-utils > button {
+    background: transparent; border: 0; border-radius: 0; box-shadow: none;
+    color: var(--text-sub); font-size: 13px; font-weight: 700;
+    padding: 6px 9px; cursor: pointer;
+  }
+  .setup-mobile-utils > button + button::before {
+    content: "·"; color: var(--text-sub); margin-right: 9px; font-weight: 400;
+  }
+  .setup-mobile-help { display: none; }
+  .ui-language-picker { display: none; }
+  .theme-customizer > summary { display: none; }
+  #home-update-tab { display: none; }
+}
