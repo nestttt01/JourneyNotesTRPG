@@ -262,7 +262,7 @@
         '玩家狀態與面板': ['Status Panel', 'ステータスパネル'],
 '另存新檔': ['Save New File', '新規データとして保存'],
         '儲存並返回': ['Save & Return', '保存して戻る'], '儲存': ['Save', '保存'],
-        '狀態': ['Status', 'ステータス'], '紀錄': ['Log', '記録'], '設定': ['Settings', '設定'],
+        '狀態': ['Status', 'ステータス'], '紀錄': ['Log', '記録'], '設定': ['Settings', '設定'], '詳細': ['Details', '詳細'],
         '情境': ['Scenario', 'シナリオ'], '當前': ['Current', '現在'], 'NPC 好感摘要': ['NPC Affection', 'NPC好感度'], '尚未設定 NPC。': ['No NPCs yet.', 'NPCはまだいません。'],
         '狀態旗標 / Flags': ['Status Flags', '状態フラグ'],
         'AI 會依據這些狀態銜接劇情、Buff/Debuff 與長期影響。': ['AI uses these states to continue the story, buffs/debuffs, and long-term effects.', 'AIはこれらの状態を参照して物語、バフ／デバフ、長期的な影響をつなげます。'],
