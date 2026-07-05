@@ -3202,3 +3202,27 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
     box-shadow: -2px 2px 0 var(--accent-gray);
   }
 }
+
+/* 手機版:供應商/模型 BAR + 密碼欄改為電腦版緊湊螢光風格(尺寸自然縮到約 2/3) */
+@media screen and (max-width: 600px) {
+  #setup-screen #api-provider,
+  #setup-screen #model-choice {
+    padding: 5px 14px;
+    border-color: transparent;
+    border-radius: 0;
+    background: var(--accent-neon);
+    font-size: 12px;
+    font-weight: 900;
+    min-height: 30px;
+    height: auto;
+  }
+  #setup-screen #api-key {
+    padding: 8px 12px;
+    border-width: 0 0 2px;
+    border-style: dotted;
+    border-color: var(--text-sub);
+    border-radius: 0;
+    background: transparent;
+    font-size: 13px;
+  }
+}
