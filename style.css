@@ -3291,3 +3291,12 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
   text-align-last: center;
   -moz-text-align-last: center;
 }
+
+/* 對話「載入更早的對話」按鈕(效能:畫面只留最近 N 則,舊的可點此載回) */
+.chat-load-earlier {
+  align-self: center; margin: 6px auto 10px; padding: 6px 18px;
+  font-size: 12px; font-weight: 800; background: var(--card-bg);
+  color: var(--text-sub); border: 2px dashed var(--border-dark);
+  border-radius: 999px; cursor: pointer;
+}
+.chat-load-earlier:hover { background: var(--surface-muted); }

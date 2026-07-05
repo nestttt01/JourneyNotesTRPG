@@ -1,14 +1,25 @@
 // === [app.js 拆分] app-gameplay.js：原 app.js 第 5882–6905 行｜對話渲染/頭像/訊息/loadGame/骰點/輸入/場景參與/創作者模式/生存｜需依 index.html 既有順序與其他 app-*.js 一同載入，勿單獨重排。 ===
-function renderChatPage(pageIndex) {
+function renderChatPage(pageIndex, showAll) {
 const msgBox = document.getElementById('dialogue-box');
 msgBox.innerHTML = '';
 const optArea = document.getElementById('options-area');
 optArea.innerHTML = '';
             
             const currentLog = chatScripts[pageIndex] || [];
+            ensureChatMenuDelegation();
+            let renderLog = currentLog;
+            const chatHidden = (!showAll && currentLog.length > CHAT_RENDER_LIMIT) ? currentLog.length - CHAT_RENDER_LIMIT : 0;
+            if (chatHidden > 0) {
+                renderLog = currentLog.slice(-CHAT_RENDER_LIMIT);
+                const more = document.createElement('button');
+                more.className = 'chat-load-earlier';
+                more.textContent = ((typeof uiText === 'function') ? uiText('▲ 載入更早的對話') : '▲ 載入更早的對話') + `（還有 ${chatHidden} 則）`;
+                more.onclick = () => renderChatPage(pageIndex, true);
+                msgBox.appendChild(more);
+            }
 
             if (currentLog.length > 0) {
-                currentLog.forEach(line => {
+                renderLog.forEach(line => {
                     if (line.startsWith(`【旁白】：`)) { 
                         appendNarrative(stripHardDiceDirective(line.replace(`【旁白】：`, "")), line); 
                     }
@@ -55,6 +66,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             navDiv.dataset.rawLine = (rawLine !== undefined) ? rawLine : `【旁白】：${text}`;
             attachMsgMenu(navDiv, navDiv, 'narrative', '');
             dialogueBox.appendChild(navDiv); dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            trimChatDom();
         }
 
         function appendCreatorInstruction(label, text) {
@@ -223,20 +235,60 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             attachMsgMenu(msgWrapper, textDiv, 'msg', speaker);
             dialogueBox.appendChild(msgWrapper);
             dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            trimChatDom();
         }
 
-        // === 對話長按/右鍵選單：編輯內文、複製（之後 Diary 收藏會擴充這個選單）===
+        // === 對話長按/右鍵選單：改用「事件委派」——整個對話框只綁一組監聽，不再每則各綁（大幅減少監聽器、玩久不卡） ===
+        const CHAT_RENDER_LIMIT = 60;
         function attachMsgMenu(wrapperEl, textEl, kind, speaker) {
-            let pressTimer = null;
-            const openAt = (x, y) => openMsgMenu(wrapperEl, textEl, kind, speaker, x, y);
-            wrapperEl.addEventListener('contextmenu', e => { e.preventDefault(); openAt(e.clientX, e.clientY); });
-            wrapperEl.addEventListener('touchstart', e => {
-                if (!e.touches || !e.touches[0]) return;
-                const t = e.touches[0];
-                pressTimer = setTimeout(() => openAt(t.clientX, t.clientY), 480);
+            wrapperEl.dataset.menuKind = kind;
+            wrapperEl.dataset.menuSpeaker = speaker || '';
+        }
+        function ensureChatMenuDelegation() {
+            const box = document.getElementById('dialogue-box');
+            if (!box || box.dataset.menuDelegated) return;
+            box.dataset.menuDelegated = '1';
+            const resolve = target => {
+                const el = (target && target.closest) ? target.closest('[data-menu-kind]') : null;
+                if (!el || !box.contains(el)) return null;
+                const kind = el.dataset.menuKind;
+                const textEl = (kind === 'narrative') ? el : (el.querySelector('.msg-text') || el);
+                return { el, textEl, kind, speaker: el.dataset.menuSpeaker || '' };
+            };
+            box.addEventListener('contextmenu', e => {
+                const r = resolve(e.target); if (!r) return;
+                e.preventDefault();
+                openMsgMenu(r.el, r.textEl, r.kind, r.speaker, e.clientX, e.clientY);
+            });
+            let pressTimer = null, sx = 0, sy = 0;
+            box.addEventListener('touchstart', e => {
+                const t = e.touches && e.touches[0]; if (!t) return;
+                const r = resolve(e.target); if (!r) return;
+                sx = t.clientX; sy = t.clientY;
+                pressTimer = setTimeout(() => { pressTimer = null; openMsgMenu(r.el, r.textEl, r.kind, r.speaker, sx, sy); }, 480);
             }, { passive: true });
-            ['touchend', 'touchmove', 'touchcancel'].forEach(ev =>
-                wrapperEl.addEventListener(ev, () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } }, { passive: true }));
+            const cancel = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
+            box.addEventListener('touchend', cancel, { passive: true });
+            box.addEventListener('touchcancel', cancel, { passive: true });
+            box.addEventListener('touchmove', e => {
+                const t = e.touches && e.touches[0];
+                if (t && (Math.abs(t.clientX - sx) > 10 || Math.abs(t.clientY - sy) > 10)) cancel();
+            }, { passive: true });
+        }
+        function trimChatDom() {
+            const box = document.getElementById('dialogue-box');
+            if (!box) return;
+            const items = box.querySelectorAll('.msg-wrapper, .msg-narrative, .system-msg, .alert-msg, .creator-instruction');
+            if (items.length <= CHAT_RENDER_LIMIT) return;
+            const cut = items.length - CHAT_RENDER_LIMIT;
+            for (let i = 0; i < cut; i++) items[i].remove();
+            if (!box.querySelector('.chat-load-earlier')) {
+                const b = document.createElement('button');
+                b.className = 'chat-load-earlier';
+                b.textContent = (typeof uiText === 'function') ? uiText('▲ 載入更早的對話') : '▲ 載入更早的對話';
+                b.onclick = () => renderChatPage(currentChatPageIndex, true);
+                box.insertBefore(b, box.firstChild);
+            }
         }
         function closeMsgMenu() {
             const m = document.getElementById('msg-context-menu');
