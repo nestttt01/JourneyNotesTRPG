@@ -624,7 +624,6 @@ updateSetupCurrentPresetLabel();
             if (ePbg) currentScenario.playerDetails.bg = ePbg.value;
             const eCoreRules = document.getElementById('edit-core-rules');
             if (eCoreRules) currentScenario.coreRules = eCoreRules.value;
-            currentScenario.playerDynamic = syncDynamicStateFromDom('edit-p-state', currentScenario.playerDynamic);
 
             // 同步 NPCs
             currentScenario.npcs.forEach((n, idx) => {

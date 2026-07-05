@@ -577,7 +577,6 @@ ${buildSceneParticipationInstruction(scene)}
 【玩家：${valueToText(currentScenario.playerName, '玩家')}】
 能力：STR ${playerStats.str}／DEX ${playerStats.dex}／CON ${playerStats.con}／INT ${playerStats.int}／WIS ${playerStats.wis}／CHA ${playerStats.cha}
 ${formatDetails(currentScenario.playerDetails)}
-${formatDynamicStateForPrompt(currentScenario.playerDynamic, { maxNotes: profile.memoryNotes })}
 
 【本回合相關 NPC】
 ${npcText}${omittedNpcCount ? `\n（另有 ${omittedNpcCount} 位未被本回合內容提及的 NPC，其詳細資料未傳送；不要擅自安排其登場。）` : ''}
@@ -602,7 +601,7 @@ ${getMemoryBriefForPrompt()}
 - 只有角色行動模式才可改變玩家 HP、SAN、道具或好感；必須依實際事件填入 changes。
 - HP 或 SAN 歸零時遵守目前難度的結局規則；不可自行忽略程式狀態。
 - 場景延續：地點、時間、在場角色預設延續「現在狀況」。只有本回合輸入或劇情明確改變現場時，才在 changes.scene_state 回報變動欄位（present 填目前實際在現場的角色名單，玩家不在場時不要列入玩家）；現場沒變動就省略 scene_state。
-- npc_states／player_state 的 memoryNotes 不是日誌：只有重大約定、未公開秘密、關係里程碑或不可逆選擇才可新增，且必須 persistent:true。
+- npc_states 的 memoryNotes 不是日誌：只有重大約定、未公開秘密、關係里程碑或不可逆選擇才可新增，且必須 persistent:true。
 - 每名角色每回合最多新增 1 條 memoryNotes，限 36 字內的短標題。普通情緒、氣氛、對話內容、受傷與日常互動不得寫入；相似內容不得換句話重複新增。
 - 只有劇情文字已明確確認 NPC 死亡時，才可填 npc_deaths；重傷、昏迷、失蹤或生死不明都不算死亡。
 - ${difficulty.key === 'standard' ? '標準模式：劇情明確演出復活，或「神」直接介入時可填 npc_revives；不強制檢定。' : (difficulty.key === 'hard' ? '困難模式：每次死亡只有一次復活嘗試。所有復活相關 options 都必須有六屬性檢定且 difficulty 至少為 hard；程式會執行成敗，npc_revives 必須留空。若已標記復活失敗，禁止再提供任何復活選項。' : '極限模式：死亡永久成立，npc_revives 必須為空，禁止提供任何復活行動或選項。')}
@@ -637,7 +636,6 @@ ${replyLenHint}${matureHint}
     "npc_deaths":[{"name":"<角色名>","cause":"明確死因或死亡事件"}],
     "npc_revives":[{"name":"<角色名>","reason":"明確復活事件；只供標準模式使用"}],
     "npc_states":[{"name":"<角色名>","persistent":false,"changes":{"mood":"","condition":"","relationship":"","goal":"","memoryNotes":[]}}],
-    "player_state":{},
     "scene_state":{"location":"","time":"","present":["<目前在場角色名>"]}
   }
 }

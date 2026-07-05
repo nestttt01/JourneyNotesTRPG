@@ -659,14 +659,6 @@ ${rawAction}
                     });
                 }
 
-                const playerStateUpdate = changes.player_state && typeof changes.player_state === 'object'
-                    ? changes.player_state
-                    : parsedData.player_state_update;
-                if (playerEffectsAllowed && playerStateUpdate && typeof playerStateUpdate === 'object') {
-                    const result = applyDynamicStatePatch(currentScenario.playerDynamic, playerStateUpdate, allowCharacterMemoryNotes);
-                    currentScenario.playerDynamic = result.state;
-                }
-
                 // 更新「現在狀況」現場快照（地點／時間／在場角色）。環境變動在任何模式都可能發生，故不受 playerEffectsAllowed 限制。
                 const sceneStatePayload = (changes.scene_state && typeof changes.scene_state === 'object' && !Array.isArray(changes.scene_state))
                     ? changes.scene_state
@@ -696,10 +688,6 @@ ${rawAction}
                         const result = applyDynamicStatePatch(foundNpc.dynamic, { persistent: true, changes: { memoryNotes: [legacyText] }, reason: '舊格式的劇情更新' }, false);
                         foundNpc.dynamic = result.state;
                     });
-                }
-                if (playerEffectsAllowed && typeof parsedData.player_persona_update === 'string' && parsedData.player_persona_update.trim()) {
-                    const result = applyDynamicStatePatch(currentScenario.playerDynamic, { persistent: true, changes: { memoryNotes: [parsedData.player_persona_update] }, reason: '舊格式的劇情更新' }, false);
-                    currentScenario.playerDynamic = result.state;
                 }
 
                 const hpDelta = playerEffectsAllowed ? parseNumericDelta(changes.hp ?? parsedData.hp_change) : 0;

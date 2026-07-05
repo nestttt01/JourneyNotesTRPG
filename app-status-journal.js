@@ -14,9 +14,6 @@ function openStatusModal() {
             
             const pStats = currentScenario.playerStats || {str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10};
             let pDet = currentScenario.playerDetails || { age: '', speech: '', likes: '', dislikes: '', app: '', bg: currentScenario.playerPersona || '' };
-            currentScenario.playerDynamic = normalizeDynamicState(currentScenario.playerDynamic);
-            const pDynamic = currentScenario.playerDynamic;
-            const pDynamicPreview = getDynamicStatePreview(pDynamic);
 
                         let rCount = Math.max(0, Number.parseInt(savesData[currentSaveId].respecCount, 10));
             if (!Number.isFinite(rCount)) rCount = 3;
@@ -33,7 +30,6 @@ function openStatusModal() {
                     <span class="u-inline-070">${respecBtnHtml}</span>
                 </div>
 
-                ${pDynamicPreview ? `<div class="player-dynamic-preview">目前：${escapeStatusHtml(pDynamicPreview)}</div>` : ''}
                 <div class="u-inline-071">
                     <span>[力量STR: ${pStats.str}]</span>
                     <span>[敏捷DEX: ${pStats.dex}]</span>
@@ -57,7 +53,6 @@ function openStatusModal() {
                     <div><label>討厭的事物</label><input type="text" id="edit-p-dislikes" value="${escapeStatusHtml(pDet.dislikes)}"></div>
                     <div class="full"><label>外貌特徵 / 常見穿搭</label><textarea id="edit-p-app" rows="1" oninput="autoResize(this)">${escapeStatusHtml(pDet.app)}</textarea></div>
                     <div class="full"><label>核心性格 / 背景故事</label><textarea id="edit-p-bg" rows="1" oninput="autoResize(this)">${escapeStatusHtml(pDet.bg)}</textarea></div>
-                    ${renderDynamicStateEditor('edit-p-state', pDynamic)}
                 </div>
             </details>\n`;
             
