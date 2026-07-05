@@ -2284,9 +2284,9 @@ margin: 0; padding: 0; background: transparent;
             #floating-menu-btn { right: -5px; padding: 12px 4px; font-size: 11px; border-radius: 8px 0 0 8px; }
             .chat-avatar { width: 32px; height: 32px; }
             .msg-content { max-width: 88%; }
-            /* 手機版日記:泡泡加寬、更貼邊(只動日記,不動遊戲聊天;電腦版不受影響) */
-            #diary-content .msg-content { max-width: 94%; }
-            #diary-content { padding-left: 10px; padding-right: 10px; }
+            /* 手機版日記:泡泡收窄+字級縮小,恢復左右層次(只動日記,不動遊戲聊天;電腦版不受影響) */
+            #diary-content .msg-content { max-width: 74%; }
+            #diary-content .msg-text { font-size: 13px; }
             .msg-text { padding: 8px 12px; font-size: 14px; line-height: 1.5; }
             .msg-narrative { padding: 8px 12px; font-size: 13px; line-height: 1.5; margin: 0 5px; }
             #dialogue-box { gap: 12px; padding: 0; }
