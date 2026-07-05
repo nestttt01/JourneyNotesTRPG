@@ -561,6 +561,11 @@ function removeCollection(idx) {
             content.style.height = 'auto';
             content.style.overflow = 'visible';
 
+            // 截圖時讓對話泡泡更寬、更貼邊（NPC 靠左、玩家靠右），螢幕上的日記不受影響
+            const shotWideStyle = document.createElement('style');
+            shotWideStyle.textContent = '#diary-content{padding-left:8px!important;padding-right:8px!important;}#diary-content .msg-content{max-width:92%!important;}';
+            document.head.appendChild(shotWideStyle);
+
             const cs = getComputedStyle(content);
             let bg = cs.backgroundColor;
             if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') bg = '#EEEEEE';
@@ -622,6 +627,7 @@ function removeCollection(idx) {
             } finally {
                 if (foot && foot.parentNode) foot.remove();
                 content.setAttribute('style', savedStyle);
+                if (shotWideStyle && shotWideStyle.parentNode) shotWideStyle.remove();
             }
         }
         function closeDiaryShotMenu() {
