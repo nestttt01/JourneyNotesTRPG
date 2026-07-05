@@ -3284,3 +3284,10 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
     transform: translate(-50%, -50%) scale(1);
   }
 }
+
+/* 首頁:API 廠商 BAR 選中值文字置中(select 需要 text-align-last 才會生效) */
+#setup-screen #api-provider {
+  text-align: center;
+  text-align-last: center;
+  -moz-text-align-last: center;
+}
