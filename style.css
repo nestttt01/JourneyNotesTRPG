@@ -3227,28 +3227,32 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
   }
 }
 
-/* 手機版封面重排:一顆英雄開始鈕 + 三顆小工作台膠囊(日記膠囊僅手機顯示) */
+/* 手機版封面重排:英雄開始鈕 + 一排乾淨文字選項(斜線分隔、無底色) */
 .home-diary-chip { display: none; }
+.home-chip-bar { display: contents; }
 @media screen and (max-width: 600px) {
   .setup-mobile-actions {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    justify-content: center; max-width: 300px; margin: 8px auto 0;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0; max-width: 300px; margin: 8px auto 0;
   }
   #setup-screen #start-btn {
-    flex: 0 0 100%; order: -1; width: 100%; max-width: none;
+    width: 100%; max-width: none; margin: 0 0 10px;
     background: var(--accent-neon); color: var(--border-dark);
     border: 3px solid var(--border-dark); border-radius: 13px;
     box-shadow: 4px 4px 0 var(--border-dark);
     padding: 15px; font-size: 19px; font-weight: 900; letter-spacing: 4px;
   }
-  .setup-mobile-actions .home-config-chip,
-  .setup-mobile-actions .home-log-chip,
-  .setup-mobile-actions .home-diary-chip {
-    display: block; flex: 1 1 0; min-width: 0;
-    padding: 10px 4px; font-size: 13px; font-weight: 800;
-    background: var(--card-bg); color: var(--text-main);
-    border: 2px solid var(--border-dark); border-radius: 11px;
-    box-shadow: none;
+  .home-chip-bar {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; margin: 2px auto 0;
+  }
+  .home-chip-bar > button {
+    background: transparent; border: 0; border-radius: 0; box-shadow: none;
+    color: var(--text-main); font-size: 14px; font-weight: 800;
+    padding: 6px 8px; cursor: pointer;
+  }
+  .home-chip-bar > button + button::before {
+    content: "/"; color: var(--text-sub); font-weight: 400; margin-right: 10px;
   }
   #setup-screen.home-has-model .home-diary-tab { display: none !important; }
 }
