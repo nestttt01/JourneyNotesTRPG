@@ -272,7 +272,7 @@
         '日文台詞 + 繁中翻譯': ['Japanese dialogue + Traditional Chinese translation', '日本語台詞＋繁体字訳'],
         '英文台詞 + 繁中翻譯': ['English dialogue + Traditional Chinese translation', '英語台詞＋繁体字訳'],
         '自動依玩家語言': ['Auto-detect player language', 'プレイヤー言語を自動判定'],
-        '詳細設定': ['Details', '詳細'],
+        '詳細設定': ['Detailed settings', '詳細設定'],
         '玩家、NPC 與情境的詳細欄位集中在這裡。跑團中只想看摘要時，回到「狀態」頁即可。': ['Detailed player, NPC, and scenario fields are here. Return to Status when you only need a summary.', 'プレイヤー、NPC、シナリオの詳細項目はこちらです。要約だけを見る場合は「ステータス」に戻ってください。'],
         '編輯玩家細節設定': ['Edit Player Details', 'プレイヤー詳細を編集'],
         '登場 NPC 管理': ['Manage NPCs', 'NPC管理'], '情境空間管理': ['Manage Scenes', 'シナリオ管理'],
