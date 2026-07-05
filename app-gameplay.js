@@ -323,7 +323,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             const oldRaw = wrapperEl.dataset.rawLine || '';
             const originalH = textEl.offsetHeight;
             const ta = document.createElement('textarea');
-            ta.className = 'msg-edit-area'; ta.value = textEl.textContent;
+            ta.className = 'msg-edit-area'; ta.value = (typeof textEl.innerText === 'string') ? textEl.innerText : textEl.textContent;
             ta.style.minHeight = Math.min(Math.max(140, originalH + 24), Math.round(window.innerHeight * 0.7)) + 'px';
             const bar = document.createElement('div'); bar.className = 'msg-edit-bar';
         const saveBtn = document.createElement('button'); saveBtn.className = 'msg-edit-save'; saveBtn.textContent = (typeof uiText === 'function') ? uiText('儲存') : '儲存';
