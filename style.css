@@ -252,6 +252,8 @@ font-synthesis: none;
             margin-left: 10px;
             transition: all 0.2s;
             letter-spacing: 1px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         details.dark-card[open] summary::after {
             content: "▲ 收起";
@@ -267,9 +269,9 @@ font-synthesis: none;
         details.dark-card summary::-webkit-details-marker { display: none; }
         details.dark-card[open] summary { background: var(--border-dark); }
 
-        .summary-left { display: flex; align-items: center; gap: 15px; flex-grow: 1;}
-        .summary-name { font-size: 15px; font-weight: 900;}
-        .summary-tag { color: var(--accent-neon); font-size: 12px; font-weight: 900; letter-spacing: 1px;}
+        .summary-left { display: flex; align-items: center; gap: 15px; flex-grow: 1; min-width: 0;}
+        .summary-name { font-size: 15px; font-weight: 900; white-space: nowrap; flex-shrink: 0;}
+        .summary-tag { color: var(--accent-neon); font-size: 12px; font-weight: 900; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0;}
 
         /* 這裡把展開與收起的按鈕底框拿掉，改用文字顏色 */
 
@@ -1209,7 +1211,7 @@ background: var(--paper-bg);
         .random-generator-actions .btn { width: 100%; margin: 0; }
         .random-preview { margin-top: 12px; padding: 12px; max-height: 45vh; overflow: auto; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); white-space: pre-wrap; font-size: 12px; line-height: 1.65; }
 
-        .dynamic-state-preview { min-width: 0; margin-left: auto; color: #c9bdc2; font-size: 10px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dynamic-state-preview { flex: 1 1 0; min-width: 0; margin-left: auto; color: #c9bdc2; font-size: 10px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .player-dynamic-preview { margin: -2px 0 10px; color: #756a6e; font-size: 11px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .setup-version { margin: 24px 0 0; color: var(--text-sub); font-size: 9px; font-weight: 600; line-height: 1; }
