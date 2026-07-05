@@ -3269,3 +3269,18 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
   .theme-customizer > summary { display: none; }
   #home-update-tab { display: none; }
 }
+
+/* 手機版:更新內容彈窗改為畫面正中央(原本貼在頁面最上方,離底部鈴鐺很遠) */
+@media screen and (max-width: 600px) {
+  .home-update-drawer {
+    position: fixed;
+    left: 50%; top: 50%; right: auto; bottom: auto;
+    width: min(340px, calc(100vw - 32px));
+    max-height: min(72vh, calc(100dvh - 90px));
+    transform: translate(-50%, -50%) scale(0.98);
+    z-index: 100000;
+  }
+  .home-update-widget.open .home-update-drawer {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
