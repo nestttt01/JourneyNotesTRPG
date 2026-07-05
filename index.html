@@ -414,10 +414,10 @@
 
 <div class="setup-home-footer">
 <div class="setup-mobile-utils">
-<button type="button" onclick="openTutorialModal()">玩法</button>
-<button type="button" onclick="cycleUiLanguageFromHome()">語言</button>
-<button type="button" onclick="var d=document.querySelector('.theme-customizer'); if(d){d.open=!d.open;}">外觀</button>
-<button type="button" onclick="toggleHomeUpdateNotes()">更新</button>
+<button type="button" data-no-i18n onclick="openTutorialModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6a2 2 0 0 1 2 2v13a1.5 1.5 0 0 0-1.5-1.5H4z"/><path d="M20 4h-6a2 2 0 0 0-2 2v13a1.5 1.5 0 0 1 1.5-1.5H20z"/></svg><span>玩法</span></button>
+<button type="button" data-no-i18n onclick="cycleUiLanguageFromHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.7 2.5 2.7 15.5 0 18"/><path d="M12 3c-2.7 2.5-2.7 15.5 0 18"/></svg><span>語言</span></button>
+<button type="button" data-no-i18n onclick="var d=document.querySelector('.theme-customizer'); if(d){d.open=!d.open;}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.5 0-1.5 1-2 2-2H18a3 3 0 0 0 3-3c0-5-4-8.5-9-8.5z"/><circle cx="7.5" cy="12" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="16" cy="11" r="1"/></svg><span>外觀</span></button>
+<button type="button" data-no-i18n onclick="toggleHomeUpdateNotes()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8H3.5S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span>更新</span></button>
 </div>
 <details class="theme-customizer">
 <summary>外觀配色</summary>
