@@ -1,5 +1,5 @@
 // === [app.js 拆分] app-gameplay.js：原 app.js 第 5882–6905 行｜對話渲染/頭像/訊息/loadGame/骰點/輸入/場景參與/創作者模式/生存｜需依 index.html 既有順序與其他 app-*.js 一同載入，勿單獨重排。 ===
-function renderChatPage(pageIndex, visibleCount) {
+function renderChatPage(pageIndex, visibleCount, scrollAnchor) {
 const msgBox = document.getElementById('dialogue-box');
 msgBox.innerHTML = '';
 const optArea = document.getElementById('options-area');
@@ -18,10 +18,11 @@ optArea.innerHTML = '';
                 const more = document.createElement('button');
                 more.className = 'chat-load-earlier';
                 more.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話（還有 {n} 則）', { n: chatHidden }) : `▲ 載入更早的對話（還有 ${chatHidden} 則）`);
-                more.onclick = () => renderChatPage(pageIndex, renderCount + CHAT_RENDER_LIMIT);
+                more.onclick = () => renderChatPage(pageIndex, renderCount + CHAT_RENDER_LIMIT, getChatScrollAnchor(msgBox));
                 msgBox.appendChild(more);
             }
 
+            msgBox.dataset.renderingHistory = '1';
             if (currentLog.length > 0) {
                 renderLog.forEach(line => {
                     if (line.startsWith(`【旁白】：`)) { 
@@ -49,8 +50,7 @@ optArea.innerHTML = '';
                         if (splitIdx > -1) { const speaker = line.substring(0, splitIdx); const text = stripHardDiceDirective(line.substring(splitIdx + 1)); appendMessage(speaker, text, line); }
                     }
                 });
-                msgBox.scrollTop = msgBox.scrollHeight;
-} else {
+            } else {
 const emptyMessage = window.uiMessage ? window.uiMessage('此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場') : '此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場';
 const systemMsg = document.createElement('div'); systemMsg.className = 'system-msg'; systemMsg.innerHTML = `<i>— ${emptyMessage} —</i>`; msgBox.appendChild(systemMsg); msgBox.scrollTop = msgBox.scrollHeight;
 const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.style.borderColor = 'var(--accent-neon)'; btn.style.width = 'fit-content'; btn.style.alignSelf = 'center'; btn.textContent = window.uiMessage ? window.uiMessage('🎲 讓 AI 根據「情境設定」隨機生成開場事件') : '🎲 讓 AI 根據「情境設定」隨機生成開場事件';
@@ -63,13 +63,57 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
                 };
                 optArea.appendChild(btn);
             }
+            delete msgBox.dataset.renderingHistory;
+            if (scrollAnchor && Number.isFinite(scrollAnchor.scrollHeight) && Number.isFinite(scrollAnchor.scrollTop)) {
+                const keepScrollAnchor = () => restoreChatScrollAnchor(msgBox, scrollAnchor);
+                keepScrollAnchor();
+                requestAnimationFrame(() => {
+                    keepScrollAnchor();
+                });
+            } else {
+                msgBox.scrollTop = msgBox.scrollHeight;
+            }
+        }
+
+        function getChatScrollAnchor(box) {
+            const boxRect = box.getBoundingClientRect();
+            const items = Array.from(box.querySelectorAll('[data-raw-line]'));
+            const firstVisible = items.find(el => el.getBoundingClientRect().bottom > boxRect.top + 4);
+            if (!firstVisible) {
+                return { scrollHeight: box.scrollHeight, scrollTop: box.scrollTop };
+            }
+            return {
+                rawLine: firstVisible.dataset.rawLine || '',
+                offsetTop: firstVisible.getBoundingClientRect().top - boxRect.top,
+                scrollHeight: box.scrollHeight,
+                scrollTop: box.scrollTop
+            };
+        }
+
+        function restoreChatScrollAnchor(box, anchor) {
+            const previousScrollBehavior = box.style.scrollBehavior;
+            box.style.scrollBehavior = 'auto';
+            if (anchor.rawLine) {
+                const boxTop = box.getBoundingClientRect().top;
+                const target = Array.from(box.querySelectorAll('[data-raw-line]'))
+                    .find(el => (el.dataset.rawLine || '') === anchor.rawLine);
+                if (target) {
+                    box.scrollTop += target.getBoundingClientRect().top - boxTop - anchor.offsetTop;
+                    box.style.scrollBehavior = previousScrollBehavior;
+                    return;
+                }
+            }
+            const scrollDelta = box.scrollHeight - anchor.scrollHeight;
+            box.scrollTop = Math.max(0, anchor.scrollTop + scrollDelta);
+            box.style.scrollBehavior = previousScrollBehavior;
         }
 
         function appendNarrative(text, rawLine) {
             if (!text) return; const dialogueBox = document.getElementById('dialogue-box'); const navDiv = document.createElement('div'); navDiv.className = 'msg-narrative'; navDiv.innerText = text;
             navDiv.dataset.rawLine = (rawLine !== undefined) ? rawLine : `【旁白】：${text}`;
             attachMsgMenu(navDiv, navDiv, 'narrative', '');
-            dialogueBox.appendChild(navDiv); dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            dialogueBox.appendChild(navDiv);
+            if (dialogueBox.dataset.renderingHistory !== '1') dialogueBox.scrollTop = dialogueBox.scrollHeight;
             trimChatDom();
         }
 
@@ -83,7 +127,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             note.appendChild(heading);
             note.appendChild(document.createTextNode(text));
             dialogueBox.appendChild(note);
-            dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            if (dialogueBox.dataset.renderingHistory !== '1') dialogueBox.scrollTop = dialogueBox.scrollHeight;
         }
 
 
@@ -238,7 +282,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             msgWrapper.dataset.rawLine = (rawLine !== undefined) ? rawLine : `${speaker}：${text}`;
             attachMsgMenu(msgWrapper, textDiv, 'msg', speaker);
             dialogueBox.appendChild(msgWrapper);
-            dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            if (dialogueBox.dataset.renderingHistory !== '1') dialogueBox.scrollTop = dialogueBox.scrollHeight;
             trimChatDom();
         }
 
@@ -292,7 +336,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
                 b.className = 'chat-load-earlier';
                 b.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話') : '▲ 載入更早的對話');
                 const loadedCount = Number(box.dataset.loadedHistoryCount) || CHAT_RENDER_LIMIT;
-                b.onclick = () => renderChatPage(currentChatPageIndex, loadedCount + CHAT_RENDER_LIMIT);
+                b.onclick = () => renderChatPage(currentChatPageIndex, loadedCount + CHAT_RENDER_LIMIT, getChatScrollAnchor(box));
                 box.insertBefore(b, box.firstChild);
             }
         }
