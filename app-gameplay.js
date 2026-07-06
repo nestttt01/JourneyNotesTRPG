@@ -1,5 +1,5 @@
 // === [app.js 拆分] app-gameplay.js：原 app.js 第 5882–6905 行｜對話渲染/頭像/訊息/loadGame/骰點/輸入/場景參與/創作者模式/生存｜需依 index.html 既有順序與其他 app-*.js 一同載入，勿單獨重排。 ===
-function renderChatPage(pageIndex, showAll) {
+function renderChatPage(pageIndex, visibleCount) {
 const msgBox = document.getElementById('dialogue-box');
 msgBox.innerHTML = '';
 const optArea = document.getElementById('options-area');
@@ -7,14 +7,18 @@ optArea.innerHTML = '';
             
             const currentLog = chatScripts[pageIndex] || [];
             ensureChatMenuDelegation();
+            const requestedCount = Number.isFinite(Number(visibleCount)) ? Math.max(CHAT_RENDER_LIMIT, Math.floor(Number(visibleCount))) : CHAT_RENDER_LIMIT;
+            const renderCount = Math.min(currentLog.length, requestedCount);
+            msgBox.dataset.loadedHistoryCount = String(renderCount);
+            msgBox.dataset.showAllHistory = renderCount > CHAT_RENDER_LIMIT ? '1' : '';
             let renderLog = currentLog;
-            const chatHidden = (!showAll && currentLog.length > CHAT_RENDER_LIMIT) ? currentLog.length - CHAT_RENDER_LIMIT : 0;
+            const chatHidden = currentLog.length > renderCount ? currentLog.length - renderCount : 0;
             if (chatHidden > 0) {
-                renderLog = currentLog.slice(-CHAT_RENDER_LIMIT);
+                renderLog = currentLog.slice(-renderCount);
                 const more = document.createElement('button');
                 more.className = 'chat-load-earlier';
                 more.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話（還有 {n} 則）', { n: chatHidden }) : `▲ 載入更早的對話（還有 ${chatHidden} 則）`);
-                more.onclick = () => renderChatPage(pageIndex, true);
+                more.onclick = () => renderChatPage(pageIndex, renderCount + CHAT_RENDER_LIMIT);
                 msgBox.appendChild(more);
             }
 
@@ -278,6 +282,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
         function trimChatDom() {
             const box = document.getElementById('dialogue-box');
             if (!box) return;
+            if (box.dataset.showAllHistory === '1') return;
             const items = box.querySelectorAll('.msg-wrapper, .msg-narrative, .system-msg, .alert-msg, .creator-instruction');
             if (items.length <= CHAT_RENDER_LIMIT) return;
             const cut = items.length - CHAT_RENDER_LIMIT;
@@ -286,7 +291,8 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
                 const b = document.createElement('button');
                 b.className = 'chat-load-earlier';
                 b.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話') : '▲ 載入更早的對話');
-                b.onclick = () => renderChatPage(currentChatPageIndex, true);
+                const loadedCount = Number(box.dataset.loadedHistoryCount) || CHAT_RENDER_LIMIT;
+                b.onclick = () => renderChatPage(currentChatPageIndex, loadedCount + CHAT_RENDER_LIMIT);
                 box.insertBefore(b, box.firstChild);
             }
         }
