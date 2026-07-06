@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Affection Animation Current Preview</title>
+<style>
+@font-face { font-family: "TRPG Cubic Pixel"; src: url("./fonts/Cubic_11.woff2") format("woff2"); font-display: swap; }
+:root {
+  --bg-main: #fff4f8;
+  --card-bg: #fff;
+  --border-dark: #44343a;
+  --text-main: #2d2535;
+  --text-sub: #806b78;
+  --accent-neon: #ff9caf;
+  --accent-gray: #d5c5ff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; padding: 24px; background: var(--bg-main); color: var(--text-main); font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif; }
+main { width: min(1100px, 100%); margin: 0 auto; display: grid; gap: 18px; }
+h1 { margin: 0; font-family: "TRPG Cubic Pixel", monospace; font-size: clamp(28px, 5vw, 44px); font-weight: 400; }
+p { margin: 6px 0 0; color: var(--text-sub); font-weight: 800; line-height: 1.55; }
+.card { background: var(--card-bg); border: 3px solid var(--border-dark); box-shadow: 6px 6px 0 var(--accent-gray); padding: 18px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.row { display: grid; grid-template-columns: 80px 1fr auto; align-items: center; gap: 14px; min-height: 54px; border-bottom: 2px dotted #e6d8e2; font-weight: 900; }
+.row small { color: var(--text-sub); font-weight: 800; }
+.note-bad { color: #9a3f58; }
+.effect-stage { min-height: 520px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; justify-items: center; gap: 18px 22px; background: color-mix(in srgb, var(--card-bg) 82%, var(--accent-gray)); border: 2px dashed color-mix(in srgb, var(--border-dark) 45%, transparent); padding: 12px; }
+.preview-effect { --u: 12px; display: inline-grid; justify-items: center; gap: 6px; opacity: 1; }
+.preview-effect .npc-affection, .preview-effect .npc-affection:not(.affection-full) { --u: 12px; animation: relationshipHeartSoftPop 1.8s steps(1, end) infinite; } .preview-effect .npc-affection.affection-full { --u: 12px; animation: relationshipHeartBeat 1.8s steps(1, end) infinite; filter: drop-shadow(0 0 5px var(--heart-spark)); }
+.preview-label { display: inline-block; max-width: 260px; padding: 2px 7px; color: var(--text-main); background: #fff; border: 2px solid var(--border-dark); box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-gray) 55%, transparent); font-size: 16px; font-weight: 900; line-height: 1.25; letter-spacing: 1px; white-space: normal; text-align: center; }
+.npc-affection { --u: 3px; --heart-line: color-mix(in srgb, var(--border-dark) 72%, #514477); --heart-line-dark: color-mix(in srgb, var(--border-dark) 84%, #2f2946); --heart-fill: color-mix(in srgb, var(--accent-neon) 30%, #ff5f98); --heart-fill-light: color-mix(in srgb, var(--accent-neon) 18%, #ff8fba); --heart-fill-dark: color-mix(in srgb, var(--accent-neon) 18%, #ec3f80); --heart-empty: #fff; --heart-empty-tint: #fff; --heart-shine: color-mix(in srgb, var(--card-bg) 55%, white); --heart-spark: #ffe96b; --heart-negative-line: #201529; --heart-negative-dark: #08070d; --heart-negative-mid: #3e245f; --heart-negative-light: #6f45a8; --heart-negative-soft: #8c5fd0; position: relative; display: inline-block; width: calc(10 * var(--u)); height: calc(8 * var(--u)); min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: transparent; font-size: 0; line-height: 0; flex: 0 0 auto; overflow: visible; image-rendering: pixelated; }
+.npc-affection:not(.affection-full) { animation: npc-affection-float 2.8s ease-in-out infinite; }
+.npc-affection.affection-full { animation: npc-affection-hop 1.35s steps(1, end) infinite; filter: drop-shadow(0 0 0 transparent); }
+.npc-affection-pixel, .npc-affection-spark { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); width: var(--u); height: var(--u); }
+.npc-affection-pixel.is-outline { background: var(--heart-line); }
+.npc-affection-pixel.is-outline-dark { background: var(--heart-line-dark); }
+.npc-affection-pixel.is-fill { background: var(--heart-fill); }
+.npc-affection-pixel.is-fill-light { background: var(--heart-fill-light); }
+.npc-affection-pixel.is-fill-dark { background: var(--heart-fill-dark); }
+.npc-affection-pixel.is-empty { background: var(--heart-empty); }
+.npc-affection-pixel.is-empty-tint { background: var(--heart-empty-tint); }
+.npc-affection-pixel.is-shine { background: var(--heart-shine); }
+.npc-affection-pixel.is-negative-soft { background: var(--heart-negative-soft); }
+.npc-affection-pixel.is-negative-light { background: var(--heart-negative-light); }
+.npc-affection-pixel.is-negative-mid { background: var(--heart-negative-mid); }
+.npc-affection-pixel.is-negative-dark { background: var(--heart-negative-dark); }
+.npc-affection.negative { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-mid) 70%, transparent)); }
+.npc-affection.negative-soft { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-light) 70%, transparent)); }
+.npc-affection-spark { background: var(--heart-spark); opacity: 0; animation: npc-affection-sparkle 1.35s steps(1, end) infinite; }
+.npc-affection-spark.is-hot { background: #fff; }
+.npc-affection-spark.is-s2 { animation-delay: .18s; }
+.npc-affection-spark.is-s3 { animation-delay: .36s; }
+@keyframes npc-affection-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-0.5 * var(--u))); } }
+@keyframes npc-affection-hop { 0%, 58%, 100% { transform: translateY(0); filter: drop-shadow(0 0 0 transparent); } 18%, 28% { transform: translateY(calc(-1 * var(--u))); filter: drop-shadow(0 0 3px var(--heart-spark)); } 38% { transform: translateY(0); filter: drop-shadow(0 0 5px var(--heart-spark)); } }
+@keyframes npc-affection-sparkle { 0%, 16%, 52%, 100% { opacity: 0; } 24%, 42% { opacity: 1; } }
+@keyframes relationshipHeartEffect { 0% { opacity: 0; transform: translateY(12px); } 12%, 72% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
+@keyframes relationshipHeartSoftPop { 0%, 100% { transform: translateY(0) scale(1); } 18% { transform: translateY(calc(-0.35 * var(--u))) scale(1.04); } 34%, 72% { transform: translateY(0) scale(1); } }
+@keyframes relationshipHeartBeat { 0%, 100% { transform: translateY(0); } 14%, 28% { transform: translateY(calc(-1 * var(--u))); } 42% { transform: translateY(0); } 58% { transform: translateY(calc(-0.5 * var(--u))); } 72% { transform: translateY(0); } }
+@media (max-width: 760px) { body { padding: 14px; } .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Affection Animation Preview - Fixed Draft</h1>
+    <p>&#x4fee;&#x6b63;&#x8349;&#x7a3f;&#xff1a;15 &#x7684;&#x6c34;&#x91cf;&#x6bd4; 30 &#x5c11;&#xff1b;&#x7279;&#x6548;&#x611b;&#x5fc3;&#x6703;&#x4f9d;&#x7167;&#x7576;&#x4e0b;&#x597d;&#x611f;&#x5ea6;&#xff0c;&#x4e0d;&#x7d71;&#x4e00;&#x7528; 100%&#x3002;&#x9019;&#x5f35;&#x5716;&#x9084;&#x6c92;&#x63a5;&#x9032;&#x6b63;&#x5f0f;&#x904a;&#x6232;&#x3002;</p>
+  </header>
+  <section class="grid">
+    <article class="card">
+      <h2>NPC row hearts</h2>
+      <div id="rows"></div>
+    </article>
+    <article class="card">
+      <h2>Threshold effects</h2>
+      <p>&#x8de8;&#x9580;&#x6abb;&#x6642;&#x6703;&#x7528;&#x7576;&#x4e0b;&#x597d;&#x611f;&#x5ea6;&#x7684;&#x611b;&#x5fc3;&#xff0c;&#x4e0d;&#x7d71;&#x4e00;&#x7528; 100%&#x3002;</p>
+      <div class="effect-stage" id="effect-stage"></div>
+    </article>
+  </section>
+</main>
+<script>
+const rowsEl = document.getElementById('rows');
+const values = [-30, -15, 0, 15, 30, 45, 60, 75, 90, 100];
+const spriteRows = [
+  [[2, 3], [6, 7]],
+  [[1, 4], [5, 8]],
+  [[0, 9]],
+  [[0, 9]],
+  [[1, 8]],
+  [[2, 7]],
+  [[3, 6]],
+  [[4, 5]],
+];
+function cells() {
+  const set = new Set();
+  spriteRows.forEach((ranges, y) => ranges.forEach(([a, b]) => { for (let x = a; x <= b; x += 1) set.add(`${x},${y}`); }));
+  return set;
+}
+const heartCells = cells();
+function hasCell(x, y) { return heartCells.has(`${x},${y}`); }
+function isOutline(x, y) { return !hasCell(x - 1, y) || !hasCell(x + 1, y) || !hasCell(x, y - 1) || !hasCell(x, y + 1); }
+function pixel(x, y, cls) { return `<span class="npc-affection-pixel ${cls}" style="--x:${x};--y:${y}"></span>`; }
+function renderNpcAffectionHeart(value) {
+  const affection = Number(value ?? 0);
+  const negative = affection < 0;
+  const percent = Math.max(0, Math.min(100, affection));
+  let cutoff = 8;
+  if (percent >= 100) cutoff = 0;
+  else if (percent >= 90) cutoff = 1;
+  else if (percent >= 75) cutoff = 2;
+  else if (percent >= 60) cutoff = 3;
+  else if (percent >= 45) cutoff = 4;
+  else if (percent >= 30) cutoff = 5;
+  else if (percent > 0) cutoff = 6;
+  const parts = [];
+  for (let y = 0; y < 8; y += 1) {
+    for (let x = 0; x < 10; x += 1) {
+      if (!hasCell(x, y)) continue;
+      if (negative) {
+        const severe = affection <= -30;
+        if (isOutline(x, y)) parts.push(pixel(x, y, severe ? (y >= 5 ? 'is-negative-dark' : 'is-negative-mid') : (y >= 5 ? 'is-negative-mid' : 'is-negative-light')));
+        else if (severe) parts.push(pixel(x, y, y <= 2 ? 'is-negative-light' : (y >= 5 ? 'is-negative-dark' : 'is-negative-mid')));
+        else parts.push(pixel(x, y, y <= 2 ? 'is-negative-soft' : (y >= 5 ? 'is-negative-mid' : 'is-negative-light')));
+      } else if (isOutline(x, y)) parts.push(pixel(x, y, y >= 6 ? 'is-outline is-outline-dark' : 'is-outline'));
+      else if (y >= cutoff) parts.push(pixel(x, y, y <= 2 ? 'is-fill is-fill-light' : (y >= 5 ? 'is-fill is-fill-dark' : 'is-fill')));
+      else parts.push(pixel(x, y, (x + y) % 2 ? 'is-empty is-empty-tint' : 'is-empty'));
+    }
+  }
+  if (!negative && percent >= 100) {
+    [[2, 2], [3, 2], [2, 3]].forEach(([x, y]) => { if (hasCell(x, y) && !isOutline(x, y)) parts.push(pixel(x, y, 'is-shine')); });
+    [[-1, 1, 'is-hot'], [10, 2, 'is-s2'], [1, -1, 'is-s3'], [8, -1, 'is-hot is-s2'], [10, 6, 'is-s3']].forEach(([x, y, cls]) => parts.push(`<span class="npc-affection-spark ${cls}" style="--x:${x};--y:${y}"></span>`));
+  }
+  return `<span class="npc-affection${negative ? (affection <= -30 ? ' negative' : ' negative negative-soft') : ''}${percent >= 100 ? ' affection-full' : ''}">${parts.join('')}</span>`;
+}
+rowsEl.innerHTML = values.map((value) => {
+  const note = value < 0 ? `<small class="note-bad">${value <= -30 ? '&#x6700;&#x6df1;&#x8ca0;&#x503c;&#xff1a;&#x6df1;&#x7d2b;&#x2192;&#x9ed1;' : '&#x8ca0;&#x503c;&#xff1a;&#x4eae;&#x7d2b;&#x2192;&#x6df1;&#x7d2b;'}</small>` : (value === 100 ? '<small>&#x8df3;&#x52d5;&#x3001;&#x767c;&#x4eae;&#x3001;&#x9583;&#x5149;</small>' : '<small>&#x6162;&#x6162;&#x4e0a;&#x4e0b;&#x6d6e;&#x52d5;</small>');
+  return `<div class="row"><span>${value}</span>${note}${renderNpcAffectionHeart(value)}</div>`;
+}).join('');
+const previewMessages = {
+  '-30': '&#x5bae;&#x5d0e;&#x4e09;&#x9ad8;&#x5c0d;&#x4f60;&#x7684;&#x6575;&#x610f;&#x52a0;&#x6df1;&#x4e86;',
+  '-15': '&#x8ddf;&#x5bae;&#x5d0e;&#x4e09;&#x9ad8;&#x7684;&#x95dc;&#x4fc2;&#x8b8a;&#x5f97;&#x6709;&#x4e9b;&#x7dca;&#x5f35;',
+  15: '&#x8ddf;&#x5bae;&#x5d0e;&#x4e09;&#x9ad8;&#x7684;&#x8ddd;&#x96e2;&#x62c9;&#x8fd1;&#x4e86;&#x4e00;&#x9ede;',
+  45: '&#x8ddf;&#x5bae;&#x5d0e;&#x4e09;&#x9ad8;&#x611f;&#x60c5;&#x8b8a;&#x597d;&#x4e86;',
+  75: '&#x8ddf;&#x5bae;&#x5d0e;&#x4e09;&#x9ad8;&#x8b8a;&#x5f97;&#x66f4;&#x52a0;&#x89aa;&#x8fd1;',
+  100: '&#x8ddf;&#x5bae;&#x5d0e;&#x4e09;&#x9ad8;&#x7de0;&#x7d50;&#x4e86;&#x81f3;&#x6df1;&#x7f88;&#x7d46;'
+};
+document.getElementById('effect-stage').innerHTML = [-30, -15, 15, 45, 75, 100].map((value) => `
+  <div class="preview-effect"><small>${value}</small>${renderNpcAffectionHeart(value)}<span class="preview-label">${previewMessages[value]}</span></div>
+`).join('');
+</script>
+</body>
+</html>

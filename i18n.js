@@ -4,6 +4,16 @@
     const UI_LANGUAGE_STORAGE_KEY = 'sanko_ui_language_v1';
     const SUPPORTED_UI_LANGUAGES = new Set(['zh-TW', 'en', 'ja']);
     const M = {
+'\u8ddf {npc} \u7684\u8ddd\u96e2\u62c9\u8fd1\u4e86\u4e00\u9ede': ['You feel a little closer to {npc}.', '{npc}\u3068\u306e\u8ddd\u96e2\u304c\u5c11\u3057\u7e2e\u307e\u3063\u305f'],
+'{npc} \u5c0d\u4f60\u591a\u4e86\u4e00\u9ede\u597d\u611f': ['{npc} seems to like you a little more.', '{npc}\u306f\u3042\u306a\u305f\u306b\u5c11\u3057\u597d\u610f\u3092\u62b1\u3044\u305f'],
+'\u8ddf {npc} \u611f\u60c5\u8b8a\u597d\u4e86': ['Your bond with {npc} has grown warmer.', '{npc}\u3068\u306e\u4ef2\u304c\u6df1\u307e\u3063\u305f'],
+'{npc} \u958b\u59cb\u66f4\u4fe1\u4efb\u4f60\u4e86': ['{npc} is beginning to trust you more.', '{npc}\u306f\u3042\u306a\u305f\u3092\u3088\u308a\u4fe1\u983c\u3057\u59cb\u3081\u305f'],
+'\u8ddf {npc} \u8b8a\u5f97\u66f4\u52a0\u89aa\u8fd1': ['You have grown much closer with {npc}.', '{npc}\u3068\u3055\u3089\u306b\u89aa\u3057\u304f\u306a\u3063\u305f'],
+'{npc} \u5c0d\u4f60\u62b1\u6709\u6df1\u539a\u60c5\u611f': ['{npc} holds deep feelings for you.', '{npc}\u306f\u3042\u306a\u305f\u306b\u6df1\u3044\u60f3\u3044\u3092\u62b1\u3044\u3066\u3044\u308b'],
+'\u8ddf {npc} \u7de0\u7d50\u4e86\u81f3\u6df1\u7f88\u7d46': ['You have formed a profound bond with {npc}.', '{npc}\u3068\u6df1\u3044\u7d46\u3067\u7d50\u3070\u308c\u305f'],
+'\u8ddf {npc} \u7684\u95dc\u4fc2\u8b8a\u5f97\u6709\u4e9b\u7dca\u5f35': ['Things have grown a little tense with {npc}.', '{npc}\u3068\u306e\u95a2\u4fc2\u304c\u5c11\u3057\u304e\u304f\u3057\u3083\u304f\u3057\u3066\u304d\u305f'],
+'{npc} \u5c0d\u4f60\u7684\u6575\u610f\u52a0\u6df1\u4e86': ["{npc}'s hostility toward you has deepened.", '{npc}\u306e\u3042\u306a\u305f\u3078\u306e\u6575\u610f\u304c\u6df1\u307e\u3063\u305f'],
+
         '角色': ['Character', 'キャラクター'],
         '情境': ['Scenario', 'シナリオ'],
         '新角色': ['New Character', '新キャラクター'],

@@ -1136,10 +1136,14 @@ ${transitionRule}`;
         }
 
         function createSystemAlert(msg) {
-            chatScripts[currentChatPageIndex].push(`【系統提示】：${msg}`);
+            chatScripts[currentChatPageIndex].push(`\u3010\u7cfb\u7d71\u63d0\u793a\u3011\uff1a${msg}`);
             const displayMsg = window.uiSystemMessage ? window.uiSystemMessage(msg) : msg;
-            const msgBox = document.getElementById('dialogue-box'); const alertDiv = document.createElement('div'); alertDiv.className = 'alert-msg'; alertDiv.innerText = displayMsg;
-            msgBox.appendChild(alertDiv); msgBox.scrollTop = msgBox.scrollHeight;
+            const msgBox = document.getElementById('dialogue-box');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert-msg';
+            alertDiv.innerText = displayMsg;
+            msgBox.appendChild(alertDiv);
+            msgBox.scrollTop = msgBox.scrollHeight;
         }
 
 

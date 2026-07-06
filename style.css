@@ -138,7 +138,7 @@ outline: none;
 .home-update-kicker {
 margin: 0 0 6px;
 color: var(--text-sub);
-font-size: 11px;
+font-size: 14px;
 font-weight: 900;
 letter-spacing: 1px;
 text-align: left;
@@ -157,7 +157,7 @@ letter-spacing: 1px;
 margin: 0;
 padding-left: 18px;
 display: grid;
-gap: 8px;
+gap: 10px;
 }
 
 .home-update-drawer li {
@@ -415,7 +415,7 @@ z-index: 10;
         .journal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
         .journal-actions .btn { flex: 0 1 auto; padding: 8px 11px; font-size: 12px; }
         .journal-meta { margin-bottom: 10px; color: var(--text-sub); font-size: 12px; font-weight: 800; }
-        .journal-entry-list { display: grid; gap: 9px; min-width: 0; }
+        .journal-entry-list { display: grid; gap: 9px; min-width: 0; margin-bottom: 0; }
         .journal-empty { padding: 20px 14px; border: 2px dashed #aaa; border-radius: 10px; color: var(--text-sub); text-align: center; font-size: 13px; font-weight: 800; }
  .journal-entry { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto auto; align-items: start; gap: 9px; padding: 11px 12px; border: 2px solid var(--border-dark); border-radius: 9px; background: var(--card-bg); box-shadow: 2px 2px 0 var(--accent-neon); min-width: 0; }
         .journal-entry-index { color: var(--text-sub); font-size: 11px; font-weight: 900; padding-top: 3px; }
@@ -424,9 +424,10 @@ z-index: 10;
  .journal-entry-inline-input:focus { padding: 6px 8px; border: 1px dashed var(--text-sub); border-radius: 6px; background: color-mix(in srgb, var(--card-bg) 76%, white); }
  .journal-entry-delete { width: 24px; height: 24px; padding: 0; border: 0; border-radius: 0; background: transparent; color: #ff3344; font-size: 18px; font-weight: 900; line-height: 1; cursor: pointer; align-self: center; }
  .journal-entry-delete:hover, .journal-entry-delete:focus-visible { color: var(--text-main); background: var(--accent-neon); outline: none; }
-.journal-pagination { display: grid; grid-template-columns: auto minmax(110px, 1fr) auto; align-items: center; gap: 8px; margin: 14px 0; }
+.journal-pagination { display: grid; grid-template-columns: auto minmax(110px, 1fr) auto; align-items: center; gap: 8px; margin: 18px 0 34px; position: static !important; inset: auto !important; top: auto !important; right: auto !important; bottom: auto !important; left: auto !important; z-index: auto !important; transform: none !important; }
 .journal-pagination[hidden] { display: none; }
 .journal-pagination span { text-align: center; color: var(--text-main); font-size: 12px; font-weight: 900; }
+.journal-entry-list > .journal-pagination { width: 100%; box-sizing: border-box; }
         .inline-journal-host:empty { display: none; }
         #status-page-log.journal-inline-open .memory-brief-card { display: none; }
         #journal-screen.journal-screen-embedded {
@@ -505,7 +506,7 @@ z-index: 10;
             .mini-add-btn:hover:not(.active), .mini-add-btn:focus:not(.active) { background: var(--card-bg); box-shadow: none; transform: none; }
         }
 
-        #dialogue-box { background: transparent; padding: 5px; margin: 5px 0; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+        #dialogue-box { background: transparent; padding: 5px; margin: 5px 0; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; position: relative; }
 
         .msg-narrative { background-color: var(--accent-neon); border: 2px solid var(--border-dark); color: var(--text-main); padding: 14px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 1.7; white-space: pre-line; box-shadow: 3px 3px 0px var(--border-dark); animation: fadeIn 0.4s ease-out; margin: 0 10px; }
 
@@ -526,9 +527,17 @@ z-index: 10;
         .creator-instruction { margin: 2px 12px; padding: 6px 10px; border-left: 3px solid var(--accent-neon); color: var(--text-sub); font-size: 12px; font-style: italic; font-weight: 700; line-height: 1.55; white-space: pre-line; }
         .creator-instruction strong { color: var(--text-main); font-style: normal; margin-right: 6px; }
 
-        .alert-msg { background-color: var(--border-dark); color: var(--accent-neon); text-align: center; font-weight: 800; font-size: 13px; padding: 10px 15px; border-radius: 8px; margin: 10px 10px; letter-spacing: 1px; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); animation: fadeIn 0.4s ease-out; font-style: italic;}
+        .alert-msg { background-color: var(--border-dark); color: var(--accent-neon); text-align: center; font-weight: 800; font-size: 13px; padding: 10px 15px; border-radius: 8px; margin: 10px 10px; letter-spacing: 1px; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); animation: fadeIn 0.4s ease-out; font-style: italic; }
+.relationship-heart-effect { --u: 12px; position: fixed; left: 50%; top: 48%; z-index: 80; display: inline-grid; justify-items: center; gap: 10px; width: max-content; max-width: min(520px, 88%); margin: 0; pointer-events: none; transform: translateX(-50%); animation: relationshipHeartEffect 1.8s steps(1, end) forwards; }
+.relationship-heart-effect .npc-affection, .relationship-heart-effect .npc-affection:not(.affection-full) { --u: 12px; animation: relationshipHeartSoftPop 1.8s steps(1, end) forwards; }
+.relationship-heart-effect .npc-affection.affection-full { --u: 12px; animation: relationshipHeartBeat 1.8s steps(1, end) forwards; filter: drop-shadow(0 0 5px var(--heart-spark)); }
+.relationship-heart-effect .npc-affection.negative { --u: 12px; animation: npc-affection-float 1.8s ease-in-out infinite; }
+.relationship-heart-effect-label { display: inline-block; padding: 5px 12px; color: var(--text-main); background: color-mix(in srgb, var(--card-bg) 88%, white); border: 2px solid var(--border-dark); box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-gray) 55%, transparent); font-size: 16px; font-weight: 900; line-height: 1.25; letter-spacing: 1px; white-space: nowrap; }
+@keyframes relationshipHeartEffect { 0% { opacity: 0; transform: translateX(-50%) translateY(12px); } 12%, 72% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
+@keyframes relationshipHeartSoftPop { 0%, 100% { transform: translateY(0) scale(1); } 18% { transform: translateY(calc(-0.35 * var(--u))) scale(1.04); } 34%, 72% { transform: translateY(0) scale(1); } }
+@keyframes relationshipHeartBeat { 0%, 100% { transform: translateY(0); } 14%, 28% { transform: translateY(calc(-1 * var(--u))); } 42% { transform: translateY(0); } 58% { transform: translateY(calc(-0.5 * var(--u))); } 72% { transform: translateY(0); } }
 
-        #options-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding-right: 5px; flex-shrink: 0; }
+#options-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding-right: 5px; flex-shrink: 0; }
         .opt-btn { background: var(--card-bg); border: 2px solid var(--border-dark); color: var(--text-main); padding: 7px 10px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 800; text-align: left; transition: all 0.2s; line-height: 1.4; border-left: 6px solid var(--accent-neon); }
         .opt-btn:hover { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-3px, -3px); }
 
@@ -967,7 +976,7 @@ background: var(--paper-bg);
         }
         .npc-summary-name {
     flex: 0 1 auto;
-    max-width: calc(100% - 34px);
+    max-width: calc(100% - 44px);
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -976,38 +985,7 @@ background: var(--paper-bg);
     font-weight: 900;
     color: var(--text-main);
 }
-        .npc-affection {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 22px;      /* 方塊寬度 */
-            height: 16px;         /* 方塊高度 */
-            padding: 0 5px;       /* 左右內距 */
-            border: 0;
-            border-radius: 4px;   /* 圓角 */
-            color: #fff;
-            font-size: 9px;       /* 數字大小 */
-            font-weight: 900;
-            line-height: 1;
-            font-variant-numeric: tabular-nums;
-            box-shadow: none;
-        }
-        .npc-affection-score {
-            display: inline;
-            margin: 0;
-            padding: 0;
-            border: 0;
-            background: transparent;
-            color: inherit;
-            font-size: inherit;
-            font-weight: inherit;
-            line-height: inherit;
-        }
-        .npc-affection.affection-hostile { background: #3f3f46; }
-        .npc-affection.affection-low { background: #8d4751; }
-        .npc-affection.affection-neutral { background: #9a8d94; }
-        .npc-affection.affection-good { background: #9b59b6; }
-        .npc-affection.affection-high { background: #ff4f5a; }
+        .npc-affection { --u: 3px; --heart-line: color-mix(in srgb, var(--border-dark) 72%, #514477); --heart-line-dark: color-mix(in srgb, var(--border-dark) 84%, #2f2946); --heart-fill: color-mix(in srgb, var(--accent-neon) 30%, #ff5f98); --heart-fill-light: color-mix(in srgb, var(--accent-neon) 18%, #ff8fba); --heart-fill-dark: color-mix(in srgb, var(--accent-neon) 18%, #ec3f80); --heart-empty: #fff; --heart-empty-tint: #fff; --heart-shine: color-mix(in srgb, var(--card-bg) 55%, white); --heart-spark: #ffe96b; --heart-negative-line: #201529; --heart-negative-dark: #08070d; --heart-negative-mid: #3e245f; --heart-negative-light: #6f45a8; --heart-negative-soft: #8c5fd0; position: relative; display: inline-block; width: calc(10 * var(--u)); height: calc(8 * var(--u)); min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: transparent; font-size: 0; line-height: 0; flex: 0 0 auto; overflow: visible; image-rendering: pixelated; } .npc-affection:not(.affection-full) { animation: npc-affection-float 2.8s ease-in-out infinite; } .npc-affection.affection-full { animation: npc-affection-hop 1.35s steps(1, end) infinite; filter: drop-shadow(0 0 0 transparent); } .npc-affection-pixel, .npc-affection-spark { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); width: var(--u); height: var(--u); } .npc-affection-pixel.is-outline { background: var(--heart-line); } .npc-affection-pixel.is-outline-dark { background: var(--heart-line-dark); } .npc-affection-pixel.is-fill { background: var(--heart-fill); } .npc-affection-pixel.is-fill-light { background: var(--heart-fill-light); } .npc-affection-pixel.is-fill-dark { background: var(--heart-fill-dark); } .npc-affection-pixel.is-empty { background: var(--heart-empty); } .npc-affection-pixel.is-empty-tint { background: var(--heart-empty-tint); } .npc-affection-pixel.is-shine { background: var(--heart-shine); } .npc-affection-pixel.is-negative-soft { background: var(--heart-negative-soft); } .npc-affection-pixel.is-negative-light { background: var(--heart-negative-light); } .npc-affection-pixel.is-negative-mid { background: var(--heart-negative-mid); } .npc-affection-pixel.is-negative-dark { background: var(--heart-negative-dark); } .npc-affection.negative { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-mid) 70%, transparent)); } .npc-affection.negative-soft { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-light) 70%, transparent)); } .npc-affection-spark { background: var(--heart-spark); opacity: 0; animation: npc-affection-sparkle 1.35s steps(1, end) infinite; } .npc-affection-spark.is-hot { background: #fff; } .npc-affection-spark.is-s2 { animation-delay: .18s; } .npc-affection-spark.is-s3 { animation-delay: .36s; } @keyframes npc-affection-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-0.5 * var(--u))); } } @keyframes npc-affection-hop { 0%, 58%, 100% { transform: translateY(0); filter: drop-shadow(0 0 0 transparent); } 18%, 28% { transform: translateY(calc(-1 * var(--u))); filter: drop-shadow(0 0 3px var(--heart-spark)); } 38% { transform: translateY(0); filter: drop-shadow(0 0 5px var(--heart-spark)); } } @keyframes npc-affection-sparkle { 0%, 16%, 52%, 100% { opacity: 0; } 24%, 42% { opacity: 1; } }
 
         /* API model usage list */
         .api-model-list {
@@ -2383,10 +2361,12 @@ margin: 0; padding: 0; background: transparent;
     }
 
             .npc-affection {
-                min-width: 20px;
-                height: 15px;
-                padding: 0 4px;
-                font-size: 9px;
+                --u: 3px;
+                width: calc(10 * var(--u));
+                height: calc(8 * var(--u));
+                min-width: 0;
+                padding: 0;
+                font-size: 0;
             }
 
 .random-generator-actions { grid-template-columns: 1fr; }

@@ -888,6 +888,16 @@ renderAdventureJournal();
  const organizeButton = document.getElementById('journal-organize-btn');
  const pagination = pageLabel?.closest('.journal-pagination');
  if (!list || !meta || !pageLabel) return;
+ if (pagination) {
+ pagination.style.position = '';
+ pagination.style.inset = '';
+ pagination.style.top = '';
+ pagination.style.right = '';
+ pagination.style.bottom = '';
+ pagination.style.left = '';
+ pagination.style.zIndex = '';
+ pagination.style.transform = '';
+ }
  const save = savesData[journalSelectedSaveId];
  if (!save) {
  list.innerHTML = `<p class="journal-empty">${escapeStatusHtml(uiText('目前沒有可查看的冒險紀錄。'))}</p>`;
@@ -899,6 +909,7 @@ renderAdventureJournal();
  if (pagination) {
  pagination.hidden = true;
  pagination.style.display = 'none';
+ list.appendChild(pagination);
  }
  return;
  }
@@ -929,6 +940,7 @@ renderAdventureJournal();
  if (nextButton) nextButton.disabled = journalPageIndex >= pageCount - 1;
             if (!visibleEntries.length) {
                 list.innerHTML = `<p class="journal-empty">${escapeStatusHtml(uiText('沒有符合搜尋條件的紀錄。'))}</p>`;
+ if (pagination) list.appendChild(pagination);
                 return;
             }
 list.innerHTML = visibleEntries.map(entry => `
@@ -939,6 +951,7 @@ list.innerHTML = visibleEntries.map(entry => `
 <button class="journal-entry-delete" type="button" aria-label="${escapeStatusHtml(uiText('刪除此筆'))}" title="${escapeStatusHtml(uiText('刪除此筆'))}" onclick="deleteJournalEntryInline(${entry.index})">－</button>
 </article>`).join('');
 list.querySelectorAll('.journal-entry-inline-input').forEach(autoResize);
+if (pagination) list.appendChild(pagination);
 }
 
 function saveJournalEntryInlineEdit(entryIndex, value) {

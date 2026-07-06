@@ -421,6 +421,60 @@ function normalizeMemoryNotes(value) {
         // === 關係里程碑保底旗標（好感滿值 / 好感觸底 / NPC 死亡；程式硬保證，不靠 AI 自覺）===
         const AFFECTION_MAX_MILESTONE = 100;
         const AFFECTION_MIN_MILESTONE = -30;
+        const AFFECTION_INCREASE_THRESHOLDS = [15, 30, 45, 60, 75, 90, 100];
+        const AFFECTION_DECREASE_THRESHOLDS = [-15, -30];
+        const AFFECTION_NOTICE_KEYS = {
+            15: '\u8ddf {npc} \u7684\u8ddd\u96e2\u62c9\u8fd1\u4e86\u4e00\u9ede',
+            30: '{npc} \u5c0d\u4f60\u591a\u4e86\u4e00\u9ede\u597d\u611f',
+            45: '\u8ddf {npc} \u611f\u60c5\u8b8a\u597d\u4e86',
+            60: '{npc} \u958b\u59cb\u66f4\u4fe1\u4efb\u4f60\u4e86',
+            75: '\u8ddf {npc} \u8b8a\u5f97\u66f4\u52a0\u89aa\u8fd1',
+            90: '{npc} \u5c0d\u4f60\u62b1\u6709\u6df1\u539a\u60c5\u611f',
+            100: '\u8ddf {npc} \u7de0\u7d50\u4e86\u81f3\u6df1\u7f88\u7d46',
+            '-15': '\u8ddf {npc} \u7684\u95dc\u4fc2\u8b8a\u5f97\u6709\u4e9b\u7dca\u5f35',
+            '-30': '{npc} \u5c0d\u4f60\u7684\u6575\u610f\u52a0\u6df1\u4e86'
+        };
+
+        function getCrossedAffectionThreshold(previous, next) {
+            if (!Number.isFinite(previous) || !Number.isFinite(next) || next === previous) return null;
+            let crossed = null;
+            if (next > previous) {
+                AFFECTION_INCREASE_THRESHOLDS.forEach(threshold => {
+                    if (previous < threshold && next >= threshold) crossed = threshold;
+                });
+            } else {
+                AFFECTION_DECREASE_THRESHOLDS.forEach(threshold => {
+                    if (previous > threshold && next <= threshold) crossed = threshold;
+                });
+            }
+            return crossed;
+        }
+
+        function getAffectionNoticeText(threshold, npcName) {
+            const key = AFFECTION_NOTICE_KEYS[String(threshold)] || AFFECTION_NOTICE_KEYS[threshold];
+            const name = valueToText(npcName || 'NPC') || 'NPC';
+            if (!key) return name;
+            if (window.uiMessage) return window.uiMessage(key, { npc: name });
+            return key.replaceAll('{npc}', name);
+        }
+
+        function showAffectionThresholdEffect(npcName, affectionValue, threshold) {
+            const msgBox = document.getElementById('dialogue-box');
+            if (!msgBox) return;
+            const effect = document.createElement('div');
+            effect.className = 'relationship-heart-effect';
+            effect.innerHTML = `${renderNpcAffectionHeart(affectionValue)}<span class="relationship-heart-effect-label">${escapeStatusHtml(getAffectionNoticeText(threshold, npcName))}</span>`;
+            msgBox.appendChild(effect);
+            window.setTimeout(() => effect.remove(), 1800);
+        }
+
+        function announceAffectionBreakthrough(npc, previous, next) {
+            const threshold = getCrossedAffectionThreshold(previous, next);
+            if (threshold === null) return false;
+            showAffectionThresholdEffect(npc?.name || 'NPC', next, threshold);
+            return true;
+        }
+
         let pendingRelationshipMilestones = [];
 
         function queueRelationshipMilestone(npcName, kind) {
@@ -476,7 +530,7 @@ function normalizeMemoryNotes(value) {
             npc.affection = next;
             if (previous < AFFECTION_MAX_MILESTONE && next >= AFFECTION_MAX_MILESTONE) queueRelationshipMilestone(npc.name, 'maxAffection');
             if (previous > AFFECTION_MIN_MILESTONE && next <= AFFECTION_MIN_MILESTONE) queueRelationshipMilestone(npc.name, 'minAffection');
-            if (announce) createSystemAlert(`— ${npc.name} 的好感度 ${previous} → ${next} —`);
+            if (announce) announceAffectionBreakthrough(npc, previous, next);
             return { npcId: npc.id || npc.name, npcName: npc.name, previous, next, mode };
         }
 
@@ -613,13 +667,70 @@ function normalizeMemoryNotes(value) {
             return npc;
         }
 
-        function getAffectionToneClass(value) {
-            const score = Number(value ?? 0);
-            if (score < -30) return 'affection-hostile';
-            if (score < 0) return 'affection-low';
-            if (score < 40) return 'affection-neutral';
-            if (score < 80) return 'affection-good';
-            return 'affection-high';
+        const NPC_AFFECTION_HEART_ROWS = [
+            [[2, 3], [6, 7]],
+            [[1, 4], [5, 8]],
+            [[0, 9]],
+            [[0, 9]],
+            [[1, 8]],
+            [[2, 7]],
+            [[3, 6]],
+            [[4, 5]],
+        ];
+
+        function getNpcAffectionHeartCells() {
+            const cells = new Set();
+            NPC_AFFECTION_HEART_ROWS.forEach((ranges, y) => {
+                ranges.forEach(([start, end]) => {
+                    for (let x = start; x <= end; x += 1) cells.add(`${x},${y}`);
+                });
+            });
+            return cells;
+        }
+
+        function renderNpcAffectionHeart(value) {
+            const affection = Number(value ?? 0);
+            const negative = affection < 0;
+            const percent = Math.max(0, Math.min(100, affection));
+            let cutoff = 8;
+            if (percent >= 100) cutoff = 0;
+            else if (percent >= 90) cutoff = 1;
+            else if (percent >= 75) cutoff = 2;
+            else if (percent >= 60) cutoff = 3;
+            else if (percent >= 45) cutoff = 4;
+            else if (percent >= 30) cutoff = 5;
+            else if (percent > 0) cutoff = 6;
+            const cells = getNpcAffectionHeartCells();
+            const hasCell = (x, y) => cells.has(`${x},${y}`);
+            const isOutline = (x, y) => !hasCell(x - 1, y) || !hasCell(x + 1, y) || !hasCell(x, y - 1) || !hasCell(x, y + 1);
+            const pixel = (x, y, className) => `<span class="npc-affection-pixel ${className}" style="--x:${x};--y:${y}"></span>`;
+            const parts = [];
+            for (let y = 0; y < 8; y += 1) {
+                for (let x = 0; x < 10; x += 1) {
+                    if (!hasCell(x, y)) continue;
+                    if (negative) {
+                        const severe = affection <= -30;
+                        if (isOutline(x, y)) parts.push(pixel(x, y, severe ? (y >= 5 ? 'is-negative-dark' : 'is-negative-mid') : (y >= 5 ? 'is-negative-mid' : 'is-negative-light')));
+                        else if (severe) parts.push(pixel(x, y, y <= 2 ? 'is-negative-light' : (y >= 5 ? 'is-negative-dark' : 'is-negative-mid')));
+                        else parts.push(pixel(x, y, y <= 2 ? 'is-negative-soft' : (y >= 5 ? 'is-negative-mid' : 'is-negative-light')));
+                    } else if (isOutline(x, y)) {
+                        parts.push(pixel(x, y, y >= 6 ? 'is-outline is-outline-dark' : 'is-outline'));
+                    } else if (y >= cutoff) {
+                        parts.push(pixel(x, y, y <= 2 ? 'is-fill is-fill-light' : (y >= 5 ? 'is-fill is-fill-dark' : 'is-fill')));
+                    } else {
+                        parts.push(pixel(x, y, 'is-empty'));
+                    }
+                }
+            }
+            if (!negative && percent >= 100) {
+                [[2, 2], [3, 2], [2, 3]].forEach(([x, y]) => {
+                    if (hasCell(x, y) && !isOutline(x, y)) parts.push(pixel(x, y, 'is-shine'));
+                });
+                [[-1, 1, 'is-hot'], [10, 2, 'is-s2'], [1, -1, 'is-s3'], [8, -1, 'is-hot is-s2'], [10, 6, 'is-s3']].forEach(([x, y, className]) => {
+                    parts.push(`<span class="npc-affection-spark ${className}" style="--x:${x};--y:${y}"></span>`);
+                });
+            }
+            return `<span class="npc-affection${negative ? (affection <= -30 ? ' negative' : ' negative negative-soft') : ''}${percent >= 100 ? ' affection-full' : ''}" aria-label="NPC affection ${affection}">${parts.join('')}</span>`;
         }
 
         function renderStatusSummary() {
@@ -630,8 +741,7 @@ function normalizeMemoryNotes(value) {
             const npcRows = npcs.length
                 ? npcs.map(n => {
                     const affection = Number(n.affection ?? 0);
-                    const tone = getAffectionToneClass(affection);
-                    return `<div class="npc-summary-row"><span class="npc-summary-name">${escapeStatusHtml(n.name || 'NPC')}</span><span class="npc-affection ${tone}"><span class="npc-affection-score">${affection}</span></span></div>`;
+                    return `<div class="npc-summary-row"><span class="npc-summary-name">${escapeStatusHtml(n.name || 'NPC')}</span>${renderNpcAffectionHeart(affection)}</div>`;
                 }).join('')
                 : '<p class="status-panel-hint">尚未設定 NPC。</p>';
             target.innerHTML = `

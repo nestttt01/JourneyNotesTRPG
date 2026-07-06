@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Affection Meter Preview</title>
+<style>
+@font-face { font-family: "TRPG Cubic Pixel"; src: url("./fonts/Cubic_11.woff2") format("woff2"); font-display: swap; }
+:root {
+  --bg-main: #eeeeee;
+  --card-bg: #fafafa;
+  --border-dark: #282828;
+  --text-main: #282828;
+  --text-sub: #808080;
+  --accent-neon: #edff66;
+  --accent-gray: #bfb3b8;
+  --heart-line: color-mix(in srgb, var(--border-dark) 70%, #5d4ab0);
+  --heart-empty: color-mix(in srgb, var(--card-bg) 82%, var(--accent-gray));
+  --heart-fill: color-mix(in srgb, var(--accent-neon) 50%, #ff5fa8);
+  --heart-shadow: color-mix(in srgb, var(--accent-gray) 66%, transparent);
+  --heart-shine: color-mix(in srgb, var(--card-bg) 88%, white);
+}
+:root[data-theme="rose"] { --bg-main:#fff4f8; --card-bg:#fff; --border-dark:#44343a; --text-main:#44343a; --text-sub:#846b75; --accent-neon:#ff9caf; --accent-gray:#d5c5ff; }
+:root[data-theme="mint"] { --bg-main:#edf8f3; --card-bg:#fff; --border-dark:#263631; --text-main:#263631; --text-sub:#65746f; --accent-neon:#8ff3c8; --accent-gray:#9bd7ff; }
+:root[data-theme="sky"] { --bg-main:#edf8ff; --card-bg:#fff; --border-dark:#28426f; --text-main:#28426f; --text-sub:#667798; --accent-neon:#91e5ff; --accent-gray:#d5c5ff; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; padding: 24px; color: var(--text-main); background: var(--bg-main); font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif; }
+main { width: min(980px, 100%); margin: 0 auto; display: grid; gap: 18px; }
+header { display: flex; justify-content: space-between; align-items: end; gap: 16px; padding-bottom: 12px; border-bottom: 2px dashed color-mix(in srgb, var(--border-dark) 35%, transparent); }
+h1 { margin: 0; font-family: "TRPG Cubic Pixel", sans-serif; font-size: clamp(24px, 5vw, 42px); font-weight: 400; text-shadow: 3px 3px 0 var(--heart-shadow); }
+p { margin: 8px 0 0; color: var(--text-sub); font-weight: 800; line-height: 1.55; }
+.theme-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+button { border:2px solid var(--border-dark); background:var(--card-bg); color:var(--text-main); padding:7px 12px; font-weight:900; box-shadow:3px 3px 0 var(--heart-shadow); cursor:pointer; }
+.grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; }
+.card { background:var(--card-bg); border:2px solid var(--border-dark); padding:16px; box-shadow:5px 5px 0 var(--heart-shadow); display:grid; gap:14px; }
+h2 { margin:0; font-family:"TRPG Cubic Pixel", sans-serif; font-size:22px; font-weight:400; }
+.npc-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:2px dotted color-mix(in srgb, var(--border-dark) 25%, transparent); }
+.name { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:900; }
+.note { color:var(--text-sub); font-size:12px; font-weight:800; }
+.heart-meter { width:48px; height:36px; image-rendering:pixelated; overflow:visible; flex:0 0 auto; filter: drop-shadow(2px 2px 0 var(--heart-shadow)); }
+.heart-meter.big { width:96px; height:72px; }
+.heart-line { fill: var(--heart-line); }
+.heart-empty { fill: var(--heart-empty); }
+.heart-fill { fill: var(--heart-fill); }
+.heart-shine { fill: var(--heart-shine); opacity:.92; }
+.meter-set { display:inline-flex; gap:5px; align-items:center; }
+.big-demo { display:flex; justify-content:center; flex-wrap:wrap; gap:18px; padding:12px; }
+@media (max-width: 760px) { body{padding:14px;} header{align-items:start; flex-direction:column;} .theme-row{justify-content:flex-start;} .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div><h1>Affection Meter</h1><p>Preview: no numeric value in the row. Exact value can stay in title / edit field.</p></div>
+    <div class="theme-row"><button data-theme="default">Default</button><button data-theme="rose">Rose</button><button data-theme="mint">Mint</button><button data-theme="sky">Sky</button></div>
+  </header>
+  <section class="grid">
+    <article class="card">
+      <h2>A: One heart, vertical</h2>
+      <div class="npc-row"><span class="name">NPC 100</span><span class="heart-meter" data-level="100" data-mode="vertical"></span></div>
+      <div class="npc-row"><span class="name">NPC 75</span><span class="heart-meter" data-level="75" data-mode="vertical"></span></div>
+      <div class="npc-row"><span class="name">NPC 45</span><span class="heart-meter" data-level="45" data-mode="vertical"></span></div>
+      <div class="npc-row"><span class="name">NPC 15</span><span class="heart-meter" data-level="15" data-mode="vertical"></span></div>
+      <div class="note">Compact. Best for NPC summary rows.</div>
+    </article>
+    <article class="card">
+      <h2>B: Three hearts</h2>
+      <div class="npc-row"><span class="name">NPC 100</span><span class="meter-set" data-hearts="100"></span></div>
+      <div class="npc-row"><span class="name">NPC 75</span><span class="meter-set" data-hearts="75"></span></div>
+      <div class="npc-row"><span class="name">NPC 45</span><span class="meter-set" data-hearts="45"></span></div>
+      <div class="npc-row"><span class="name">NPC 15</span><span class="meter-set" data-hearts="15"></span></div>
+      <div class="note">More game-like, but wider.</div>
+    </article>
+    <article class="card">
+      <h2>C: One heart, horizontal</h2>
+      <div class="npc-row"><span class="name">NPC 100</span><span class="heart-meter" data-level="100" data-mode="horizontal"></span></div>
+      <div class="npc-row"><span class="name">NPC 75</span><span class="heart-meter" data-level="75" data-mode="horizontal"></span></div>
+      <div class="npc-row"><span class="name">NPC 45</span><span class="heart-meter" data-level="45" data-mode="horizontal"></span></div>
+      <div class="npc-row"><span class="name">NPC 15</span><span class="heart-meter" data-level="15" data-mode="horizontal"></span></div>
+      <div class="note">Similar to left/right fill references.</div>
+    </article>
+    <article class="card">
+      <h2>D: Large demo</h2>
+      <div class="big-demo">
+        <span class="heart-meter big" data-level="0" data-mode="vertical"></span>
+        <span class="heart-meter big" data-level="35" data-mode="vertical"></span>
+        <span class="heart-meter big" data-level="65" data-mode="vertical"></span>
+        <span class="heart-meter big" data-level="100" data-mode="vertical"></span>
+      </div>
+      <div class="note">Large size is only for panel / tooltip, not rows.</div>
+    </article>
+  </section>
+</main>
+<script>
+const outline = [
+  [3,0],[4,0],[5,0],[10,0],[11,0],[12,0],
+  [2,1],[6,1],[9,1],[13,1],
+  [1,2],[7,2],[8,2],[14,2],
+  [0,3],[15,3],
+  [0,4],[15,4],
+  [1,5],[14,5],
+  [2,6],[13,6],
+  [3,7],[12,7],
+  [4,8],[11,8],
+  [5,9],[10,9],
+  [6,10],[7,10],[8,10],[9,10],
+  [7,11],[8,11]
+];
+const inside = [
+  [3,1],[4,1],[5,1],[10,1],[11,1],[12,1],
+  [2,2],[3,2],[4,2],[5,2],[6,2],[9,2],[10,2],[11,2],[12,2],[13,2],
+  [1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],[12,3],[13,3],[14,3],
+  [1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],[12,4],[13,4],[14,4],
+  [2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5],[12,5],[13,5],
+  [3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],[12,6],
+  [4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],
+  [5,8],[6,8],[7,8],[8,8],[9,8],[10,8],
+  [6,9],[7,9],[8,9],[9,9],
+  [7,10],[8,10]
+];
+const shine = [[3,2],[4,2],[5,2],[2,3]];
+function svgHeart(level = 100, mode = 'vertical', cls = '') {
+  const lv = Math.max(0, Math.min(100, Number(level) || 0));
+  const cell = 3;
+  const maxX = 15;
+  const maxY = 11;
+  const thresholdY = maxY - Math.round((lv / 100) * (maxY + 1)) + 1;
+  const thresholdX = Math.round((lv / 100) * (maxX + 1));
+  const isFilled = ([x, y]) => mode === 'horizontal' ? x < thresholdX : y >= thresholdY;
+  const rects = (coords, className) => coords.map(([x, y]) => `<rect class="${className}" x="${x * cell}" y="${y * cell}" width="${cell}" height="${cell}"/>`).join('');
+  const fillRects = inside.filter(isFilled);
+  return `<svg class="heart-meter ${cls}" viewBox="0 0 48 36" aria-hidden="true">${rects(inside, 'heart-empty')}${rects(fillRects, 'heart-fill')}${rects(outline, 'heart-line')}${rects(shine, 'heart-shine')}</svg>`;
+}
+function renderMeters() {
+  document.querySelectorAll('.heart-meter[data-level]').forEach((el) => {
+    const wrapper = document.createElement('span');
+    wrapper.innerHTML = svgHeart(el.dataset.level, el.dataset.mode, el.classList.contains('big') ? 'big' : '');
+    el.replaceWith(wrapper.firstElementChild);
+  });
+  document.querySelectorAll('[data-hearts]').forEach((set) => {
+    const level = Math.max(0, Math.min(100, Number(set.dataset.hearts) || 0));
+    const per = level / 3;
+    set.innerHTML = [0, 1, 2].map((i) => svgHeart(Math.max(0, Math.min(100, (per - i * 33.333) * 3)), 'vertical')).join('');
+  });
+}
+document.querySelectorAll('[data-theme]').forEach((button) => {
+  button.addEventListener('click', () => {
+    if (button.dataset.theme === 'default') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.dataset.theme = button.dataset.theme;
+  });
+});
+renderMeters();
+</script>
+</body>
+</html>
