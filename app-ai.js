@@ -696,6 +696,7 @@ ${rawAction}
                 if (sanDelta) currentSan = applySurvivalDelta(currentSan, sanDelta);
                 document.getElementById('ui-hp').innerText = currentHp;
                 document.getElementById('ui-san').innerText = currentSan;
+                if (typeof syncSurvivalVisualEffects === 'function') syncSurvivalVisualEffects();
                 
                 const memoryEvent = validMemoryCategories.has(memoryCategory)
                     ? truncatePromptText(memoryPayload?.event, 180)
@@ -804,17 +805,23 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                         if (!option) return;
                         if (!option.text) return;
                         const btn = document.createElement('button');
-                        btn.className = 'opt-btn';
-                        btn.textContent = option.text;
-                        if (option.check && DICE_STATS[option.check]) {
-                            const checkLabel = document.createElement('span');
-                            checkLabel.className = 'opt-check-label';
-                            const checkWord = window.uiMessage ? window.uiMessage('判定') : '判定';
-                            checkLabel.textContent = `${DICE_STATS[option.check].code} ${checkWord}`;
-                            btn.appendChild(checkLabel);
-                        }
-                        btn.onclick = () => selectOption(option.text, option.check, option.difficulty);
-                        optArea.appendChild(btn);
+ btn.className = 'opt-btn';
+ btn.textContent = option.text;
+ btn.dataset.survivalOptionText = option.text;
+ btn.dataset.survivalOptionCheck = option.check || '';
+ btn.dataset.survivalOptionDifficulty = option.difficulty || 'normal';
+ if (option.check && DICE_STATS[option.check]) {
+ const checkLabel = document.createElement('span');
+ checkLabel.className = 'opt-check-label';
+ const checkWord = window.uiMessage ? window.uiMessage('判定') : '判定';
+ checkLabel.textContent = `${DICE_STATS[option.check].code} ${checkWord}`;
+ btn.appendChild(checkLabel);
+ }
+ btn.onclick = () => {
+ if (typeof handleSurvivalOptionClick === 'function') handleSurvivalOptionClick(btn, option.text, option.check, option.difficulty);
+ else selectOption(option.text, option.check, option.difficulty);
+ };
+ optArea.appendChild(btn);
                     });
                 }
                 
