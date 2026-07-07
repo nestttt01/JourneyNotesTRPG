@@ -528,10 +528,10 @@ z-index: 10;
         .creator-instruction strong { color: var(--text-main); font-style: normal; margin-right: 6px; }
 
         .alert-msg { background-color: var(--border-dark); color: var(--accent-neon); text-align: center; font-weight: 800; font-size: 13px; padding: 10px 15px; border-radius: 8px; margin: 10px 10px; letter-spacing: 1px; box-shadow: 3px 3px 0px rgba(0,0,0,0.1); animation: fadeIn 0.4s ease-out; font-style: italic; }
-.relationship-heart-effect { --u: 12px; position: fixed; left: 50%; top: 48%; z-index: 80; display: inline-grid; justify-items: center; gap: 10px; width: max-content; max-width: min(520px, 88%); margin: 0; pointer-events: none; transform: translateX(-50%); animation: relationshipHeartEffect 1.8s steps(1, end) forwards; }
-.relationship-heart-effect .npc-affection, .relationship-heart-effect .npc-affection:not(.affection-full) { --u: 12px; animation: relationshipHeartSoftPop 1.8s steps(1, end) forwards; }
-.relationship-heart-effect .npc-affection.affection-full { --u: 12px; animation: relationshipHeartBeat 1.8s steps(1, end) forwards; filter: drop-shadow(0 0 5px var(--heart-spark)); }
-.relationship-heart-effect .npc-affection.negative { --u: 12px; animation: npc-affection-float 1.8s ease-in-out infinite; }
+.relationship-heart-effect { --u: 12px; position: fixed; left: 50%; top: 48%; z-index: 80; display: inline-grid; justify-items: center; gap: 10px; width: max-content; max-width: min(520px, 88%); margin: 0; pointer-events: none; transform: translateX(-50%); animation: relationshipHeartEffect 3s steps(1, end) forwards; }
+.relationship-heart-effect .npc-affection, .relationship-heart-effect .npc-affection:not(.affection-full) { --u: 12px; animation: relationshipHeartSoftPop 3s steps(1, end) forwards; }
+.relationship-heart-effect .npc-affection.affection-full { --u: 12px; animation: relationshipHeartBeat 3s steps(1, end) forwards; filter: drop-shadow(0 0 5px var(--heart-spark)); }
+.relationship-heart-effect .npc-affection.negative { --u: 12px; animation: npc-affection-float 3s ease-in-out infinite; }
 .relationship-heart-effect-label { display: inline-block; padding: 5px 12px; color: var(--text-main); background: color-mix(in srgb, var(--card-bg) 88%, white); border: 2px solid var(--border-dark); box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-gray) 55%, transparent); font-size: 16px; font-weight: 900; line-height: 1.25; letter-spacing: 1px; white-space: nowrap; }
 @keyframes relationshipHeartEffect { 0% { opacity: 0; transform: translateX(-50%) translateY(12px); } 12%, 72% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
 @keyframes relationshipHeartSoftPop { 0%, 100% { transform: translateY(0) scale(1); } 18% { transform: translateY(calc(-0.35 * var(--u))) scale(1.04); } 34%, 72% { transform: translateY(0) scale(1); } }
@@ -2276,6 +2276,8 @@ margin: 0; padding: 0; background: transparent;
 .btn { padding: 8px 12px; font-size: 13px; }
 #dice-btn { padding: 8px 10px; }
 #options-area { gap: 6px; margin-bottom: 6px; }
+.relationship-heart-effect { top: clamp(120px, 32dvh, 240px); max-width: calc(100vw - 24px); }
+.relationship-heart-effect-label { max-width: calc(100vw - 36px); white-space: normal; text-align: center; font-size: 14px; line-height: 1.35; }
             .opt-btn { padding: 10px 12px; font-size: 13px; }
             .modal-overlay { padding: max(8px, env(safe-area-inset-top)) 6px max(8px, env(safe-area-inset-bottom)); overflow-x: hidden !important; touch-action: pan-y; overscroll-behavior: contain; }
             #status-modal-content > .modal-header-sticky {

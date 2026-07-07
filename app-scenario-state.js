@@ -465,7 +465,7 @@ function normalizeMemoryNotes(value) {
             effect.className = 'relationship-heart-effect';
             effect.innerHTML = `${renderNpcAffectionHeart(affectionValue)}<span class="relationship-heart-effect-label">${escapeStatusHtml(getAffectionNoticeText(threshold, npcName))}</span>`;
             msgBox.appendChild(effect);
-            window.setTimeout(() => effect.remove(), 1800);
+            window.setTimeout(() => effect.remove(), 3000);
         }
 
         function announceAffectionBreakthrough(npc, previous, next) {
