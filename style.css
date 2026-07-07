@@ -3373,47 +3373,49 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
     text-shadow: 0 0 3px color-mix(in srgb, var(--survival-fx-signal-hot) 46%, transparent), 0 0 10px color-mix(in srgb, var(--accent-gray) 34%, transparent), 1px 0 0 color-mix(in srgb, var(--text-main) 32%, transparent);
 }
 .survival-fx-shard {
-    position: absolute;
-    width: min(360px, calc(100vw - 38px));
-    max-width: 360px;
-    min-height: 54px;
-    padding: 9px 12px 10px 15px;
-    border: 2px solid var(--border-dark);
-    border-left: 6px solid var(--accent-neon);
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
-    color: var(--text-main);
-    box-shadow: 5px 6px 0 color-mix(in srgb, var(--border-dark) 12%, transparent);
-    font-size: 13px;
-    font-weight: 800;
-    line-height: 1.45;
-    animation: survivalShard var(--survival-shard-life, 2400ms) steps(1, end) both;
+ position: absolute;
+ width: min(360px, calc(100vw - 38px));
+ max-width: 360px;
+ min-height: 54px;
+ padding: 9px 12px 10px 15px;
+ border: 2px solid color-mix(in srgb, var(--card-bg) 58%, var(--border-dark) 42%);
+ border-left: 6px solid var(--accent-neon);
+ border-radius: 8px;
+ background: color-mix(in srgb, var(--text-main) 88%, var(--card-bg) 12%);
+ color: var(--accent-neon);
+ box-shadow: 5px 6px 0 color-mix(in srgb, var(--border-dark) 18%, transparent), 0 0 16px color-mix(in srgb, var(--text-main) 18%, transparent);
+ font-size: 13px;
+ font-weight: 800;
+ line-height: 1.45;
+ text-shadow: 0 0 7px color-mix(in srgb, var(--accent-neon) 54%, transparent);
+ animation: survivalShard var(--survival-shard-life, 2400ms) steps(1, end) both;
 }
 .survival-fx-shard::before {
-    content: attr(data-kind);
-    display: block;
-    margin-bottom: 3px;
-    color: color-mix(in srgb, var(--text-main) 50%, var(--accent-gray) 50%);
-    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
-    font-size: 11px;
-    font-weight: 400;
+ content: attr(data-kind);
+ display: block;
+ margin-bottom: 3px;
+ color: color-mix(in srgb, var(--card-bg) 70%, var(--accent-gray) 30%);
+ font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+ font-size: 11px;
+ font-weight: 400;
+ text-shadow: none;
 }
 .survival-fx-shard::after {
-    content: "";
-    position: absolute;
-    left: 9px;
-    right: 9px;
-    bottom: 5px;
-    height: 1px;
-    background: linear-gradient(90deg, var(--accent-neon), color-mix(in srgb, var(--text-main) 14%, transparent), transparent 80%);
-    opacity: .72;
+ content: "";
+ position: absolute;
+ left: 9px;
+ right: 9px;
+ bottom: 5px;
+ height: 1px;
+ background: linear-gradient(90deg, var(--accent-neon), color-mix(in srgb, var(--card-bg) 32%, transparent), transparent 80%);
+ opacity: .78;
 }
 .survival-fx-shard.survival-fx-doubt {
-    font-style: italic;
-    background: color-mix(in srgb, var(--card-bg) 86%, var(--accent-neon) 14%);
+ font-style: italic;
+ background: color-mix(in srgb, var(--text-main) 82%, var(--accent-gray) 18%);
 }
 .survival-fx-shard.survival-fx-doubt::before {
-    color: color-mix(in srgb, var(--text-main) 62%, var(--accent-gray) 38%);
+ color: color-mix(in srgb, var(--card-bg) 64%, var(--accent-neon) 36%);
 }
 .survival-corrupting {
     font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;

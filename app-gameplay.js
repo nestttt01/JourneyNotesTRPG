@@ -1361,52 +1361,56 @@ function getSurvivalDoubtFragments() {
     return fragments.filter(item => item.text);
 }
 
-function buildSurvivalDoubtText() {
-    const fragments = getSurvivalDoubtFragments();
-    if (!fragments.length) return '你確定這是正確的選擇嗎？';
-    const picked = fragments[Math.floor(Math.random() * fragments.length)];
-    const text = picked.text;
-    const templatesByType = {
-        log: [
-            `日誌已經寫過「${text}」。你現在要假裝沒發生？`,
-            `如果「${text}」是真的，這個選擇還安全嗎？`,
-            `你剛才不是已經知道「${text}」了嗎？`
-        ],
-        summary: [
-            `摘要裡還留著「${text}」。你要違背它？`,
-            `主線不是正在指向「${text}」嗎？`,
-            `你確定這不是在逃避「${text}」？`
-        ],
-        task: [
-            `任務還沒結束：「${text}」。現在要偏離嗎？`,
-            `你是不是忘了「${text}」？`,
-            `這個選項會讓「${text}」更難完成吧？`
-        ],
-        relationship: [
-            `關係記錄寫著「${text}」。你要拿它冒險？`,
-            `如果「${text}」還算數，你真的要這樣選？`,
-            `這會不會傷到「${text}」？`
-        ],
-        flag: [
-            `Flags 還亮著：「${text}」。你確定？`,
-            `系統沒有忘記「${text}」。你忘了嗎？`,
-            `在「${text}」底下，這個選項可靠嗎？`
-        ],
-        scene: [
-            `現在還在「${text}」。你真的能離開這條線？`,
-            `「${text}」不是偶然被選中的場景。`,
-            `這個選擇和「${text}」對得上嗎？`
-        ],
-        npc: [
-            `「${text}」會怎麼看這個選擇？`,
-            `你要讓「${text}」承受後果嗎？`,
-            `如果「${text}」知道了呢？`
-        ]
-    };
-    const templates = templatesByType[picked.type] || [`你確定要無視「${text}」？`];
-    return templates[Math.floor(Math.random() * templates.length)];
+function survivalFxUiMessage(zh, params = {}) {
+    if (typeof uiMessage === 'function') return uiMessage(zh, params);
+    return Object.entries(params).reduce((value, [key, replacement]) => value.replaceAll(`{${key}}`, replacement), zh);
 }
 
+function buildSurvivalDoubtText() {
+    const fragments = getSurvivalDoubtFragments();
+    if (!fragments.length) return survivalFxUiMessage('你確定這是正確的選擇嗎？');
+    const picked = fragments[Math.floor(Math.random() * fragments.length)];
+    const templatesByType = {
+        log: [
+            '日誌已經寫過「{text}」。你現在要假裝沒發生？',
+            '如果「{text}」是真的，這個選擇還安全嗎？',
+            '你剛才不是已經知道「{text}」了嗎？'
+        ],
+        summary: [
+            '摘要裡還留著「{text}」。你要違背它？',
+            '主線不是正在指向「{text}」嗎？',
+            '你確定這不是在逃避「{text}」？'
+        ],
+        task: [
+            '任務還沒結束：「{text}」。現在要偏離嗎？',
+            '你是不是忘了「{text}」？',
+            '這個選項會讓「{text}」更難完成吧？'
+        ],
+        relationship: [
+            '關係記錄寫著「{text}」。你要拿它冒險？',
+            '如果「{text}」還算數，你真的要這樣選？',
+            '這會不會傷到「{text}」？'
+        ],
+        flag: [
+            'Flags 還亮著：「{text}」。你確定？',
+            '系統沒有忘記「{text}」。你忘了嗎？',
+            '在「{text}」底下，這個選項可靠嗎？'
+        ],
+        scene: [
+            '現在還在「{text}」。你真的能離開這條線？',
+            '「{text}」不是偶然被選中的場景。',
+            '這個選擇和「{text}」對得上嗎？'
+        ],
+        npc: [
+            '「{text}」會怎麼看這個選擇？',
+            '你要讓「{text}」承受後果嗎？',
+            '如果「{text}」知道了呢？'
+        ]
+    };
+    const templates = templatesByType[picked.type] || templatesByType.log;
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    return survivalFxUiMessage(template, { text: picked.text });
+}
 function createSurvivalShard() {
     const state = getSurvivalFxState();
     if (!state.active) return;
@@ -1415,7 +1419,7 @@ function createSurvivalShard() {
     wrap.querySelectorAll('.survival-fx-shard').forEach(node => node.remove());
     const el = document.createElement('div');
     el.className = 'survival-fx-shard survival-fx-doubt';
-    el.dataset.kind = state.sanSeverity >= state.hpSeverity ? 'SAN 質疑' : 'HP 警訊';
+    el.dataset.kind = survivalFxUiMessage(state.sanSeverity >= state.hpSeverity ? 'SAN 質疑' : 'HP 警訊');
     el.textContent = buildSurvivalDoubtText();
     const width = Math.min(390, Math.max(260, window.innerWidth * 0.30));
     const edge = Math.random() < 0.5 ? 'left' : 'right';
