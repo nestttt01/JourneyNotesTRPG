@@ -9,3 +9,5 @@ _cleanup_bak/
 
 # 內部筆記／教學文件（不上傳到公開 repo）
 *.md
+
+_handoff/
