@@ -4,6 +4,20 @@
     const UI_LANGUAGE_STORAGE_KEY = 'sanko_ui_language_v1';
     const SUPPORTED_UI_LANGUAGES = new Set(['zh-TW', 'en', 'ja']);
     const M = {
+'好難過': ['It hurts so much', 'つらい'],
+'好痛': ['It hurts', '痛い'],
+'好痛苦': ['So much pain', '苦しい'],
+'不要忘記': ['Do not forget', '忘れないで'],
+'你記得嗎': ['Do you remember', '覚えてる？'],
+'不要丟下它': ['Do not leave it behind', '置いていかないで'],
+'回不去了': ['No way back', 'もう戻れない'],
+'不是假的': ['It is not fake', '嘘じゃない'],
+'還在這裡': ['Still here', 'まだここにいる'],
+'別裝作沒看見': ['Do not pretend you did not see', '見なかったふりをしないで'],
+'低狀態干擾': ['Low HP/SAN effects', '低HP/SAN演出'],
+'完整效果': ['Full', 'フル'],
+'減弱效果': ['Reduced', '控えめ'],
+'關閉效果': ['Off', 'オフ'],
 '冒險日誌裡空白的地方': ['the blank space in the adventure log', '冒険日誌の空白'],
 '你剛剛選過的路': ['the path you just chose', 'さっき選んだ道'],
 '那些還沒說出口的承諾': ['the promises you never said aloud', 'まだ口にしていない約束'],

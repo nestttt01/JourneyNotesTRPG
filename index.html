@@ -120,6 +120,14 @@
                         <div class="scenario-label">成人模式</div>
                         <button type="button" id="mature-mode-toggle" class="mature-toggle" aria-pressed="false" onclick="toggleMatureMode()">OFF</button>
                     </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">低狀態干擾</div>
+                        <select id="survival-fx-select" class="language-mode-select" onchange="setSurvivalFxPref(this.value)">
+                            <option value="full">完整效果</option>
+                            <option value="reduced">減弱效果</option>
+                            <option value="off">關閉效果</option>
+                        </select>
+                    </div>
                     </div>
                 </div>
 

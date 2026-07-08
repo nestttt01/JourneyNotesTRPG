@@ -225,6 +225,25 @@ event.returnValue = '';
             btn.classList.toggle('on', on);
             btn.setAttribute('aria-pressed', String(on));
         }
+        function getSurvivalFxPref() {
+            const v = localStorage.getItem('sanko_survival_fx');
+            return (v === 'reduced' || v === 'off') ? v : 'full';
+        }
+        function setSurvivalFxPref(value) {
+            const v = (value === 'reduced' || value === 'off') ? value : 'full';
+            localStorage.setItem('sanko_survival_fx', v);
+            if (typeof syncSurvivalVisualEffects === 'function') syncSurvivalVisualEffects();
+        }
+        function prefersReducedMotionPref() {
+            try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+            catch (e) { return false; }
+        }
+        function getEffectiveSurvivalFxMode() {
+            const pref = getSurvivalFxPref();
+            if (pref === 'off') return 'off';
+            if (prefersReducedMotionPref()) return 'reduced';
+            return pref;
+        }
         function getReplyLengthCapTokens(bilingual) {
             const caps = { short: 2500, medium: 4500, long: 9000 };
             let cap = caps[getReplyLengthPref()] || 4500;

@@ -373,7 +373,7 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             const oldRaw = wrapperEl.dataset.rawLine || '';
             const originalH = textEl.offsetHeight;
             const ta = document.createElement('textarea');
-            ta.className = 'msg-edit-area'; ta.value = (typeof textEl.innerText === 'string') ? textEl.innerText : textEl.textContent;
+            ta.className = 'msg-edit-area'; ta.value = (textEl.dataset && textEl.dataset.survivalOriginal) ? textEl.dataset.survivalOriginal : ((typeof textEl.innerText === 'string') ? textEl.innerText : textEl.textContent);
             ta.style.minHeight = Math.min(Math.max(140, originalH + 24), Math.round(window.innerHeight * 0.7)) + 'px';
             const bar = document.createElement('div'); bar.className = 'msg-edit-bar';
         const saveBtn = document.createElement('button'); saveBtn.className = 'msg-edit-save'; saveBtn.textContent = (typeof uiText === 'function') ? uiText('儲存') : '儲存';
@@ -1166,6 +1166,7 @@ let survivalFxAmbientTimer = null;
 let survivalFxLastShardAt = 0;
 let survivalFxLastBackTextAt = 0;
 let survivalFxLastSignalAt = 0;
+let survivalFxHiddenCooldown = 0;
 let survivalFxLastTextCorruptAt = 0;
 let survivalFxActiveOption = null;
 let survivalFxOptionState = new WeakMap();
@@ -1174,10 +1175,11 @@ let survivalFxPointer = { x: 0, y: 0, active: false };
 let survivalFxSeenInitialSignal = false;
 
 function getSurvivalFxState() {
+    const mode = (typeof getEffectiveSurvivalFxMode === 'function') ? getEffectiveSurvivalFxMode() : 'full';
     const hp = normalizeSurvivalValue(currentHp, 100);
     const san = normalizeSurvivalValue(currentSan, 100);
-    const hpSeverity = hp <= 20 ? Math.max(0, Math.min(1, (22 - hp) / 22)) : 0;
-    const sanSeverity = san <= 20 ? Math.max(0, Math.min(1, (22 - san) / 22)) : 0;
+    const hpSeverity = (mode !== 'off' && hp <= 20) ? Math.max(0, Math.min(1, (22 - hp) / 22)) : 0;
+    const sanSeverity = (mode !== 'off' && san <= 20) ? Math.max(0, Math.min(1, (22 - san) / 22)) : 0;
     const severity = Math.max(hpSeverity, sanSeverity);
     return {
         hp,
@@ -1186,12 +1188,30 @@ function getSurvivalFxState() {
         sanSeverity,
         severity,
         active: severity > 0,
-        zero: hp <= 0 || san <= 0
+        zero: hp <= 0 || san <= 0,
+        mode,
+        reduced: mode === 'reduced'
     };
 }
 
 function getSurvivalFxFrequencyProfile(state = getSurvivalFxState()) {
- const sanTier = state.san <= 10 ? 2 : (state.san <= 20 ? 1 : 0);
+ const sanTier = state.san <= 5 ? 3 : (state.san <= 10 ? 2 : (state.san <= 20 ? 1 : 0));
+ if (sanTier >= 3) {
+  return {
+   sanTier,
+   tickMin: 380,
+   tickJitter: 320,
+   backTextGap: 3000,
+   backTextChance: 0.42,
+   shardGap: 5600,
+   shardChance: 0.32,
+   corruptGap: 1100,
+   corruptChance: 0.85,
+   corruptFrames: 10,
+   corruptAmount: 0.55,
+   corruptStepMs: 52
+  };
+ }
  if (sanTier >= 2) {
   return {
    sanTier,
@@ -1341,7 +1361,7 @@ function getSurvivalSignalTexts() {
 
 function createSurvivalSignal() {
     const state = getSurvivalFxState();
-    if (!state.active) return;
+    if (!state.active || state.reduced) return;
     const wrap = document.getElementById('survival-fx-signals');
     if (!wrap) return;
     wrap.querySelectorAll('.survival-fx-signal').forEach(node => node.remove());
@@ -1497,7 +1517,7 @@ function buildSurvivalBackTextContent() {
         '不是假的',
         '還在這裡',
         '別裝作沒看見'
-    ];
+    ].map(word => survivalFxUiMessage(word));
     const usePainWord = !fragments.length || Math.random() < 0.42;
     const picked = usePainWord ? painWords[Math.floor(Math.random() * painWords.length)] : fragments[Math.floor(Math.random() * fragments.length)].text;
     const base = survivalFxCleanText(picked, Math.random() < 0.62 ? 8 : 18);
@@ -1566,7 +1586,7 @@ function animateSurvivalBackText(el, content, life) {
 
 function createSurvivalBackText() {
     const state = getSurvivalFxState();
-    if (!state.active) return;
+    if (!state.active || state.reduced) return;
     const wrap = document.getElementById('survival-fx-backtexts');
     if (!wrap) return;
     while (wrap.children.length > 2) wrap.firstElementChild.remove();
@@ -1588,7 +1608,7 @@ function createSurvivalBackText() {
 }
 function createSurvivalShard() {
  const state = getSurvivalFxState();
- if (!state.active) return;
+ if (!state.active || state.reduced) return;
  const wrap = document.getElementById('survival-fx-shards');
  if (!wrap) return;
  wrap.querySelectorAll('.survival-fx-shard').forEach(node => node.remove());
@@ -1625,7 +1645,7 @@ function getSurvivalCorruptTargets() {
  const narrativeTargets = Array.from(document.querySelectorAll('#dialogue-box .msg-narrative'));
  const systemTargets = Array.from(document.querySelectorAll('#dialogue-box .system-msg'));
  return bubbleTargets.concat(narrativeTargets, systemTargets)
-  .filter(el => el && el.textContent && el.textContent.trim().length >= 4 && !el.dataset.survivalOriginal);
+  .filter(el => el && el.textContent && el.textContent.trim().length >= 4 && !el.dataset.survivalOriginal && el.style.display !== 'none' && !(el.parentNode && el.parentNode.querySelector && el.parentNode.querySelector('.msg-edit-area')));
 }
 
 function corruptSurvivalTextOnce(profile = null) {
@@ -1728,7 +1748,7 @@ function getSurvivalOptionState(btn) {
 
 function nudgeSurvivalOption(btn, strong = false) {
     const fx = getSurvivalFxState();
-    if (fx.sanSeverity <= 0 || !btn) return;
+    if (fx.sanSeverity <= 0 || fx.reduced || !btn) return;
     if (survivalFxActiveOption && survivalFxActiveOption !== btn) resetSurvivalOption(survivalFxActiveOption);
     survivalFxActiveOption = btn;
     const state = getSurvivalOptionState(btn);
@@ -1785,20 +1805,24 @@ function getSurvivalHiddenOption(btn) {
 
 function getSurvivalOptionMutation(btn, originalText, originalCheck = '', originalDifficulty = 'normal') {
  const state = getSurvivalFxState();
- if (state.sanSeverity <= 0 || !btn) return null;
- const chance = 0.18 + state.sanSeverity * 0.46;
- if (Math.random() > chance) return null;
+ if (state.sanSeverity <= 0 || state.reduced || !btn) return null;
  const original = valueToText(originalText).trim();
+ const wasOnHiddenCooldown = survivalFxHiddenCooldown > 0;
+ if (survivalFxHiddenCooldown > 0) survivalFxHiddenCooldown -= 1;
  const hidden = getSurvivalHiddenOption(btn);
- if (hidden && hidden.text !== original) {
+ const hiddenChance = 0.06 + state.sanSeverity * 0.14;
+ if (hidden && hidden.text !== original && !wasOnHiddenCooldown && Math.random() < hiddenChance) {
+ survivalFxHiddenCooldown = 2;
  return {
  text: hidden.text,
  check: hidden.check || originalCheck || 'wis',
- difficulty: hidden.difficulty || 'hard',
- forceDice: true,
+ difficulty: 'normal',
+ forceDice: false,
  original
  };
  }
+ const chance = Math.min(0.35, 0.18 + state.sanSeverity * 0.46);
+ if (Math.random() > chance) return null;
  const candidates = Array.from(document.querySelectorAll('#options-area .opt-btn'))
  .filter(other => other !== btn)
  .map(other => ({
