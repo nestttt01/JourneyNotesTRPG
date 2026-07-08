@@ -358,6 +358,20 @@ z-index: 10;
         .flag-tag span { cursor: pointer; margin-left: 10px; color: #ff4444; font-size: 14px; line-height: 1; }
 
         .item-tag { height: 28px; box-sizing: border-box; display: inline-flex; align-items: center; background: var(--card-bg); border: 2px solid var(--border-dark); color: var(--text-main); padding: 0 8px 0 12px; border-radius: 6px; font-size: 13px; font-weight: 800; box-shadow: 2px 2px 0px var(--accent-neon); white-space: nowrap;}
+        .item-use-btn { margin-left: 8px; padding: 1px 8px; border: 2px solid var(--border-dark); border-radius: 5px; background: var(--accent-neon); color: var(--border-dark); font-size: 11px; font-weight: 900; line-height: 16px; cursor: pointer; white-space: nowrap; }
+        .item-use-btn:hover, .item-use-btn:focus-visible { outline: none; transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--border-dark); }
+        .growth-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 2px 0 6px; flex-wrap: wrap; }
+        .growth-rank { font-size: 14px; font-weight: 900; color: var(--accent-neon); background: var(--border-dark); padding: 3px 10px; border-radius: 6px; }
+        .growth-points { font-size: 13px; font-weight: 900; color: var(--text-main); }
+        .growth-sub { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; }
+        .growth-stat-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+        .growth-stat-btn { padding: 4px 9px; border: 2px solid var(--border-dark); border-radius: 6px; background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 900; cursor: pointer; }
+        .growth-stat-btn:not(:disabled):hover { background: var(--accent-neon); transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--border-dark); }
+        .growth-stat-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .growth-prof-row { display: flex; gap: 8px; }
+        .growth-prof-row input { flex: 1; min-width: 0; padding: 6px 10px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--text-main); font-size: 13px; }
+        .growth-prof-btn { padding: 6px 12px; font-size: 12px; }
+        .growth-prof-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .item-remove-btn { width: 16px; height: 16px; margin-left: 7px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #ff4444; font-size: 13px; font-weight: 900; line-height: 16px; text-align: center; cursor: pointer; }
         .item-remove-btn:hover, .item-remove-btn:focus-visible { background: #ff4444; color: #fff; outline: none; }
 
@@ -499,6 +513,8 @@ z-index: 10;
         .creator-mode-btn.active { background: var(--accent-neon); color: var(--border-dark); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
         .creator-mode-btn:not(.active) { background: var(--card-bg) !important; box-shadow: none !important; transform: none !important; }
         .creator-mode-btn:disabled { opacity: 0.45; box-shadow: none; transform: none; cursor: not-allowed; }
+        /* 喘息鈕與『神』鈕(.creator-mode-btn)採同一盒模型，讓上下高度一致。 */
+        #rest-btn { width: auto; height: auto; display: inline-grid; place-items: center; }
         @media (hover: hover) and (pointer: fine) {
             .mini-add-btn:hover { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
         }
@@ -2910,6 +2926,12 @@ background: var(--border-dark);
 background-color: var(--border-dark);
 background: var(--bg-dark-tab-glass);
 background-color: var(--bg-dark-tab-glass);
+box-shadow: -5px 5px 0 var(--bg-tab-shadow);
+}
+
+/* 選中(active)標籤在背景圖模式也要保持透明陰影。#setup-screen .setup-side-tab.active 帶 id 特異性較高、會壓過上面的一般 bg 規則，這裡用同等 bg-mode 特異性覆蓋回透明；純色模式不含 data-bg-mode，維持原本實色。 */
+:root[data-bg-mode="image"] #setup-screen .setup-side-tab.active,
+:root[data-bg-mode="image"] .desktop-config-tab.active {
 box-shadow: -5px 5px 0 var(--bg-tab-shadow);
 }
 

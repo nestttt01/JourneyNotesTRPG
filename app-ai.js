@@ -754,6 +754,7 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                         const idx = currentItems.findIndex(invItem => invItem.includes(itemText) || itemText.includes(invItem)); 
                         if(idx > -1) { 
                             const removedName = currentItems[idx];
+                            if (itemEffects) delete itemEffects[removedName];
                             currentItems.splice(idx, 1); 
                             createSystemAlert(`失去道具 [ ${removedName} ]`);
                             itemJournalEvents.push(`失去 ${removedName}`); 
@@ -761,6 +762,38 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                     }); 
                 }
                 
+                const itemEffectPayload = (changes && typeof changes.item_effects === 'object' && changes.item_effects && !Array.isArray(changes.item_effects)) ? changes.item_effects : null;
+                if(playerEffectsAllowed && itemEffectPayload) {
+                    Object.keys(itemEffectPayload).forEach(rawName => {
+                        const itemName = valueToText(rawName);
+                        if (!itemName || !currentItems.includes(itemName)) return;
+                        const eff = (typeof sanitizeItemEffect === 'function') ? sanitizeItemEffect(itemEffectPayload[rawName]) : null;
+                        if (eff) {
+                            itemEffects[itemName] = eff;
+                            createSystemAlert(`可使用道具 [ ${itemName} ]：${(typeof itemEffectLabel === 'function') ? itemEffectLabel(eff) : ''}`);
+                        }
+                    });
+                }
+
+                const achievementText = (changes && changes.achievement != null) ? valueToText(changes.achievement).trim() : '';
+                if (playerEffectsAllowed && achievementText) {
+                    achievementCount += 1;
+                    currentAdventureLog = mergeAdventureLog(currentAdventureLog, `成就：${achievementText}`);
+                    createSystemAlert(survivalFxUiMessage('— 成就達成：{text}（+1 成長點）—', { text: achievementText }));
+                }
+
+                const objectiveDone = changes && (changes.objective_complete === true || changes.objective_complete === 'true');
+                if (playerEffectsAllowed && objectiveDone) {
+                    const objScene = (currentScenario && Array.isArray(currentScenario.scenarios)) ? currentScenario.scenarios[currentScenarioIndex] : null;
+                    const objText = objScene ? valueToText(objScene.objective).trim() : '';
+                    if (objText && Array.isArray(completedObjectives) && !completedObjectives.includes(objText)) {
+                        completedObjectives.push(objText);
+                        achievementCount += 1;
+                        currentAdventureLog = mergeAdventureLog(currentAdventureLog, `達成目標：${objText}`);
+                        createSystemAlert(survivalFxUiMessage('— 本場目標達成：{text}（章節收束 · +1 成長點）—', { text: objText }));
+                    }
+                }
+
                 const addedFlags = Array.isArray(changes.flags_add) ? changes.flags_add : parsedData.new_flags;
                 if(Array.isArray(addedFlags) && addedFlags.length > 0) { 
                     let flagLimitReached = false;
@@ -812,10 +845,11 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                     }
                 }
 
-                resolveSurvivalOutcome();
+                const survivalOutcome = resolveSurvivalOutcome();
+                if (typeof clearRestCooldown === 'function') clearRestCooldown();
 
                 const hiddenSanOption = normalizeHiddenSanOption(parsedData.hidden_san_option || parsedData.hiddenSanOption || parsedData.san_option || parsedData.sanOption);
- if(!getCurrentGameOver() && parsedData.options && Array.isArray(parsedData.options)) {
+ if(!getCurrentGameOver() && !(survivalOutcome && survivalOutcome.lastStand) && parsedData.options && Array.isArray(parsedData.options)) {
                     const optArea = document.getElementById('options-area');
                     parsedData.options.forEach(opt => {
                         const option = enforceResurrectionOptionRules(normalizeOptionEntry(opt));

@@ -287,6 +287,10 @@ event.returnValue = '';
         let currentHp = 100;
         let currentSan = 100;
         let currentItems = [];
+        let itemEffects = {};
+        let achievementCount = 0;
+        let growthSpent = 0;
+        let completedObjectives = [];
         
         let currentScenarioIndex = 0; 
         let chatScripts = [[]]; 

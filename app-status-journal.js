@@ -140,7 +140,7 @@ function openStatusModal() {
 
             document.getElementById('ui-stats-display').innerHTML = statsHtml;
             
-            renderStatusSummary(); renderFlags(); renderItems(); renderApiUsageStats();
+            renderStatusSummary(); renderFlags(); renderItems(); renderGrowth(); renderApiUsageStats();
             setStatusPanelOpen(true);
             updateStatusSaveButtonLabel();
             switchStatusTab(activeStatusTab);
@@ -329,7 +329,9 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
 
         function removeItem(index) {
             if (!Number.isInteger(index) || index < 0 || index >= currentItems.length) return;
+            const removedName = currentItems[index];
             currentItems.splice(index, 1);
+            if (itemEffects) delete itemEffects[removedName];
             renderItems();
             saveCurrentProgress();
         }
@@ -343,6 +345,19 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
 
                 const label = document.createElement('span');
                 label.innerText = item;
+                tag.append(label);
+
+                const eff = (typeof itemEffects === 'object' && itemEffects) ? itemEffects[item] : null;
+                if (eff && typeof useItem === 'function') {
+                    tag.classList.add('item-tag-usable');
+                    const useButton = document.createElement('button');
+                    useButton.type = 'button';
+                    useButton.className = 'item-use-btn';
+                    useButton.innerText = (typeof uiText === 'function') ? uiText('使用') : '使用';
+                    useButton.title = (typeof itemEffectLabel === 'function') ? itemEffectLabel(eff) : '';
+                    useButton.onclick = () => useItem(index);
+                    tag.append(useButton);
+                }
 
                 const removeButton = document.createElement('button');
                 removeButton.type = 'button';
@@ -352,9 +367,71 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
                 removeButton.setAttribute('aria-label', `刪除道具：${item}`);
                 removeButton.onclick = () => removeItem(index);
 
-                tag.append(label, removeButton);
+                tag.append(removeButton);
                 container.appendChild(tag);
             });
+        }
+
+        function getPlayerRankTitle(count) {
+            const c = Number(count) || 0;
+            const t = (typeof uiText === 'function') ? uiText : (x => x);
+            if (c >= 20) return t('傳奇');
+            if (c >= 15) return t('卓越');
+            if (c >= 10) return t('資深');
+            if (c >= 6) return t('老練');
+            if (c >= 3) return t('略有歷練');
+            if (c >= 1) return t('初露鋒芒');
+            return t('初心');
+        }
+        function renderGrowth() {
+            const container = document.getElementById('ui-growth-container');
+            if (!container) return;
+            const t = (typeof uiText === 'function') ? uiText : (x => x);
+            const available = Math.max(0, (achievementCount || 0) - (growthSpent || 0));
+            const rank = getPlayerRankTitle(achievementCount || 0);
+            const stats = (currentScenario && currentScenario.playerStats) ? currentScenario.playerStats : {};
+            const statOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+            const disabled = available <= 0;
+            let html = '';
+            html += `<div class="growth-head"><span class="growth-rank">${escapeStatusHtml(rank)}</span><span class="growth-points">${escapeStatusHtml(t('可用成長點'))}：${available}</span></div>`;
+            html += `<div class="growth-sub">${escapeStatusHtml(t('累積成就'))}：${achievementCount || 0}</div>`;
+            html += `<div class="growth-stat-row">`;
+            statOrder.forEach(k => {
+                const info = (typeof DICE_STATS === 'object' && DICE_STATS[k]) ? DICE_STATS[k] : { code: k.toUpperCase() };
+                const val = Number(stats[k] != null ? stats[k] : 10);
+                const capped = val >= 20;
+                html += `<button type="button" class="growth-stat-btn" ${disabled || capped ? 'disabled' : ''} onclick="spendGrowthOnStat('${k}')" title="${escapeStatusHtml(t('花 1 點提升此屬性'))}">${info.code} ${val}${capped ? '' : ' +'}</button>`;
+            });
+            html += `</div>`;
+            html += `<div class="growth-prof-row"><input type="text" id="growth-prof-input" maxlength="16" placeholder="${escapeStatusHtml(t('新擅長領域（最多16字）'))}"><button type="button" class="btn growth-prof-btn" ${disabled ? 'disabled' : ''} onclick="spendGrowthOnProficiency()">${escapeStatusHtml(t('新增熟練'))}</button></div>`;
+            container.innerHTML = html;
+        }
+        function spendGrowthOnStat(stat) {
+            const available = Math.max(0, (achievementCount || 0) - (growthSpent || 0));
+            if (available <= 0) return;
+            if (!currentScenario || !currentScenario.playerStats || typeof DICE_STATS !== 'object' || !DICE_STATS[stat]) return;
+            const val = Number(currentScenario.playerStats[stat] != null ? currentScenario.playerStats[stat] : 10);
+            if (val >= 20) return;
+            currentScenario.playerStats[stat] = val + 1;
+            growthSpent = (growthSpent || 0) + 1;
+            renderGrowth();
+            if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
+            if (typeof createSystemAlert === 'function') createSystemAlert(survivalFxUiMessage('— {stat} +1（成長點 -1）—', { stat: DICE_STATS[stat].code }));
+        }
+        function spendGrowthOnProficiency() {
+            const available = Math.max(0, (achievementCount || 0) - (growthSpent || 0));
+            if (available <= 0) return;
+            const input = document.getElementById('growth-prof-input');
+            const text = input ? valueToText(input.value).trim().slice(0, 16) : '';
+            if (!text || !currentScenario) return;
+            if (!Array.isArray(currentScenario.playerProficiencies)) currentScenario.playerProficiencies = [];
+            if (currentScenario.playerProficiencies.includes(text)) return;
+            currentScenario.playerProficiencies.push(text);
+            growthSpent = (growthSpent || 0) + 1;
+            if (input) input.value = '';
+            renderGrowth();
+            if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
+            if (typeof createSystemAlert === 'function') createSystemAlert(survivalFxUiMessage('— 新增擅長領域：{text}（成長點 -1）—', { text }));
         }
 
         function refreshOpenStatusPanel() {

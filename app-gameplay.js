@@ -507,6 +507,16 @@ if(saveData.scenario) {
             currentHp = normalizeSurvivalValue(saveData.hp, 100);
             currentSan = normalizeSurvivalValue(saveData.san, 100);
             currentItems = Array.isArray(saveData.items) ? saveData.items.map(item => valueToText(item)).filter(Boolean) : [];
+            itemEffects = {};
+            if (saveData.itemEffects && typeof saveData.itemEffects === 'object' && !Array.isArray(saveData.itemEffects)) {
+                Object.keys(saveData.itemEffects).forEach(k => {
+                    const eff = sanitizeItemEffect(saveData.itemEffects[k]);
+                    if (eff && currentItems.includes(k)) itemEffects[k] = eff;
+                });
+            }
+            achievementCount = Math.max(0, Math.floor(Number(saveData.achievementCount)) || 0);
+            growthSpent = Math.max(0, Math.min(achievementCount, Math.floor(Number(saveData.growthSpent)) || 0));
+            completedObjectives = Array.isArray(saveData.completedObjectives) ? saveData.completedObjectives.map(v => valueToText(v)).filter(Boolean) : [];
             currentAdventureLog = formatBulletListText(saveData.log, "• 故事剛開始，目前尚無重大事件發生。");
             const memoryBrief = saveData.memoryBrief && typeof saveData.memoryBrief === 'object' ? saveData.memoryBrief : {};
             currentStorySummary = formatBulletListText(memoryBrief.story, '', true);
@@ -1810,7 +1820,7 @@ function getSurvivalOptionMutation(btn, originalText, originalCheck = '', origin
  const wasOnHiddenCooldown = survivalFxHiddenCooldown > 0;
  if (survivalFxHiddenCooldown > 0) survivalFxHiddenCooldown -= 1;
  const hidden = getSurvivalHiddenOption(btn);
- const hiddenChance = 0.06 + state.sanSeverity * 0.14;
+ const hiddenChance = 0.13 + state.sanSeverity * 0.28;
  if (hidden && hidden.text !== original && !wasOnHiddenCooldown && Math.random() < hiddenChance) {
  survivalFxHiddenCooldown = 2;
  return {
@@ -1981,15 +1991,35 @@ function getRequiredSurvivalFlags() {
             return true;
         }
 
+        let survivalGraceTurns = 0;
+        let pendingLastStand = false;
+        let restJustUsed = false;
         function resolveSurvivalOutcome(forcedRoll = null) {
             if (getCurrentGameOver()) return { gameOver: true, existing: true };
             const zeroKinds = [];
             if (currentHp <= 0) zeroKinds.push('HP');
             if (currentSan <= 0) zeroKinds.push('SAN');
-            if (!zeroKinds.length) return { gameOver: false, rescued: false };
+            const inSurvivalGrace = survivalGraceTurns > 0;
+            if (inSurvivalGrace) survivalGraceTurns -= 1;
+
+            if (!zeroKinds.length) return { gameOver: false, rescued: false, grace: inSurvivalGrace };
 
             const mode = getGameDifficultyInfo();
             const reason = `${zeroKinds.join(' 與 ')} 歸零`;
+
+            if (mode.key === 'nightmare') {
+                if (currentHp <= 0) currentHp = 1;
+                if (currentSan <= 0) currentSan = 1;
+                document.getElementById('ui-hp').innerText = currentHp;
+                document.getElementById('ui-san').innerText = currentSan;
+                if (inSurvivalGrace) {
+                    createSystemAlert(survivalFxUiMessage('— 恢復期護盾：{reason}被硬撐住（恢復期剩 {n} 回合）—', { reason: survivalFxUiMessage(reason), n: survivalGraceTurns }));
+                    return { gameOver: false, rescued: true, grace: true, reason };
+                }
+                beginLastStand(reason);
+                return { gameOver: false, lastStand: true, reason };
+            }
+
             let survivalRoll = null;
             let gameOver = mode.gameOver === 'forced';
 
@@ -2015,6 +2045,143 @@ function getRequiredSurvivalFlags() {
                 ? `— 生死檢定成功：D20 ${survivalRoll}，${reason}後保留 1 點 —`
                 : `— 保護機制啟動：${reason}後保留 1 點 —`);
             return { gameOver: false, rescued: true, roll: survivalRoll, reason };
+        }
+
+        function beginLastStand(reason) {
+            pendingLastStand = true;
+            const input = document.getElementById('player-input');
+            const sendBtn = document.getElementById('send-btn');
+            const diceBtn = document.getElementById('dice-btn');
+            if (input) input.disabled = true;
+            if (sendBtn) sendBtn.disabled = true;
+            if (diceBtn) diceBtn.disabled = true;
+            renderLastStandOption(reason);
+            createSystemAlert(survivalFxUiMessage('— 瀕死！{reason}——只剩一次生死檢定（D20 ≥8 存活）—', { reason: survivalFxUiMessage(reason) }));
+        }
+
+        function renderLastStandOption(reason) {
+            const optArea = document.getElementById('options-area');
+            if (!optArea) return;
+            optArea.innerHTML = '';
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn last-stand-btn';
+            btn.textContent = survivalFxUiMessage('生死檢定：賭一把活下去（D20 ≥8）');
+            btn.style.borderColor = 'var(--accent-neon)';
+            btn.style.fontWeight = '700';
+            btn.onclick = () => rollLastStand(reason);
+            optArea.appendChild(btn);
+        }
+
+        function rollLastStand(reason) {
+            if (!pendingLastStand) return;
+            pendingLastStand = false;
+            const roll = Math.floor(Math.random() * 20) + 1;
+            const survived = roll >= 8;
+            const optArea = document.getElementById('options-area');
+            if (optArea) optArea.innerHTML = '';
+            if (!survived) {
+                if (currentSaveId && savesData[currentSaveId]) {
+                    savesData[currentSaveId].gameOver = { reason, mode: 'nightmare', roll, at: new Date().toLocaleString() };
+                }
+                createSystemAlert(survivalFxUiMessage('— 生死檢定失敗：D20 {roll}（需 ≥8），GAME OVER —', { roll }));
+                applyGameOverUi();
+                if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
+                return;
+            }
+            survivalGraceTurns = 3;
+            const input = document.getElementById('player-input');
+            const sendBtn = document.getElementById('send-btn');
+            const diceBtn = document.getElementById('dice-btn');
+            if (input) input.disabled = false;
+            if (sendBtn) sendBtn.disabled = false;
+            if (diceBtn) diceBtn.disabled = false;
+            createSystemAlert(survivalFxUiMessage('— 生死檢定成功：D20 {roll}！撐住了——接下來 3 回合免於死亡，快穩住 SAN／HP —', { roll }));
+            if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
+        }
+
+        function restGainFromResult(result) {
+            if (result === '大成功') return 22;
+            if (result === '成功') return 14;
+            if (result === '失敗') return 6;
+            return 0;
+        }
+        function clearRestCooldown() {
+            restJustUsed = false;
+        }
+        function takeBreath() {
+            if (!currentSaveId || !savesData[currentSaveId]) return;
+            if (typeof getCurrentGameOver === 'function' && getCurrentGameOver()) return;
+            if (restJustUsed) {
+                createSystemAlert(survivalFxUiMessage('— 剛喘息過，先做點別的再喘息。—'));
+                return;
+            }
+            const hpFull = currentHp >= 50;
+            const sanFull = currentSan >= 50;
+            if (hpFull && sanFull) {
+                createSystemAlert(survivalFxUiMessage('— 身心尚穩（HP／SAN 已達 50%），喘息幫助不大。—'));
+                return;
+            }
+            const parts = [];
+            if (!hpFull) {
+                const chk = calculateDiceCheck('con', 'normal', null, { applySurvivalModifier: false });
+                const before = currentHp;
+                currentHp = Math.min(50, currentHp + restGainFromResult(chk.result));
+                parts.push('HP +' + (currentHp - before) + '（CON ' + chk.roll + '）');
+            }
+            if (!sanFull) {
+                const chk = calculateDiceCheck('wis', 'normal', null, { applySurvivalModifier: false });
+                const before = currentSan;
+                currentSan = Math.min(50, currentSan + restGainFromResult(chk.result));
+                parts.push('SAN +' + (currentSan - before) + '（WIS ' + chk.roll + '）');
+            }
+            const hpEl = document.getElementById('ui-hp'); if (hpEl) hpEl.innerText = currentHp;
+            const sanEl = document.getElementById('ui-san'); if (sanEl) sanEl.innerText = currentSan;
+            restJustUsed = true;
+            if (typeof syncSurvivalFlags === 'function') syncSurvivalFlags({ announce: true });
+            if (typeof syncSurvivalVisualEffects === 'function') syncSurvivalVisualEffects();
+            if (typeof refreshOpenStatusPanel === 'function') refreshOpenStatusPanel();
+            createSystemAlert(survivalFxUiMessage('— 喘息穩住身心：{detail}（上限 50%）—', { detail: parts.join('、') }));
+            if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
+        }
+
+        function sanitizeItemEffect(raw) {
+            if (!raw || typeof raw !== 'object') return null;
+            const type = (raw.type === 'hp' || raw.type === 'san') ? raw.type : null;
+            if (!type) return null;
+            let amount = Math.round(Number(raw.amount));
+            if (!Number.isFinite(amount)) return null;
+            amount = Math.max(8, Math.min(40, amount));
+            return { type, amount };
+        }
+        function itemEffectLabel(eff) {
+            if (!eff) return '';
+            const kind = eff.type === 'hp' ? 'HP' : 'SAN';
+            return survivalFxUiMessage('回復 {kind} {amount}', { kind, amount: eff.amount });
+        }
+        function useItem(index) {
+            if (!Number.isInteger(index) || index < 0 || index >= currentItems.length) return;
+            const name = currentItems[index];
+            const eff = (itemEffects && typeof itemEffects === 'object') ? itemEffects[name] : null;
+            if (!eff) return;
+            let detail = '';
+            if (eff.type === 'hp') {
+                const before = currentHp;
+                currentHp = Math.min(100, currentHp + eff.amount);
+                detail = 'HP +' + (currentHp - before);
+            } else {
+                const before = currentSan;
+                currentSan = Math.min(100, currentSan + eff.amount);
+                detail = 'SAN +' + (currentSan - before);
+            }
+            currentItems.splice(index, 1);
+            delete itemEffects[name];
+            const hpEl = document.getElementById('ui-hp'); if (hpEl) hpEl.innerText = currentHp;
+            const sanEl = document.getElementById('ui-san'); if (sanEl) sanEl.innerText = currentSan;
+            if (typeof syncSurvivalFlags === 'function') syncSurvivalFlags({ announce: true });
+            if (typeof syncSurvivalVisualEffects === 'function') syncSurvivalVisualEffects();
+            if (typeof renderItems === 'function') renderItems();
+            createSystemAlert(survivalFxUiMessage('— 使用了 {name}：{detail} —', { name, detail }));
+            if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
         }
 
         function syncSurvivalFlags({ announce = false } = {}) {
