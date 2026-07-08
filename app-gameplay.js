@@ -1164,7 +1164,9 @@ ${transitionRule}`;
 let survivalFxGrainTimer = null;
 let survivalFxAmbientTimer = null;
 let survivalFxLastShardAt = 0;
+let survivalFxLastBackTextAt = 0;
 let survivalFxLastSignalAt = 0;
+let survivalFxLastTextCorruptAt = 0;
 let survivalFxActiveOption = null;
 let survivalFxOptionState = new WeakMap();
 let survivalFxOptionDelegated = false;
@@ -1188,13 +1190,63 @@ function getSurvivalFxState() {
     };
 }
 
+function getSurvivalFxFrequencyProfile(state = getSurvivalFxState()) {
+ const sanTier = state.san <= 10 ? 2 : (state.san <= 20 ? 1 : 0);
+ if (sanTier >= 2) {
+  return {
+   sanTier,
+   tickMin: 520,
+   tickJitter: 420,
+   backTextGap: 4300,
+   backTextChance: 0.30,
+   shardGap: 7800,
+   shardChance: 0.22,
+   corruptGap: 1600,
+   corruptChance: 0.70,
+   corruptFrames: 8,
+   corruptAmount: 0.42,
+   corruptStepMs: 58
+  };
+ }
+ if (sanTier === 1) {
+  return {
+   sanTier,
+   tickMin: 780,
+   tickJitter: 560,
+   backTextGap: 6800,
+   backTextChance: 0.18,
+   shardGap: 11200,
+   shardChance: 0.13,
+   corruptGap: 3000,
+   corruptChance: 0.45,
+   corruptFrames: 5,
+   corruptAmount: 0.28,
+   corruptStepMs: 70
+  };
+ }
+ return {
+  sanTier,
+  tickMin: 1100,
+  tickJitter: 820,
+  backTextGap: 9800,
+  backTextChance: 0,
+  shardGap: 15000,
+  shardChance: 0,
+  corruptGap: 5000,
+  corruptChance: 0,
+  corruptFrames: 4,
+  corruptAmount: 0.12,
+  corruptStepMs: 72
+ };
+}
+
 function ensureSurvivalFxLayer() {
     let layer = document.getElementById('survival-effects-layer');
     if (!layer) {
         layer = document.createElement('div');
         layer.id = 'survival-effects-layer';
         layer.setAttribute('aria-hidden', 'true');
-        layer.innerHTML = '<div class="survival-fx-darkness"></div><canvas id="survival-grain-canvas"></canvas><div class="survival-fx-scan"></div><div class="survival-fx-vignette"></div><div class="survival-fx-signals" id="survival-fx-signals"></div><div class="survival-fx-shards" id="survival-fx-shards"></div>';
+        layer.innerHTML = '<div class="survival-fx-darkness"></div><canvas id="survival-grain-canvas"></canvas><div class="survival-fx-scan"></div><div class="survival-fx-vignette"></div><div class="survival-fx-backtexts" id="survival-fx-backtexts"></div><div class="survival-fx-signals" id="survival-fx-signals"></div><div class="survival-fx-shards" id="survival-fx-shards"></div>';
         const gameContainer = document.getElementById('game-container');
         if (gameContainer && gameContainer.parentNode) gameContainer.parentNode.insertBefore(layer, gameContainer.nextSibling);
         else document.body.appendChild(layer);
@@ -1203,9 +1255,9 @@ function ensureSurvivalFxLayer() {
 }
 
 function resizeSurvivalGrainCanvas(canvas) {
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
-    const width = Math.max(1, Math.floor(window.innerWidth * dpr * 0.72));
-    const height = Math.max(1, Math.floor(window.innerHeight * dpr * 0.72));
+    const scale = window.innerWidth <= 720 ? 0.20 : 0.24;
+    const width = Math.max(96, Math.min(360, Math.floor(window.innerWidth * scale)));
+    const height = Math.max(72, Math.min(240, Math.floor(window.innerHeight * scale)));
     if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
@@ -1213,9 +1265,8 @@ function resizeSurvivalGrainCanvas(canvas) {
 }
 
 function drawSurvivalGrain() {
-    const layer = document.getElementById('survival-effects-layer');
     const canvas = document.getElementById('survival-grain-canvas');
-    if (!layer || !canvas || !document.body.classList.contains('survival-fx-active')) {
+    if (!canvas || !document.body.classList.contains('survival-fx-active')) {
         survivalFxGrainTimer = null;
         return;
     }
@@ -1225,17 +1276,22 @@ function drawSurvivalGrain() {
     if (!ctx) return;
     const image = ctx.createImageData(canvas.width, canvas.height);
     const data = image.data;
-    const grainChance = 0.18 + state.severity * 0.28;
+    const grainChance = 0.12 + state.severity * 0.18;
     for (let i = 0; i < data.length; i += 4) {
-        const shade = 64 + Math.floor(Math.random() * 112);
-        const warm = Math.random() < 0.36;
+        if (Math.random() > grainChance) {
+            data[i + 3] = 0;
+            continue;
+        }
+        const shade = 70 + Math.floor(Math.random() * 86);
+        const warm = Math.random() < 0.30;
         data[i] = shade + (warm ? 8 : 0);
         data[i + 1] = shade + (warm ? 5 : 0);
-        data[i + 2] = shade + Math.floor(Math.random() * 8);
-        data[i + 3] = Math.random() < grainChance ? 7 + Math.floor(Math.random() * 22) : 0;
+        data[i + 2] = shade + Math.floor(Math.random() * 6);
+        data[i + 3] = 8 + Math.floor(Math.random() * 18);
     }
     ctx.putImageData(image, 0, 0);
-    survivalFxGrainTimer = window.setTimeout(drawSurvivalGrain, 90);
+    const delay = document.hidden ? 900 : 210 + Math.floor(state.severity * 90);
+    survivalFxGrainTimer = window.setTimeout(drawSurvivalGrain, delay);
 }
 
 function startSurvivalGrain() {
@@ -1344,21 +1400,34 @@ function survivalFxExtractLines(value, maxLines = 8, maxLength = 34) {
 
 function getSurvivalDoubtFragments() {
     const fragments = [];
-    survivalFxExtractLines(currentAdventureLog, 8, 34).forEach(text => fragments.push({ type: 'log', text }));
-    survivalFxExtractLines(currentStorySummary, 5, 34).forEach(text => fragments.push({ type: 'summary', text }));
-    survivalFxExtractLines(currentOpenTasks, 5, 30).forEach(text => fragments.push({ type: 'task', text }));
-    survivalFxExtractLines(currentRelationshipSummary, 5, 30).forEach(text => fragments.push({ type: 'relationship', text }));
+    const pushLines = (type, value, maxLines, maxLength) => {
+        survivalFxExtractLines(value, maxLines, maxLength).forEach(text => {
+            if (survivalFxIsUsefulDoubtText(text)) fragments.push({ type, text });
+        });
+    };
+    pushLines('log', currentAdventureLog, 10, 52);
+    pushLines('summary', currentStorySummary, 7, 52);
+    pushLines('task', currentOpenTasks, 6, 48);
+    pushLines('relationship', currentRelationshipSummary, 6, 48);
     if (Array.isArray(currentFlags)) currentFlags.forEach(flag => {
-        const text = survivalFxCleanText(flag, 24);
-        if (text) fragments.push({ type: 'flag', text });
+        const text = survivalFxCleanText(flag, 44);
+        if (survivalFxIsUsefulDoubtText(text)) fragments.push({ type: 'flag', text });
     });
     const scene = currentScenario && currentScenario.scenarios && currentScenario.scenarios[currentScenarioIndex];
-    if (scene && scene.name) fragments.push({ type: 'scene', text: survivalFxCleanText(scene.name, 18) });
+    if (scene && scene.name) {
+        const text = survivalFxCleanText(scene.name, 32);
+        if (survivalFxIsUsefulDoubtText(text)) fragments.push({ type: 'scene', text });
+    }
     if (currentScenario && Array.isArray(currentScenario.npcs)) currentScenario.npcs.forEach(npc => {
-        const name = survivalFxCleanText(npc && npc.name, 12);
-        if (name) fragments.push({ type: 'npc', text: name });
+        const name = survivalFxCleanText(npc && npc.name, 24);
+        if (survivalFxIsUsefulDoubtText(name)) fragments.push({ type: 'npc', text: name });
     });
     return fragments.filter(item => item.text);
+}
+
+function survivalFxIsUsefulDoubtText(text) {
+    if (!text) return false;
+    return !/(SAN|HP|精神瀕臨崩潰|瀕死狀態|低 SAN|低 HP|臨界|崩潰|^無$|尚無|目前沒有|故事剛開始)/i.test(text);
 }
 
 function survivalFxUiMessage(zh, params = {}) {
@@ -1368,125 +1437,256 @@ function survivalFxUiMessage(zh, params = {}) {
 
 function buildSurvivalDoubtText() {
     const fragments = getSurvivalDoubtFragments();
-    if (!fragments.length) return survivalFxUiMessage('你確定這是正確的選擇嗎？');
-    const picked = fragments[Math.floor(Math.random() * fragments.length)];
-    const templatesByType = {
-        log: [
-            '日誌已經寫過「{text}」。你現在要假裝沒發生？',
-            '如果「{text}」是真的，這個選擇還安全嗎？',
-            '你剛才不是已經知道「{text}」了嗎？'
-        ],
-        summary: [
-            '摘要裡還留著「{text}」。你要違背它？',
-            '主線不是正在指向「{text}」嗎？',
-            '你確定這不是在逃避「{text}」？'
-        ],
-        task: [
-            '任務還沒結束：「{text}」。現在要偏離嗎？',
-            '你是不是忘了「{text}」？',
-            '這個選項會讓「{text}」更難完成吧？'
-        ],
-        relationship: [
-            '關係記錄寫著「{text}」。你要拿它冒險？',
-            '如果「{text}」還算數，你真的要這樣選？',
-            '這會不會傷到「{text}」？'
-        ],
-        flag: [
-            'Flags 還亮著：「{text}」。你確定？',
-            '系統沒有忘記「{text}」。你忘了嗎？',
-            '在「{text}」底下，這個選項可靠嗎？'
-        ],
-        scene: [
-            '現在還在「{text}」。你真的能離開這條線？',
-            '「{text}」不是偶然被選中的場景。',
-            '這個選擇和「{text}」對得上嗎？'
-        ],
-        npc: [
-            '「{text}」會怎麼看這個選擇？',
-            '你要讓「{text}」承受後果嗎？',
-            '如果「{text}」知道了呢？'
-        ]
+    const fallbackMemories = [
+        '冒險日誌裡空白的地方',
+        '你剛剛選過的路',
+        '那些還沒說出口的承諾'
+    ];
+    const fallback = fallbackMemories[Math.floor(Math.random() * fallbackMemories.length)];
+    const picked = fragments.length ? fragments[Math.floor(Math.random() * fragments.length)] : { type: 'fallback', text: survivalFxUiMessage(fallback) };
+    const questions = [
+        '這些回憶也變得不那麼重要了嗎…',
+        '你真的還記得自己答應過什麼嗎…',
+        '有些約定，不是忘記就能消失。',
+        '你現在的選擇，真的接得上嗎…',
+        '你是想離開它，還是只是忘了它…',
+        '它還留在這裡。你也還在嗎…',
+        '如果這是真的，你為什麼要往反方向走…',
+        '你確定要把它留在身後嗎…',
+        '那時候的你，也是這樣想的嗎…',
+        '這段紀錄還相信你。你呢…',
+        '你正在保護它，還是在拆掉它…',
+        '別裝作沒看見。',
+        '它不是自己出現在這裡的。',
+        '你要把這件事也改寫掉嗎…',
+        '如果這不重要，為什麼它還在這裡…',
+        '你真的分得清現在和剛才嗎…',
+        '這一步之後，還回得去嗎…',
+        '你明明看見了。',
+        '這不是別人的記憶。',
+        '你要假裝它沒有重量嗎…'
+    ];
+    return {
+        memory: picked.text,
+        question: survivalFxUiMessage(questions[Math.floor(Math.random() * questions.length)])
     };
-    const templates = templatesByType[picked.type] || templatesByType.log;
-    const template = templates[Math.floor(Math.random() * templates.length)];
-    return survivalFxUiMessage(template, { text: picked.text });
+}
+function survivalFxGlitchText(text, amount = 0.18) {
+    const glyphs = '░▒▓█#@%&!?<>/\\|[]{}01記憶痛苦忘記NULLLOG';
+    return Array.from(text).map(ch => {
+        if (/\s|，|。|、|：|；|！|？/.test(ch) || Math.random() > amount) return ch;
+        return glyphs[Math.floor(Math.random() * glyphs.length)];
+    }).join('');
+}
+
+function survivalFxRandomGlyphs(length) {
+    const glyphs = '░▒▓█#@%&!?<>/\\|[]{}01記憶痛苦忘記NULLLOG';
+    return Array.from({ length: Math.max(1, length) }, () => glyphs[Math.floor(Math.random() * glyphs.length)]).join('');
+}
+
+function buildSurvivalBackTextContent() {
+    const fragments = getSurvivalDoubtFragments();
+    const painWords = [
+        '好難過',
+        '好痛',
+        '好痛苦',
+        '不要忘記',
+        '你記得嗎',
+        '不要丟下它',
+        '回不去了',
+        '不是假的',
+        '還在這裡',
+        '別裝作沒看見'
+    ];
+    const usePainWord = !fragments.length || Math.random() < 0.42;
+    const picked = usePainWord ? painWords[Math.floor(Math.random() * painWords.length)] : fragments[Math.floor(Math.random() * fragments.length)].text;
+    const base = survivalFxCleanText(picked, Math.random() < 0.62 ? 8 : 18);
+    const alternate = painWords[Math.floor(Math.random() * painWords.length)];
+    const target = Math.random() < 0.52 ? alternate : survivalFxCleanText(base, Math.max(4, Math.ceil(base.length * 0.72)));
+    return {
+        base,
+        target,
+        corruptTarget: survivalFxGlitchText(target, 0.46)
+    };
+}
+
+function animateSurvivalBackText(el, content, life) {
+    const baseChars = Array.from(content.base || '');
+    const targetChars = Array.from(content.corruptTarget || content.target || content.base || '');
+    const timers = [];
+    const setLater = (delay, fn) => {
+        const timer = window.setTimeout(() => {
+            if (!el.isConnected) return;
+            fn();
+        }, delay);
+        timers.push(timer);
+    };
+    let t = 420;
+    setLater(0, () => {
+        el.dataset.phase = 'hold';
+        el.textContent = content.base;
+        el.classList.remove('is-corrupt');
+    });
+    for (let i = baseChars.length; i >= Math.max(1, Math.floor(baseChars.length * 0.18)); i -= 1) {
+        const count = i;
+        setLater(t, () => {
+            el.dataset.phase = 'erase';
+            el.textContent = baseChars.slice(0, count).join('');
+            el.classList.toggle('is-corrupt', count % 2 === 0);
+        });
+        t += 68 + Math.random() * 26;
+    }
+    const typedLength = Math.max(2, targetChars.length);
+    for (let i = 1; i <= typedLength; i += 1) {
+        const count = i;
+        setLater(t, () => {
+            el.dataset.phase = 'type';
+            const typed = targetChars.slice(0, count).join('');
+            const noise = Math.random() < 0.52 ? survivalFxRandomGlyphs(Math.max(1, targetChars.length - count)).slice(0, 2) : '';
+            el.textContent = typed + noise;
+            el.classList.add('is-corrupt');
+        });
+        t += 72 + Math.random() * 34;
+    }
+    for (let i = 0; i < 5; i += 1) {
+        setLater(t, () => {
+            el.dataset.phase = 'break';
+            el.textContent = Math.random() < 0.5 ? survivalFxGlitchText(content.target, 0.58) : survivalFxRandomGlyphs(targetChars.length || 4);
+            el.classList.toggle('is-corrupt');
+        });
+        t += 110 + Math.random() * 80;
+    }
+    setLater(Math.min(t, life - 520), () => {
+        el.dataset.phase = 'hold';
+        el.textContent = Math.random() < 0.48 ? content.target : survivalFxGlitchText(content.target, 0.30);
+        el.classList.add('is-corrupt');
+    });
+    window.setTimeout(() => timers.forEach(timer => window.clearTimeout(timer)), life + 90);
+}
+
+function createSurvivalBackText() {
+    const state = getSurvivalFxState();
+    if (!state.active) return;
+    const wrap = document.getElementById('survival-fx-backtexts');
+    if (!wrap) return;
+    while (wrap.children.length > 2) wrap.firstElementChild.remove();
+    const content = buildSurvivalBackTextContent();
+    const el = document.createElement('div');
+    el.className = 'survival-fx-backtext';
+    el.textContent = content.base;
+    if ((content.base || '').length > 6) el.classList.add('is-long');
+    const x = -12 + Math.random() * 92;
+    const y = -12 + Math.random() * 58;
+    el.style.left = x.toFixed(1) + 'vw';
+    el.style.top = y.toFixed(1) + 'vh';
+    el.style.setProperty('--backtext-size', (138 + Math.random() * 62 + state.severity * 18).toFixed(0) + 'px');
+    const life = 3600 + Math.random() * 1200 + state.severity * 650;
+    el.style.setProperty('--backtext-life', life.toFixed(0) + 'ms');
+    wrap.appendChild(el);
+    animateSurvivalBackText(el, content, life);
+    window.setTimeout(() => el.remove(), life + 100);
 }
 function createSurvivalShard() {
-    const state = getSurvivalFxState();
-    if (!state.active) return;
-    const wrap = document.getElementById('survival-fx-shards');
-    if (!wrap) return;
-    wrap.querySelectorAll('.survival-fx-shard').forEach(node => node.remove());
-    const el = document.createElement('div');
-    el.className = 'survival-fx-shard survival-fx-doubt';
-    el.dataset.kind = survivalFxUiMessage(state.sanSeverity >= state.hpSeverity ? 'SAN 質疑' : 'HP 警訊');
-    el.textContent = buildSurvivalDoubtText();
-    const width = Math.min(390, Math.max(260, window.innerWidth * 0.30));
-    const edge = Math.random() < 0.5 ? 'left' : 'right';
-    el.style.width = width + 'px';
-    if (edge === 'left') {
-        el.style.left = '18px';
-        el.style.setProperty('--enter', '-18px');
-        el.style.setProperty('--exit', '-12px');
-    } else {
-        el.style.left = Math.max(18, window.innerWidth - width - 18) + 'px';
-        el.style.setProperty('--enter', '18px');
-        el.style.setProperty('--exit', '12px');
-    }
-    el.style.top = (14 + Math.random() * 62) + 'vh';
-    const life = 2600 + Math.random() * 1100 + state.severity * 620;
-    el.style.setProperty('--survival-shard-life', life.toFixed(0) + 'ms');
-    wrap.appendChild(el);
-    window.setTimeout(() => el.remove(), life + 80);
+ const state = getSurvivalFxState();
+ if (!state.active) return;
+ const wrap = document.getElementById('survival-fx-shards');
+ if (!wrap) return;
+ wrap.querySelectorAll('.survival-fx-shard').forEach(node => node.remove());
+ const content = buildSurvivalDoubtText();
+ const el = document.createElement('div');
+ el.className = 'survival-fx-shard survival-fx-doubt';
+ el.dataset.glitch = survivalFxGlitchText((content.memory + ' ' + content.question).slice(0, 44), 0.34);
+ const memory = document.createElement('div');
+ memory.className = 'survival-fx-memory';
+ memory.textContent = content.memory;
+ const question = document.createElement('div');
+ question.className = 'survival-fx-question';
+ question.textContent = content.question;
+ el.append(memory, question);
+ const width = Math.min(380, Math.max(260, window.innerWidth * 0.28));
+ const edge = Math.random() < 0.5 ? 'left' : 'right';
+ el.style.width = width + 'px';
+ if (edge === 'left') {
+  el.style.left = '22px';
+  el.style.setProperty('--exit', '-10px');
+ } else {
+  el.style.left = Math.max(22, window.innerWidth - width - 22) + 'px';
+  el.style.setProperty('--exit', '10px');
+ }
+ el.style.top = (18 + Math.random() * 50) + 'vh';
+ const life = 2600 + Math.random() * 900 + state.sanSeverity * 420;
+ el.style.setProperty('--survival-shard-life', life.toFixed(0) + 'ms');
+ wrap.appendChild(el);
+ window.setTimeout(() => el.remove(), life + 100);
 }
 
+function getSurvivalCorruptTargets() {
+ const bubbleTargets = Array.from(document.querySelectorAll('#dialogue-box .msg-wrapper .msg-text'));
+ const narrativeTargets = Array.from(document.querySelectorAll('#dialogue-box .msg-narrative'));
+ const systemTargets = Array.from(document.querySelectorAll('#dialogue-box .system-msg'));
+ return bubbleTargets.concat(narrativeTargets, systemTargets)
+  .filter(el => el && el.textContent && el.textContent.trim().length >= 4 && !el.dataset.survivalOriginal);
+}
 
-function corruptSurvivalTextOnce() {
-    const state = getSurvivalFxState();
-    if (!state.active) return;
-    const targets = Array.from(document.querySelectorAll('#dialogue-box .msg-text, #dialogue-box .msg-narrative, #dialogue-box .system-msg'))
-        .filter(el => el && el.textContent && el.textContent.trim().length >= 6 && !el.dataset.survivalOriginal);
-    if (!targets.length) return;
-    const el = targets[Math.floor(Math.random() * targets.length)];
-    const original = el.textContent;
-    el.dataset.survivalOriginal = original;
-    el.classList.add('survival-corrupting');
-    let frame = 0;
-    const glyphs = '░▒▓█#@%&!?<>/\\|[]{}01SANNULLLOG記憶偏移關係錯位';
-    const timer = window.setInterval(() => {
-        frame += 1;
-        const amount = 0.10 + state.severity * 0.22;
-        el.textContent = Array.from(original).map(ch => {
-            if (/\s|，|。|、|：/.test(ch) || Math.random() > amount) return ch;
-            return glyphs[Math.floor(Math.random() * glyphs.length)];
-        }).join('');
-        if (frame >= 4) {
-            window.clearInterval(timer);
-            el.textContent = original;
-            el.classList.remove('survival-corrupting');
-            delete el.dataset.survivalOriginal;
-        }
-    }, 58);
+function corruptSurvivalTextOnce(profile = null) {
+ const state = getSurvivalFxState();
+ const fxProfile = profile || getSurvivalFxFrequencyProfile(state);
+ if (!state.active || !fxProfile.sanTier) return;
+ const targets = getSurvivalCorruptTargets();
+ if (!targets.length) return;
+ const recentBubbles = targets.filter(el => el.classList.contains('msg-text')).slice(-5);
+ const pool = recentBubbles.length ? recentBubbles : targets.slice(-6);
+ const el = pool[Math.floor(Math.random() * pool.length)];
+ const original = el.textContent;
+ el.dataset.survivalOriginal = original;
+ el.classList.add('survival-corrupting');
+ let frame = 0;
+ const glyphs = '????#@%&!?<>/\|[]{}01SANNULLLOG??????';
+ const frames = fxProfile.corruptFrames || 4;
+ const amount = fxProfile.corruptAmount || 0.18;
+ const timer = window.setInterval(() => {
+  frame += 1;
+  el.textContent = Array.from(original).map(ch => {
+   const keepCode = ch.charCodeAt(0);
+   const keepMark = keepCode === 0xff0c || keepCode === 0x3002 || keepCode === 0x3001 || keepCode === 0xff1a || keepCode === 0xff1b || keepCode === 0xff1f || keepCode === 0xff01 || keepCode === 0x300c || keepCode === 0x300d;
+   if (/\s/.test(ch) || keepMark || ',.!?;:'.includes(ch) || Math.random() > amount) return ch;
+   return glyphs[Math.floor(Math.random() * glyphs.length)];
+  }).join('');
+  if (frame >= frames) {
+   window.clearInterval(timer);
+   el.textContent = original;
+   el.classList.remove('survival-corrupting');
+   delete el.dataset.survivalOriginal;
+  }
+ }, fxProfile.corruptStepMs || 64);
 }
 
 function runSurvivalAmbientEffects() {
-    const state = getSurvivalFxState();
-    if (!state.active) {
-        survivalFxAmbientTimer = null;
-        return;
-    }
-    const now = Date.now();
-    if (!survivalFxSeenInitialSignal || (now - survivalFxLastSignalAt > 6200 - state.severity * 900 && Math.random() < 0.22)) {
-        survivalFxSeenInitialSignal = true;
-        survivalFxLastSignalAt = now;
-        createSurvivalSignal();
-    }
-    if (now - survivalFxLastShardAt > 9500 - state.severity * 1300 && Math.random() < 0.18) {
-        survivalFxLastShardAt = now;
-        createSurvivalShard();
-    }
-    if (Math.random() < 0.07 + state.severity * 0.08) corruptSurvivalTextOnce();
-    survivalFxAmbientTimer = window.setTimeout(runSurvivalAmbientEffects, 420 + Math.random() * 520);
+ const state = getSurvivalFxState();
+ survivalFxAmbientTimer = null;
+ if (!state.active || document.hidden) {
+  survivalFxAmbientTimer = window.setTimeout(runSurvivalAmbientEffects, 1800);
+  return;
+ }
+ const profile = getSurvivalFxFrequencyProfile(state);
+ const now = Date.now();
+ if (!survivalFxSeenInitialSignal) {
+  survivalFxSeenInitialSignal = true;
+  survivalFxLastSignalAt = now;
+ }
+ if (profile.backTextChance > 0 && now - survivalFxLastBackTextAt > profile.backTextGap && Math.random() < profile.backTextChance) {
+  survivalFxLastBackTextAt = now;
+  createSurvivalBackText();
+ }
+ if (profile.shardChance > 0 && now - survivalFxLastShardAt > profile.shardGap && Math.random() < profile.shardChance) {
+  survivalFxLastShardAt = now;
+  createSurvivalShard();
+ }
+ if (profile.corruptChance > 0 && now - survivalFxLastTextCorruptAt > profile.corruptGap && Math.random() < profile.corruptChance) {
+  survivalFxLastTextCorruptAt = now;
+  corruptSurvivalTextOnce(profile);
+ }
+ survivalFxAmbientTimer = window.setTimeout(runSurvivalAmbientEffects, profile.tickMin + Math.random() * profile.tickJitter);
 }
 
 function startSurvivalAmbientEffects() {
@@ -1497,7 +1697,7 @@ function stopSurvivalAmbientEffects() {
     if (survivalFxAmbientTimer) window.clearTimeout(survivalFxAmbientTimer);
     survivalFxAmbientTimer = null;
     survivalFxSeenInitialSignal = false;
-    document.querySelectorAll('.survival-fx-signal,.survival-fx-shard').forEach(node => node.remove());
+    document.querySelectorAll('.survival-fx-signal,.survival-fx-shard,.survival-fx-backtext').forEach(node => node.remove());
 }
 
 function resetSurvivalOption(btn) {
@@ -1512,7 +1712,7 @@ function resetSurvivalOption(btn) {
         state.nextNudge = 0;
     }
     btn.style.transform = '';
-    btn.classList.remove('survival-option-drifting', 'survival-option-corrupt');
+    btn.classList.remove('survival-option-drifting', 'survival-option-corrupt', 'survival-option-mutated');
     btn.removeAttribute('data-survival-ghost');
     if (survivalFxActiveOption === btn) survivalFxActiveOption = null;
 }
@@ -1540,24 +1740,15 @@ function nudgeSurvivalOption(btn, strong = false) {
     }
     if (rect.left < window.innerWidth * 0.12) side = 1;
     if (rect.right > window.innerWidth * 0.88) side = -1;
-    const horizontal = (strong ? 54 : 34) + Math.random() * (strong ? 48 : 34);
-    const verticalPool = [-46, -28, 24, 38, 52];
-    const yPick = verticalPool[Math.floor(Math.random() * verticalPool.length)] + Math.random() * 10 - 5;
-    state.tx = Math.max(-128, Math.min(128, side * horizontal * (0.86 + fx.sanSeverity * 0.22)));
-    state.ty = Math.max(-64, Math.min(64, yPick));
-    state.hover = true;
+    const horizontal = (strong ? 8 : 5) + Math.random() * (strong ? 8 : 5);
+ const verticalPool = [-4, -2, 0, 2, 4];
+ const yPick = verticalPool[Math.floor(Math.random() * verticalPool.length)] + Math.random() * 2 - 1;
+ state.tx = Math.max(-18, Math.min(18, side * horizontal * (0.72 + fx.sanSeverity * 0.12)));
+ state.ty = Math.max(-6, Math.min(6, yPick));
+ state.hover = true;
     state.nextNudge = Date.now() + 560 + Math.random() * 520;
     btn.classList.add('survival-option-drifting');
-    if (Math.random() < 0.10 + fx.sanSeverity * 0.24) {
-        const ghost = getSurvivalSignalTexts()[Math.floor(Math.random() * getSurvivalSignalTexts().length)] || 'LOG';
-        btn.dataset.survivalGhost = ghost;
-        btn.classList.add('survival-option-corrupt', 'survival-option-mutated');
-        window.setTimeout(() => {
-            btn.classList.remove('survival-option-corrupt');
-            btn.removeAttribute('data-survival-ghost');
-        }, 1200);
     }
-}
 
 function getSurvivalOptionMainText(btn) {
     if (!btn) return '';
@@ -1580,28 +1771,51 @@ function setSurvivalOptionVisibleText(btn, text, check = '') {
     }
 }
 
+function getSurvivalHiddenOption(btn) {
+ if (!btn?.dataset?.survivalHiddenText) return null;
+ const text = valueToText(btn.dataset.survivalHiddenText).trim();
+ if (!text) return null;
+ return {
+ text,
+ check: normalizeDiceStatKey(btn.dataset.survivalHiddenCheck) || 'wis',
+ difficulty: normalizeDiceDifficulty(btn.dataset.survivalHiddenDifficulty || 'hard'),
+ forceDice: btn.dataset.survivalHiddenForceDice === '1'
+ };
+}
+
 function getSurvivalOptionMutation(btn, originalText, originalCheck = '', originalDifficulty = 'normal') {
-    const state = getSurvivalFxState();
-    if (state.sanSeverity <= 0 || !btn) return null;
-    const chance = 0.18 + state.sanSeverity * 0.46;
-    if (Math.random() > chance) return null;
-    const original = valueToText(originalText).trim();
-    const candidates = Array.from(document.querySelectorAll('#options-area .opt-btn'))
-        .filter(other => other !== btn)
-        .map(other => ({
-            text: getSurvivalOptionMainText(other),
-            check: other.dataset.survivalOptionCheck || '',
-            difficulty: other.dataset.survivalOptionDifficulty || 'normal'
-        }))
-        .filter(item => item.text && item.text !== original);
-    if (!candidates.length) return null;
-    const picked = candidates[Math.floor(Math.random() * candidates.length)];
-    return {
-        text: picked.text,
-        check: picked.check || originalCheck || '',
-        difficulty: picked.difficulty || originalDifficulty || 'normal',
-        original
-    };
+ const state = getSurvivalFxState();
+ if (state.sanSeverity <= 0 || !btn) return null;
+ const chance = 0.18 + state.sanSeverity * 0.46;
+ if (Math.random() > chance) return null;
+ const original = valueToText(originalText).trim();
+ const hidden = getSurvivalHiddenOption(btn);
+ if (hidden && hidden.text !== original) {
+ return {
+ text: hidden.text,
+ check: hidden.check || originalCheck || 'wis',
+ difficulty: hidden.difficulty || 'hard',
+ forceDice: true,
+ original
+ };
+ }
+ const candidates = Array.from(document.querySelectorAll('#options-area .opt-btn'))
+ .filter(other => other !== btn)
+ .map(other => ({
+ text: getSurvivalOptionMainText(other),
+ check: other.dataset.survivalOptionCheck || '',
+ difficulty: other.dataset.survivalOptionDifficulty || 'normal'
+ }))
+ .filter(item => item.text && item.text !== original);
+ if (!candidates.length) return null;
+ const picked = candidates[Math.floor(Math.random() * candidates.length)];
+ return {
+ text: picked.text,
+ check: picked.check || originalCheck || '',
+ difficulty: picked.difficulty || originalDifficulty || 'normal',
+ forceDice: false,
+ original
+ };
 }
 
 function handleSurvivalOptionClick(btn, text, check = '', difficulty = 'normal') {
@@ -1611,12 +1825,13 @@ function handleSurvivalOptionClick(btn, text, check = '', difficulty = 'normal')
         return;
     }
     btn.dataset.survivalGhost = mutation.original;
-    btn.classList.add('survival-option-corrupt');
+    btn.classList.add('survival-option-corrupt', 'survival-option-mutated');
     setSurvivalOptionVisibleText(btn, mutation.text, mutation.check);
     nudgeSurvivalOption(btn, true);
     selectOption(mutation.text, mutation.check, mutation.difficulty);
     window.setTimeout(() => {
-        if (typeof sendChoice === 'function') sendChoice();
+        if (mutation.forceDice && typeof sendDiceChoice === 'function') sendDiceChoice();
+ else if (typeof sendChoice === 'function') sendChoice();
     }, 90);
 }
 

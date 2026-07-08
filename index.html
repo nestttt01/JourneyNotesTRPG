@@ -202,7 +202,7 @@
     <p class="u-inline-019">4. 怎麼玩？</p>
 <p class="u-inline-020">進入遊戲後，直接在下方輸入角色想說的話或想做的事，也可以點選 AI 提供的選項。若行動具有風險，可以使用骰子按鈕進行 D20 判定；系統會依角色能力、遊戲難度與骰點決定成功或失敗。想修正已送出的文字、複製對話或收藏片段時，桌機可在對話上按右鍵，手機可長按，開啟小選單。</p>
 <p class="u-inline-020">HP 與 SAN 代表角色的生存狀態。HP 或 SAN 低於 20 時會進入危機區間，部分判定會受影響；畫面也會出現暗角、底片顆粒、掃描線、短暫文字亂碼與狀態訊號，但配色會跟著目前介面主題走。</p>
-<p class="u-inline-020">SAN 很低時，AI 提供的選項可能變得不可靠。被污染的選項在點下去的瞬間會變色、文字改成另一個可見選項，並立刻送出改變後的內容；如果沒有觸發污染，點選仍會像平常一樣先填入輸入框。</p>
+<p class="u-inline-020">SAN 很低時，AI 提供的選項可能變得不可靠。AI 會額外準備一個不顯示的隱藏失控選項；污染觸發時，被點選的選項會在瞬間變色、文字改成那個隱藏行動，並立刻送出與進行檢定；如果沒有觸發污染，點選仍會像平常一樣先填入輸入框。</p>
 
     <p class="u-inline-019">5. 難度、死亡與 Game Over</p>
     <p class="u-inline-020">標準模式適合日常與長篇劇情；困難模式會提高檢定 DC，NPC 每次死亡只有一次復活檢定；極限模式會進一步提高 DC，角色歸零會觸發 Game Over，NPC 死亡後無法復活。</p>
@@ -307,7 +307,7 @@
 <h3>更新內容</h3>
 <ul>
 <li>新增低 HP／低 SAN 干擾：狀態進入危機區間時，畫面會出現暗角、顆粒、掃描線、短暫亂碼與狀態訊號，且配色會跟著目前介面主題變化。</li>
-<li>低 SAN 選項會變得不可靠：點選時可能變色並改成另一個可見選項，系統會直接送出改變後的內容。</li>
+<li>低 SAN 選項會變得不可靠：點選時可能變色並改成 AI 產生的隱藏失控選項，系統會直接送出並進行檢定。</li>
 </ul>
 <details class="home-update-history">
 <summary>查看更早的更新紀錄</summary>
@@ -967,7 +967,7 @@
 
         <div id="dialogue-box"></div>
         <div id="options-area"></div>
-<div id="survival-effects-layer" aria-hidden="true"><div class="survival-fx-darkness"></div><canvas id="survival-grain-canvas"></canvas><div class="survival-fx-scan"></div><div class="survival-fx-vignette"></div><div class="survival-fx-signals" id="survival-fx-signals"></div><div class="survival-fx-shards" id="survival-fx-shards"></div></div>
+<div id="survival-effects-layer" aria-hidden="true"><div class="survival-fx-darkness"></div><canvas id="survival-grain-canvas"></canvas><div class="survival-fx-scan"></div><div class="survival-fx-vignette"></div><div class="survival-fx-backtexts" id="survival-fx-backtexts"></div><div class="survival-fx-signals" id="survival-fx-signals"></div><div class="survival-fx-shards" id="survival-fx-shards"></div></div>
         <div id="loading"><span id="ui-target-typing">遊戲引擎 (DM)</span> 正在進行判定與演算... <button id="cancel-ai-btn" type="button" onclick="cancelActiveAIRequest()">取消等待</button></div>
 
         <div id="input-area">

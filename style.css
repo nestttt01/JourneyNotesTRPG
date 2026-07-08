@@ -1,4 +1,4 @@
-﻿@font-face {
+@font-face {
             font-family: "TRPG Cubic Pixel";
             src: url("./fonts/Cubic_11.woff2") format("woff2");
             font-display: swap;
@@ -3292,206 +3292,224 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
 
 /* Low HP/SAN visual interference layer. Colors intentionally follow the active UI theme. */
 #survival-effects-layer {
-    --survival-fx-severity: 0;
-    --survival-fx-dark: 0;
-    --survival-fx-grain: 0;
-    --survival-fx-scan: 0;
-    --survival-fx-vignette: 0;
-    --survival-fx-signal-main: color-mix(in srgb, var(--text-main) 72%, var(--accent-gray) 28%);
-    --survival-fx-signal-hot: var(--accent-neon);
-    --survival-fx-signal-white: color-mix(in srgb, var(--card-bg) 82%, white 18%);
-    position: fixed;
-    inset: 0;
-    z-index: 70;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.22s steps(2, end);
-    isolation: isolate;
+ --survival-fx-severity: 0;
+ --survival-fx-dark: 0;
+ --survival-fx-grain: 0;
+ --survival-fx-scan: 0;
+ --survival-fx-vignette: 0;
+ position: fixed;
+ inset: 0;
+ z-index: 70;
+ pointer-events: none;
+ opacity: 0;
+ transition: opacity 0.08s steps(1, end);
+ isolation: isolate;
 }
 body.survival-fx-active #survival-effects-layer { opacity: 1; }
 #survival-effects-layer .survival-fx-darkness,
 #survival-effects-layer .survival-fx-scan,
 #survival-effects-layer .survival-fx-vignette,
 #survival-grain-canvas,
+.survival-fx-backtexts,
 .survival-fx-signals,
 .survival-fx-shards { position: absolute; inset: 0; }
 #survival-effects-layer .survival-fx-darkness {
-    inset: -8%;
-    background: radial-gradient(circle at 48% 44%, rgba(0,0,0,0) 0 36%, rgba(0,0,0,.16) 56%, rgba(0,0,0,.76) 100%);
-    opacity: var(--survival-fx-dark);
-    mix-blend-mode: multiply;
+ inset: -8%;
+ background: radial-gradient(circle at 48% 44%, rgba(0,0,0,0) 0 36%, rgba(0,0,0,.16) 56%, rgba(0,0,0,.76) 100%);
+ opacity: var(--survival-fx-dark);
+ mix-blend-mode: multiply;
 }
 #survival-grain-canvas {
-    width: 100%;
-    height: 100%;
-    opacity: var(--survival-fx-grain);
-    mix-blend-mode: multiply;
+ width: 100%;
+ height: 100%;
+ opacity: 0;
+ image-rendering: pixelated;
 }
 #survival-effects-layer .survival-fx-scan {
-    opacity: var(--survival-fx-scan);
-    background: repeating-linear-gradient(to bottom, color-mix(in srgb, var(--text-main) 12%, transparent) 0 1px, transparent 1px 4px);
-    mix-blend-mode: multiply;
+ opacity: var(--survival-fx-scan);
+ background: repeating-linear-gradient(to bottom, color-mix(in srgb, var(--text-main) 12%, transparent) 0 1px, transparent 1px 4px);
+ mix-blend-mode: multiply;
 }
 #survival-effects-layer .survival-fx-vignette {
-    inset: -10%;
-    opacity: var(--survival-fx-vignette);
-    background: radial-gradient(circle at 48% 44%, transparent 0 46%, rgba(0,0,0,.22) 72%, rgba(0,0,0,.82) 100%);
-    mix-blend-mode: multiply;
+ inset: -10%;
+ opacity: var(--survival-fx-vignette);
+ background: radial-gradient(circle at 48% 44%, transparent 0 46%, rgba(0,0,0,.22) 72%, rgba(0,0,0,.82) 100%);
 }
-.survival-fx-signal {
-    position: absolute;
-    writing-mode: vertical-rl;
-    text-orientation: upright;
-    max-height: min(420px, 58vh);
-    padding: 0 1px;
-    font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
-    font-size: clamp(15px, 1.5vw, 22px);
-    line-height: 1.03;
-    letter-spacing: 0;
-    color: var(--survival-fx-signal-main);
-    opacity: 0;
-    mix-blend-mode: multiply;
-    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--survival-fx-signal-hot) 34%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, var(--accent-gray) 24%, transparent));
-    animation: survivalSignal var(--survival-signal-life, 3600ms) linear both;
+.survival-fx-backtexts {
+ overflow: hidden;
+ z-index: 1;
 }
-.survival-fx-signal .sig-char {
-    display: inline-block;
-    color: var(--survival-fx-signal-main);
-    opacity: var(--sig-a, .72);
-    text-shadow: 0 0 2px color-mix(in srgb, var(--survival-fx-signal-hot) 42%, transparent), 0 0 8px color-mix(in srgb, var(--accent-gray) 26%, transparent), 1px 0 0 color-mix(in srgb, var(--card-bg) 46%, transparent);
-    filter: blur(var(--sig-blur, 0px));
-    animation: survivalSignalChar var(--survival-signal-life, 3600ms) linear both;
-    animation-delay: var(--sig-delay, 0ms);
+.survival-fx-backtext {
+ position: absolute;
+ max-height: 132vh;
+ color: var(--accent-neon);
+ font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+ font-size: var(--backtext-size, 154px);
+ font-weight: 900;
+ line-height: .82;
+ letter-spacing: 0;
+ writing-mode: vertical-rl;
+ text-orientation: upright;
+ white-space: nowrap;
+ opacity: .96;
+ text-shadow: 3px 0 0 color-mix(in srgb, var(--border-dark) 34%, transparent), -2px 0 0 color-mix(in srgb, var(--card-bg) 28%, transparent);
+ filter: none;
+ mix-blend-mode: normal;
+ animation: survivalBackText var(--backtext-life, 4200ms) steps(1, end) both;
 }
-.survival-fx-signal .sig-char.dim { opacity: .42; text-shadow: 0 0 3px color-mix(in srgb, var(--accent-gray) 16%, transparent); }
-.survival-fx-signal .sig-char.hot {
-    color: color-mix(in srgb, var(--survival-fx-signal-hot) 88%, var(--text-main) 12%);
-    text-shadow: 0 0 3px color-mix(in srgb, var(--survival-fx-signal-hot) 76%, transparent), 0 0 11px color-mix(in srgb, var(--accent-gray) 36%, transparent), 1px 0 0 color-mix(in srgb, var(--text-main) 28%, transparent);
+.survival-fx-backtext.is-long {
+ font-size: calc(var(--backtext-size, 154px) * .56);
+ line-height: .88;
 }
-.survival-fx-signal .sig-char.white {
-    color: var(--survival-fx-signal-white);
-    text-shadow: 0 0 3px color-mix(in srgb, var(--survival-fx-signal-hot) 46%, transparent), 0 0 10px color-mix(in srgb, var(--accent-gray) 34%, transparent), 1px 0 0 color-mix(in srgb, var(--text-main) 32%, transparent);
+.survival-fx-backtext.is-corrupt {
+ color: color-mix(in srgb, var(--text-main) 64%, var(--accent-neon) 36%);
+ text-shadow: 2px 0 0 color-mix(in srgb, var(--border-dark) 36%, transparent), -2px 0 0 color-mix(in srgb, var(--accent-neon) 30%, transparent);
 }
+.survival-fx-backtext[data-phase="erase"] {
+ transform: translate3d(-3px, 1px, 0);
+}
+.survival-fx-backtext[data-phase="type"] {
+ transform: translate3d(4px, -1px, 0);
+}
+.survival-fx-backtext[data-phase="break"] {
+ transform: translate3d(-5px, 2px, 0);
+ color: color-mix(in srgb, var(--card-bg) 54%, var(--accent-neon) 46%);
+}
+.survival-fx-signals { display: none; }
+.survival-fx-shards { z-index: 4; }
 .survival-fx-shard {
  position: absolute;
- width: min(360px, calc(100vw - 38px));
- max-width: 360px;
- min-height: 54px;
- padding: 9px 12px 10px 15px;
- border: 2px solid color-mix(in srgb, var(--card-bg) 58%, var(--border-dark) 42%);
- border-left: 6px solid var(--accent-neon);
- border-radius: 8px;
- background: color-mix(in srgb, var(--text-main) 88%, var(--card-bg) 12%);
- color: var(--accent-neon);
- box-shadow: 5px 6px 0 color-mix(in srgb, var(--border-dark) 18%, transparent), 0 0 16px color-mix(in srgb, var(--text-main) 18%, transparent);
- font-size: 13px;
- font-weight: 800;
- line-height: 1.45;
- text-shadow: 0 0 7px color-mix(in srgb, var(--accent-neon) 54%, transparent);
- animation: survivalShard var(--survival-shard-life, 2400ms) steps(1, end) both;
-}
-.survival-fx-shard::before {
- content: attr(data-kind);
- display: block;
- margin-bottom: 3px;
- color: color-mix(in srgb, var(--card-bg) 70%, var(--accent-gray) 30%);
+ width: min(380px, calc(100vw - 44px));
+ max-width: 380px;
+ min-height: 52px;
+ padding: 9px 12px 10px 14px;
+ border: 2px solid var(--border-dark);
+ border-left: 8px solid var(--accent-neon);
+ border-radius: 10px;
+ background: color-mix(in srgb, var(--card-bg) 94%, var(--accent-neon) 6%);
+ color: var(--text-main);
+ box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-neon) 78%, var(--border-dark) 22%);
  font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
- font-size: 11px;
+ font-synthesis: none;
+ font-size: 13px;
  font-weight: 400;
- text-shadow: none;
+ line-height: 1.45;
+ letter-spacing: 0;
+ image-rendering: pixelated;
+ overflow: hidden;
+ animation: survivalShard var(--survival-shard-life, 2600ms) steps(1, end) both;
 }
 .survival-fx-shard::after {
- content: "";
+ content: attr(data-glitch);
  position: absolute;
- left: 9px;
- right: 9px;
- bottom: 5px;
- height: 1px;
- background: linear-gradient(90deg, var(--accent-neon), color-mix(in srgb, var(--card-bg) 32%, transparent), transparent 80%);
- opacity: .78;
+ left: 14px;
+ right: 10px;
+ top: 8px;
+ color: color-mix(in srgb, var(--accent-gray) 60%, transparent);
+ font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
+ font-synthesis: none;
+ font-size: 12px;
+ font-weight: 400;
+ line-height: 1.2;
+ white-space: nowrap;
+ overflow: hidden;
+ opacity: .18;
+ transform: translate(3px, -1px);
+ pointer-events: none;
+ animation: survivalShardGhost 420ms steps(2, end) infinite;
+}
+.survival-fx-memory,
+.survival-fx-question {
+ position: relative;
+ z-index: 1;
+ color: var(--text-main);
+ font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+ font-synthesis: none;
+ font-weight: 400;
+ text-shadow: 1px 1px 0 color-mix(in srgb, var(--accent-neon) 64%, transparent);
+ overflow-wrap: anywhere;
+}
+.survival-fx-question {
+ margin-top: 6px;
+ color: color-mix(in srgb, var(--text-main) 78%, var(--accent-gray) 22%);
 }
 .survival-fx-shard.survival-fx-doubt {
- font-style: italic;
- background: color-mix(in srgb, var(--text-main) 82%, var(--accent-gray) 18%);
-}
-.survival-fx-shard.survival-fx-doubt::before {
- color: color-mix(in srgb, var(--card-bg) 64%, var(--accent-neon) 36%);
+ background: color-mix(in srgb, var(--card-bg) 92%, var(--accent-neon) 8%);
+ color: var(--text-main);
 }
 .survival-corrupting {
-    font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
-    color: color-mix(in srgb, var(--text-main) 82%, var(--accent-gray) 18%);
-    text-shadow: 1px 1px 0 color-mix(in srgb, var(--accent-neon) 56%, transparent), -1px 0 0 color-mix(in srgb, var(--accent-gray) 38%, transparent);
-    animation: survivalTextJump 120ms steps(1, end) infinite;
+ font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
+ color: color-mix(in srgb, var(--text-main) 82%, var(--accent-gray) 18%);
+ text-shadow: 1px 1px 0 color-mix(in srgb, var(--accent-neon) 56%, transparent), -1px 0 0 color-mix(in srgb, var(--accent-gray) 38%, transparent);
+ animation: survivalTextJump 120ms steps(1, end) infinite;
 }
 .opt-btn.survival-option-drifting {
-    position: relative;
-    z-index: 4;
-    will-change: transform;
-    transition: box-shadow 90ms steps(1, end), background 90ms steps(1, end), filter 90ms steps(1, end);
-    filter: contrast(1.04);
+ position: relative;
+ z-index: 2;
+ will-change: transform;
+ transition: box-shadow 90ms steps(1, end), filter 90ms steps(1, end);
+ filter: contrast(1.02);
 }
-
 .opt-btn.survival-option-mutated,
 .opt-btn.survival-option-mutated:hover {
-    background: color-mix(in srgb, var(--border-dark) 88%, var(--accent-gray) 12%);
-    color: var(--card-bg);
-    border-color: var(--border-dark);
-    border-left-color: var(--accent-neon);
-    box-shadow: 5px 5px 0 color-mix(in srgb, var(--accent-neon) 72%, var(--border-dark) 28%);
-    filter: contrast(1.08);
-    transform: translate(-2px, -2px);
-    animation: survivalOptionMutated 220ms steps(2, end) 2;
+ background: color-mix(in srgb, var(--border-dark) 78%, var(--card-bg) 22%);
+ color: var(--card-bg);
+ border-color: var(--border-dark);
+ border-left-color: var(--accent-neon);
+ box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-neon) 62%, var(--border-dark) 38%);
+ filter: contrast(1.05);
+ animation: survivalOptionMutated 220ms steps(2, end) 2;
+}
+.opt-btn.survival-option-drifting:hover {
+ box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-neon) 54%, transparent);
 }
 .opt-btn.survival-option-corrupt { position: relative; }
 .opt-btn.survival-option-corrupt::after {
-    content: attr(data-survival-ghost);
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    max-width: 38%;
-    transform: translateY(-50%);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: color-mix(in srgb, var(--accent-gray) 58%, transparent);
-    font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
-    font-size: 11px;
-    font-weight: 400;
-    text-decoration: line-through;
-    pointer-events: none;
+ content: attr(data-survival-ghost);
+ position: absolute;
+ right: 10px;
+ top: 50%;
+ max-width: 38%;
+ transform: translateY(-50%);
+ overflow: hidden;
+ text-overflow: ellipsis;
+ white-space: nowrap;
+ color: color-mix(in srgb, var(--accent-gray) 58%, transparent);
+ font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
+ font-size: 11px;
+ font-weight: 400;
+ text-decoration: line-through;
+ pointer-events: none;
 }
-@keyframes survivalOptionMutated {
-    0%, 100% { filter: contrast(1.08); }
-    50% { filter: contrast(1.28) brightness(1.08); }
-}
-@keyframes survivalSignal {
-    0% { opacity: 0; transform: translate(var(--dx, 0), var(--dy, 0)); filter: blur(.4px); }
-    8%, 64% { opacity: .88; transform: translate(0, 0); filter: blur(0); }
-    70% { opacity: .34; transform: translate(1px, -1px); }
-    74% { opacity: .92; transform: translate(-1px, 0); }
-    82% { opacity: .22; transform: translate(0, 1px); }
-    88% { opacity: .74; transform: translate(1px, 0); }
-    100% { opacity: 0; transform: translate(var(--rdx, 0), var(--rdy, 0)); filter: blur(.8px); }
-}
-@keyframes survivalSignalChar {
-    0%, 48% { opacity: var(--sig-a, .72); }
-    58% { opacity: 1; color: var(--survival-fx-signal-white); }
-    70% { opacity: var(--sig-a, .72); color: var(--survival-fx-signal-main); }
-    78% { opacity: .22; }
-    84% { opacity: .96; color: var(--survival-fx-signal-white); }
-    92% { opacity: .34; }
-    100% { opacity: 0; color: transparent; }
+@keyframes survivalBackText {
+ 0%, 16% { opacity: .96; transform: translate3d(0, 0, 0); }
+ 18% { opacity: .76; transform: translate3d(4px, -2px, 0); }
+ 22%, 58% { opacity: .98; transform: translate3d(0, 0, 0); }
+ 62% { opacity: .82; transform: translate3d(-3px, 1px, 0); }
+ 66%, 94% { opacity: .96; transform: translate3d(0, 0, 0); }
+ 100% { opacity: 0; transform: translate3d(0, 0, 0); }
 }
 @keyframes survivalShard {
-    0% { opacity: 0; transform: translateX(var(--enter, -18px)); }
-    6%, 78% { opacity: 1; transform: translateX(0); }
-    82% { opacity: .38; transform: translateX(2px); }
-    88% { opacity: .96; transform: translateX(-1px); }
-    100% { opacity: 0; transform: translateX(var(--exit, 14px)); }
+ 0%, 6% { opacity: 1; transform: translate(0, 0); filter: contrast(1.08); }
+ 9% { opacity: .55; transform: translate(4px, -2px); filter: contrast(1.45); }
+ 12%, 60% { opacity: 1; transform: translate(0, 0); filter: contrast(1.12); }
+ 64% { opacity: .72; transform: translate(-3px, 1px); }
+ 68%, 88% { opacity: 1; transform: translate(0, 0); }
+ 92% { opacity: .38; transform: translate(2px, 0); }
+ 100% { opacity: 0; transform: translate(var(--exit, 10px), 0); }
+}
+@keyframes survivalShardGhost {
+ 0%, 100% { opacity: .18; transform: translate(3px, -1px); }
+ 35% { opacity: .42; transform: translate(-2px, 1px); }
+ 70% { opacity: .12; transform: translate(5px, 0); }
+}
+@keyframes survivalOptionMutated {
+ 0%, 100% { filter: contrast(1.08); }
+ 50% { filter: contrast(1.28) brightness(1.08); }
 }
 @keyframes survivalTextJump {
-    0%, 100% { transform: translate(0, 0); }
-    35% { transform: translate(-1px, 1px); }
-    70% { transform: translate(2px, -1px); }
+ 0%, 100% { transform: translate(0, 0); }
+ 35% { transform: translate(-1px, 1px); }
+ 70% { transform: translate(2px, -1px); }
 }
 

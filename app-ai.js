@@ -285,20 +285,22 @@
         }
 
         function getVisibleResponseStrings(data) {
-            const values = [];
-            const narrative = valueToText(data?.narrative);
-            if (narrative) values.push(narrative);
-            const dialogues = Array.isArray(data?.dialogues) ? data.dialogues : (data?.dialogue ? [data.dialogue] : []);
-            dialogues.forEach(entry => {
-                const normalized = normalizeDialogueEntry(entry);
-                if (normalized?.text) values.push(normalized.text);
-            });
-            if (Array.isArray(data?.options)) data.options.forEach(option => {
-                const text = optionToText(option);
-                if (text) values.push(text);
-            });
-            return values;
-        }
+ const values = [];
+ const narrative = valueToText(data?.narrative);
+ if (narrative) values.push(narrative);
+ const dialogues = Array.isArray(data?.dialogues) ? data.dialogues : (data?.dialogue ? [data.dialogue] : []);
+ dialogues.forEach(entry => {
+ const normalized = normalizeDialogueEntry(entry);
+ if (normalized?.text) values.push(normalized.text);
+ });
+ if (Array.isArray(data?.options)) data.options.forEach(option => {
+ const text = optionToText(option);
+ if (text) values.push(text);
+ });
+ const hiddenSanOption = normalizeHiddenSanOption(data?.hidden_san_option || data?.hiddenSanOption || data?.san_option || data?.sanOption);
+ if (hiddenSanOption?.text) values.push(hiddenSanOption.text);
+ return values;
+ }
 
         function stripKnownCharacterNames(text) {
             const names = [
@@ -334,15 +336,16 @@
             if (!responseNeedsLanguageRepair(data, mode)) return data;
             const profile = getModelRuntimeProfile();
             const visiblePayload = {
-                narrative: data?.narrative,
-                dialogues: Array.isArray(data?.dialogues) ? data.dialogues : [],
-                options: Array.isArray(data?.options) ? data.options : []
-            };
-            const prompt = `${getLanguageInstruction(mode)}
+ narrative: data?.narrative,
+ dialogues: Array.isArray(data?.dialogues) ? data.dialogues : [],
+ options: Array.isArray(data?.options) ? data.options : [],
+ hidden_san_option: data?.hidden_san_option || data?.hiddenSanOption || data?.san_option || data?.sanOption || null
+ };
+ const prompt = `${getLanguageInstruction(mode)}
 
-下方 JSON 的玩家可見文字違反輸出語言規則。只改寫 narrative、dialogues[].text、options[].text；speaker、check、difficulty、changes、memory 及所有數值必須完全保持不變。不得新增或刪除劇情、台詞、選項。只輸出合法 JSON。
+The player-facing strings in the JSON below violate the output-language rule. Rewrite only narrative, dialogues[].text, options[].text, and hidden_san_option.text. Keep speaker, check, difficulty, changes, memory, and all numeric values exactly unchanged. Do not add or remove events, dialogue, or options. Output valid JSON only.
 
-待修正 JSON：
+JSON to repair:
 ${JSON.stringify(visiblePayload)}`;
             try {
                 const repairedRaw = await requestAIText(prompt, { kind: 'repair', maxTokens: profile.repairMaxTokens });
@@ -351,6 +354,7 @@ ${JSON.stringify(visiblePayload)}`;
                 if (valueToText(repaired?.narrative)) merged.narrative = repaired.narrative;
                 if (Array.isArray(repaired?.dialogues) && repaired.dialogues.length === (Array.isArray(data?.dialogues) ? data.dialogues.length : repaired.dialogues.length)) merged.dialogues = repaired.dialogues;
                 if (Array.isArray(repaired?.options) && repaired.options.length === (Array.isArray(data?.options) ? data.options.length : repaired.options.length)) merged.options = repaired.options;
+ if (repaired?.hidden_san_option && normalizeHiddenSanOption(repaired.hidden_san_option)) merged.hidden_san_option = repaired.hidden_san_option;
                 return merged;
             } catch (error) {
                 console.warn('輸出語言修正失敗，保留原始回覆。', error);
@@ -478,14 +482,26 @@ ${JSON.stringify(visiblePayload)}`;
         }
 
         function normalizeOptionEntry(option) {
-            if (typeof option === 'string') return { text: option.trim(), check: '', difficulty: 'normal' };
-            if (!option || typeof option !== 'object') return { text: '', check: '', difficulty: 'normal' };
-            return {
-                text: valueToText(option.text || option.action || option.label || option.content).replace(/\s+/g, ' ').trim(),
-                check: normalizeDiceStatKey(option.check || option.attribute || option.stat),
-                difficulty: normalizeDiceDifficulty(option.difficulty)
-            };
-        }
+ if (typeof option === 'string') return { text: option.trim(), check: '', difficulty: 'normal', forceDice: false };
+ if (!option || typeof option !== 'object') return { text: '', check: '', difficulty: 'normal', forceDice: false };
+ return {
+ text: valueToText(option.text || option.action || option.label || option.content).replace(/\s+/g, ' ').trim(),
+ check: normalizeDiceStatKey(option.check || option.attribute || option.stat),
+ difficulty: normalizeDiceDifficulty(option.difficulty),
+ forceDice: Boolean(option.forceDice || option.force_dice || option.forceCheck || option.force_check || option.mustCheck || option.must_check)
+ };
+ }
+
+ function normalizeHiddenSanOption(option) {
+ if (typeof option === 'string') option = { text: option };
+ if (!option || typeof option !== 'object') return null;
+ const normalized = normalizeOptionEntry(option);
+ if (!normalized.text) return null;
+ let difficulty = normalizeDiceDifficulty(option.difficulty || option.dc || option.risk || normalized.difficulty || 'hard');
+ if (difficulty !== 'hard' && difficulty !== 'extreme') difficulty = 'hard';
+ const check = normalizeDiceStatKey(option.check || option.attribute || option.stat) || 'wis';
+ return { ...normalized, check, difficulty, forceDice: true };
+ }
 
         function optionToText(option) {
             return normalizeOptionEntry(option).text;
@@ -798,7 +814,8 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
 
                 resolveSurvivalOutcome();
 
-                if(!getCurrentGameOver() && parsedData.options && Array.isArray(parsedData.options)) {
+                const hiddenSanOption = normalizeHiddenSanOption(parsedData.hidden_san_option || parsedData.hiddenSanOption || parsedData.san_option || parsedData.sanOption);
+ if(!getCurrentGameOver() && parsedData.options && Array.isArray(parsedData.options)) {
                     const optArea = document.getElementById('options-area');
                     parsedData.options.forEach(opt => {
                         const option = enforceResurrectionOptionRules(normalizeOptionEntry(opt));
@@ -810,6 +827,12 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
  btn.dataset.survivalOptionText = option.text;
  btn.dataset.survivalOptionCheck = option.check || '';
  btn.dataset.survivalOptionDifficulty = option.difficulty || 'normal';
+ if (hiddenSanOption) {
+ btn.dataset.survivalHiddenText = hiddenSanOption.text;
+ btn.dataset.survivalHiddenCheck = hiddenSanOption.check || 'wis';
+ btn.dataset.survivalHiddenDifficulty = hiddenSanOption.difficulty || 'hard';
+ btn.dataset.survivalHiddenForceDice = hiddenSanOption.forceDice ? '1' : '';
+ }
  if (option.check && DICE_STATS[option.check]) {
  const checkLabel = document.createElement('span');
  checkLabel.className = 'opt-check-label';
