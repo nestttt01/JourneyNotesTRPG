@@ -551,6 +551,7 @@
         '引擎 (DM)': ['Engine (GM)', 'エンジン (GM)'], '判定引擎': ['Check Engine', '判定エンジン'], '判定': ['Check', '判定'],
         '此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場': ['No dialogue in this scenario yet. Enter an action or let AI generate an opening.', 'このシナリオにはまだ会話がありません。行動を入力するか、AIに導入を生成させてください。'],
         '🎲 讓 AI 根據「情境設定」隨機生成開場事件': ['🎲 Generate an Opening from the Scenario', '🎲 シナリオ設定から導入を生成'],
+        '同時刪除 {count} 個不再使用的專屬配置嗎？': ['Also delete {count} dedicated presets that are no longer in use?', '使われなくなった専用設定 {count} 件も削除しますか？'],
         '拖曳排序': ['Drag to reorder', 'ドラッグで並べ替え'],
         '力量': ['Strength', '筋力'], '敏捷': ['Dexterity', '敏捷'], '體質': ['Constitution', '体質'],
         '智力': ['Intelligence', '知力'], '感知': ['Wisdom', '感知'], '魅力': ['Charisma', '魅力'],

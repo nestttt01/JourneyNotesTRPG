@@ -95,7 +95,12 @@ function sanitizeSavesCollection(saves, ids = null) {
 const output = {};
 const allowed = ids ? new Set(ids.map(String)) : null;
 Object.entries(saves || {}).forEach(([id, save]) => {
-if (!allowed || allowed.has(String(id))) output[id] = stripImagesAndPrivateData(getJsonClone(save));
+if (!allowed || allowed.has(String(id))) {
+const cleanSave = stripImagesAndPrivateData(getJsonClone(save));
+/* 整理日誌用的內部備援不進匯出檔:備份檔本身就是還原手段,帶著會讓檔案膨脹數倍 */
+delete cleanSave.memoryLogBackups;
+output[id] = cleanSave;
+}
 });
 return output;
 }
@@ -179,15 +184,49 @@ alert(uiText('請先勾選要刪除的記憶紀錄。'));
 return;
 }
 if (!confirm(uiText('確定要刪除 {count} 個記憶紀錄嗎？此操作無法復原。').replace('{count}', ids.length))) return;
+const releasedPresetIds = new Set();
 ids.forEach(id => {
 const removedSave = savesData[id];
+const removedPresetId = valueToText(removedSave?.scenario?.sourcePresetId || removedSave?.scenario?.id);
 delete savesData[id];
-if (!removePersistedSave(id, '刪除遊戲存檔')) savesData[id] = removedSave;
+if (!removePersistedSave(id, '刪除遊戲存檔')) { savesData[id] = removedSave; return; }
+if (removedPresetId) releasedPresetIds.add(removedPresetId);
 localStorage.removeItem(getInputDraftStorageKey(id));
 if (currentSaveId === id) currentSaveId = null;
 window.journeySelectedSaveIds.delete(String(id));
 });
+cleanupOrphanDedicatedPresets(releasedPresetIds);
 renderSaveList();
+}
+
+/* 刪存檔後的孤兒配置清理:只針對「XX 專屬配置」「XX（匯入副本N）」這類
+   系統自動產生的配置;名稱不符的(玩家手工模板)一律不動。
+   條件:曾被剛刪除的存檔綁定、現在沒有任何存檔在用、且至少保留一組配置。 */
+function cleanupOrphanDedicatedPresets(releasedPresetIds) {
+if (!releasedPresetIds || !releasedPresetIds.size) return;
+const stillClaimed = new Set();
+Object.values(savesData || {}).forEach(save => {
+const claimedId = valueToText(save?.scenario?.sourcePresetId || save?.scenario?.id);
+if (claimedId) stillClaimed.add(claimedId);
+});
+const orphanIds = [...releasedPresetIds].filter(presetId => scenarioPresets[presetId]
+&& !stillClaimed.has(presetId)
+&& /(專屬配置|（匯入副本\d*）)$/.test(valueToText(scenarioPresets[presetId].presetName)));
+const keepAtLeastOne = Object.keys(scenarioPresets).length - 1;
+const deletable = orphanIds.slice(0, Math.max(0, keepAtLeastOne));
+if (!deletable.length) return;
+if (!confirm(uiText('同時刪除 {count} 個不再使用的專屬配置嗎？').replace('{count}', deletable.length))) return;
+const backups = deletable.map(presetId => [presetId, scenarioPresets[presetId]]);
+deletable.forEach(presetId => { delete scenarioPresets[presetId]; });
+if (!persistJson('sanko_scenario_presets_v2', scenarioPresets, '刪除未使用配置')) {
+backups.forEach(([presetId, preset]) => { scenarioPresets[presetId] = preset; });
+return;
+}
+if (!scenarioPresets[activePresetId]) {
+activePresetId = Object.keys(scenarioPresets)[0] || '';
+try { localStorage.setItem('sanko_active_preset_id', activePresetId); } catch (error) { /* 忽略 */ }
+}
+if (typeof renderPresetSelector === 'function') renderPresetSelector();
 }
 
 
@@ -275,6 +314,14 @@ const copy = stripImagesAndPrivateData(getJsonClone(save || {}));
 delete copy.date;
 delete copy.inputDraft;
 delete copy.importedAt;
+delete copy.memoryLogBackups;   /* 匯出檔不含此欄位,不算內容差異 */
+/* 綁定的配置 ID 不算內容:匯入時可能因「一配置一存檔」被改綁到複製配置,
+   若把 ID 算進簽章,重複匯入同一份備份就不會被略過。 */
+if (copy.scenario && typeof copy.scenario === 'object') {
+delete copy.scenario.sourcePresetId;
+delete copy.scenario.id;
+delete copy.scenario.presetName;   /* 匯入改綁副本時會改寫,不視為內容差異 */
+}
 return JSON.stringify(copy);
 }
 

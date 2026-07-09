@@ -3321,6 +3321,8 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
  --survival-fx-grain: 0;
  --survival-fx-scan: 0;
  --survival-fx-vignette: 0;
+ /* 全螢幕瀕死視野(2026/07/09 定案):暗角壓整個畫面。
+    先前誤判暗角造成黑色方塊,實為關閉抽屜的 backdrop-filter 幽靈濾鏡(已另修)。 */
  position: fixed;
  inset: 0;
  z-index: 70;
@@ -3575,7 +3577,9 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
 }
 /* 拖動中停用過渡(跟手);放開吸回原位時用短過渡 */
 #status-modal-content.status-drag-active, #floating-menu-btn.status-drag-active, #game-container.status-drag-active { transition: none; }
-#status-modal-content.status-drag-snap, #floating-menu-btn.status-drag-snap, #game-container.status-drag-snap { transition: transform 0.18s ease; }
+#status-modal-content.status-drag-snap, #floating-menu-btn.status-drag-snap { transition: transform 0.18s ease; }
+/* 對話框拖動走 left/top(不用 transform,避免破壞內部 fixed 暈影層的螢幕基準) */
+#game-container.status-drag-snap { transition: left 0.18s ease, top 0.18s ease; }
 /* 遊戲對話介面:桌機抓頂部狀態列拖動 */
 @media (min-width: 601px) {
     #status-bar { cursor: move; }
@@ -3589,15 +3593,7 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
    設計:保留硬框與陰影,填色改玻璃,高光用螢光黃細線(不用蘋果白)。
    ============================================================ */
 /* 側邊標籤:實測後維持原樣(2026/07/09 使用者定案),不套玻璃 */
-/* 更新抽屜 / 核心準則抽屜:輕玻璃(內文要讀,底色留 52%) */
-:root[data-bg-mode="image"] .home-update-drawer.px-glass-refract,
-:root[data-bg-mode="image"] .core-rules-drawer.px-glass-refract {
-    background:
-        linear-gradient(180deg, rgba(237, 255, 102, 0.22) 0, rgba(237, 255, 102, 0) 3px),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 40%),
-        color-mix(in srgb, var(--paper-bg) 52%, transparent);
-    background-color: transparent;
-}
+/* 更新抽屜/核心準則抽屜:閱讀面不套玻璃,維持原樣(2026/07/09 定案) */
 /* HP/SAN:維持原樣(2026/07/09 使用者定案),不套玻璃 */
 /* AI 選項按鈕:亮玻璃,維持深色文字可讀 */
 :root[data-bg-mode="image"] #options-area .opt-btn.px-glass-refract {

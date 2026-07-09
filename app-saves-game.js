@@ -143,7 +143,34 @@ updateSaveSelectAllState();
             const selectedPreset = scenarioPresets[activePresetId] || defaultPreset;
             const freshScenario = createFreshScenarioFromPreset(selectedPreset);
             const newSave = { title: saveName, date: new Date().toLocaleString(), hp: 100, san: 100, items: [], scenIndex: 0, chatPageIndex: 0, scripts: [[]], log: "• 故事剛開始，目前尚無重大事件發生。", memoryBrief: { story: "", tasks: "", relationships: "" }, flags: [], inputDraft: '', respecCount: 3, scenario: freshScenario };
-            newSave.scenario.sourcePresetId = activePresetId;
+            /* 一配置一存檔:所選配置已被其他存檔綁走時,自動複製一份給新局
+               (比照「另存新檔」的專屬配置模式),避免兩局經雙向同步互相感染。 */
+            let boundPresetId = activePresetId;
+            const presetClaimed = Object.values(savesData || {}).some(existingSave => {
+                const claimedId = valueToText(existingSave?.scenario?.sourcePresetId || existingSave?.scenario?.id);
+                return claimedId && claimedId === valueToText(activePresetId);
+            });
+            if (presetClaimed && scenarioPresets[activePresetId]) {
+                let clonePresetId = 'preset_' + Date.now();
+                while (scenarioPresets[clonePresetId]) clonePresetId = `preset_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+                const presetClone = getJsonClone(scenarioPresets[activePresetId]);
+                presetClone.id = clonePresetId;
+                presetClone.presetName = `${saveName} 專屬配置`;
+                presetClone.isLocked = false;
+                scenarioPresets[clonePresetId] = presetClone;
+                if (persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置')) {
+                    boundPresetId = clonePresetId;
+                    activePresetId = clonePresetId;
+                    localStorage.setItem('sanko_active_preset_id', activePresetId);
+                    if (typeof renderPresetSelector === 'function') renderPresetSelector();
+                } else {
+                    /* 複製配置存不進去時退回舊行為(共綁原配置),至少不擋開局 */
+                    delete scenarioPresets[clonePresetId];
+                }
+            }
+            newSave.scenario.sourcePresetId = boundPresetId;
+            newSave.scenario.id = boundPresetId;
+            if (scenarioPresets[boundPresetId]?.presetName) newSave.scenario.presetName = scenarioPresets[boundPresetId].presetName;
             savesData[id] = newSave;
             if (!persistSingleSave(id, '遊戲存檔')) { delete savesData[id]; return; }
             loadGame(id); 
@@ -216,6 +243,15 @@ if (rawPreset.id) presetIdMap[rawPreset.id] = result.id;
 if (!result.imported) return;
 presetCount += 1;
 });
+/* 一配置一存檔:先盤點已被本機既有存檔綁走的配置。
+   配置與存檔之間是雙向同步(syncBoundPresetFromCurrentScenario ←→ getCanonicalScenarioForSave),
+   兩個存檔共綁一個配置會互相感染,匯入時必須拆開。 */
+const claimedPresetIds = new Set();
+Object.values(savesData || {}).forEach(existingSave => {
+const claimedId = valueToText(existingSave?.scenario?.sourcePresetId || existingSave?.scenario?.id);
+if (claimedId) claimedPresetIds.add(claimedId);
+});
+let clonedPresetCount = 0;
 Object.entries(importedSaves || {}).forEach(([sourceId, rawSave]) => {
 if (!rawSave || typeof rawSave !== 'object' || Array.isArray(rawSave)) return;
 const targetId = savesData[sourceId] ? `save_${Date.now()}_${Math.random().toString(36).slice(2, 7)}` : sourceId;
@@ -229,9 +265,33 @@ if (findExistingSaveForImport(copiedSave)) {
 skippedSaveCount += 1;
 return;
 }
+/* 綁定的配置已被其他存檔占用 → 複製一份配置給這個匯入存檔,徹底切斷共用 */
+const boundPresetId = valueToText(copiedSave.scenario?.sourcePresetId || copiedSave.scenario?.id);
+if (boundPresetId && scenarioPresets[boundPresetId] && claimedPresetIds.has(boundPresetId)) {
+const cloneId = getUniquePresetId(`preset_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`);
+const presetClone = getJsonClone(scenarioPresets[boundPresetId]);
+presetClone.id = cloneId;
+const baseCloneName = valueToText(presetClone.presetName, '未命名配置');
+const existingNames = new Set(Object.values(scenarioPresets).map(preset => valueToText(preset?.presetName)));
+let cloneName = `${baseCloneName}（匯入副本）`;
+for (let n = 2; existingNames.has(cloneName); n += 1) cloneName = `${baseCloneName}（匯入副本${n}）`;
+presetClone.presetName = cloneName;
+presetClone.isLocked = false;
+scenarioPresets[cloneId] = presetClone;
+clonedPresetCount += 1;
+if (copiedSave.scenario && typeof copiedSave.scenario === 'object') {
+copiedSave.scenario.sourcePresetId = cloneId;
+if (copiedSave.scenario.id === boundPresetId || !copiedSave.scenario.id) copiedSave.scenario.id = cloneId;
+copiedSave.scenario.presetName = presetClone.presetName;
+}
+claimedPresetIds.add(cloneId);
+} else if (boundPresetId) {
+claimedPresetIds.add(boundPresetId);
+}
 savesData[targetId] = copiedSave;
 saveCount += 1;
 });
+presetCount += clonedPresetCount;
 if (!saveCount && !presetCount && !skippedSaveCount) throw new Error('沒有可用的存檔或角色配置');
 persistJson('sanko_scenario_presets_v2', scenarioPresets, '匯入角色配置');
 persistJson('sanko_saves_v8', savesData, '匯入存檔');

@@ -463,9 +463,12 @@ dialogue: '--accent-gray'
         // 與純色模式完全不受影響(class 與 inline filter 都會被清掉)。
         // 概念稿:_handoff/2026-07-09-pixel-liquid-glass-concept/
         /* 側邊標籤實測後退回原樣(使用者偏好),不在清單內 */
-        /* HP/SAN 亦退回原樣:它貼在紙面上、背後沒有背景圖,玻璃化只會風格不一致 */
+        /* HP/SAN 亦退回原樣:它貼在紙面上、背後沒有背景圖,玻璃化只會風格不一致。
+           抽屜只認「開啟狀態」:關閉時它們是 opacity:0 但盒子還在,
+           而 backdrop-filter 不理會 opacity,會留下幽靈濾鏡暗塊。 */
+        /* 更新抽屜/核心準則抽屜為閱讀面,實測玻璃化易讀性差,已退回原樣(2026/07/09 定案)。
+           玻璃只保留在非閱讀元件:AI 選項按鈕、質疑小視窗。 */
         const PX_GLASS_TARGETS = [
-            { selector: '.home-update-drawer, .core-rules-drawer', preset: 'drawer' },
             { selector: '#options-area .opt-btn', preset: 'strong' },
             { selector: '.survival-fx-shard', preset: 'shard' }
         ];
@@ -551,6 +554,8 @@ dialogue: '--accent-gray'
             const rect = el.getBoundingClientRect();
             const w = Math.round(rect.width), h = Math.round(rect.height);
             if (w < 16 || h < 12) { clearPxGlassPanel(el); return; }   /* 隱藏或過小 */
+            const cs = window.getComputedStyle(el);
+            if (Number(cs.opacity) < 0.05 || cs.visibility === 'hidden') { clearPxGlassPanel(el); return; }
             if (!el.dataset.pxgId) {
                 pxGlassCounter += 1;
                 el.dataset.pxgId = 'pxg-' + pxGlassCounter;
@@ -600,11 +605,17 @@ dialogue: '--accent-gray'
             const active = pxGlassSupported()
                 && document.documentElement.dataset.bgMode === 'image'
                 && window.innerWidth > 600;
+            const matched = new Set();
             PX_GLASS_TARGETS.forEach(group => {
                 document.querySelectorAll(group.selector).forEach(el => {
+                    matched.add(el);
                     if (active) setupPxGlassPanel(el, group.preset);
                     else clearPxGlassPanel(el);
                 });
+            });
+            /* 清掉不再符合條件的殘留(例如剛關上的抽屜) */
+            document.querySelectorAll('.px-glass-refract').forEach(el => {
+                if (!matched.has(el)) clearPxGlassPanel(el);
             });
             /* 清掉元素已消失(如質疑小視窗)的孤兒 filter */
             const svg = document.getElementById('px-glass-defs');
@@ -625,6 +636,7 @@ dialogue: '--accent-gray'
                     if (!node) return;
                     new MutationObserver(() => schedulePixelGlass(40)).observe(node, { childList: true });
                 });
+
                 window.addEventListener('resize', () => schedulePixelGlass());
             }
         }

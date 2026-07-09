@@ -1277,9 +1277,7 @@ function ensureSurvivalFxLayer() {
         layer.id = 'survival-effects-layer';
         layer.setAttribute('aria-hidden', 'true');
         layer.innerHTML = '<div class="survival-fx-darkness"></div><canvas id="survival-grain-canvas"></canvas><div class="survival-fx-scan"></div><div class="survival-fx-vignette"></div><div class="survival-fx-backtexts" id="survival-fx-backtexts"></div><div class="survival-fx-signals" id="survival-fx-signals"></div><div class="survival-fx-shards" id="survival-fx-shards"></div>';
-        const gameContainer = document.getElementById('game-container');
-        if (gameContainer && gameContainer.parentNode) gameContainer.parentNode.insertBefore(layer, gameContainer.nextSibling);
-        else document.body.appendChild(layer);
+        document.body.appendChild(layer);   /* 全螢幕層,放 body 直下(fixed 不能被 transform 祖先影響) */
     }
     return layer;
 }
@@ -1635,7 +1633,7 @@ function createSurvivalShard() {
  el.append(memory, question);
  const width = Math.min(380, Math.max(260, window.innerWidth * 0.28));
  el.style.width = width + 'px';
- /* 出現位置全螢幕隨機(不再固定貼左右角落),僅避開最邊緣 22px */
+ /* 出現位置全螢幕隨機(不固定角落),僅避開最邊緣 22px */
  const maxLeft = Math.max(22, window.innerWidth - width - 22);
  el.style.left = (22 + Math.random() * Math.max(0, maxLeft - 22)) + 'px';
  el.style.setProperty('--exit', (Math.random() < 0.5 ? '-10px' : '10px'));

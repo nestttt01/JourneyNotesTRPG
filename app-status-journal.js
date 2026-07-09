@@ -155,7 +155,16 @@ function applyGamePanelDragTransform(animate) {
     const x = gamePanelDragState.x;
     const y = gamePanelDragState.y;
     container.classList.toggle('status-drag-snap', Boolean(animate));
-    container.style.transform = (x || y) ? 'translate(' + x + 'px, ' + y + 'px)' : '';
+    /* 重要:用 left/top 而非 transform。#survival-effects-layer(低 SAN 全螢幕暈影)
+       是對話框的 fixed 子元素;祖先一有 transform,fixed 會改以祖先為基準,
+       暈影就會脫離螢幕、卡在對話框後面。left/top 沒有這個副作用(容器本身是 position:relative)。 */
+    if (x || y) {
+        container.style.left = x + 'px';
+        container.style.top = y + 'px';
+    } else {
+        container.style.left = '';
+        container.style.top = '';
+    }
     syncStatusTabFollow(animate);
 }
 document.addEventListener('pointerdown', event => {
