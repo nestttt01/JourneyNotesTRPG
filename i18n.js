@@ -553,6 +553,9 @@
     };
 
     const ATTR_M = {
+        "喘息穩住身心：擲檢定回復 HP／SAN（上限 50%，不能連續使用）": ["Catch your breath: roll to restore HP/SAN (cap 50%, no consecutive use)", "ひと息ついて立て直す：判定で HP／SAN を回復（上限50%・連続使用不可）"],
+        "新擅長領域（最多16字）": ["New expertise (max 16 chars)", "新しい得意分野（16字まで）"],
+        "花 1 點提升此屬性": ["Spend 1 point to raise this stat", "1ポイントでこの能力値を上げる"],
         '縮小圖片': ['Zoom out', '縮小'], '圖片縮放': ['Image zoom', '画像の拡大縮小'], '放大圖片': ['Zoom in', '拡大'],
         '關閉角色面板': ['Close character panel', 'キャラクターパネルを閉じる'],
         '回到首頁': ['Back to home', 'ホームへ戻る'],
