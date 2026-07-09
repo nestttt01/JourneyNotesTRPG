@@ -221,7 +221,8 @@
   <p class="u-inline-019">成長與里程碑</p>
   <p class="u-inline-020">達成重大成就會拿到成長點，可在「角色成長」區提升屬性或新增擅長領域，稱號隨成就升階。</p>
   <p class="u-inline-020">達成情境的「本場目標」會觸發章節收束，由 AI 收尾並給成長點。</p>
-  <p class="u-inline-020">NPC 好感滿值、關係破裂或死亡等重大節點，系統會自動記進 Flags 與冒險日誌。</p>
+  <p class="u-inline-020">NPC 好感滿值、關係破裂或死亡等重大節點，系統會自動記進 Flags 與冒險日誌；好感跌到谷底（−100）會解鎖特殊成就。</p>
+  <p class="u-inline-020">面板上的像素愛心會隨好感改變動作：越愛越活潑，滿值會發光跳躍，觸底則整顆倒下。</p>
   <p class="u-inline-020">冒險日誌記完整事件；想收藏對話用日記（泡泡右鍵、長按選「收藏這段」），在日記頁面對翻頁列桌機右鍵、手機長按可把整篇存成長圖。</p>
   <p class="u-inline-019">讓 AI 不忘記、不跳針</p>
   <p class="u-inline-020">故事變長後 AI 可能變鈍，這是模型限制。可以換標有 ▪ 的模型、多用「整理摘要／整理紀錄」壓縮記憶，或開「神」模式直接說明目前場景與重點。</p>
@@ -290,8 +291,16 @@
 <button id="home-update-tab" class="home-update-tab" type="button" onclick="toggleHomeUpdateNotes()" aria-label="更新內容" aria-expanded="false"></button>
 <aside id="home-update-drawer" class="home-update-drawer" aria-label="更新內容">
 <button class="home-update-close" type="button" onclick="toggleHomeUpdateNotes(false)" aria-label="關閉更新內容">×</button>
-<p class="home-update-kicker">v2.6 更新（07/10）</p>
+<p class="home-update-kicker">v2.7 更新（07/10）</p>
 <h3>更新內容</h3>
+<ul>
+<li>愛心情緒動態：面板像素愛心會隨好感改變動作，從微微呼吸、雀躍蹦跳到滿值發光雙段跳；關係惡化會垂頭喪氣，跌到谷底整顆倒下。</li>
+<li>新成就「我們地獄見」：好感跌到谷底（−100）自動解鎖，並跳出恩斷義絕提示。</li>
+<li>細節：修正像素愛心放大顯示時的髮絲細縫；「遊戲玩法」補上愛心動態與觸底成就說明。</li>
+</ul>
+<details class="home-update-history">
+<summary>查看更早的更新紀錄</summary>
+<p class="home-update-kicker">v2.6 更新（07/10）</p>
 <ul>
 <li>好感回饋：好感增減時，NPC 對話泡泡旁會彈出小愛心與增減值；愛心顏色可在「外觀配色」自訂，面板愛心也新增光澤與星塵（越愛越閃）。</li>
 <li>高光演出：擲出大成功／大失敗、獲得道具、成就達成（揭幕線）、章節收束（落幕分隔線，會永久留在紀錄裡分章）都有專屬演出。</li>
@@ -300,8 +309,6 @@
 <li>首頁標題霓虹化：載入時逐字點燈，待機時偶發故障閃爍。</li>
 <li>細節：AI 選項逐顆入場、主要按鈕金屬光澤、判定中像素讀取動畫、低 SAN 時輸入框提示偶爾亂碼、存檔成功右下角落印、NPC 死亡頭像轉灰、對話泡泡尖角方向修正、骰子與情境圖示改用像素符號。</li>
 </ul>
-<details class="home-update-history">
-<summary>查看更早的更新紀錄</summary>
 <p class="home-update-kicker">v2.5 更新（07/09）</p>
 <ul>
 <li>清單拖曳排序：存檔紀錄、NPC、情境與日記收藏都能按住拖曳調整順序；桌機直接拖頭像或卡片，手機用 ☰ 把手。</li>
@@ -470,7 +477,7 @@
 <option value="ja">日本語</option>
 </select>
 </label>
-<p class="setup-version"> Threads @ miyazaki.617 · v2.6 · 2026/07/10</p>
+<p class="setup-version"> Threads @ miyazaki.617 · v2.7 · 2026/07/10</p>
 </div>
 </section>
 
@@ -545,7 +552,8 @@
 <h3>成長與里程碑</h3>
 <p>達成重大成就會拿到成長點，可在「角色成長」區提升屬性或新增擅長領域，稱號隨成就升階。</p>
 <p>達成情境的「本場目標」會觸發章節收束，由 AI 收尾並給成長點。</p>
-<p>NPC 好感滿值、關係破裂或死亡等重大節點，系統會自動記進 Flags 與冒險日誌。</p>
+<p>NPC 好感滿值、關係破裂或死亡等重大節點，系統會自動記進 Flags 與冒險日誌；好感跌到谷底（−100）會解鎖特殊成就。</p>
+<p>面板上的像素愛心會隨好感改變動作：越愛越活潑，滿值會發光跳躍，觸底則整顆倒下。</p>
 <p>冒險日誌記完整事件；想收藏對話用日記（泡泡右鍵、長按選「收藏這段」），在日記頁面對翻頁列桌機右鍵、手機長按可把整篇存成長圖。</p>
 </article>
 <article>

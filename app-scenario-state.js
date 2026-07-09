@@ -421,8 +421,9 @@ function normalizeMemoryNotes(value) {
         // === 關係里程碑保底旗標（好感滿值 / 好感觸底 / NPC 死亡；程式硬保證，不靠 AI 自覺）===
         const AFFECTION_MAX_MILESTONE = 100;
         const AFFECTION_MIN_MILESTONE = -30;
+        const AFFECTION_HELL_MILESTONE = -100;   // 好感觸底：保底成就「我們地獄見」（2026/07/10）
         const AFFECTION_INCREASE_THRESHOLDS = [15, 30, 45, 60, 75, 90, 100];
-        const AFFECTION_DECREASE_THRESHOLDS = [-15, -30];
+        const AFFECTION_DECREASE_THRESHOLDS = [-15, -30, -100];
         const AFFECTION_NOTICE_KEYS = {
             15: '\u8ddf {npc} \u7684\u8ddd\u96e2\u62c9\u8fd1\u4e86\u4e00\u9ede',
             30: '{npc} \u5c0d\u4f60\u591a\u4e86\u4e00\u9ede\u597d\u611f',
@@ -432,7 +433,8 @@ function normalizeMemoryNotes(value) {
             90: '{npc} \u5c0d\u4f60\u62b1\u6709\u6df1\u539a\u60c5\u611f',
             100: '\u8ddf {npc} \u7de0\u7d50\u4e86\u81f3\u6df1\u7f88\u7d46',
             '-15': '\u8ddf {npc} \u7684\u95dc\u4fc2\u8b8a\u5f97\u6709\u4e9b\u7dca\u5f35',
-            '-30': '{npc} \u5c0d\u4f60\u7684\u6575\u610f\u52a0\u6df1\u4e86'
+            '-30': '{npc} \u5c0d\u4f60\u7684\u6575\u610f\u52a0\u6df1\u4e86',
+            '-100': '\u8207 {npc} \u6069\u65b7\u7fa9\u7d55\uff0c\u5730\u7344\u898b'
         };
 
         function getCrossedAffectionThreshold(previous, next) {
@@ -513,10 +515,23 @@ function normalizeMemoryNotes(value) {
             const pending = pendingRelationshipMilestones;
             pendingRelationshipMilestones = [];
             pending.forEach(({ npcName, kind }) => {
+                if (kind === 'hellAffection') { grantHellAchievement(npcName); return; }
                 if ((kind === 'maxAffection' || kind === 'minAffection')
                     && npcName && aiFlags.some(flag => flag.includes(npcName))) return;
                 addGuaranteedFlag(buildMilestoneFlagText(npcName, kind));
             });
+        }
+
+        // 好感觸底 -100 的保底成就「我們地獄見」：與 AI 回傳的成就同一套路徑
+        //（成就數 +1、寫入冒險日誌、成就揭幕線訊息），計入套用快照可完整回滾。
+        function grantHellAchievement(npcName) {
+            const name = valueToText(npcName) || 'NPC';
+            const text = window.uiMessage ? uiMessage('我們地獄見（{npc}）', { npc: name }) : `我們地獄見（${name}）`;
+            achievementCount = (Number(achievementCount) || 0) + 1;
+            currentAdventureLog = mergeAdventureLog(currentAdventureLog, `成就：${text}`);
+            if (typeof createSystemAlert === 'function' && typeof survivalFxUiMessage === 'function') {
+                createSystemAlert(survivalFxUiMessage('— 成就達成：{text} —', { text }));
+            }
         }
 
         function applyAffectionUpdate(npc, value, mode = 'change', { announce = true } = {}) {
@@ -530,6 +545,7 @@ function normalizeMemoryNotes(value) {
             npc.affection = next;
             if (previous < AFFECTION_MAX_MILESTONE && next >= AFFECTION_MAX_MILESTONE) queueRelationshipMilestone(npc.name, 'maxAffection');
             if (previous > AFFECTION_MIN_MILESTONE && next <= AFFECTION_MIN_MILESTONE) queueRelationshipMilestone(npc.name, 'minAffection');
+            if (previous > AFFECTION_HELL_MILESTONE && next <= AFFECTION_HELL_MILESTONE) queueRelationshipMilestone(npc.name, 'hellAffection');
             if (announce) announceAffectionBreakthrough(npc, previous, next);
             return { npcId: npc.id || npc.name, npcName: npc.name, previous, next, mode };
         }
@@ -840,6 +856,23 @@ function normalizeMemoryNotes(value) {
             return cells;
         }
 
+        // 好感情緒漸進動態分檔（2026/07/10，heart-mood-lab 定案）：
+        // 感情越好動作越活潑；門檻對齊里程碑階梯，動畫規則在 style.css npc-mood-*。
+        function getAffectionMoodClass(value) {
+            const v = Number(value) || 0;
+            if (v <= -100) return 'mood-dead';       // 整顆倒下 45°，不動
+            if (v <= -30) return 'mood-sad-deep';    // 重度垂頭
+            if (v <= -15) return 'mood-sad';         // 垂頭喪氣
+            if (v >= 100) return '';                 // 滿值走 affection-full 終點招（雙段跳）
+            if (v >= 90) return 'mood-6';            // 雀躍歪頭
+            if (v >= 75) return 'mood-5';            // 蹦蹦跳
+            if (v >= 60) return 'mood-4';            // 小雀躍
+            if (v >= 45) return 'mood-3';            // 輕快漂浮
+            if (v >= 30) return 'mood-2';            // 輕輕漂浮
+            if (v >= 15) return 'mood-1';            // 微微呼吸
+            return 'mood-0';                         // −14~14 靜止（15 是第一個里程碑）
+        }
+
         function renderNpcAffectionHeart(value) {
             const affection = Number(value ?? 0);
             const negative = affection < 0;
@@ -893,7 +926,8 @@ function normalizeMemoryNotes(value) {
             } else if (!negative && percent >= 60) {
                 parts.push(`<span class="npc-affection-spark is-s2" style="--x:10;--y:2"></span>`);
             }
-            return `<span class="npc-affection${negative ? (affection <= -30 ? ' negative' : ' negative negative-soft') : ''}${percent >= 100 ? ' affection-full' : ''}" aria-label="NPC affection ${affection}">${parts.join('')}</span>`;
+            const moodClass = getAffectionMoodClass(affection);
+            return `<span class="npc-affection${negative ? (affection <= -30 ? ' negative' : ' negative negative-soft') : ''}${percent >= 100 ? ' affection-full' : ''}${moodClass ? ' ' + moodClass : ''}" aria-label="NPC affection ${affection}">${parts.join('')}</span>`;
         }
 
         function renderStatusSummary() {
