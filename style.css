@@ -2239,7 +2239,10 @@ margin: 0; padding: 0; background: transparent;
                 left: calc(var(--status-layout-left) + var(--game-panel-width) + var(--status-panel-gutter));
                 width: clamp(420px, 38vw, 680px);
                 padding: 0;
-                overflow: hidden !important;
+                /* 原本 overflow: hidden 會把掛在面板左緣外的「角色面板」標籤
+                   與拖出停靠框的面板裁掉;捲動由面板內部 scroller 負責,
+                   這裡放開不會出現多餘捲軸(visible 不產生 scrollbar)。 */
+                overflow: visible !important;
                 background: transparent;
             }
 
@@ -2901,7 +2904,6 @@ html { background-color: var(--bg-main); }
 background: var(--paper-bg);
 background: var(--bg-panel-glass);
 }
-
 /* 背景圖模式：所有側邊標籤同步版本更新標籤的透明感；一般模式維持實心。 */
 :root[data-bg-mode="image"] .home-update-tab {
 background: var(--text-sub);
@@ -3178,7 +3180,7 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
 .diary-pg-list > * { flex: 0 0 auto; }
 .diary-pg-list::-webkit-scrollbar { display: none; width: 0; height: 0; }
 .diary-pg-actions { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 10px; height: 22px; }
-.diary-pg { background: transparent; border: none; color: var(--text-main); font-weight: 900; font-size: 16px; cursor: pointer; padding: 0 3px; }
+.diary-pg { background: transparent; border: none; color: var(--text-main); font-weight: 900; font-size: 16px; cursor: pointer; padding: 6px 9px; min-width: 30px; }
 .diary-pg.active { color: #fff; }
 .diary-pg-sep { color: var(--text-main); opacity: .55; font-size: 15px; }
 .diary-pg-del { width: 16px; height: 16px; padding: 0; display: grid; place-items: center; align-self: center; background: var(--border-dark); color: var(--accent-neon); border: none; border-radius: 0; font-family: Arial, "Microsoft JhengHei", sans-serif; font-size: 11px; font-weight: 900; line-height: 16px; cursor: pointer; box-shadow: none; transition: transform 0.15s ease; }
@@ -3551,3 +3553,31 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
 #tutorial-modal-content .u-inline-019 { display: block; font-size: 16px; margin: 24px 0 10px; line-height: 1.5; }
 #tutorial-modal-content .u-inline-018 > .u-inline-019:first-of-type { margin-top: 4px; }
 #tutorial-modal-content .u-inline-020 { line-height: 1.9; margin-bottom: 12px; }
+
+
+/* ============================================================
+   拖曳排序(存檔/NPC/情境/日記)與狀態面板拖動(v2.5)
+   ============================================================ */
+.reorder-handle {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; padding: 0 4px; margin-right: 6px;
+    color: var(--text-sub); font-weight: 900; font-size: 14px;
+    cursor: grab; user-select: none; touch-action: none;
+}
+.reorder-handle:active { cursor: grabbing; }
+.reorder-dragging { opacity: 0.6; }
+/* 存檔列表:有把手時多一欄(不影響其他 save-slot 樣式) */
+.save-slot:has(.reorder-handle) { grid-template-columns: auto minmax(0, 1fr) 20px; }
+.save-slot > .reorder-handle { margin-right: 0; }
+/* 狀態面板標題列:桌機顯示可拖動游標(手機不啟用拖動) */
+@media (min-width: 601px) {
+    #status-modal-content .modal-header-sticky { cursor: move; }
+}
+/* 拖動中停用過渡(跟手);放開吸回原位時用短過渡 */
+#status-modal-content.status-drag-active, #floating-menu-btn.status-drag-active, #game-container.status-drag-active { transition: none; }
+#status-modal-content.status-drag-snap, #floating-menu-btn.status-drag-snap, #game-container.status-drag-snap { transition: transform 0.18s ease; }
+/* 遊戲對話介面:桌機抓頂部狀態列拖動 */
+@media (min-width: 601px) {
+    #status-bar { cursor: move; }
+}
+

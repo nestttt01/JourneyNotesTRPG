@@ -300,4 +300,81 @@
         }
 
 
-
+/* ---- 共用:清單拖曳排序(桌機滑鼠/手機觸控,pointer events) ----
+   handle:抓握元素;item:被移動的清單項;container:清單容器;itemSelector:清單項選擇器;
+   onDrop(fromIndex, toIndex):放開後由呼叫端重排「資料」並重繪(拖曳中的 DOM 移動只是預覽);
+   opts.axis = 'x' 代表橫向清單(預設縱向)。 */
+function enableReorderDrag(handle, item, container, itemSelector, onDrop, opts) {
+    if (!handle || !item || !container || handle.dataset.reorderWired) return;
+    handle.dataset.reorderWired = '1';
+    handle.style.touchAction = 'none';
+    /* 關掉瀏覽器原生拖曳:按住 <img>(NPC 頭像)會啟動「拖圖片」並發 pointercancel
+       把自訂拖曳掐死;文字則會觸發選取。這裡連同 pointerdown 的 preventDefault 一起防。 */
+    handle.draggable = false;
+    item.draggable = false;
+    item.querySelectorAll('img').forEach(img => { img.draggable = false; });
+    handle.addEventListener('pointerdown', startEvent => {
+        if (startEvent.button !== undefined && startEvent.button !== 0) return;
+        const listItems = () => Array.from(container.querySelectorAll(itemSelector));
+        const fromIndex = listItems().indexOf(item);
+        if (fromIndex < 0) return;
+        startEvent.preventDefault();   /* 阻止原生圖片拖曳與文字選取(click 仍會照常發出) */
+        const startX = startEvent.clientX;
+        const startY = startEvent.clientY;
+        const horizontal = !!(opts && opts.axis === 'x');
+        const grid = !!(opts && opts.axis === 'grid');
+        let started = false;
+        /* 事件掛 document 而非把手:拖曳中 insertBefore 搬動 DOM 會清掉 pointer capture,
+           掛在把手上事件會斷流(狀態面板拖動能動就是因為聽 document)。 */
+        const onMove = moveEvent => {
+            if (moveEvent.pointerId !== startEvent.pointerId) return;
+            if (!started) {
+                if (Math.abs(moveEvent.clientX - startX) + Math.abs(moveEvent.clientY - startY) < 6) return;
+                started = true;
+                item.classList.add('reorder-dragging');
+            }
+            moveEvent.preventDefault();
+            const others = listItems().filter(el => el !== item);
+            let placed = false;
+            for (const el of others) {
+                const rect = el.getBoundingClientRect();
+                let before;
+                if (grid) {
+                    /* 網格:先比列(整列在下方就往前插),同列再比左右 */
+                    before = moveEvent.clientY < rect.top
+                        || (moveEvent.clientY < rect.bottom && moveEvent.clientX < rect.left + rect.width / 2);
+                } else if (horizontal) {
+                    before = moveEvent.clientX < rect.left + rect.width / 2;
+                } else {
+                    before = moveEvent.clientY < rect.top + rect.height / 2;
+                }
+                if (before) {
+                    el.parentNode.insertBefore(item, el);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed && others.length) {
+                const last = others[others.length - 1];
+                last.parentNode.insertBefore(item, last.nextSibling);
+            }
+        };
+        const onUp = upEvent => {
+            if (upEvent && upEvent.pointerId !== undefined && upEvent.pointerId !== startEvent.pointerId) return;
+            document.removeEventListener('pointermove', onMove);
+            document.removeEventListener('pointerup', onUp);
+            document.removeEventListener('pointercancel', onUp);
+            if (!started) return;
+            item.classList.remove('reorder-dragging');
+            /* 吃掉拖曳結束後的 click,避免誤觸(summary 展開/存檔載入/開啟編輯/日記翻頁) */
+            const swallow = clickEvent => { clickEvent.stopPropagation(); clickEvent.preventDefault(); };
+            document.addEventListener('click', swallow, { capture: true, once: true });
+            setTimeout(() => document.removeEventListener('click', swallow, { capture: true }), 0);
+            const toIndex = listItems().indexOf(item);
+            if (toIndex >= 0 && toIndex !== fromIndex && typeof onDrop === 'function') onDrop(fromIndex, toIndex);
+        };
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+        document.addEventListener('pointercancel', onUp);
+    });
+}

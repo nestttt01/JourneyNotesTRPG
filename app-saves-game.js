@@ -33,12 +33,32 @@ document.getElementById('save-menu-screen').style.display = 'flex';
 renderSaveList();
 }
 
+const SAVE_ORDER_PREF_KEY = 'sanko_save_order_v1';
+function readSaveOrderPref() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(SAVE_ORDER_PREF_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch (err) { return []; }
+}
+function persistSaveOrderFromDom() {
+    const ids = Array.from(document.querySelectorAll('#save-list .save-slot'))
+        .map(el => String(el.dataset.saveId || ''))
+        .filter(id => id && savesData[id]);
+    try { localStorage.setItem(SAVE_ORDER_PREF_KEY, JSON.stringify(ids)); } catch (err) {}
+    renderSaveList();
+}
 function renderSaveList() {
 const listDiv = document.getElementById('save-list');
 if (!listDiv) return;
 listDiv.innerHTML = '';
 updateStorageHealthDisplay();
 const saveKeys = Object.keys(savesData || {}).sort((a, b) => String(b).localeCompare(String(a)));
+/* 玩家自訂順序(拖曳排序):有記錄的照記錄排,新存檔(未記錄)排最前 */
+const savedOrder = readSaveOrderPref();
+if (savedOrder.length) {
+    const orderPos = new Map(savedOrder.map((sid, i) => [String(sid), i]));
+    saveKeys.sort((a, b) => (orderPos.has(a) ? orderPos.get(a) : -1) - (orderPos.has(b) ? orderPos.get(b) : -1));
+}
 if (saveKeys.length === 0) {
 window.journeySelectedSaveIds.clear();
 listDiv.innerHTML = `<p class="u-inline-077">${escapeStatusHtml(uiText('目前沒有任何存檔紀錄。'))}</p>`;
@@ -56,10 +76,17 @@ if (Array.isArray(scenario.npcs) && scenario.npcs.length > 0) tName = valueToTex
 if (scenario.targetName) tName = valueToText(scenario.targetName, tName);
 const slotDiv = document.createElement('div');
 slotDiv.className = 'save-slot';
+slotDiv.dataset.saveId = String(id);
 slotDiv.onclick = event => {
-if (event.target.closest('input, button, label')) return;
+if (event.target.closest('input, button, label, .reorder-handle')) return;
 loadGame(id);
 };
+const dragHandle = document.createElement('span');
+dragHandle.className = 'reorder-handle';
+dragHandle.textContent = '\u2630';
+dragHandle.setAttribute('data-no-i18n', '1');
+dragHandle.title = uiText('\u62d6\u62fd\u6392\u5e8f');
+dragHandle.setAttribute('aria-label', uiText('\u62d6\u62fd\u6392\u5e8f'));
 const main = document.createElement('div');
 main.className = 'save-slot-main';
 const titleInput = document.createElement('input');
@@ -94,9 +121,13 @@ checkbox.onchange = event => toggleSaveSelection(id, event.target.checked);
 main.appendChild(titleInput);
 main.appendChild(info);
 frame.appendChild(checkbox);
+slotDiv.appendChild(dragHandle);
 slotDiv.appendChild(main);
 slotDiv.appendChild(frame);
 listDiv.appendChild(slotDiv);
+if (typeof enableReorderDrag === 'function') {
+    enableReorderDrag(dragHandle, slotDiv, listDiv, '.save-slot', () => persistSaveOrderFromDom());
+}
 });
 updateSaveSelectAllState();
 }

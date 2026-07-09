@@ -1,4 +1,4 @@
-﻿// === [app.js 拆分] app-config-ui.js：原 app.js 第 2921–3436 行｜桌機角色配置 UI/配置概覽/NPC 與情境列表｜需依 index.html 既有順序與其他 app-*.js 一同載入，勿單獨重排。 ===
+// === [app.js 拆分] app-config-ui.js：原 app.js 第 2921–3436 行｜桌機角色配置 UI/配置概覽/NPC 與情境列表｜需依 index.html 既有順序與其他 app-*.js 一同載入，勿單獨重排。 ===
 function openEditScenario() {
 document.getElementById('setup-screen').style.display = 'none';
 document.getElementById('edit-scenario-screen').style.display = 'flex';
@@ -117,6 +117,15 @@ switchDesktopConfigWorkspace('characters');
                 label.textContent = displayName;
                 button.append(image, label);
                 list.appendChild(button);
+                /* 桌機 NPC 總覽:按住頭像拖曳排序(輕點仍是開啟編輯) */
+                if (typeof enableReorderDrag === 'function') {
+                    enableReorderDrag(button, button, list, '.desktop-npc-avatar-button:not(.desktop-npc-add-button)', (fromIndex, toIndex) => {
+                        syncEditingDataFromDOM();
+                        const moved = editingNpcs.splice(fromIndex, 1)[0];
+                        editingNpcs.splice(toIndex, 0, moved);
+                        renderNpcList();
+                    }, { axis: 'grid' });
+                }
             });
 
             const addButton = document.createElement('button');
@@ -143,6 +152,15 @@ switchDesktopConfigWorkspace('characters');
                     const loreValue = fullLoreValue.length > 72 ? `${fullLoreValue.slice(0, 72)}…` : fullLoreValue;
                     button.innerHTML = `<span class="desktop-scenario-number">${index + 1}</span><span><strong data-no-i18n>${escapeStatusHtml(nameValue)}</strong><small data-no-i18n>${escapeStatusHtml(loreValue)}</small></span>`;
                     scenarioList.appendChild(button);
+                    /* 桌機情境總覽:按住卡片拖曳排序(輕點仍是開啟編輯) */
+                    if (typeof enableReorderDrag === 'function') {
+                        enableReorderDrag(button, button, scenarioList, '.desktop-scenario-card', (fromIndex, toIndex) => {
+                            syncEditingDataFromDOM();
+                            const moved = editingScenarios.splice(fromIndex, 1)[0];
+                            editingScenarios.splice(toIndex, 0, moved);
+                            renderScenarioList();
+                        });
+                    }
                 });
                 const addScenarioButton = document.createElement('button');
                 addScenarioButton.type = 'button';
@@ -395,7 +413,7 @@ function selectDesktopPreset(id) {
                 if (index === forceOpenNpcIndex) details.open = true; 
                 
                 details.innerHTML = `
-                    <summary>NPC: <span id="npc-title-${index}" data-no-i18n>${escapeStatusHtml(npc.name || '新角色')}</span></summary>
+                    <summary><span class="reorder-handle" data-no-i18n title="${escapeStatusHtml(uiText('拖曳排序'))}">☰</span>NPC: <span id="npc-title-${index}" data-no-i18n>${escapeStatusHtml(npc.name || '新角色')}</span></summary>
                     <div class="foldable-content">
                         <button class="delete-scen-btn" onclick="removeNpcBlock(${index})">刪除</button>
                         <div class="avatar-setup-area u-inline-060">
@@ -438,6 +456,14 @@ function selectDesktopPreset(id) {
 </div>
 `;
                 container.appendChild(details);
+                if (typeof enableReorderDrag === 'function') {
+                    enableReorderDrag(details.querySelector('.reorder-handle'), details, container, 'details.foldable-card', (fromIndex, toIndex) => {
+                        syncEditingDataFromDOM();
+                        const moved = editingNpcs.splice(fromIndex, 1)[0];
+                        editingNpcs.splice(toIndex, 0, moved);
+                        renderNpcList();
+                    });
+                }
             });
             initTextareas();
             forceOpenNpcIndex = -1; 
@@ -454,7 +480,7 @@ function selectDesktopPreset(id) {
                 if (index === forceOpenScenIndex) details.open = true;
 
                 details.innerHTML = `
-                    <summary>情境: <span id="scen-title-${index}" data-no-i18n>${escapeStatusHtml(scen.name || '未命名')}</span></summary>
+                    <summary><span class="reorder-handle" data-no-i18n title="${escapeStatusHtml(uiText('拖曳排序'))}">☰</span>情境: <span id="scen-title-${index}" data-no-i18n>${escapeStatusHtml(scen.name || '未命名')}</span></summary>
                     <div class="foldable-content">
                         <button class="delete-scen-btn" onclick="removeScenarioBlock(${index})">刪除</button>
                         <div class="scenario-label">情境名稱</div>
@@ -472,6 +498,14 @@ function selectDesktopPreset(id) {
                     </div>
                 `;
                 container.appendChild(details);
+                if (typeof enableReorderDrag === 'function') {
+                    enableReorderDrag(details.querySelector('.reorder-handle'), details, container, 'details.foldable-card', (fromIndex, toIndex) => {
+                        syncEditingDataFromDOM();
+                        const moved = editingScenarios.splice(fromIndex, 1)[0];
+                        editingScenarios.splice(toIndex, 0, moved);
+                        renderScenarioList();
+                    });
+                }
             });
             initTextareas();
             forceOpenScenIndex = -1;

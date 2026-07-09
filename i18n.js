@@ -36,6 +36,10 @@
 "成長與里程碑": ["Growth & milestones", "成長とマイルストーン"],
 "讓 AI 不忘記、不跳針": ["Keeping the AI on track", "AI を脱線させない"],
 "存檔、備份與成人模式": ["Saves, backups & mature mode", "セーブ・バックアップ・成人モード"],
+'v2.5 更新（07/09）': ['v2.5 update (07/09)', 'v2.5 アップデート（07/09）'],
+'清單拖曳排序：存檔紀錄、NPC、情境與日記收藏都能按住拖曳調整順序；桌機直接拖頭像或卡片，手機用 ☰ 把手。': ['Drag-to-reorder lists: saves, NPCs, scenarios and diary clips can all be reordered by holding and dragging; on desktop drag the avatar or card directly, on mobile use the ☰ handle.', 'リストのドラッグ並べ替え：セーブ・NPC・シナリオ・日記の収蔵を長押しドラッグで並べ替えできます。PC はアバターやカードを直接、スマホは ☰ ハンドルで。'],
+'面板自由拖動：桌機可拖動狀態面板與遊戲對話介面（抓標題列、角色面板標籤或介面留白處），拖回原位附近會自動吸回。': ['Free panel dragging: on desktop you can drag the status panel and the game dialogue view (grab the title bar, the panel tab, or empty chrome); dragging back near the original spot snaps it home.', 'パネルの自由移動：PC ではステータスパネルと会話画面をドラッグできます（タイトルバー・パネルタブ・余白をつかむ）。元の位置付近に戻すと自動で吸着します。'],
+'「角色面板」標籤現在會跟著面板一起移動，不再和面板分離或被其他視窗遮住。': ['The "Panel" tab now moves together with the status panel, no longer separating from it or hiding behind other views.', '「キャラクターパネル」タブはパネルと一緒に動くようになり、分離したり他のウィンドウに隠れたりしません。'],
 'v2.4 更新（07/08）': ['v2.4 update (07/08)', 'v2.4 アップデート（07/08）'],
 'v2.3 更新': ['v2.3 update', 'v2.3 アップデート'],
 '新增「喘息」：遊戲頁可主動擲檢定回復 HP／SAN（有上限、不能連按），用來脫離死亡螺旋。': ['Added "Catch Breath": actively roll on the game screen to restore HP/SAN (capped, no chaining) to escape a death spiral.', '「ひと息」を追加：ゲーム画面で判定して HP／SAN を回復（上限あり・連続不可）、死のスパイラルから抜けます。'],
@@ -547,6 +551,7 @@
         '引擎 (DM)': ['Engine (GM)', 'エンジン (GM)'], '判定引擎': ['Check Engine', '判定エンジン'], '判定': ['Check', '判定'],
         '此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場': ['No dialogue in this scenario yet. Enter an action or let AI generate an opening.', 'このシナリオにはまだ会話がありません。行動を入力するか、AIに導入を生成させてください。'],
         '🎲 讓 AI 根據「情境設定」隨機生成開場事件': ['🎲 Generate an Opening from the Scenario', '🎲 シナリオ設定から導入を生成'],
+        '拖曳排序': ['Drag to reorder', 'ドラッグで並べ替え'],
         '力量': ['Strength', '筋力'], '敏捷': ['Dexterity', '敏捷'], '體質': ['Constitution', '体質'],
         '智力': ['Intelligence', '知力'], '感知': ['Wisdom', '感知'], '魅力': ['Charisma', '魅力'],
         '大成功': ['Critical Success', '大成功'], '成功': ['Success', '成功'], '失敗': ['Failure', '失敗'], '大失敗': ['Critical Failure', '大失敗']

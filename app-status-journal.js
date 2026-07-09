@@ -1,6 +1,191 @@
 // === [app.js 拆分] app-status-journal.js：原 app.js 第 4153–4981 行｜狀態面板/Flags/道具/冒險日誌頁｜需依 index.html 既有順序與其他 app-*.js 一同載入，勿單獨重排。 ===
+const statusModalDragState = { x: 0, y: 0 };
+const gamePanelDragState = { x: 0, y: 0 };
+/* 拖動邊界:以「視口」為準,面板可以拖到畫面任何位置,
+   但左右至少留 120px 在畫面內、標題不可拖出畫面頂端(否則抓不回來)。 */
+function computePanelDragBounds(content, state) {
+    const rect = content.getBoundingClientRect();
+    const baseLeft = rect.left - state.x;
+    const baseTop = rect.top - state.y;
+    const keep = 120;
+    return {
+        xMin: keep - rect.width - baseLeft,
+        xMax: window.innerWidth - keep - baseLeft,
+        yMin: -baseTop,
+        yMax: Math.max(-baseTop, window.innerHeight - 80 - baseTop)
+    };
+}
+/* 通用面板拖動:status 面板與遊戲對話介面共用。
+   cfg = { content, state, applyTransform(animate), markActive(on), clearSnap(), dragThreshold } */
+function beginFreePanelDrag(startEvent, cfg) {
+    const content = cfg.content;
+    if (!content) return;
+    if (window.innerWidth <= 600) return;          /* 手機不啟用拖動 */
+    if (startEvent.button !== undefined && startEvent.button !== 0) return;
+    startEvent.preventDefault();
+    const state = cfg.state;
+    const bounds = computePanelDragBounds(content, state);
+    const startX = startEvent.clientX;
+    const startY = startEvent.clientY;
+    const baseX = startX - state.x;
+    const baseY = startY - state.y;
+    const threshold = cfg.dragThreshold || 0;
+    let started = threshold <= 0;
+    if (started && cfg.markActive) cfg.markActive(true);
+    const onMove = moveEvent => {
+        if (moveEvent.pointerId !== startEvent.pointerId) return;
+        if (!started) {
+            if (Math.abs(moveEvent.clientX - startX) + Math.abs(moveEvent.clientY - startY) < threshold) return;
+            started = true;
+            if (cfg.markActive) cfg.markActive(true);
+        }
+        state.x = Math.max(bounds.xMin, Math.min(bounds.xMax, moveEvent.clientX - baseX));
+        state.y = Math.max(bounds.yMin, Math.min(bounds.yMax, moveEvent.clientY - baseY));
+        cfg.applyTransform(false);
+    };
+    const onUp = upEvent => {
+        if (upEvent && upEvent.pointerId !== undefined && upEvent.pointerId !== startEvent.pointerId) return;
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        document.removeEventListener('pointercancel', onUp);
+        if (cfg.markActive) cfg.markActive(false);
+        if (!started) return;
+        /* 拖曳結束吃掉一次 click,避免誤觸 */
+        const swallow = clickEvent => { clickEvent.stopPropagation(); clickEvent.preventDefault(); };
+        document.addEventListener('click', swallow, { capture: true, once: true });
+        setTimeout(() => document.removeEventListener('click', swallow, { capture: true }), 0);
+        /* 拖回原位附近(90px 內)自動吸回 */
+        if (Math.hypot(state.x, state.y) < 90) {
+            state.x = 0;
+            state.y = 0;
+            cfg.applyTransform(true);
+            setTimeout(() => { if (cfg.clearSnap) cfg.clearSnap(); }, 220);
+        }
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
+}
+/* 「角色面板」標籤跟隨:標籤是遊戲容器的子元素,拖對話框它會被動跟著跑。
+   要讓它永遠黏住狀態面板,補償量 = 狀態面板位移 − 對話框位移。
+   面板開著時任何一邊被拖都會呼叫這裡,兩邊都歸位時清乾淨。 */
+function syncStatusTabFollow(animate) {
+    const tab = document.getElementById('floating-menu-btn');
+    if (!tab) return;
+    if (!document.body.classList.contains('status-panel-open')) {
+        tab.style.transform = '';
+        tab.style.zIndex = '';
+        return;
+    }
+    const tx = statusModalDragState.x - gamePanelDragState.x;
+    const ty = statusModalDragState.y - gamePanelDragState.y;
+    tab.classList.toggle('status-drag-snap', Boolean(animate));
+    if (tx || ty) {
+        tab.style.transform = 'translateY(-50%) translate(' + tx + 'px, ' + ty + 'px)';
+        tab.style.zIndex = '10001';
+    } else {
+        tab.style.transform = '';
+        tab.style.zIndex = '';
+    }
+}
+function applyStatusModalDragTransform(animate) {
+    const content = document.getElementById('status-modal-content');
+    if (!content) return;
+    const x = statusModalDragState.x;
+    const y = statusModalDragState.y;
+    content.classList.toggle('status-drag-snap', Boolean(animate));
+    content.style.transform = (x || y) ? 'translate(' + x + 'px, ' + y + 'px)' : '';
+    syncStatusTabFollow(animate);
+}
+function resetStatusModalDrag() {
+    statusModalDragState.x = 0;
+    statusModalDragState.y = 0;
+    const content = document.getElementById('status-modal-content');
+    const tab = document.getElementById('floating-menu-btn');
+    if (content) { content.classList.remove('status-drag-snap', 'status-drag-active'); content.style.transform = ''; }
+    if (tab) { tab.classList.remove('status-drag-snap', 'status-drag-active'); tab.style.transform = ''; tab.style.zIndex = ''; }
+    syncStatusTabFollow(false);
+}
+function statusModalDragCfg(dragThreshold) {
+    const content = document.getElementById('status-modal-content');
+    const tab = document.getElementById('floating-menu-btn');
+    return {
+        content,
+        state: statusModalDragState,
+        dragThreshold,
+        applyTransform: applyStatusModalDragTransform,
+        markActive: on => {
+            if (content) content.classList.toggle('status-drag-active', on);
+            if (tab) tab.classList.toggle('status-drag-active', on);
+        },
+        clearSnap: () => {
+            if (content) content.classList.remove('status-drag-snap');
+            const tabNow = document.getElementById('floating-menu-btn');
+            if (tabNow) tabNow.classList.remove('status-drag-snap');
+        }
+    };
+}
+function beginStatusModalDrag(startEvent, dragThreshold) {
+    beginFreePanelDrag(startEvent, statusModalDragCfg(dragThreshold));
+}
+function ensureStatusModalDrag() {
+    const content = document.getElementById('status-modal-content');
+    const header = content ? content.querySelector('.modal-header-sticky') : null;
+    if (header && !header.dataset.dragWired) {
+        header.dataset.dragWired = '1';
+        header.addEventListener('pointerdown', startEvent => {
+            if (startEvent.target.closest('button, input, select, textarea, a')) return;
+            beginStatusModalDrag(startEvent, 0);
+        });
+    }
+    const tab = document.getElementById('floating-menu-btn');
+    if (tab && !tab.dataset.dragWired) {
+        tab.dataset.dragWired = '1';
+        tab.addEventListener('pointerdown', startEvent => {
+            if (!document.body.classList.contains('status-panel-open')) return;   /* 面板關閉時純粹是開關鈕 */
+            beginStatusModalDrag(startEvent, 6);
+        });
+    }
+}
+/* 遊戲對話介面拖動:抓頂部狀態列(離開/HP/SAN 那條)空白處拖動整個對話面板。
+   事件委派掛 document,不必等載入流程;手機與互動元件排除。 */
+function applyGamePanelDragTransform(animate) {
+    const container = document.getElementById('game-container');
+    if (!container) return;
+    const x = gamePanelDragState.x;
+    const y = gamePanelDragState.y;
+    container.classList.toggle('status-drag-snap', Boolean(animate));
+    container.style.transform = (x || y) ? 'translate(' + x + 'px, ' + y + 'px)' : '';
+    syncStatusTabFollow(animate);
+}
+document.addEventListener('pointerdown', event => {
+    const container = document.getElementById('game-container');
+    if (!container) return;
+    const target = event.target;
+    /* 可拖區:頂部狀態列全區 + 容器本身的留白(對話框外框、輸入列/選項列的空隙) */
+    const inBar = target.closest && target.closest('#status-bar');
+    const onShell = target === container || target.id === 'input-area' || target.id === 'options-area';
+    if (!inBar && !onShell) return;
+    if (target.closest('button, input, select, textarea, a')) return;
+    const tab = document.getElementById('floating-menu-btn');
+    beginFreePanelDrag(event, {
+        content: container,
+        state: gamePanelDragState,
+        dragThreshold: 0,
+        applyTransform: applyGamePanelDragTransform,
+        markActive: on => {
+            container.classList.toggle('status-drag-active', on);
+            if (tab) tab.classList.toggle('status-drag-active', on);   /* 關掉標籤 0.2s 過渡,避免慢半拍脫隊 */
+        },
+        clearSnap: () => {
+            container.classList.remove('status-drag-snap');
+            if (tab) tab.classList.remove('status-drag-snap');
+        }
+    });
+});
 function openStatusModal() {
             if(!currentSaveId) return;
+            ensureStatusModalDrag();
             currentStorySummary = formatBulletListText(currentStorySummary, '', true);
             currentOpenTasks = serializeTaskChecklist(currentOpenTasks);
             currentRelationshipSummary = formatBulletListText(currentRelationshipSummary, '', true);
@@ -152,6 +337,7 @@ function openStatusModal() {
             if (!statusModal) return;
             statusModal.style.display = isOpen ? 'block' : 'none';
             document.body.classList.toggle('status-panel-open', Boolean(isOpen));
+            if (typeof resetStatusModalDrag === 'function') resetStatusModalDrag();
             if (isOpen) statusModal.scrollTop = 0;
         }
 
@@ -768,6 +954,20 @@ pageList.appendChild(b);
 if (i < cols.length - 1) { const sep = document.createElement('span'); sep.className = 'diary-pg-sep'; sep.textContent = '/'; pageList.appendChild(sep); }
 });
 pager.appendChild(pageList);
+if (typeof enableReorderDrag === 'function') {
+    Array.from(pageList.querySelectorAll('.diary-pg')).forEach(pageBtn => {
+        enableReorderDrag(pageBtn, pageBtn, pageList, '.diary-pg', (fromIndex, toIndex) => {
+            const list = getCollections(diaryViewSaveId);
+            if (fromIndex < 0 || fromIndex >= list.length || toIndex < 0 || toIndex >= list.length) return;
+            const viewed = list[diaryViewIndex];
+            const moved = list.splice(fromIndex, 1)[0];
+            list.splice(toIndex, 0, moved);
+            diaryViewIndex = Math.max(0, list.indexOf(viewed));
+            persistDiarySave();
+            renderDiary();
+        }, { axis: 'x' });
+    });
+}
 pageList.onwheel = event => {
 if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
 event.preventDefault();
