@@ -734,7 +734,7 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
         }
 
         async function fetchGoogleModels() {
-            const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+            const res = await fetchWithTimeout('https://generativelanguage.googleapis.com/v1beta/models', { headers: { 'x-goog-api-key': apiKey } });   // 金鑰放 header,URL 不含金鑰
             const data = await res.json();
             if (data.error) throw new Error(data.error.message || "Google API 金鑰驗證失敗。");
 

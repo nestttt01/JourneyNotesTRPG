@@ -134,10 +134,11 @@
             const sexualThreshold = matureOn ? "BLOCK_NONE" : "BLOCK_ONLY_HIGH";
             const safetySettings = [{ category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" }, { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" }, { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: sexualThreshold }, { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" }];
             return {
-                url: `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`,
+                // 金鑰改放 x-goog-api-key header(比照 Anthropic 做法),URL 不再含金鑰,避免進入任何日誌。
+                url: `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent`,
                 options: {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
                     body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: fullPrompt }] }], safetySettings: safetySettings, generationConfig: { responseMimeType: "application/json", temperature, maxOutputTokens: maxTokens } })
                 }
             };
@@ -271,7 +272,7 @@
                 return JSON.parse(extractJsonText(rawText));
             } catch (firstError) {
                 const profile = getModelRuntimeProfile();
-                const repairPrompt = `將下方內容修正為合法 JSON 物件，只輸出 JSON，不得新增原文沒有的劇情。頂層允許欄位：narrative、dialogues、options、changes、memory；若原文使用舊欄位名稱也必須保留其數值。\n\n待修正內容：\n${rawText.slice(0, 9000)}`;
+                const repairPrompt = `將下方內容修正為合法 JSON 物件，只輸出 JSON，不得新增原文沒有的劇情。頂層允許欄位：narrative、dialogues、options、hidden_san_option、changes、memory；若原文使用舊欄位名稱也必須保留其數值。\n\n待修正內容：\n${rawText.slice(0, 9000)}`;
                 const repairedText = await requestAIText(repairPrompt, { kind: 'repair', maxTokens: profile.repairMaxTokens });
                 try {
                     return JSON.parse(extractJsonText(repairedText));
@@ -618,6 +619,65 @@ ${rawAction}
             return fullPrompt;
         }
 
+        // ===== 套用階段快照/回滾:AI 回覆「套用到一半」出錯時,把遊戲狀態退回套用前,
+        // 避免半套用狀態被 catch 裡的 saveCurrentProgress() 寫進存檔。
+        // 快照只複製會被套用階段改動的欄位;NPC 頭像等大字串僅共享參照(字串不可變,無複製成本)。
+        function captureApplyStateSnapshot() {
+            const deepCopy = value => (value === undefined || value === null) ? value : JSON.parse(JSON.stringify(value));
+            return {
+                hp: currentHp,
+                san: currentSan,
+                items: currentItems.slice(),
+                itemEffects: { ...(itemEffects || {}) },
+                flags: currentFlags.slice(),
+                adventureLog: currentAdventureLog,
+                storySummary: currentStorySummary,
+                relationshipSummary: currentRelationshipSummary,
+                openTasks: currentOpenTasks,
+                achievementCount,
+                completedObjectives: Array.isArray(completedObjectives) ? completedObjectives.slice() : completedObjectives,
+                pendingSceneTransition,
+                chatPageIndex: currentChatPageIndex,
+                chatLength: (chatScripts[currentChatPageIndex] || []).length,
+                npcList: (currentScenario.npcs || []).slice(),
+                npcData: (currentScenario.npcs || []).map(npc => ({ ref: npc, data: { ...npc, dynamic: deepCopy(npc.dynamic) } })),
+                sceneData: (currentScenario.scenarios || []).map(scene => ({ ref: scene, runtimeSituation: deepCopy(scene.runtimeSituation) }))
+            };
+        }
+
+        function restoreApplyStateSnapshot(snap) {
+            if (!snap) return;
+            currentHp = snap.hp;
+            currentSan = snap.san;
+            currentItems = snap.items;
+            itemEffects = snap.itemEffects;
+            currentFlags = snap.flags;
+            currentAdventureLog = snap.adventureLog;
+            currentStorySummary = snap.storySummary;
+            currentRelationshipSummary = snap.relationshipSummary;
+            currentOpenTasks = snap.openTasks;
+            achievementCount = snap.achievementCount;
+            completedObjectives = snap.completedObjectives;
+            pendingSceneTransition = snap.pendingSceneTransition;
+            if (Array.isArray(chatScripts[snap.chatPageIndex])) chatScripts[snap.chatPageIndex].length = snap.chatLength;
+            if (currentScenario.npcs) currentScenario.npcs.splice(0, currentScenario.npcs.length, ...snap.npcList);
+            snap.npcData.forEach(item => {
+                Object.keys(item.ref).forEach(key => { delete item.ref[key]; });
+                Object.assign(item.ref, item.data);
+            });
+            snap.sceneData.forEach(item => {
+                if (item.runtimeSituation === undefined) delete item.ref.runtimeSituation;
+                else item.ref.runtimeSituation = item.runtimeSituation;
+            });
+            const hpEl = document.getElementById('ui-hp');
+            const sanEl = document.getElementById('ui-san');
+            if (hpEl) hpEl.innerText = currentHp;
+            if (sanEl) sanEl.innerText = currentSan;
+            if (typeof syncSurvivalVisualEffects === 'function') syncSurvivalVisualEffects();
+            /* 依回滾後的 chatScripts 重繪對話與選項,清掉套用途中畫到一半的訊息 */
+            if (typeof renderChatPage === 'function') renderChatPage(snap.chatPageIndex);
+        }
+
         async function callAI_JSON(extraPrompt = "", isOpening = false, latestPlayerAction = "", manualAffectionNpcIds = [], protectedRevivedNpcIds = []) {
             const profile = getModelRuntimeProfile();
             const fullPrompt = buildGamePrompt(extraPrompt, latestPlayerAction, profile);
@@ -626,6 +686,10 @@ ${rawAction}
                 const rawText = await requestAIText(fullPrompt, { kind: 'normal', maxTokens: profile.normalMaxTokens });
                 let parsedData = await parseAIJsonWithRepair(rawText, fullPrompt);
                 parsedData = await repairVisibleResponseLanguage(parsedData);
+                /* 快照:自此以下開始改動遊戲狀態;若套用途中出錯,回滾後再交給外層 catch,
+                   確保 catch 裡的 saveCurrentProgress() 不會把半套用狀態寫進存檔。 */
+                const applySnapshot = captureApplyStateSnapshot();
+                try {
                 const inputContext = parseSceneInputContext(stripHardDiceDirective(latestPlayerAction));
                 // 輔助旁白不可改動玩家；角色行動與最高權限的創作者指令都可寫入狀態欄位。
                 const playerEffectsAllowed = inputContext.mode !== 'narrator';
@@ -888,6 +952,11 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 saveCurrentProgress();
                 applyGameOverUi();
                 document.getElementById('loading').style.display = 'none';
+                } catch (applyError) {
+                    console.error('AI 回覆套用途中出錯,已回滾本回合所有變更。', applyError);
+                    restoreApplyStateSnapshot(applySnapshot);
+                    throw applyError;
+                }
 
             } catch (error) {
                 console.error(error);
