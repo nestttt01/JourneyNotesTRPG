@@ -455,6 +455,183 @@ dialogue: '--accent-gray'
                 root.style.removeProperty('--bg-image');
             }
             syncBackgroundControls();
+            if (typeof schedulePixelGlass === 'function') schedulePixelGlass();
+        }
+
+        // ===== 背景圖模式:像素折射玻璃(小元件,Chromium 限定) =====
+        // 只鍍小型/漂浮元件,閱讀面不碰;不支援 backdrop-filter:url() 的瀏覽器
+        // 與純色模式完全不受影響(class 與 inline filter 都會被清掉)。
+        // 概念稿:_handoff/2026-07-09-pixel-liquid-glass-concept/
+        /* 側邊標籤實測後退回原樣(使用者偏好),不在清單內 */
+        /* HP/SAN 亦退回原樣:它貼在紙面上、背後沒有背景圖,玻璃化只會風格不一致 */
+        const PX_GLASS_TARGETS = [
+            { selector: '.home-update-drawer, .core-rules-drawer', preset: 'drawer' },
+            { selector: '#options-area .opt-btn', preset: 'strong' },
+            { selector: '.survival-fx-shard', preset: 'shard' }
+        ];
+        const PX_GLASS_PRESETS = {
+            soft:   { edge: 10, magnify: 0.05, scale: 35, extra: ' blur(2px) saturate(150%)' },
+            strong: { edge: 14, magnify: 0.10, scale: 70, extra: ' saturate(160%)' },
+            drawer: { edge: 16, magnify: 0.06, scale: 40, extra: ' blur(3px) saturate(150%)' },
+            shard:  { edge: 20, magnify: 0.10, scale: 60, extra: ' blur(6px) saturate(140%)' }
+        };
+        let pxGlassCounter = 0;
+        let pxGlassTimer = null;
+        let pxGlassResizeObserver = null;
+        let pxGlassMutationWired = false;
+
+        function pxGlassSupported() {
+            return typeof CSS !== 'undefined' && CSS.supports
+                && (CSS.supports('backdrop-filter', 'url(#x)') || CSS.supports('-webkit-backdrop-filter', 'url(#x)'));
+        }
+
+        function buildPxGlassMap(w, h, radius, edge, magnify) {
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            const ctx = c.getContext('2d');
+            const img = ctx.createImageData(w, h);
+            const data = img.data;
+            const cx = (w - 1) / 2, cy = (h - 1) / 2;
+            const hx = cx - 1, hy = cy - 1;
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const px = x - cx, py = y - cy;
+                    const qx = Math.abs(px) - (hx - radius);
+                    const qy = Math.abs(py) - (hy - radius);
+                    const ax = Math.max(qx, 0), ay = Math.max(qy, 0);
+                    const outside = Math.sqrt(ax * ax + ay * ay);
+                    const sdf = outside + Math.min(Math.max(qx, qy), 0) - radius;
+                    const inside = Math.max(-sdf, 0);
+                    let nx, ny;
+                    if (outside > 0) {
+                        nx = (px < 0 ? -1 : 1) * ax / outside;
+                        ny = (py < 0 ? -1 : 1) * ay / outside;
+                    } else if (qx > qy) {
+                        nx = px < 0 ? -1 : 1; ny = 0;
+                    } else {
+                        nx = 0; ny = py < 0 ? -1 : 1;
+                    }
+                    let t = inside >= edge ? 0 : Math.sqrt(1 - inside / edge);
+                    t = t * t * (3 - 2 * t) * Math.sqrt(t);
+                    let dx = nx * t + (px / (hx || 1)) * magnify * (1 - t);
+                    let dy = ny * t + (py / (hy || 1)) * magnify * (1 - t);
+                    const idx = (y * w + x) * 4;
+                    data[idx] = 128 + Math.max(-1, Math.min(1, dx)) * 127;
+                    data[idx + 1] = 128 + Math.max(-1, Math.min(1, dy)) * 127;
+                    data[idx + 2] = 128;
+                    data[idx + 3] = 255;
+                }
+            }
+            ctx.putImageData(img, 0, 0);
+            return c.toDataURL();
+        }
+
+        function ensurePxGlassDefs() {
+            let svg = document.getElementById('px-glass-defs');
+            if (svg) return svg;
+            svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.id = 'px-glass-defs';
+            svg.setAttribute('aria-hidden', 'true');
+            svg.style.position = 'absolute';
+            svg.style.width = '0';
+            svg.style.height = '0';
+            document.body.appendChild(svg);
+            return svg;
+        }
+
+        function clearPxGlassPanel(el) {
+            el.classList.remove('px-glass-refract');
+            el.style.removeProperty('backdrop-filter');
+            el.style.removeProperty('-webkit-backdrop-filter');
+            delete el.dataset.pxgSize;
+        }
+
+        function setupPxGlassPanel(el, presetName) {
+            const preset = PX_GLASS_PRESETS[presetName] || PX_GLASS_PRESETS.strong;
+            const rect = el.getBoundingClientRect();
+            const w = Math.round(rect.width), h = Math.round(rect.height);
+            if (w < 16 || h < 12) { clearPxGlassPanel(el); return; }   /* 隱藏或過小 */
+            if (!el.dataset.pxgId) {
+                pxGlassCounter += 1;
+                el.dataset.pxgId = 'pxg-' + pxGlassCounter;
+            }
+            const fid = el.dataset.pxgId;
+            const svg = ensurePxGlassDefs();
+            let filter = document.getElementById(fid);
+            if (!filter) {
+                filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+                filter.id = fid;
+                filter.setAttribute('x', '0'); filter.setAttribute('y', '0');
+                filter.setAttribute('width', '100%'); filter.setAttribute('height', '100%');
+                filter.setAttribute('filterUnits', 'objectBoundingBox');
+                filter.setAttribute('primitiveUnits', 'userSpaceOnUse');
+                filter.setAttribute('color-interpolation-filters', 'sRGB');
+                const feImage = document.createElementNS('http://www.w3.org/2000/svg', 'feImage');
+                feImage.setAttribute('x', '0'); feImage.setAttribute('y', '0');
+                feImage.setAttribute('result', 'map');
+                const feDisp = document.createElementNS('http://www.w3.org/2000/svg', 'feDisplacementMap');
+                feDisp.setAttribute('in', 'SourceGraphic');
+                feDisp.setAttribute('in2', 'map');
+                feDisp.setAttribute('xChannelSelector', 'R');
+                feDisp.setAttribute('yChannelSelector', 'G');
+                filter.appendChild(feImage);
+                filter.appendChild(feDisp);
+                svg.appendChild(filter);
+            }
+            const sizeKey = w + 'x' + h;
+            if (el.dataset.pxgSize !== sizeKey) {
+                el.dataset.pxgSize = sizeKey;
+                const feImage = filter.querySelector('feImage');
+                feImage.setAttribute('href', buildPxGlassMap(w, h, 10, preset.edge, preset.magnify));
+                feImage.setAttribute('width', String(w));
+                feImage.setAttribute('height', String(h));
+                filter.querySelector('feDisplacementMap').setAttribute('scale', String(preset.scale));
+            }
+            el.classList.add('px-glass-refract');
+            el.style.setProperty('backdrop-filter', 'url(#' + fid + ')' + preset.extra);
+            el.style.setProperty('-webkit-backdrop-filter', 'url(#' + fid + ')' + preset.extra);
+            if (pxGlassResizeObserver && !el.dataset.pxgObserved) {
+                el.dataset.pxgObserved = '1';
+                pxGlassResizeObserver.observe(el);
+            }
+        }
+
+        function applyPixelGlass() {
+            const active = pxGlassSupported()
+                && document.documentElement.dataset.bgMode === 'image'
+                && window.innerWidth > 600;
+            PX_GLASS_TARGETS.forEach(group => {
+                document.querySelectorAll(group.selector).forEach(el => {
+                    if (active) setupPxGlassPanel(el, group.preset);
+                    else clearPxGlassPanel(el);
+                });
+            });
+            /* 清掉元素已消失(如質疑小視窗)的孤兒 filter */
+            const svg = document.getElementById('px-glass-defs');
+            if (svg) {
+                svg.querySelectorAll('filter').forEach(f => {
+                    if (!document.querySelector('[data-pxg-id="' + f.id + '"]')) f.remove();
+                });
+            }
+            if (!active) return;
+            if (!pxGlassResizeObserver && typeof ResizeObserver === 'function') {
+                pxGlassResizeObserver = new ResizeObserver(() => schedulePixelGlass());
+            }
+            if (!pxGlassMutationWired && typeof MutationObserver === 'function') {
+                pxGlassMutationWired = true;
+                /* 動態元件:AI 選項按鈕、質疑小視窗(不動 app-ai.js / 生成邏輯) */
+                const watch = [document.getElementById('options-area'), document.getElementById('survival-fx-shards')];
+                watch.forEach(node => {
+                    if (!node) return;
+                    new MutationObserver(() => schedulePixelGlass(40)).observe(node, { childList: true });
+                });
+                window.addEventListener('resize', () => schedulePixelGlass());
+            }
+        }
+
+        function schedulePixelGlass(delay) {
+            clearTimeout(pxGlassTimer);
+            pxGlassTimer = setTimeout(applyPixelGlass, typeof delay === 'number' ? delay : 180);
         }
 
         function setBackgroundMode(mode) {

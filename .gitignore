@@ -11,3 +11,6 @@ _cleanup_bak/
 *.md
 
 _handoff/
+
+# 本機一鍵上傳工具(不上傳到公開 repo)
+*.bat

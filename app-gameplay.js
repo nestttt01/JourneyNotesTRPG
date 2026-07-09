@@ -1634,16 +1634,12 @@ function createSurvivalShard() {
  question.textContent = content.question;
  el.append(memory, question);
  const width = Math.min(380, Math.max(260, window.innerWidth * 0.28));
- const edge = Math.random() < 0.5 ? 'left' : 'right';
  el.style.width = width + 'px';
- if (edge === 'left') {
-  el.style.left = '22px';
-  el.style.setProperty('--exit', '-10px');
- } else {
-  el.style.left = Math.max(22, window.innerWidth - width - 22) + 'px';
-  el.style.setProperty('--exit', '10px');
- }
- el.style.top = (18 + Math.random() * 50) + 'vh';
+ /* 出現位置全螢幕隨機(不再固定貼左右角落),僅避開最邊緣 22px */
+ const maxLeft = Math.max(22, window.innerWidth - width - 22);
+ el.style.left = (22 + Math.random() * Math.max(0, maxLeft - 22)) + 'px';
+ el.style.setProperty('--exit', (Math.random() < 0.5 ? '-10px' : '10px'));
+ el.style.top = (12 + Math.random() * 58) + 'vh';
  const life = 2600 + Math.random() * 900 + state.sanSeverity * 420;
  el.style.setProperty('--survival-shard-life', life.toFixed(0) + 'ms');
  wrap.appendChild(el);
