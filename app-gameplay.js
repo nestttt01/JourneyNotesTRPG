@@ -18,7 +18,10 @@ optArea.innerHTML = '';
                 const more = document.createElement('button');
                 more.className = 'chat-load-earlier';
                 more.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話（還有 {n} 則）', { n: chatHidden }) : `▲ 載入更早的對話（還有 ${chatHidden} 則）`);
-                more.onclick = () => renderChatPage(pageIndex, renderCount + CHAT_RENDER_LIMIT, getChatScrollAnchor(msgBox));
+                more.onclick = () => {
+                    msgBox.dataset.pendingReveal = String(renderCount);
+                    renderChatPage(pageIndex, renderCount + CHAT_RENDER_LIMIT, getChatScrollAnchor(msgBox));
+                };
                 msgBox.appendChild(more);
             }
 
@@ -37,8 +40,10 @@ optArea.innerHTML = '';
                     else if (line.startsWith(`【系統提示】：`)) {
                         const rawMsg = line.replace(`【系統提示】：`, ""); 
                         const displayMsg = window.uiSystemMessage ? window.uiSystemMessage(rawMsg) : rawMsg;
-                        if (rawMsg.includes("解鎖") || rawMsg.includes("獲得") || rawMsg.includes("失去") || rawMsg.includes("消耗") || rawMsg.includes("好感度") || rawMsg.includes("發生改變") || rawMsg.includes("檢定")) {
-                            const alertDiv = document.createElement('div'); alertDiv.className = 'alert-msg'; alertDiv.innerText = displayMsg; msgBox.appendChild(alertDiv);
+                        if (rawMsg.includes("解鎖") || rawMsg.includes("獲得") || rawMsg.includes("失去") || rawMsg.includes("消耗") || rawMsg.includes("好感度") || rawMsg.includes("發生改變") || rawMsg.includes("檢定") || rawMsg.includes("成就達成") || rawMsg.includes("本場目標達成") || /｜(大成功|成功|失敗|大失敗|Crit!|Success|Fail|Fumble)｜/.test(rawMsg)) {
+                            const alertDiv = document.createElement('div'); alertDiv.className = 'alert-msg'; alertDiv.innerText = displayMsg;
+                            decorateSystemAlert(alertDiv, rawMsg, false);
+                            msgBox.appendChild(alertDiv);
                         } else {
                             const systemMsgDiv = document.createElement('div');
                             systemMsgDiv.className = 'system-msg';
@@ -53,7 +58,7 @@ optArea.innerHTML = '';
             } else {
 const emptyMessage = window.uiMessage ? window.uiMessage('此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場') : '此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場';
 const systemMsg = document.createElement('div'); systemMsg.className = 'system-msg'; systemMsg.innerHTML = `<i>— ${emptyMessage} —</i>`; msgBox.appendChild(systemMsg); msgBox.scrollTop = msgBox.scrollHeight;
-const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.style.borderColor = 'var(--accent-neon)'; btn.style.width = 'fit-content'; btn.style.alignSelf = 'center'; btn.textContent = window.uiMessage ? window.uiMessage('🎲 讓 AI 根據「情境設定」隨機生成開場事件') : '🎲 讓 AI 根據「情境設定」隨機生成開場事件';
+const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.style.borderColor = 'var(--accent-neon)'; btn.style.width = 'fit-content'; btn.style.alignSelf = 'center'; btn.textContent = window.uiMessage ? window.uiMessage('⚄ 讓 AI 根據「情境設定」隨機生成開場事件') : '⚄ 讓 AI 根據「情境設定」隨機生成開場事件';
                 btn.onclick = () => { 
                     optArea.innerHTML = ''; 
                     document.getElementById('loading').style.display = 'block'; 
@@ -62,6 +67,18 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
                     callAI_JSON(prompt, true); 
                 };
                 optArea.appendChild(btn);
+            }
+            /* 「載入更早」展開的舊訊息批次淡入(最多前 14 則,錯相 24ms) */
+            const prevShownCount = Number(msgBox.dataset.pendingReveal);
+            delete msgBox.dataset.pendingReveal;
+            if (Number.isFinite(prevShownCount) && prevShownCount > 0) {
+                const revealNodes = Array.from(msgBox.children).filter(el => !el.classList.contains('chat-load-earlier'));
+                const revealedCount = Math.max(0, revealNodes.length - prevShownCount);
+                revealNodes.slice(0, Math.min(revealedCount, 14)).forEach((el, i) => {
+                    el.classList.add('msg-reveal');
+                    el.style.animationDelay = (i * 24) + 'ms';
+                    window.setTimeout(() => { el.classList.remove('msg-reveal'); el.style.animationDelay = ''; }, 900 + i * 24);
+                });
             }
             delete msgBox.dataset.renderingHistory;
             if (scrollAnchor && Number.isFinite(scrollAnchor.scrollHeight) && Number.isFinite(scrollAnchor.scrollTop)) {
@@ -106,6 +123,25 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             const scrollDelta = box.scrollHeight - anchor.scrollHeight;
             box.scrollTop = Math.max(0, anchor.scrollTop + scrollDelta);
             box.style.scrollBehavior = previousScrollBehavior;
+        }
+
+        /* AI 回覆渲染完後的權威捲到底:#dialogue-box 是 scroll-behavior:smooth,
+           連續 append 時每次的平滑捲動會互相打斷、常停在半路。這裡暫時關掉平滑、
+           連補三幀確保吃到最終版面高度。 */
+        function scrollDialogueToLatest() {
+            const box = document.getElementById('dialogue-box');
+            if (!box) return;
+            const previousBehavior = box.style.scrollBehavior;
+            box.style.scrollBehavior = 'auto';
+            const toBottom = () => { box.scrollTop = box.scrollHeight; };
+            toBottom();
+            requestAnimationFrame(() => {
+                toBottom();
+                requestAnimationFrame(() => {
+                    toBottom();
+                    box.style.scrollBehavior = previousBehavior;
+                });
+            });
         }
 
         function appendNarrative(text, rawLine) {
@@ -336,7 +372,10 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
                 b.className = 'chat-load-earlier';
                 b.textContent = (window.uiMessage ? window.uiMessage('▲ 載入更早的對話') : '▲ 載入更早的對話');
                 const loadedCount = Number(box.dataset.loadedHistoryCount) || CHAT_RENDER_LIMIT;
-                b.onclick = () => renderChatPage(currentChatPageIndex, loadedCount + CHAT_RENDER_LIMIT, getChatScrollAnchor(box));
+                b.onclick = () => {
+                    box.dataset.pendingReveal = String(loadedCount);
+                    renderChatPage(currentChatPageIndex, loadedCount + CHAT_RENDER_LIMIT, getChatScrollAnchor(box));
+                };
                 box.insertBefore(b, box.firstChild);
             }
         }
@@ -534,7 +573,7 @@ if(saveData.scenario) {
             
             const locSelect = document.getElementById('btn-location'); locSelect.innerHTML = '';
             currentScenario.scenarios.forEach((sc, i) => {
-                const opt = document.createElement('option'); opt.value = i; opt.innerText = `📍 ${sc.name}`;
+                const opt = document.createElement('option'); opt.value = i; opt.innerText = `✦ ${sc.name}`;
                 if(i === currentScenarioIndex) opt.selected = true; locSelect.appendChild(opt);
             });
             
@@ -1145,6 +1184,72 @@ ${transitionRule}`;
             }
         }
 
+        /* ===== 高光演出中樞(2026/07/10):依原始訊息內容裝飾系統提示 =====
+           live=true 是當下發生(播進場動畫、面板回饋);live=false 是重繪歷史
+           (只套「身分樣式」:成就揭幕線、章節分隔線常駐,瞬時動畫不重播)。
+           偵測用 chatScripts 內的原始字串,樣式全部走主題色票。 */
+        function decorateSystemAlert(alertDiv, rawMsg, live) {
+            const raw = valueToText(rawMsg);
+            /* 骰點大成功/大失敗:僅 live 播閃光動畫(身分色線實測觀感不佳,已移除) */
+            if (live && /｜(大成功|Crit!)｜/.test(raw)) alertDiv.classList.add('dice-crit');
+            else if (live && /｜(大失敗|Fumble)｜/.test(raw)) alertDiv.classList.add('dice-fumble');
+            /* 道具獲得(瞬時,僅 live):角色面板標籤點頭(2026/07/10 定案,訊息本身不加特效) */
+            if (live && /^獲得道具 \[/.test(raw)) {
+                const panelTab = document.getElementById('floating-menu-btn');
+                if (panelTab) {
+                    panelTab.classList.remove('tab-nod');
+                    void panelTab.offsetWidth;
+                    panelTab.classList.add('tab-nod');
+                    window.setTimeout(() => panelTab.classList.remove('tab-nod'), 900);
+                }
+            }
+            /* 成就達成(身分):F 揭幕線;live 加進場動畫,成長點數字閃一下 */
+            if (/^— 成就達成：/.test(raw)) {
+                alertDiv.className = 'ach-banner' + (live ? ' lit' : '');
+                const title = document.createElement('span');
+                title.className = 'ach-banner-title';
+                title.textContent = alertDiv.innerText;
+                alertDiv.innerText = '';
+                alertDiv.appendChild(title);
+                if (live) {
+                    window.setTimeout(() => alertDiv.classList.remove('lit'), 1600);
+                    const growthEl = document.querySelector('.growth-points');
+                    if (growthEl) {
+                        growthEl.classList.remove('growth-flash');
+                        void growthEl.offsetWidth;
+                        growthEl.classList.add('growth-flash');
+                        window.setTimeout(() => growthEl.classList.remove('growth-flash'), 900);
+                    }
+                }
+                return;
+            }
+            /* 章節收束(身分):落幕分隔線常駐;live 走「燈暗→雙線→落款→燈亮」 */
+            const chapterMatch = raw.match(/^— 本場目標達成：([\s\S]*?)（章節收束/);
+            if (chapterMatch) {
+                const objectiveText = chapterMatch[1].trim();
+                alertDiv.className = 'chapter-divider' + (live ? ' enter' : '');
+                alertDiv.innerText = '';
+                const t = key => (window.uiMessage ? window.uiMessage(key) : key);
+                const topRule = document.createElement('span'); topRule.className = 'chapter-rule top';
+                const heading = document.createElement('span'); heading.className = 'chapter-heading';
+                heading.textContent = t('章節收束');
+                const objective = document.createElement('span'); objective.className = 'chapter-objective';
+                objective.textContent = (window.uiMessage ? window.uiMessage('本場目標達成「{text}」', { text: objectiveText }) : `本場目標達成「${objectiveText}」`);
+                const grant = document.createElement('span'); grant.className = 'chapter-grant';
+                grant.textContent = t('+1 成長點');
+                const bottomRule = document.createElement('span'); bottomRule.className = 'chapter-rule bottom';
+                alertDiv.append(topRule, heading, objective, grant, bottomRule);
+                if (live) {
+                    const dialogueBox = document.getElementById('dialogue-box');
+                    if (dialogueBox) {
+                        dialogueBox.classList.add('chapter-dim');
+                        window.setTimeout(() => dialogueBox.classList.remove('chapter-dim'), 1500);
+                    }
+                    window.setTimeout(() => alertDiv.classList.remove('enter'), 2500);
+                }
+            }
+        }
+
         function createSystemAlert(msg) {
             chatScripts[currentChatPageIndex].push(`\u3010\u7cfb\u7d71\u63d0\u793a\u3011\uff1a${msg}`);
             const displayMsg = window.uiSystemMessage ? window.uiSystemMessage(msg) : msg;
@@ -1152,6 +1257,7 @@ ${transitionRule}`;
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert-msg';
             alertDiv.innerText = displayMsg;
+            decorateSystemAlert(alertDiv, msg, true);
             msgBox.appendChild(alertDiv);
             msgBox.scrollTop = msgBox.scrollHeight;
         }
@@ -1614,6 +1720,19 @@ function createSurvivalBackText() {
     animateSurvivalBackText(el, content, life);
     window.setTimeout(() => el.remove(), life + 100);
 }
+/* 低 SAN 環境效果:輸入框 placeholder 偶爾閃一下亂碼再復原(不動玩家輸入的內容) */
+function glitchPlayerInputPlaceholder() {
+ const input = document.getElementById('player-input');
+ if (!input || document.activeElement === input || input.value) return;
+ if (input.dataset.baseholder || Math.random() > 0.45) return;
+ input.dataset.baseholder = input.placeholder;
+ input.placeholder = survivalFxGlitchText(input.placeholder, 0.35);
+ window.setTimeout(() => {
+  if (input.dataset.baseholder) input.placeholder = input.dataset.baseholder;
+  delete input.dataset.baseholder;
+ }, 900);
+}
+
 function createSurvivalShard() {
  const state = getSurvivalFxState();
  if (!state.active || state.reduced) return;
@@ -1710,6 +1829,8 @@ function runSurvivalAmbientEffects() {
   survivalFxLastTextCorruptAt = now;
   corruptSurvivalTextOnce(profile);
  }
+ glitchPlayerInputPlaceholder();
+
  survivalFxAmbientTimer = window.setTimeout(runSurvivalAmbientEffects, profile.tickMin + Math.random() * profile.tickJitter);
 }
 

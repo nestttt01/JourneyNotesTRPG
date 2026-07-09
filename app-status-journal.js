@@ -413,7 +413,7 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
                 if(locSelect) {
                     locSelect.innerHTML = '';
                     currentScenario.scenarios.forEach((sc, i) => {
-                        const opt = document.createElement('option'); opt.value = i; opt.innerText = `📍 ${sc.name}`;
+                        const opt = document.createElement('option'); opt.value = i; opt.innerText = `✦ ${sc.name}`;
                         if(i === currentScenarioIndex) opt.selected = true; locSelect.appendChild(opt);
                     });
                 }

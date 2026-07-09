@@ -358,7 +358,8 @@ paper: '#EEEEEE',
 surface: '#FAFAFA',
 ink: '#282828',
 accent: '#EDFF66',
-dialogue: '#BFB3B8'
+dialogue: '#BFB3B8',
+heart: '#FF5F98'
 });
 const UI_THEME_VARIABLES = Object.freeze({
 background: '--bg-main',
@@ -366,7 +367,8 @@ paper: '--paper-bg',
 surface: '--card-bg',
 ink: '--border-dark',
 accent: '--accent-neon',
-dialogue: '--accent-gray'
+dialogue: '--accent-gray',
+heart: '--heart-base'
 });
         let uiTheme = { ...DEFAULT_UI_THEME };
 
@@ -428,6 +430,76 @@ dialogue: '--accent-gray'
 
         function resetUiTheme() {
             applyUiTheme(DEFAULT_UI_THEME, true);
+        }
+
+        // ===== 首頁標題故障(壞掉的霓虹燈,每 8~18 秒隨機一次) =====
+        // 70% 機率:隨機一個字瞬間閃白(顏色混主題重點色)再恢復,像接觸不良的霓虹管;
+        // 30% 機率:整個標題 skew 閃一格。字元用暫時包 span 實作,結束即還原純文字,
+        // 不干擾 i18n(語言切換時讀的是還原後的 textContent)。
+        (function scheduleLogoGlitch() {
+            window.setTimeout(() => {
+                const logo = document.querySelector('.setup-home-panel h2');
+                const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (logo && !reduced && !logo.dataset.glitching) {
+                    /* 四種故障輪替:單字閃白 40% / 單字半滅 20% / 整體電壓不穩 20% / 整體 skew 20% */
+                    const roll = Math.random();
+                    if (roll < 0.4) flickerLogoChar(logo, 'logo-neon-flicker');
+                    else if (roll < 0.6) flickerLogoChar(logo, 'logo-dim-flicker');
+                    else if (roll < 0.8) {
+                        logo.classList.add('logo-surge');
+                        window.setTimeout(() => logo.classList.remove('logo-surge'), 560);
+                    } else {
+                        logo.classList.add('logo-glitch');
+                        window.setTimeout(() => logo.classList.remove('logo-glitch'), 170);
+                    }
+                }
+                scheduleLogoGlitch();
+            }, 8000 + Math.random() * 10000);
+        })();
+
+        /* 開機點燈:頁面載入時,標題像霓虹招牌通電——逐字錯開地閃兩下才穩定亮起 */
+        function igniteLogo() {
+            const logo = document.querySelector('.setup-home-panel h2');
+            const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!logo || reduced || logo.dataset.glitching) return;
+            const text = logo.textContent;
+            if (!text || text.length < 2) return;
+            logo.dataset.glitching = '1';
+            logo.textContent = '';
+            [...text].forEach((ch, index) => {
+                const span = document.createElement('span');
+                span.textContent = ch;
+                span.className = 'logo-ch' + (ch.trim() ? ' logo-ignite' : '');
+                span.style.animationDelay = (index * 130 + Math.random() * 60).toFixed(0) + 'ms';
+                logo.appendChild(span);
+            });
+            window.setTimeout(() => {
+                /* 還原時以「目前 span 的內容」拼回:期間若語言切換改了字,不會被舊字蓋掉 */
+                logo.textContent = Array.from(logo.childNodes).map(node => node.textContent).join('');
+                delete logo.dataset.glitching;
+            }, text.length * 130 + 1150);
+        }
+        if (document.readyState === 'complete') window.setTimeout(igniteLogo, 600);
+        else window.addEventListener('load', () => window.setTimeout(igniteLogo, 600));
+
+        function flickerLogoChar(logo, effectClass) {
+            const text = logo.textContent;
+            if (!text || text.length < 2) return;
+            logo.dataset.glitching = '1';
+            const charIndex = Math.floor(Math.random() * text.length);
+            logo.textContent = '';
+            [...text].forEach((ch, index) => {
+                const span = document.createElement('span');
+                span.textContent = ch;
+                /* logo-ch 強制 font:inherit——style.css 的萬用選擇器會直接塞系統字體給新元素,
+                   不加這個 class 閃爍時字體會跳掉 */
+                span.className = 'logo-ch' + (index === charIndex && ch.trim() ? ' ' + effectClass : '');
+                logo.appendChild(span);
+            });
+            window.setTimeout(() => {
+                logo.textContent = text;
+                delete logo.dataset.glitching;
+            }, 480);
         }
 
         // ===== 背景系統：純色 / 自訂圖片（大圖走 IndexedDB） =====

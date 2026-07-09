@@ -536,8 +536,9 @@ z-index: 10;
         .msg-speaker { font-size: 12px; color: var(--text-sub); font-weight: 900; letter-spacing: 1px; }
         .msg-wrapper.npc .msg-speaker { margin-left: 4px; color: var(--text-main); border-left: 2px solid var(--accent-neon); padding-left: 6px;}
 .msg-wrapper.player .msg-speaker { text-align: right; margin-right: 4px; color: var(--text-main); border-right: 2px solid var(--accent-neon); padding-right: 6px; }
-        .msg-text { background-color: var(--accent-gray); color: var(--text-main); padding: 12px 18px; border-radius: 16px; border-bottom-left-radius: 4px; font-size: 15px; font-weight: 800; line-height: 1.6; white-space: pre-line; border: 2px solid var(--border-dark); box-shadow: 4px 4px 0px rgba(40,40,40,0.1); }
-        .msg-wrapper.player .msg-text { background-color: var(--card-bg); border-radius: 16px; border-bottom-right-radius: 4px; border-bottom-left-radius: 16px; box-shadow: 4px 4px 0px var(--accent-neon); }
+        /* 尖角改到上方:頭像與名字在泡泡上方,尾巴要指向說話者(2026/07/10 修正,原本上下顛倒) */
+        .msg-text { background-color: var(--accent-gray); color: var(--text-main); padding: 12px 18px; border-radius: 16px; border-top-left-radius: 4px; font-size: 15px; font-weight: 800; line-height: 1.6; white-space: pre-line; border: 2px solid var(--border-dark); box-shadow: 4px 4px 0px rgba(40,40,40,0.1); }
+        .msg-wrapper.player .msg-text { background-color: var(--card-bg); border-radius: 16px; border-top-right-radius: 4px; border-top-left-radius: 16px; box-shadow: 4px 4px 0px var(--accent-neon); }
 
         .system-msg { color: var(--text-sub); text-align: center; font-style: italic; font-weight: 800; font-size: 12px; padding: 10px 0; letter-spacing: 1px; }
         .creator-instruction { margin: 2px 12px; padding: 6px 10px; border-left: 3px solid var(--accent-neon); color: var(--text-sub); font-size: 12px; font-style: italic; font-weight: 700; line-height: 1.55; white-space: pre-line; }
@@ -1001,7 +1002,7 @@ background: var(--paper-bg);
     font-weight: 900;
     color: var(--text-main);
 }
-        .npc-affection { --u: 3px; --heart-line: color-mix(in srgb, var(--border-dark) 72%, #514477); --heart-line-dark: color-mix(in srgb, var(--border-dark) 84%, #2f2946); --heart-fill: color-mix(in srgb, var(--accent-neon) 30%, #ff5f98); --heart-fill-light: color-mix(in srgb, var(--accent-neon) 18%, #ff8fba); --heart-fill-dark: color-mix(in srgb, var(--accent-neon) 18%, #ec3f80); --heart-empty: #fff; --heart-empty-tint: #fff; --heart-shine: color-mix(in srgb, var(--card-bg) 55%, white); --heart-spark: #ffe96b; --heart-negative-line: #201529; --heart-negative-dark: #08070d; --heart-negative-mid: #3e245f; --heart-negative-light: #6f45a8; --heart-negative-soft: #8c5fd0; position: relative; display: inline-block; width: calc(10 * var(--u)); height: calc(8 * var(--u)); min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: transparent; font-size: 0; line-height: 0; flex: 0 0 auto; overflow: visible; image-rendering: pixelated; } .npc-affection:not(.affection-full) { animation: npc-affection-float 2.8s ease-in-out infinite; } .npc-affection.affection-full { animation: npc-affection-hop 1.35s steps(1, end) infinite; filter: drop-shadow(0 0 0 transparent); } .npc-affection-pixel, .npc-affection-spark { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); width: var(--u); height: var(--u); } .npc-affection-pixel.is-outline { background: var(--heart-line); } .npc-affection-pixel.is-outline-dark { background: var(--heart-line-dark); } .npc-affection-pixel.is-fill { background: var(--heart-fill); } .npc-affection-pixel.is-fill-light { background: var(--heart-fill-light); } .npc-affection-pixel.is-fill-dark { background: var(--heart-fill-dark); } .npc-affection-pixel.is-empty { background: var(--heart-empty); } .npc-affection-pixel.is-empty-tint { background: var(--heart-empty-tint); } .npc-affection-pixel.is-shine { background: var(--heart-shine); } .npc-affection-pixel.is-negative-soft { background: var(--heart-negative-soft); } .npc-affection-pixel.is-negative-light { background: var(--heart-negative-light); } .npc-affection-pixel.is-negative-mid { background: var(--heart-negative-mid); } .npc-affection-pixel.is-negative-dark { background: var(--heart-negative-dark); } .npc-affection.negative { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-mid) 70%, transparent)); } .npc-affection.negative-soft { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-light) 70%, transparent)); } .npc-affection-spark { background: var(--heart-spark); opacity: 0; animation: npc-affection-sparkle 1.35s steps(1, end) infinite; } .npc-affection-spark.is-hot { background: #fff; } .npc-affection-spark.is-s2 { animation-delay: .18s; } .npc-affection-spark.is-s3 { animation-delay: .36s; } @keyframes npc-affection-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-0.5 * var(--u))); } } @keyframes npc-affection-hop { 0%, 58%, 100% { transform: translateY(0); filter: drop-shadow(0 0 0 transparent); } 18%, 28% { transform: translateY(calc(-1 * var(--u))); filter: drop-shadow(0 0 3px var(--heart-spark)); } 38% { transform: translateY(0); filter: drop-shadow(0 0 5px var(--heart-spark)); } } @keyframes npc-affection-sparkle { 0%, 16%, 52%, 100% { opacity: 0; } 24%, 42% { opacity: 1; } }
+        .npc-affection { --u: 3px; --heart-line: color-mix(in srgb, var(--border-dark) 72%, #514477); --heart-line-dark: color-mix(in srgb, var(--border-dark) 84%, #2f2946); --heart-fill: color-mix(in srgb, var(--accent-neon) 30%, var(--heart-base, #ff5f98)); --heart-fill-light: color-mix(in srgb, #ffffff 32%, var(--heart-base, #ff5f98)); --heart-fill-dark: color-mix(in srgb, #8a1444 22%, var(--heart-base, #ff5f98)); --heart-empty: #fff; --heart-empty-tint: #fff; --heart-shine: color-mix(in srgb, var(--card-bg) 55%, white); --heart-spark: #ffe96b; --heart-negative-line: #201529; --heart-negative-dark: #08070d; --heart-negative-mid: #3e245f; --heart-negative-light: #6f45a8; --heart-negative-soft: #8c5fd0; position: relative; display: inline-block; width: calc(10 * var(--u)); height: calc(8 * var(--u)); min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: transparent; font-size: 0; line-height: 0; flex: 0 0 auto; overflow: visible; image-rendering: pixelated; } .npc-affection:not(.affection-full) { animation: npc-affection-float 2.8s ease-in-out infinite; } .npc-affection.affection-full { animation: npc-affection-hop 1.35s steps(1, end) infinite; filter: drop-shadow(0 0 0 transparent); } .npc-affection-pixel, .npc-affection-spark { position: absolute; left: calc(var(--x) * var(--u)); top: calc(var(--y) * var(--u)); width: var(--u); height: var(--u); } .npc-affection-pixel.is-outline { background: var(--heart-line); } .npc-affection-pixel.is-outline-dark { background: var(--heart-line-dark); } .npc-affection-pixel.is-fill { background: var(--heart-fill); } .npc-affection-pixel.is-fill-light { background: var(--heart-fill-light); } .npc-affection-pixel.is-fill-dark { background: var(--heart-fill-dark); } .npc-affection-pixel.is-empty { background: var(--heart-empty); } .npc-affection-pixel.is-empty-tint { background: var(--heart-empty-tint); } .npc-affection-pixel.is-shine { background: var(--heart-shine); } .npc-affection-pixel.is-negative-soft { background: var(--heart-negative-soft); } .npc-affection-pixel.is-negative-light { background: var(--heart-negative-light); } .npc-affection-pixel.is-negative-mid { background: var(--heart-negative-mid); } .npc-affection-pixel.is-negative-dark { background: var(--heart-negative-dark); } .npc-affection.negative { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-mid) 70%, transparent)); } .npc-affection.negative-soft { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heart-negative-light) 70%, transparent)); } .npc-affection-spark { background: var(--heart-spark); opacity: 0; animation: npc-affection-sparkle 1.35s steps(1, end) infinite; } .npc-affection-spark.is-hot { background: #fff; } .npc-affection-spark.is-s2 { animation-delay: .18s; } .npc-affection-spark.is-s3 { animation-delay: .36s; } @keyframes npc-affection-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-0.5 * var(--u))); } } @keyframes npc-affection-hop { 0%, 58%, 100% { transform: translateY(0); filter: drop-shadow(0 0 0 transparent); } 18%, 28% { transform: translateY(calc(-1 * var(--u))); filter: drop-shadow(0 0 3px var(--heart-spark)); } 38% { transform: translateY(0); filter: drop-shadow(0 0 5px var(--heart-spark)); } } @keyframes npc-affection-sparkle { 0%, 16%, 52%, 100% { opacity: 0; } 24%, 42% { opacity: 1; } }
 
         /* API model usage list */
         .api-model-list {
@@ -1102,6 +1103,175 @@ background: var(--paper-bg);
         .api-key-retention-copy small { display: block; margin-top: 2px; color: var(--text-sub); font-size: 10px; font-weight: 700; }
         .u-inline-027 { display: flex; gap: 10px; justify-content: center; width: 100%; max-width: 400px; margin: 0 auto 10px auto; }
         #verify-btn { flex: 1; background: var(--border-dark); color: #fff; padding: 8px 20px; max-width: 100px; border-radius: 15px; }
+        /* ============================================================
+           8-bit 動態元件(v2.5):共用金屬光澤 .px-shine、HP/SAN 傷害跳字、
+           AI 選項逐顆入場、Loading 像素方塊。全部用 steps() 分格,刻意不平滑。
+           ============================================================ */
+        .px-shine { position: relative; overflow: hidden; }
+        .px-shine::after {
+            content: "";
+            position: absolute;
+            top: -30%;
+            bottom: -30%;
+            left: -34%;
+            width: 34px;
+            background: linear-gradient(to right,
+                transparent 0 4px,
+                rgba(255, 255, 255, 0.92) 4px 16px,
+                transparent 16px 22px,
+                color-mix(in srgb, var(--accent-neon) 75%, #ffffff) 22px 27px,
+                transparent 27px);
+            transform: skewX(-18deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .px-shine:hover::after,
+        .px-shine:focus-visible::after {
+            opacity: 1;
+            animation: key-btn-shine 0.5s steps(8, end) 1;
+        }
+        @keyframes key-btn-shine {
+            from { left: -34%; }
+            to { left: 118%; }
+        }
+        /* HP/SAN 細格血條(概念版 C 改良,2026/07/09 定案):
+           圖示+10 細格+數字,無外框盒、無文字標籤,走輕量路線。
+           格子熄滅前閃三下、回復一格格亮回;受擊/回復時格條短促反白/閃綠。
+           格子渲染與動畫由 wireSurvivalStatPopups(app-ui-helpers.js)驅動。 */
+        .stat-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 900; color: var(--text-main); }
+        .stat-chip .stat-chip-icon { font-size: 13px; line-height: 1; }
+        .stat-chip.hp { --cell-color: #ff4444; }
+        .stat-chip.san { --cell-color: #9b59b6; }
+        .stat-chip.hp .stat-chip-icon { color: #ff4444; }
+        .stat-chip.san .stat-chip-icon { color: #9b59b6; }
+        .stat-chip b { min-width: 22px; text-align: center; }
+        .stat-cells {
+            display: inline-flex; gap: 2px; padding: 2px;
+            border: 2px solid var(--border-dark); border-radius: 4px;
+            background: var(--card-bg);
+        }
+        .stat-cells i { width: 5px; height: 9px; background: #d9d9d9; }
+        .stat-cells i.on { background: var(--cell-color); }
+        .stat-cells i.dying { animation: stat-cell-blink 0.45s steps(3, end) forwards; }
+        @keyframes stat-cell-blink {
+            0% { background: #fff; }
+            40% { background: var(--cell-color); }
+            70% { background: #fff; }
+            100% { background: #d9d9d9; }
+        }
+        .stat-cells i.filling { animation: stat-cell-fill 0.3s steps(2, end); }
+        @keyframes stat-cell-fill { from { background: #fff; } }
+        .stat-chip.hit .stat-cells { animation: stat-cells-hit 0.3s steps(2, end); }
+        @keyframes stat-cells-hit {
+            0% { background: var(--border-dark); transform: translate(1px, 1px); }
+            100% { background: var(--card-bg); transform: translate(0, 0); }
+        }
+        .stat-chip.healed .stat-cells { animation: stat-cells-heal 0.36s steps(3, end); }
+        @keyframes stat-cells-heal {
+            0% { background: #b9f5cb; }
+            100% { background: var(--card-bg); }
+        }
+        /* HP/SAN 傷害跳字(JS spawnStatDeltaPopup 產生):
+           可愛小徽章路線——白字圓角小章,配色跟 HP 紅章/SAN 紫章一致,
+           出現時先「啵」地彈大再一格格上飄。 */
+        /* 跳字統一風格(2026/07/09 定案):像素字+重點色偏移陰影,比照專案標題,不用膠囊底 */
+        .stat-delta-pop {
+            position: fixed;
+            z-index: 12000;
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-main);
+            pointer-events: none;
+            text-shadow: 2px 2px 0 var(--pop-accent, var(--accent-neon));
+            animation: stat-pop-rise 0.85s steps(8, end) forwards;
+        }
+        .stat-delta-pop.hp-loss { --pop-accent: #ff4444; }
+        .stat-delta-pop.san-loss { --pop-accent: #9b59b6; }
+        .stat-delta-pop.gain { --pop-accent: #3ecf6a; }
+        @keyframes stat-pop-rise {
+            0% { transform: translate(-50%, 2px) scale(0.4); opacity: 0; }
+            18% { transform: translate(-50%, -4px) scale(1.2); opacity: 1; }
+            32% { transform: translate(-50%, -7px) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -32px) scale(1); opacity: 0; }
+        }
+        /* ===== 好感變動彈心(D 爆米花 + E 心跳迸星 合體;負向為「可愛的難過」)=====
+           出現在 NPC 對話泡泡右上角;心沿用 renderNpcAffectionHeart 的像素心。 */
+        .affection-heart-pop {
+            position: fixed; z-index: 12000; pointer-events: none;
+            display: inline-flex; align-items: flex-start; gap: 6px;
+        }
+        .affection-pop-heart { position: relative; display: inline-block; --u: 2px; }
+        .affection-heart-pop .affection-pop-heart .npc-affection,
+        .affection-heart-pop .affection-pop-heart .npc-affection:not(.affection-full),
+        .affection-heart-pop .affection-pop-heart .npc-affection.affection-full { --u: 2px; animation: none; }
+        /* 好感上升:輕盈上飄(2026/07/10 實測定案)——單顆小糰子「啵」地浮現、
+           直直往上飄淡出,貼圖 reaction 感、最耐看。 */
+        .affection-pop-heart:not(.sad) { animation: aff-pop-rise 1.1s steps(8, end) forwards; }
+        @keyframes aff-pop-rise {
+            0% { transform: translateY(3px) scale(0.5); opacity: 0; }
+            18% { transform: translateY(0) scale(1); opacity: 1; }
+            70% { transform: translateY(-8px) scale(1); opacity: 1; }
+            100% { transform: translateY(-18px) scale(0.9); opacity: 0; }
+        }
+        /* 難過版:輕輕垂頭+往下沉,搭一滴像素淚 */
+        .affection-pop-heart.sad { animation: aff-pop-sad 1.5s steps(12, end) forwards; transform-origin: 50% 90%; }
+        @keyframes aff-pop-sad {
+            0% { transform: scale(0.4) rotate(0deg); opacity: 0; }
+            12% { transform: scale(1.05) rotate(0deg); opacity: 1; }
+            30% { transform: scale(1) rotate(-8deg); }
+            55% { transform: scale(1) rotate(-8deg) translateY(2px); }
+            82% { transform: rotate(-8deg) translateY(4px); opacity: 1; }
+            100% { transform: rotate(-8deg) translateY(12px); opacity: 0; }
+        }
+        .affection-pop-tear {
+            position: absolute; right: -4px; top: 40%; width: 3px; height: 3px;
+            background: #7fb7e8; opacity: 0;
+            animation: aff-tear-fall 0.9s steps(6, end) 0.45s forwards;
+        }
+        @keyframes aff-tear-fall {
+            0% { transform: translateY(0); opacity: 1; }
+            60% { transform: translateY(8px) scaleY(1.6); opacity: 1; }
+            100% { transform: translateY(14px); opacity: 0; }
+        }
+        .affection-pop-amount {
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+            font-size: 15px; font-weight: 900; color: var(--text-main);
+            text-shadow: 2px 2px 0 var(--heart-base, #ff6b9d);   /* 跟著「愛心顏色」色票走 */
+            animation: stat-pop-rise 1.2s steps(9, end) forwards;
+        }
+        .affection-pop-amount.down { text-shadow: 2px 2px 0 #8fa3bd; }
+        .stat-hit { animation: stat-hit-shake 0.3s steps(4, end); }
+        @keyframes stat-hit-shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            50% { transform: translateX(2px); }
+            75% { transform: translateX(-2px); }
+            100% { transform: translateX(0); }
+        }
+        /* AI 選項逐顆入場(app-ai.js 加 opt-enter + animation-delay) */
+        .opt-btn.opt-enter { animation: opt-pop-in 0.3s steps(4, end) backwards; }
+        @keyframes opt-pop-in {
+            0% { opacity: 0; transform: translateY(14px) scale(0.94); }
+            60% { opacity: 1; transform: translateY(-3px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        /* Loading 三顆像素方塊輪流閃 */
+        #loading .px-loader { display: inline-flex; gap: 4px; margin-right: 9px; vertical-align: middle; }
+        #loading .px-loader i {
+            width: 7px; height: 7px; background: var(--accent-neon);
+            animation: px-loader-blink 0.75s infinite;
+        }
+        #loading .px-loader i:nth-child(2) { animation-delay: 0.25s; }
+        #loading .px-loader i:nth-child(3) { animation-delay: 0.5s; }
+        @keyframes px-loader-blink {
+            0%, 32% { opacity: 1; }
+            33%, 100% { opacity: 0.18; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .px-shine:hover::after, .px-shine:focus-visible::after { animation: none; opacity: 0; }
+            .stat-delta-pop, .opt-btn.opt-enter, .stat-hit, .stat-chip.hit .stat-cells, .stat-chip.healed .stat-cells, .stat-cells i.dying, .stat-cells i.filling, #loading .px-loader i, .affection-heart-pop, .affection-pop-heart, .affection-pop-heart.sad, .affection-pop-tear, .affection-pop-amount { animation: none; opacity: 1; }
+        }
         .api-home-guide {
             width: 100%; box-sizing: border-box; margin-bottom: 8px; padding: 10px 12px;
             color: var(--text-main); text-align: left; background: var(--card-bg);
@@ -3609,4 +3779,216 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
         linear-gradient(180deg, rgba(237, 255, 102, 0.20) 0, rgba(237, 255, 102, 0) 3px),
         color-mix(in srgb, var(--text-main) 92%, transparent);
     background-color: transparent;
+}
+
+
+/* ============================================================
+   高光演出四件套(2026/07/10 定案):骰點大成功/大失敗、道具獲得、
+   成就揭幕線(F 案)、章節收束落幕分隔線(常駐)。
+   全部 steps() 分格、只用主題色票、一個時刻一個動作。
+   ============================================================ */
+/* 骰點大成功:反白一閃 + 一道光掃過 */
+/* position:relative 必加:否則 ::after 掃光的定位基準會逃到 #dialogue-box,
+   變成整欄高、且 forwards 停格後永久殘留在右側(2026/07/10 修) */
+.alert-msg.dice-crit { position: relative; overflow: hidden; animation: dice-crit-invert 0.28s steps(2, end); }
+@keyframes dice-crit-invert {
+    0% { background-color: var(--accent-neon); color: var(--border-dark); }
+    100% { background-color: var(--border-dark); color: var(--accent-neon); }
+}
+.alert-msg.dice-crit::after {
+    content: ""; position: absolute; top: -30%; bottom: -30%; left: -30%; width: 30px;
+    background: linear-gradient(to right, transparent 0 4px, color-mix(in srgb, var(--accent-neon) 85%, transparent) 4px 15px, transparent 15px 20px, rgba(255,255,255,0.5) 20px 24px, transparent 24px);
+    transform: skewX(-18deg);
+    animation: dice-crit-sweep 0.5s steps(8, end) 0.24s forwards;
+}
+@keyframes dice-crit-sweep { from { left: -30%; } to { left: 116%; } }
+/* 骰點大失敗:半格下沉 + 整行訊號閃爍 */
+.alert-msg.dice-fumble { animation: dice-fumble-sink 0.9s steps(6, end); }
+@keyframes dice-fumble-sink {
+    0% { transform: translateY(0); }
+    18% { transform: translateY(2px); opacity: 0.35; }
+    34% { opacity: 0.9; }
+    48% { transform: translateY(2px); opacity: 0.45; }
+    62% { opacity: 1; }
+    100% { transform: translateY(0); }
+}
+/* 道具獲得:訊息不加特效,只有角色面板標籤點頭(2026/07/10 定案) */
+/* 角色面板標籤點頭(收到道具) */
+#floating-menu-btn.tab-nod { animation: panel-tab-nod 0.5s steps(4, end) 0.45s; }
+@keyframes panel-tab-nod {
+    0% { transform: translateY(-50%) translateX(0); }
+    30%, 60% { transform: translateY(-50%) translateX(-6px); background: var(--accent-neon); color: var(--border-dark); border-color: var(--border-dark); }
+    100% { transform: translateY(-50%) translateX(0); }
+}
+/* 成就達成:F 揭幕線(身分樣式,歷史重繪也套;lit 才播進場) */
+.ach-banner { text-align: center; padding: 8px 0 4px; margin: 10px 10px; }
+.ach-banner .ach-banner-title {
+    display: inline-block; position: relative;
+    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+    font-size: 14.5px; letter-spacing: 2px; color: var(--text-main);
+    padding-bottom: 5px; line-height: 1.7;
+}
+.ach-banner .ach-banner-title::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    background: var(--accent-neon); box-shadow: 1px 1px 0 var(--border-dark); transform-origin: left;
+}
+.ach-banner.lit .ach-banner-title { animation: ach-title-in 0.4s steps(3, end) backwards; }
+@keyframes ach-title-in { 0% { opacity: 0; transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
+.ach-banner.lit .ach-banner-title::after { animation: ach-rule-in 0.5s steps(8, end) 0.25s backwards; }
+@keyframes ach-rule-in { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+/* 成長點數字閃一下(成就的資源回饋) */
+.growth-points.growth-flash { animation: growth-flash 0.4s steps(3, end); }
+@keyframes growth-flash {
+    0% { background: var(--border-dark); color: var(--accent-neon); }
+    100% { background: transparent; color: inherit; }
+}
+/* 章節收束:落幕分隔線(常駐身分;enter 才播四拍進場) */
+.chapter-divider { text-align: center; padding: 12px 0 8px; margin: 12px 10px; }
+.chapter-divider .chapter-rule { display: block; height: 3px; background: var(--accent-neon);
+    box-shadow: 1px 1px 0 var(--border-dark); margin: 0 10%; transform-origin: center; }
+.chapter-divider .chapter-heading {
+    display: block; margin: 9px 0 3px;
+    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+    font-size: 17px; letter-spacing: 4px; color: var(--text-main);
+    text-shadow: 2px 2px 0 var(--accent-neon);
+}
+.chapter-divider .chapter-objective { display: block; font-size: 12px; color: var(--text-main); font-weight: 800; margin-bottom: 2px; }
+.chapter-divider .chapter-grant { display: block; font-size: 11px; color: var(--text-sub); font-weight: 800; margin-bottom: 9px; }
+.chapter-divider.enter .chapter-rule.top { animation: chapter-rule-unfold 0.6s steps(9, end) 0.35s backwards; }
+.chapter-divider.enter .chapter-rule.bottom { animation: chapter-rule-unfold 0.6s steps(9, end) 0.55s backwards; }
+@keyframes chapter-rule-unfold { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+.chapter-divider.enter .chapter-heading { animation: chapter-heading-stamp 0.55s steps(5, end) 0.85s backwards; }
+@keyframes chapter-heading-stamp {
+    0% { transform: scale(1.3); opacity: 0; text-shadow: 4px 4px 0 var(--accent-neon); }
+    45% { transform: scale(1); opacity: 1; text-shadow: 2px 2px 0 var(--accent-neon); }
+    65% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+.chapter-divider.enter .chapter-objective { animation: chapter-soft-in 0.4s steps(4, end) 1.25s backwards; }
+.chapter-divider.enter .chapter-grant { animation: chapter-soft-in 0.4s steps(4, end) 1.45s backwards; }
+@keyframes chapter-soft-in { 0% { opacity: 0; transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
+/* 章節落幕的燈暗(對話區整體降一階) */
+#dialogue-box.chapter-dim > * { filter: brightness(0.72) saturate(0.8); }
+#dialogue-box.chapter-dim > .chapter-divider { filter: none; }
+@media (prefers-reduced-motion: reduce) {
+    .alert-msg.dice-crit, .alert-msg.dice-crit::after, .alert-msg.dice-fumble,
+    #floating-menu-btn.tab-nod,
+    .ach-banner.lit .ach-banner-title, .ach-banner.lit .ach-banner-title::after,
+    .growth-points.growth-flash,
+    .chapter-divider.enter .chapter-rule.top, .chapter-divider.enter .chapter-rule.bottom,
+    .chapter-divider.enter .chapter-heading, .chapter-divider.enter .chapter-objective,
+    .chapter-divider.enter .chapter-grant { animation: none; opacity: 1; }
+}
+
+
+/* ---- 存檔印記 ---- */
+#saved-pip {
+    position: fixed; right: 10px; bottom: 10px; width: 6px; height: 6px;
+    background: var(--accent-neon); border: 1px solid var(--border-dark);
+    opacity: 0; pointer-events: none; z-index: 11000;
+}
+#saved-pip.show { animation: saved-pip-blink 0.9s steps(5, end); }
+@keyframes saved-pip-blink { 0% { opacity: 0; } 20%, 70% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    #saved-pip.show { animation: none; opacity: 0; }
+}
+
+
+/* ---- NPC 死亡:頭像閃爍後轉灰(常駐到重繪) ---- */
+img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwards; }
+@keyframes npc-avatar-die {
+    0% { filter: none; }
+    20% { filter: grayscale(1) brightness(1.4); }
+    35% { filter: none; }
+    55% { filter: grayscale(1) brightness(0.7); }
+    70% { filter: grayscale(0.6); }
+    100% { filter: grayscale(1) brightness(0.85); }
+}
+/* ---- 喘息/回復:格條掃過一道柔光 ---- */
+.stat-cells { position: relative; overflow: hidden; }
+.stat-cells.heal-sweep::after {
+    content: ""; position: absolute; top: -30%; bottom: -30%; left: -30%; width: 14px;
+    background: linear-gradient(to right, transparent 0 2px, rgba(255, 255, 255, 0.75) 2px 9px, transparent 9px);
+    transform: skewX(-18deg);
+    animation: heal-sweep-run 0.55s steps(7, end) 0.15s forwards;
+}
+@keyframes heal-sweep-run { from { left: -30%; } to { left: 118%; } }
+/* ---- 載入更早:舊訊息批次淡入 ---- */
+#dialogue-box .msg-reveal { animation: msg-reveal-in 0.3s steps(3, end) backwards; }
+@keyframes msg-reveal-in { 0% { opacity: 0; transform: translateY(-4px); } 100% { opacity: 1; transform: translateY(0); } }
+/* ---- 側邊標籤 hover:一格彈出節奏(僅支援 hover 的裝置) ---- */
+@media (hover: hover) {
+    .setup-side-tab:hover, .desktop-config-tab:hover { animation: side-tab-pop 0.18s steps(2, end); }
+}
+@keyframes side-tab-pop { 40% { transform: translateX(-3px); } }
+/* ---- 首頁標題故障閃(整體 skew) ---- */
+.setup-home-panel h2.logo-glitch { animation: logo-glitch-blink 0.17s steps(2, end); }
+@keyframes logo-glitch-blink {
+    50% { transform: translateX(2px) skewX(-6deg); opacity: 0.65; }
+}
+/* ---- 單一字元閃白:壞掉的霓虹管 ----
+   .logo-ch 強制繼承字體:全域 * 選擇器會直接指定系統字體給新 span,必須壓回。 */
+.setup-home-panel h2 .logo-ch {
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    text-shadow: inherit;
+}
+.setup-home-panel h2 .logo-neon-flicker {
+    animation: logo-neon-flicker 0.62s steps(1, end);
+}
+/* 節奏:啪(白)-滅-啪(白)-半滅垂死-回穩,像接觸不良的霓虹管 */
+@keyframes logo-neon-flicker {
+    0%, 8% { color: color-mix(in srgb, #ffffff 78%, var(--accent-neon)); text-shadow: 0 0 6px color-mix(in srgb, var(--accent-neon) 65%, transparent); }
+    9%, 18% { color: inherit; text-shadow: inherit; opacity: 0.4; }
+    19%, 34% { color: color-mix(in srgb, #ffffff 78%, var(--accent-neon)); text-shadow: 0 0 6px color-mix(in srgb, var(--accent-neon) 65%, transparent); }
+    35%, 52% { color: inherit; text-shadow: inherit; opacity: 0.65; }
+    53%, 100% { color: inherit; text-shadow: inherit; opacity: 1; }
+}
+/* 開機點燈:載入時逐字通電(delay 由 JS 逐字錯開) */
+.setup-home-panel h2 .logo-ignite {
+    animation: logo-ignite 0.85s steps(1, end) both;
+}
+@keyframes logo-ignite {
+    0%, 20% { opacity: 0.12; text-shadow: none; }
+    21%, 32% { opacity: 1; color: color-mix(in srgb, #ffffff 78%, var(--accent-neon)); text-shadow: 0 0 6px color-mix(in srgb, var(--accent-neon) 65%, transparent); }
+    33%, 46% { opacity: 0.25; color: inherit; text-shadow: none; }
+    47%, 62% { opacity: 1; color: color-mix(in srgb, #ffffff 78%, var(--accent-neon)); text-shadow: 0 0 6px color-mix(in srgb, var(--accent-neon) 65%, transparent); }
+    63%, 100% { opacity: 1; color: inherit; text-shadow: inherit; }
+}
+/* 單字半滅:不閃白,只是那一管突然沒電又勉強亮回來 */
+.setup-home-panel h2 .logo-dim-flicker {
+    animation: logo-dim-flicker 0.7s steps(1, end);
+}
+@keyframes logo-dim-flicker {
+    0%, 24% { opacity: 0.22; text-shadow: none; }
+    25%, 38% { opacity: 0.8; text-shadow: inherit; }
+    39%, 55% { opacity: 0.35; text-shadow: none; }
+    56%, 100% { opacity: 1; text-shadow: inherit; }
+}
+/* 整體電壓不穩:全標題亮度快速抖兩下 */
+.setup-home-panel h2.logo-surge {
+    animation: logo-surge 0.56s steps(1, end);
+}
+@keyframes logo-surge {
+    0%, 12% { filter: brightness(1.35); }
+    13%, 26% { filter: brightness(0.8); }
+    27%, 40% { filter: brightness(1.25); }
+    41%, 100% { filter: brightness(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    img.chat-avatar.npc-dead-fx { animation: none; filter: grayscale(1) brightness(0.85); }
+    .stat-cells.heal-sweep::after, #dialogue-box .msg-reveal,
+    .setup-side-tab:hover, .desktop-config-tab:hover,
+    .setup-home-panel h2.logo-glitch, .setup-home-panel h2.logo-surge, .setup-home-panel h2 .logo-neon-flicker, .setup-home-panel h2 .logo-dim-flicker, .setup-home-panel h2 .logo-ignite { animation: none; opacity: 1; }
+}
+
+
+/* ---- 場景切換:翻頁式(2026/07/10 定案)——只動對話內容,外框輸入列不動 ---- */
+#dialogue-box.scene-page-out { animation: scene-page-out 0.22s steps(3, end) forwards; }
+@keyframes scene-page-out { to { opacity: 0; transform: translateY(-5px); } }
+#dialogue-box.scene-page-in { animation: scene-page-in 0.26s steps(3, end) backwards; }
+@keyframes scene-page-in { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) {
+    #dialogue-box.scene-page-out, #dialogue-box.scene-page-in { animation: none; opacity: 1; }
 }

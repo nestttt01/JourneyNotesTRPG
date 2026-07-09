@@ -364,6 +364,7 @@ currentScenario = scenarioForSave;
 savesData[currentSaveId].sceneTransition = pendingSceneTransition;
 delete savesData[currentSaveId].script;
 const saved = persistSingleSave(currentSaveId, '遊戲存檔');
+if (saved && typeof showSavedPip === 'function') showSavedPip();
 return saved;
 }
 
@@ -483,7 +484,7 @@ return `sanko_input_draft_${saveId || 'none'}`;
             (currentScenario.scenarios || []).forEach((sc, i) => {
                 const opt = document.createElement('option');
                 opt.value = i;
-                opt.innerText = `📍 ${sc.name || '未命名'}`;
+                opt.innerText = `✦ ${sc.name || '未命名'}`;
                 if (i === currentScenarioIndex) opt.selected = true;
                 locSelect.appendChild(opt);
             });
@@ -966,16 +967,29 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
             if (!Number.isInteger(newIndex) || !currentScenario.scenarios?.[newIndex]) return;
             if (newIndex === currentScenarioIndex && newIndex === currentChatPageIndex) return;
 
-            const fromIndex = currentScenarioIndex;
-            pendingSceneTransition = createSceneTransition(fromIndex, newIndex);
-            currentScenarioIndex = newIndex;
-            currentChatPageIndex = newIndex;
-            
-            if (!chatScripts[currentChatPageIndex]) chatScripts[currentChatPageIndex] = [];
-            renderChatPage(currentChatPageIndex);
-            setCreatorInputMode(false, false);
+            /* 翻頁式轉場(2026/07/10 定案):舊內容上淡出→切場景→新內容下浮入,外框不動 */
+            const doSwitch = () => {
+                const fromIndex = currentScenarioIndex;
+                pendingSceneTransition = createSceneTransition(fromIndex, newIndex);
+                currentScenarioIndex = newIndex;
+                currentChatPageIndex = newIndex;
 
-            saveCurrentProgress();
-            document.getElementById('btn-location').value = currentScenarioIndex;
+                if (!chatScripts[currentChatPageIndex]) chatScripts[currentChatPageIndex] = [];
+                renderChatPage(currentChatPageIndex);
+                setCreatorInputMode(false, false);
+
+                saveCurrentProgress();
+                document.getElementById('btn-location').value = currentScenarioIndex;
+            };
+            const dialogueBox = document.getElementById('dialogue-box');
+            const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!dialogueBox || reducedMotion) { doSwitch(); return; }
+            dialogueBox.classList.add('scene-page-out');
+            window.setTimeout(() => {
+                doSwitch();
+                dialogueBox.classList.remove('scene-page-out');
+                dialogueBox.classList.add('scene-page-in');
+                window.setTimeout(() => dialogueBox.classList.remove('scene-page-in'), 320);
+            }, 210);
         }
 

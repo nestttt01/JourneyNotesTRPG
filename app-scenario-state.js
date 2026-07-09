@@ -557,9 +557,156 @@ function normalizeMemoryNotes(value) {
                 const npc = findNpcByLooseName(entry.name);
                 if (!npc || isNpcDead(npc) || skippedNpcIds.has(npc.id || npc.name)) return;
                 const update = applyAffectionUpdate(npc, entry.value, mode);
-                if (update) updates.push(update);
+                if (update) {
+                    updates.push(update);
+                    queueAffectionHeartPop(update);
+                }
             });
             return updates;
+        }
+
+        /* ===== 好感變動彈心(2026/07/09):AI 回傳好感增減時,
+           在該 NPC 本回合最後一則對話泡泡右上角彈出像素心+像素字增減值。
+           心沿用 renderNpcAffectionHeart(與面板同一顆),佇列在對話渲染完後
+           由 callAI_JSON 呼叫 flushAffectionHeartPops() 統一施放。 ===== */
+        let pendingAffectionHeartPops = [];
+        function queueAffectionHeartPop(update) {
+            if (!update || update.next === update.previous) return;
+            pendingAffectionHeartPops.push({ npcName: update.npcName, delta: update.next - update.previous });
+        }
+        let pendingAffectionHeartWatchers = [];
+        function clearAffectionHeartPops() {
+            pendingAffectionHeartPops = [];
+            pendingAffectionHeartWatchers.forEach(watcher => {
+                try { watcher.observer.disconnect(); } catch (error) { /* 忽略 */ }
+                window.clearTimeout(watcher.timeoutId);
+            });
+            pendingAffectionHeartWatchers = [];
+        }
+        function flushAffectionHeartPops() {
+            const pops = pendingAffectionHeartPops;
+            pendingAffectionHeartPops = [];
+            pops.forEach((pop, index) => {
+                window.setTimeout(() => spawnAffectionHeartPop(pop.npcName, pop.delta), index * 280);
+            });
+        }
+        function findLatestBubbleForSpeaker(npcName) {
+            const wrappers = document.querySelectorAll('#dialogue-box .msg-wrapper');
+            for (let i = wrappers.length - 1; i >= 0; i -= 1) {
+                if (valueToText(wrappers[i].dataset.menuSpeaker) === valueToText(npcName)) return wrappers[i];
+            }
+            return null;
+        }
+        function isAffectionAnchorInView(anchor) {
+            const box = document.getElementById('dialogue-box');
+            const rect = anchor.getBoundingClientRect();
+            if (!rect.width && !rect.height) return false;
+            if (!box) return true;
+            const boxRect = box.getBoundingClientRect();
+            return rect.top < boxRect.bottom - 24 && rect.bottom > boxRect.top + 24;
+        }
+        /* 糰子心(2026/07/10):好感增減彈出動畫專用的圓滾滾麻糬心。
+           面板量表維持原本心形;這顆只在慶祝/難過彈窗出現。
+           沿用 npc-affection-pixel 色票 class,顏色跟著「愛心顏色」主題走。 */
+        const MOCHI_HEART_ROWS = [
+            [[2, 4], [6, 8]],
+            [[1, 9]],
+            [[1, 9]],
+            [[1, 9]],
+            [[2, 8]],
+            [[3, 7]],
+            [[4, 6]],
+        ];
+        function renderAffectionPopHeart(percent) {
+            const width = 11;
+            const height = 7;
+            const cells = new Set();
+            MOCHI_HEART_ROWS.forEach((ranges, y) => {
+                ranges.forEach(([start, end]) => {
+                    for (let x = start; x <= end; x += 1) cells.add(`${x},${y}`);
+                });
+            });
+            const hasCell = (x, y) => cells.has(`${x},${y}`);
+            const isOutline = (x, y) => !hasCell(x - 1, y) || !hasCell(x + 1, y) || !hasCell(x, y - 1) || !hasCell(x, y + 1);
+            const clamped = Math.max(0, Math.min(100, Number(percent) || 0));
+            const cutoff = clamped >= 100 ? 0 : Math.max(1, Math.round(height * (1 - clamped / 100)));
+            const parts = [];
+            const pixel = (x, y, className) => parts.push(`<span class="npc-affection-pixel ${className}" style="--x:${x};--y:${y}"></span>`);
+            for (let y = 0; y < height; y += 1) {
+                for (let x = 0; x < width; x += 1) {
+                    if (!hasCell(x, y)) continue;
+                    if (isOutline(x, y)) pixel(x, y, y >= height - 2 ? 'is-outline is-outline-dark' : 'is-outline');
+                    else if (y >= cutoff) pixel(x, y, y <= 2 ? 'is-fill is-fill-light' : (y >= height - 3 ? 'is-fill is-fill-dark' : 'is-fill'));
+                    else pixel(x, y, 'is-empty');
+                }
+            }
+            [[2, 2], [3, 2], [2, 3]].forEach(([x, y]) => {
+                if (hasCell(x, y) && !isOutline(x, y) && y >= cutoff) pixel(x, y, 'is-shine');
+            });
+            return `<span class="npc-affection" style="width:calc(${width} * var(--u));height:calc(${height} * var(--u))">${parts.join('')}</span>`;
+        }
+
+        function spawnAffectionHeartPop(npcName, delta) {
+            if (!delta) return;
+            const wrapper = findLatestBubbleForSpeaker(npcName);
+            if (!wrapper) return;   /* NPC 本回合沒說話就不彈,面板里程碑特效照舊 */
+            /* 錨定泡泡本體(.msg-text/.msg-content),不能用整列容器——那是全寬的,
+               右緣等於聊天欄右邊,心會跑到版面最右側。 */
+            const anchor = wrapper.querySelector('.msg-text') || wrapper.querySelector('.msg-content') || wrapper;
+            /* 泡泡在視野內就直接演;還在畫面外(AI 回覆後畫面沒自動捲到底)
+               就等玩家捲到它進入視野的瞬間才演,animation 不會白演。最多等 2 分鐘。 */
+            if (isAffectionAnchorInView(anchor)) {
+                renderAffectionHeartPopAt(anchor, delta);
+                return;
+            }
+            if (typeof IntersectionObserver !== 'function') {
+                renderAffectionHeartPopAt(anchor, delta);
+                return;
+            }
+            const watcher = {};
+            watcher.observer = new IntersectionObserver(entries => {
+                if (!entries.some(entry => entry.isIntersecting)) return;
+                watcher.observer.disconnect();
+                window.clearTimeout(watcher.timeoutId);
+                pendingAffectionHeartWatchers = pendingAffectionHeartWatchers.filter(item => item !== watcher);
+                window.setTimeout(() => renderAffectionHeartPopAt(anchor, delta), 200);
+            }, { root: document.getElementById('dialogue-box'), threshold: 0.55 });
+            watcher.timeoutId = window.setTimeout(() => {
+                try { watcher.observer.disconnect(); } catch (error) { /* 忽略 */ }
+                pendingAffectionHeartWatchers = pendingAffectionHeartWatchers.filter(item => item !== watcher);
+            }, 120000);
+            watcher.observer.observe(anchor);
+            pendingAffectionHeartWatchers.push(watcher);
+        }
+        function renderAffectionHeartPopAt(anchor, delta) {
+            const rect = anchor.getBoundingClientRect();
+            if (!rect.width && !rect.height) return;
+            const pop = document.createElement('span');
+            pop.className = 'affection-heart-pop';
+            let heartWrap;
+            if (delta > 0) {
+                /* 上升:輕盈上飄——單顆小糰子浮現後直直上飄淡出(2026/07/10 實測定案) */
+                heartWrap = document.createElement('span');
+                heartWrap.className = 'affection-pop-heart';
+                heartWrap.innerHTML = renderAffectionPopHeart(100);
+            } else {
+                /* 下降:維持垂頭+眼淚+下沉的難過糰子 */
+                heartWrap = document.createElement('span');
+                heartWrap.className = 'affection-pop-heart sad';
+                heartWrap.innerHTML = renderAffectionPopHeart(35);
+                const tear = document.createElement('span');
+                tear.className = 'affection-pop-tear';
+                heartWrap.appendChild(tear);
+            }
+            const amount = document.createElement('span');
+            amount.className = 'affection-pop-amount' + (delta < 0 ? ' down' : '');
+            amount.textContent = (delta > 0 ? '+' : '') + delta;
+            pop.appendChild(heartWrap);
+            pop.appendChild(amount);
+            pop.style.left = Math.max(8, Math.min(window.innerWidth - 96, rect.right - 14)) + 'px';
+            pop.style.top = Math.max(8, rect.top - 26) + 'px';
+            document.body.appendChild(pop);
+            window.setTimeout(() => pop.remove(), 1700);
         }
 
         function normalizeNpcLifePayload(payload, detailKey) {
@@ -580,6 +727,11 @@ function normalizeMemoryNotes(value) {
                 if (!npc || skippedNpcIds.has(npc.id || npc.name) || !markNpcDead(npc, entry.detail)) return;
                 const cause = normalizeDynamicState(npc.dynamic).deathCause;
                 events.push(`${npc.name} 已死亡：${cause}`);
+                /* 死亡演出:畫面上該 NPC 的頭像閃爍後轉灰(2026/07/10) */
+                const deadNpcId = valueToText(npc.id || npc.name);
+                document.querySelectorAll('img.chat-avatar').forEach(avatarImg => {
+                    if (valueToText(avatarImg.dataset.avatarNpcId) === deadNpcId) avatarImg.classList.add('npc-dead-fx');
+                });
                 createSystemAlert(`☠ ${npc.name} 已死亡${cause ? `：${cause}` : ''}`);
                 queueRelationshipMilestone(npc.name, 'death');
             });
@@ -722,13 +874,24 @@ function normalizeMemoryNotes(value) {
                     }
                 }
             }
-            if (!negative && percent >= 100) {
+            /* 光澤跟著填色走:只要光澤像素落在已填色區(y >= cutoff)就渲染,
+               不再滿值限定——90% 的心也有高光,不會灰灰的。外圈星星維持滿值專屬。 */
+            if (!negative && percent > 0) {
                 [[2, 2], [3, 2], [2, 3]].forEach(([x, y]) => {
-                    if (hasCell(x, y) && !isOutline(x, y)) parts.push(pixel(x, y, 'is-shine'));
+                    if (hasCell(x, y) && !isOutline(x, y) && y >= cutoff) parts.push(pixel(x, y, 'is-shine'));
                 });
+            }
+            /* 星塵量表(2026/07/10):閃耀度跟著好感走——>=60 一顆、>=90 兩顆、滿值五星全開 */
+            if (!negative && percent >= 100) {
                 [[-1, 1, 'is-hot'], [10, 2, 'is-s2'], [1, -1, 'is-s3'], [8, -1, 'is-hot is-s2'], [10, 6, 'is-s3']].forEach(([x, y, className]) => {
                     parts.push(`<span class="npc-affection-spark ${className}" style="--x:${x};--y:${y}"></span>`);
                 });
+            } else if (!negative && percent >= 90) {
+                [[-1, 2, ''], [10, 1, 'is-s2']].forEach(([x, y, className]) => {
+                    parts.push(`<span class="npc-affection-spark ${className}" style="--x:${x};--y:${y}"></span>`);
+                });
+            } else if (!negative && percent >= 60) {
+                parts.push(`<span class="npc-affection-spark is-s2" style="--x:10;--y:2"></span>`);
             }
             return `<span class="npc-affection${negative ? (affection <= -30 ? ' negative' : ' negative negative-soft') : ''}${percent >= 100 ? ' affection-full' : ''}" aria-label="NPC affection ${affection}">${parts.join('')}</span>`;
         }

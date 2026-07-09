@@ -378,3 +378,118 @@ function enableReorderDrag(handle, item, container, itemSelector, onDrop, opts) 
         document.addEventListener('pointercancel', onUp);
     });
 }
+
+
+/* ---- 8-bit HP/SAN 傷害跳字:監看 #ui-hp / #ui-san 文字變化,
+   自動彈出 +N / -N 像素浮字並抖動數值格。用 MutationObserver 集中處理,
+   不需要改任何一個扣血/回復的呼叫點。 ---- */
+function spawnStatDeltaPopup(anchorEl, delta) {
+    if (!delta) return;
+    const rect = anchorEl.getBoundingClientRect();
+    if (!rect.width && !rect.height) return;   /* 元素不可見就不彈 */
+    const pop = document.createElement('span');
+    const statKind = anchorEl.id === 'ui-san' ? 'san' : 'hp';
+    pop.className = 'stat-delta-pop ' + (delta > 0 ? 'gain' : statKind + '-loss');
+    pop.textContent = (delta > 0 ? '+' : '') + delta;
+    pop.style.left = (rect.left + rect.width / 2) + 'px';
+    pop.style.top = (rect.top - 6) + 'px';
+    document.body.appendChild(pop);
+    window.setTimeout(() => pop.remove(), 900);
+    /* 像素徽章受擊/回復動畫(整顆反白閃 or 閃綠) */
+    const chip = anchorEl.closest ? anchorEl.closest('.stat-chip') : null;
+    if (chip) {
+        chip.classList.remove('hit', 'healed');
+        void chip.offsetWidth;   /* 重觸發動畫 */
+        chip.classList.add(delta < 0 ? 'hit' : 'healed');
+        window.setTimeout(() => chip.classList.remove('hit', 'healed'), 450);
+    } else if (delta < 0) {
+        anchorEl.classList.remove('stat-hit');
+        void anchorEl.offsetWidth;
+        anchorEl.classList.add('stat-hit');
+        window.setTimeout(() => anchorEl.classList.remove('stat-hit'), 350);
+    }
+}
+
+/* 細格血條:確保 10 顆格子存在 */
+function ensureStatCells(chip) {
+    const track = chip ? chip.querySelector('.stat-cells') : null;
+    if (!track) return null;
+    while (track.children.length < 10) track.appendChild(document.createElement('i'));
+    return track;
+}
+
+/* 依前後數值更新格子:熄滅的格子先閃三下,回復的一格格亮回 */
+function renderStatCells(chip, prevValue, nowValue, animate) {
+    const track = ensureStatCells(chip);
+    if (!track) return;
+    const clamp = value => Math.max(0, Math.min(10, Math.ceil((Number.isFinite(value) ? value : 0) / 10)));
+    const cellsNow = clamp(nowValue);
+    const cellsPrev = animate ? clamp(prevValue) : cellsNow;
+    /* 回復時整條格子掃過一道柔光(賭贏了的回饋) */
+    if (animate && cellsNow > cellsPrev) {
+        track.classList.remove('heal-sweep');
+        void track.offsetWidth;
+        track.classList.add('heal-sweep');
+        window.setTimeout(() => track.classList.remove('heal-sweep'), 800);
+    }
+    Array.prototype.forEach.call(track.children, (cell, index) => {
+        cell.classList.remove('dying', 'filling');
+        if (index < Math.min(cellsNow, cellsPrev)) { cell.classList.add('on'); return; }
+        if (index < cellsPrev && index >= cellsNow) {
+            cell.classList.remove('on');
+            cell.classList.add('dying');
+        } else if (index < cellsNow && index >= cellsPrev) {
+            window.setTimeout(() => cell.classList.add('on', 'filling'), (index - cellsPrev) * 90);
+        } else {
+            cell.classList.remove('on');
+        }
+    });
+}
+
+function wireSurvivalStatPopups() {
+    ['ui-hp', 'ui-san'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.popupWired) return;
+        el.dataset.popupWired = '1';
+        const chip = el.closest ? el.closest('.stat-chip') : null;
+        let lastValue = Number.parseInt(el.innerText, 10);
+        renderStatCells(chip, lastValue, lastValue, false);
+        const observer = new MutationObserver(() => {
+            const nowValue = Number.parseInt(el.innerText, 10);
+            if (!Number.isFinite(nowValue)) return;
+            const prevValue = lastValue;
+            lastValue = nowValue;
+            if (!Number.isFinite(prevValue) || nowValue === prevValue) return;
+            /* 載入存檔造成的跳變:格子直接同步、不播動畫也不彈字 */
+            if (Math.abs(nowValue - prevValue) > 60) {
+                renderStatCells(chip, prevValue, nowValue, false);
+                return;
+            }
+            renderStatCells(chip, prevValue, nowValue, true);
+            spawnStatDeltaPopup(el, nowValue - prevValue);
+        });
+        observer.observe(el, { childList: true, characterData: true, subtree: true });
+    });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireSurvivalStatPopups);
+else wireSurvivalStatPopups();
+
+
+/* ---- 存檔印記:存檔成功時右下角一顆像素小方塊亮一下(20 秒節流,長時間遊玩的安心感) ---- */
+let savedPipLastShown = 0;
+function showSavedPip() {
+    const now = Date.now();
+    if (now - savedPipLastShown < 20000) return;
+    savedPipLastShown = now;
+    let pip = document.getElementById('saved-pip');
+    if (!pip) {
+        pip = document.createElement('span');
+        pip.id = 'saved-pip';
+        pip.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(pip);
+    }
+    pip.classList.remove('show');
+    void pip.offsetWidth;
+    pip.classList.add('show');
+    window.setTimeout(() => pip.classList.remove('show'), 1000);
+}

@@ -843,7 +843,7 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 if (playerEffectsAllowed && achievementText) {
                     achievementCount += 1;
                     currentAdventureLog = mergeAdventureLog(currentAdventureLog, `成就：${achievementText}`);
-                    createSystemAlert(survivalFxUiMessage('— 成就達成：{text}（+1 成長點）—', { text: achievementText }));
+                    createSystemAlert(survivalFxUiMessage('— 成就達成：{text} —', { text: achievementText }));   /* 成長點字樣移除,改由面板數字閃爍回饋(2026/07/10) */
                 }
 
                 const objectiveDone = changes && (changes.objective_complete === true || changes.objective_complete === 'true');
@@ -909,18 +909,23 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                     }
                 }
 
+                /* 先把畫面帶到最新對話,再施放好感彈心(此時泡泡已在視野內,立即演出) */
+                if (typeof scrollDialogueToLatest === 'function') scrollDialogueToLatest();
+                if (typeof flushAffectionHeartPops === 'function') flushAffectionHeartPops();
+
                 const survivalOutcome = resolveSurvivalOutcome();
                 if (typeof clearRestCooldown === 'function') clearRestCooldown();
 
                 const hiddenSanOption = normalizeHiddenSanOption(parsedData.hidden_san_option || parsedData.hiddenSanOption || parsedData.san_option || parsedData.sanOption);
  if(!getCurrentGameOver() && !(survivalOutcome && survivalOutcome.lastStand) && parsedData.options && Array.isArray(parsedData.options)) {
                     const optArea = document.getElementById('options-area');
-                    parsedData.options.forEach(opt => {
+                    parsedData.options.forEach((opt, optIndex) => {
                         const option = enforceResurrectionOptionRules(normalizeOptionEntry(opt));
                         if (!option) return;
                         if (!option.text) return;
                         const btn = document.createElement('button');
- btn.className = 'opt-btn';
+ btn.className = 'opt-btn opt-enter';
+ btn.style.animationDelay = (optIndex * 130) + 'ms';
  btn.textContent = option.text;
  btn.dataset.survivalOptionText = option.text;
  btn.dataset.survivalOptionCheck = option.check || '';
@@ -954,6 +959,7 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 document.getElementById('loading').style.display = 'none';
                 } catch (applyError) {
                     console.error('AI 回覆套用途中出錯,已回滾本回合所有變更。', applyError);
+                    if (typeof clearAffectionHeartPops === 'function') clearAffectionHeartPops();
                     restoreApplyStateSnapshot(applySnapshot);
                     throw applyError;
                 }
