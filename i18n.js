@@ -38,7 +38,7 @@
 "讓 AI 不忘記、不跳針": ["Keeping the AI on track", "AI を脱線させない"],
 "存檔、備份與成人模式": ["Saves, backups & mature mode", "セーブ・バックアップ・成人モード"],
 'v2.7 更新（07/10）': ['v2.7 update (07/10)', 'v2.7 アップデート（07/10）'],
-'愛心情緒動態：面板像素愛心會隨好感改變動作，從微微呼吸、雀躍蹦跳到滿值發光雙段跳；關係惡化會垂頭喪氣，跌到谷底整顆倒下。': ['Heart moods: the pixel heart on the panel now moves with affection, from gentle breathing and happy hops to a glowing double jump at max; souring bonds droop, and at rock bottom the heart topples over.', 'ハートの感情アニメ：パネルのピクセルハートが好感度で動きを変えます。静かな呼吸から嬉しい跳ねまで、満タンでは光る二段ジャンプ。関係が悪化するとうなだれ、どん底では倒れてしまいます。'],
+'愛心大改版：面板像素愛心換成圓滾滾的糰子造型（與彈出小愛心同款），並會隨好感改變動作，從微微呼吸、雀躍蹦跳到滿值的發光麻糬彈跳；關係惡化會垂頭喪氣，跌到谷底整顆倒下。': ['Heart makeover: the panel heart is now the same chubby dango as the pop-up hearts, and it moves with affection, from gentle breathing and happy hops to a glowing mochi bounce at max; souring bonds droop, and at rock bottom the heart topples over.', 'ハート大改修：パネルのハートがポップアップと同じまんまる団子に。好感度で動きも変わり、静かな呼吸から嬉しい跳ねまで、満タンでは光るもちもちバウンド。関係が悪化するとうなだれ、どん底では倒れてしまいます。'],
 '新成就「我們地獄見」：好感跌到谷底（−100）自動解鎖，並跳出恩斷義絕提示。': ['New achievement "See You in Hell": unlocked automatically when affection hits rock bottom (−100), with a dramatic on-screen notice.', '新実績「地獄で会おう」：好感度がどん底（−100）まで落ちると自動で解除され、縁切りの通知が表示されます。'],
 '細節：修正像素愛心放大顯示時的髮絲細縫；「遊戲玩法」補上愛心動態與觸底成就說明。': ['Details: fixed hairline seams on the pixel heart at large sizes; the how-to-play guide now covers heart moods and the rock-bottom achievement.', '細部：ピクセルハート拡大表示時の細い隙間を修正。遊び方ガイドにハートの動きとどん底実績の説明を追加。'],
 'v2.6 更新（07/10）': ['v2.6 update (07/10)', 'v2.6 アップデート（07/10）'],

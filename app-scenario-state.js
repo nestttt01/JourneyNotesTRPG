@@ -835,15 +835,16 @@ function normalizeMemoryNotes(value) {
             return npc;
         }
 
+        // 量表心造型換糰子（2026/07/10 heart-mood-lab 比稿定案）：11×7,與彈心同款;
+        // 舊 10×8 尖底心形見 git 歷史。門檻檔位與所有規則不變,只換形狀。
         const NPC_AFFECTION_HEART_ROWS = [
-            [[2, 3], [6, 7]],
-            [[1, 4], [5, 8]],
-            [[0, 9]],
-            [[0, 9]],
-            [[1, 8]],
-            [[2, 7]],
-            [[3, 6]],
-            [[4, 5]],
+            [[2, 4], [6, 8]],
+            [[1, 9]],
+            [[1, 9]],
+            [[1, 9]],
+            [[2, 8]],
+            [[3, 7]],
+            [[4, 6]],
         ];
 
         function getNpcAffectionHeartCells() {
@@ -877,7 +878,7 @@ function normalizeMemoryNotes(value) {
             const affection = Number(value ?? 0);
             const negative = affection < 0;
             const percent = Math.max(0, Math.min(100, affection));
-            let cutoff = 8;
+            let cutoff = 7;
             if (percent >= 100) cutoff = 0;
             else if (percent >= 90) cutoff = 1;
             else if (percent >= 75) cutoff = 2;
@@ -890,18 +891,18 @@ function normalizeMemoryNotes(value) {
             const isOutline = (x, y) => !hasCell(x - 1, y) || !hasCell(x + 1, y) || !hasCell(x, y - 1) || !hasCell(x, y + 1);
             const pixel = (x, y, className) => `<span class="npc-affection-pixel ${className}" style="--x:${x};--y:${y}"></span>`;
             const parts = [];
-            for (let y = 0; y < 8; y += 1) {
-                for (let x = 0; x < 10; x += 1) {
+            for (let y = 0; y < 7; y += 1) {
+                for (let x = 0; x < 11; x += 1) {
                     if (!hasCell(x, y)) continue;
                     if (negative) {
                         const severe = affection <= -30;
-                        if (isOutline(x, y)) parts.push(pixel(x, y, severe ? (y >= 5 ? 'is-negative-dark' : 'is-negative-mid') : (y >= 5 ? 'is-negative-mid' : 'is-negative-light')));
-                        else if (severe) parts.push(pixel(x, y, y <= 2 ? 'is-negative-light' : (y >= 5 ? 'is-negative-dark' : 'is-negative-mid')));
-                        else parts.push(pixel(x, y, y <= 2 ? 'is-negative-soft' : (y >= 5 ? 'is-negative-mid' : 'is-negative-light')));
+                        if (isOutline(x, y)) parts.push(pixel(x, y, severe ? (y >= 4 ? 'is-negative-dark' : 'is-negative-mid') : (y >= 4 ? 'is-negative-mid' : 'is-negative-light')));
+                        else if (severe) parts.push(pixel(x, y, y <= 2 ? 'is-negative-light' : (y >= 4 ? 'is-negative-dark' : 'is-negative-mid')));
+                        else parts.push(pixel(x, y, y <= 2 ? 'is-negative-soft' : (y >= 4 ? 'is-negative-mid' : 'is-negative-light')));
                     } else if (isOutline(x, y)) {
-                        parts.push(pixel(x, y, y >= 6 ? 'is-outline is-outline-dark' : 'is-outline'));
+                        parts.push(pixel(x, y, y >= 5 ? 'is-outline is-outline-dark' : 'is-outline'));
                     } else if (y >= cutoff) {
-                        parts.push(pixel(x, y, y <= 2 ? 'is-fill is-fill-light' : (y >= 5 ? 'is-fill is-fill-dark' : 'is-fill')));
+                        parts.push(pixel(x, y, y <= 2 ? 'is-fill is-fill-light' : (y >= 4 ? 'is-fill is-fill-dark' : 'is-fill')));
                     } else {
                         parts.push(pixel(x, y, 'is-empty'));
                     }
@@ -916,15 +917,15 @@ function normalizeMemoryNotes(value) {
             }
             /* 星塵量表(2026/07/10):閃耀度跟著好感走——>=60 一顆、>=90 兩顆、滿值五星全開 */
             if (!negative && percent >= 100) {
-                [[-1, 1, 'is-hot'], [10, 2, 'is-s2'], [1, -1, 'is-s3'], [8, -1, 'is-hot is-s2'], [10, 6, 'is-s3']].forEach(([x, y, className]) => {
+                [[-1, 1, 'is-hot'], [11, 2, 'is-s2'], [1, -1, 'is-s3'], [9, -1, 'is-hot is-s2'], [11, 5, 'is-s3']].forEach(([x, y, className]) => {
                     parts.push(`<span class="npc-affection-spark ${className}" style="--x:${x};--y:${y}"></span>`);
                 });
             } else if (!negative && percent >= 90) {
-                [[-1, 2, ''], [10, 1, 'is-s2']].forEach(([x, y, className]) => {
+                [[-1, 2, ''], [11, 1, 'is-s2']].forEach(([x, y, className]) => {
                     parts.push(`<span class="npc-affection-spark ${className}" style="--x:${x};--y:${y}"></span>`);
                 });
             } else if (!negative && percent >= 60) {
-                parts.push(`<span class="npc-affection-spark is-s2" style="--x:10;--y:2"></span>`);
+                parts.push(`<span class="npc-affection-spark is-s2" style="--x:11;--y:2"></span>`);
             }
             const moodClass = getAffectionMoodClass(affection);
             return `<span class="npc-affection${negative ? (affection <= -30 ? ' negative' : ' negative negative-soft') : ''}${percent >= 100 ? ' affection-full' : ''}${moodClass ? ' ' + moodClass : ''}" aria-label="NPC affection ${affection}">${parts.join('')}</span>`;
