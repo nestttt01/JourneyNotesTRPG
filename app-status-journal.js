@@ -393,8 +393,8 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
             const statOrder = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
             const disabled = available <= 0;
             let html = '';
-            html += `<div class="growth-head"><span class="growth-rank">${escapeStatusHtml(rank)}</span><span class="growth-points">${escapeStatusHtml(t('可用成長點'))}：${available}</span></div>`;
-            html += `<div class="growth-sub">${escapeStatusHtml(t('累積成就'))}：${achievementCount || 0}</div>`;
+            html += `<div class="growth-head"><span class="growth-rank">${escapeStatusHtml(rank)}</span><span class="growth-points"><span class="growth-points-label">${escapeStatusHtml(t('可用成長點'))}</span>：${available}</span></div>`;
+            html += `<div class="growth-sub"><span class="growth-sub-label">${escapeStatusHtml(t('累積成就'))}</span>：${achievementCount || 0}</div>`;
             html += `<div class="growth-stat-row">`;
             statOrder.forEach(k => {
                 const info = (typeof DICE_STATS === 'object' && DICE_STATS[k]) ? DICE_STATS[k] : { code: k.toUpperCase() };

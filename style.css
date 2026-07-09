@@ -3535,3 +3535,19 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
  70% { transform: translate(2px, -1px); }
 }
 
+/* 遊戲玩法可讀性 v2.4 */
+.setup-info-view h3,
+#tutorial-modal-content .u-inline-019 {
+    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+    font-weight: 900;
+    color: var(--text-main);
+    text-shadow: 2px 2px 0 var(--accent-neon);
+    letter-spacing: 0.5px;
+}
+.setup-info-view h3 { font-size: 16px; margin: 6px 0 10px; line-height: 1.5; }
+.setup-info-grid { gap: 22px; }
+.setup-info-grid article { padding: 2px 0 18px; }
+.setup-info-view p { line-height: 1.9; margin-bottom: 4px; }
+#tutorial-modal-content .u-inline-019 { display: block; font-size: 16px; margin: 24px 0 10px; line-height: 1.5; }
+#tutorial-modal-content .u-inline-018 > .u-inline-019:first-of-type { margin-top: 4px; }
+#tutorial-modal-content .u-inline-020 { line-height: 1.9; margin-bottom: 12px; }
