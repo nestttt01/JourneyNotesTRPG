@@ -1148,14 +1148,16 @@ background: var(--paper-bg);
             opacity: 0;
             pointer-events: none;
         }
+        /* hover/focus 期間連續掃光（2026/07/10）：一掃 0.5s + 歇 0.6s 循環，游標放著就一直閃 */
         .px-shine:hover::after,
         .px-shine:focus-visible::after {
             opacity: 1;
-            animation: key-btn-shine 0.5s steps(8, end) 1;
+            animation: key-btn-shine 1.1s steps(8, end) infinite;
         }
         @keyframes key-btn-shine {
-            from { left: -34%; }
-            to { left: 118%; }
+            0% { left: -34%; }
+            45% { left: 118%; }
+            100% { left: 118%; }
         }
         /* HP/SAN 細格血條(概念版 C 改良,2026/07/09 定案):
            圖示+10 細格+數字,無外框盒、無文字標籤,走輕量路線。
@@ -3908,11 +3910,12 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
 
 /* ---- 存檔印記 ---- */
 #saved-pip {
-    position: fixed; right: 10px; bottom: 10px; width: 6px; height: 6px;
+    position: fixed; right: 10px; bottom: 10px; width: 10px; height: 10px;
     background: var(--accent-neon); border: 1px solid var(--border-dark);
+    box-shadow: 2px 2px 0 var(--border-dark);
     opacity: 0; pointer-events: none; z-index: 11000;
 }
-#saved-pip.show { animation: saved-pip-blink 0.9s steps(5, end); }
+#saved-pip.show { animation: saved-pip-blink 1.6s steps(5, end); }
 @keyframes saved-pip-blink { 0% { opacity: 0; } 20%, 70% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
     #saved-pip.show { animation: none; opacity: 0; }
