@@ -3070,6 +3070,10 @@ html { background-color: var(--bg-main); }
 background: var(--paper-bg);
 background: var(--bg-panel-glass);
 }
+/* 行內隨機生成面板：外層 editor 已上玻璃，盒子保持透明，避免雙層疊白 */
+:root[data-bg-mode="image"] .modal-box.random-generator-inline-panel {
+background: transparent;
+}
 /* 背景圖模式：所有側邊標籤同步版本更新標籤的透明感；一般模式維持實心。 */
 :root[data-bg-mode="image"] .home-update-tab {
 background: var(--text-sub);
