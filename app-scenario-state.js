@@ -656,7 +656,7 @@ function normalizeMemoryNotes(value) {
                     else pixel(x, y, 'is-empty');
                 }
             }
-            [[2, 2], [3, 2], [2, 3]].forEach(([x, y]) => {
+            [[3, 2]].forEach(([x, y]) => {   /* 光點一顆(2026/07/10 定案,原三顆 L 形) */
                 if (hasCell(x, y) && !isOutline(x, y) && y >= cutoff) pixel(x, y, 'is-shine');
             });
             return `<span class="npc-affection" style="width:calc(${width} * var(--u));height:calc(${height} * var(--u))">${parts.join('')}</span>`;
@@ -911,7 +911,7 @@ function normalizeMemoryNotes(value) {
             /* 光澤跟著填色走:只要光澤像素落在已填色區(y >= cutoff)就渲染,
                不再滿值限定——90% 的心也有高光,不會灰灰的。外圈星星維持滿值專屬。 */
             if (!negative && percent > 0) {
-                [[2, 2], [3, 2], [2, 3]].forEach(([x, y]) => {
+                [[3, 2]].forEach(([x, y]) => {   /* 光點一顆(2026/07/10 定案,原三顆 L 形) */
                     if (hasCell(x, y) && !isOutline(x, y) && y >= cutoff) parts.push(pixel(x, y, 'is-shine'));
                 });
             }
