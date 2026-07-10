@@ -1047,15 +1047,32 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 document.getElementById('loading').style.display = 'none';
         }
 
+        function isRecoverableDiceAlertLine(line) {
+            const text = valueToText(line);
+            const prefix = '【系統提示】：';
+            if (!text.startsWith(prefix)) {
+                return false;
+            }
+            const payload = text.slice(prefix.length);
+            const isLegacyDiceAlert = payload.startsWith('— ') && payload.includes('檢定：');
+            const isCurrentDiceAlert = /^(?:NPC｜)?(?:STR|DEX|CON|INT|WIS|CHA)(?:[ \t\u3000]|｜)/.test(payload);
+            return isLegacyDiceAlert || isCurrentDiceAlert;
+        }
+
         function recoverFromAIFailure(error, isOpening) {
                 console.error(error);
                 document.getElementById('loading').style.display = 'none';
                 alert(getFriendlyErrorMessage(error, 'AI 暫時無法完成這次回覆，請稍後再試。'));
                 if (isOpening) { const fallbackNav = `(系統提示：載入時發生連線異常，請稍後重新整理或檢查金鑰)`; chatScripts[currentChatPageIndex].push(`【旁白】：${fallbackNav}`); appendNarrative(fallbackNav); saveCurrentProgress(); return; }
-                if (chatScripts[currentChatPageIndex].length > 0 && chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length - 1].startsWith('【系統提示】：— ') && chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length - 1].includes('檢定：')) {
-                    chatScripts[currentChatPageIndex].pop();
+                const currentChat = chatScripts[currentChatPageIndex];
+                const lastChatLine = currentChat[currentChat.length - 1];
+                if (isRecoverableDiceAlertLine(lastChatLine)) {
+                    currentChat.pop();
                     const dialogueBox = document.getElementById('dialogue-box');
-                    if (dialogueBox?.lastChild) dialogueBox.removeChild(dialogueBox.lastChild);
+                    const lastDialogueNode = dialogueBox?.lastElementChild;
+                    if (lastDialogueNode?.classList.contains('alert-msg')) {
+                        lastDialogueNode.remove();
+                    }
                 }
                 if(chatScripts[currentChatPageIndex].length > 0 && (chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith(currentScenario.playerName) || chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith("【旁白】：玩家行動") || chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith("【創作者指令】：") || chatScripts[currentChatPageIndex][chatScripts[currentChatPageIndex].length-1].startsWith("【輔助旁白】："))) {
                     const lastPlayerText = chatScripts[currentChatPageIndex].pop(); let restoreText = "";

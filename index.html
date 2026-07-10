@@ -213,7 +213,7 @@
                     </div>
 
                     <p class="u-inline-016">API 使用追蹤</p>
-                    <p class="api-stat-note">只儲存在本機瀏覽器。匯出存檔時會一起保存，匯入時可恢復；清除瀏覽器資料或清除設備資料會刪除。</p>
+                    <p class="api-stat-note">只儲存在這台裝置目前使用的瀏覽器設定檔，不會隨備份匯出或匯入；清除瀏覽器或設備資料時會一併刪除。</p>
                     <div id="api-usage-display"></div>
                 </div>
             </div>
@@ -752,7 +752,7 @@
                                 </select>
                             </label>
                         </div>
-                        <p class="desktop-game-difficulty-note">困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定。極限模式：檢定 DC +3，歸零必定 Game Over，NPC 死亡後無法復活。</p>
+                        <p class="desktop-game-difficulty-note">困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定。極限模式：檢定 DC +3，歸零會觸發「最後掙扎」，生死檢定 D20 ≥ 8 才能存活；NPC 死亡後無法復活。</p>
  <div class="desktop-game-management-actions">
  <button type="button" onclick="saveCurrentPreset()">儲存配置</button>
  <button type="button" onclick="saveAsNewPreset()">另存配置</button>
@@ -870,7 +870,7 @@
                         <option value="nightmare">極限模式</option>
                     </select>
                 </div>
-                <p class="game-difficulty-note">困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定，失敗後永久死亡。極限模式：檢定 DC +3，歸零必定 Game Over，NPC 死亡後無法復活。</p>
+                <p class="game-difficulty-note">困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定，失敗後永久死亡。極限模式：檢定 DC +3，歸零會觸發「最後掙扎」，生死檢定 D20 ≥ 8 才能存活；NPC 死亡後無法復活。</p>
                 
             </div>
 

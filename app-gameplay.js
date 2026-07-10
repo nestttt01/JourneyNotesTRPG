@@ -2490,12 +2490,12 @@ function getRequiredSurvivalFlags() {
                 if (previousAutoFlags.includes(flag)) return;
                 if (flag === AUTO_SURVIVAL_FLAGS.hpZero) {
                     const mode = getGameDifficultyInfo();
-                    createSystemAlert(mode.gameOver === 'forced' ? 'HP 歸零：極限模式 Game Over。' : mode.gameOver === 'possible' ? 'HP 歸零：困難模式進入致命結局判定。' : 'HP 歸零：保護機制啟動，下一回合優先演出救援。');
+                    createSystemAlert(mode.gameOver === 'forced' ? 'HP 歸零：極限模式進入「最後掙扎」（D20 ≥ 8 存活）。' : mode.gameOver === 'possible' ? 'HP 歸零：困難模式進入致命結局判定。' : 'HP 歸零：保護機制啟動，下一回合優先演出救援。');
                 }
                 else if (flag === AUTO_SURVIVAL_FLAGS.hpCritical) createSystemAlert('HP 已進入重傷區間，後續行動與判定將受到影響。');
                 else if (flag === AUTO_SURVIVAL_FLAGS.sanZero) {
                     const mode = getGameDifficultyInfo();
-                    createSystemAlert(mode.gameOver === 'forced' ? 'SAN 歸零：極限模式 Game Over。' : mode.gameOver === 'possible' ? 'SAN 歸零：困難模式進入致命結局判定。' : 'SAN 歸零：照護機制啟動，下一回合優先處理精神崩潰。');
+                    createSystemAlert(mode.gameOver === 'forced' ? 'SAN 歸零：極限模式進入「最後掙扎」（D20 ≥ 8 存活）。' : mode.gameOver === 'possible' ? 'SAN 歸零：困難模式進入致命結局判定。' : 'SAN 歸零：照護機制啟動，下一回合優先處理精神崩潰。');
                 }
                 else if (flag === AUTO_SURVIVAL_FLAGS.sanCritical) createSystemAlert('SAN 已進入精神危機區間，後續感知與判定將受到影響。');
             });
