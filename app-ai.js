@@ -678,18 +678,12 @@ ${rawAction}
             if (typeof renderChatPage === 'function') renderChatPage(snap.chatPageIndex);
         }
 
-        async function callAI_JSON(extraPrompt = "", isOpening = false, latestPlayerAction = "", manualAffectionNpcIds = [], protectedRevivedNpcIds = []) {
-            const profile = getModelRuntimeProfile();
-            const fullPrompt = buildGamePrompt(extraPrompt, latestPlayerAction, profile);
-
-            try {
-                const rawText = await requestAIText(fullPrompt, { kind: 'normal', maxTokens: profile.normalMaxTokens });
-                let parsedData = await parseAIJsonWithRepair(rawText, fullPrompt);
-                parsedData = await repairVisibleResponseLanguage(parsedData);
-                /* 快照:自此以下開始改動遊戲狀態;若套用途中出錯,回滾後再交給外層 catch,
-                   確保 catch 裡的 saveCurrentProgress() 不會把半套用狀態寫進存檔。 */
-                const applySnapshot = captureApplyStateSnapshot();
-                try {
+        /* ===== callAI_JSON 拆解（2026/07/10，純搬移零邏輯改動）=====
+           巨獸拆三段：套用（applyAIStateChanges）／渲染（renderAIResponse）／失敗復原（recoverFromAIFailure）。
+           解析（requestAIText→parseAIJsonWithRepair→repairVisibleResponseLanguage）與「解析成功才拍快照、
+           套用+渲染包內層 try、出錯完整回滾」的骨架留在主函式，語意一字不變。
+           渲染段只依賴 parsedData 與全域，不吃套用段區域變數（拆解前已驗證資料流）。 */
+        function applyAIStateChanges(parsedData, latestPlayerAction, manualAffectionNpcIds, protectedRevivedNpcIds) {
                 const inputContext = parseSceneInputContext(stripHardDiceDirective(latestPlayerAction));
                 // 輔助旁白不可改動玩家；角色行動與最高權限的創作者指令都可寫入狀態欄位。
                 const playerEffectsAllowed = inputContext.mode !== 'narrator';
@@ -882,7 +876,9 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 if (!memoryEvent && sceneJournalEvent) {
                     currentAdventureLog = mergeAdventureLog(currentAdventureLog, sceneJournalEvent);
                 }
+        }
 
+        function renderAIResponse(parsedData) {
                 const narrativeText = valueToText(parsedData.narrative);
                 if(narrativeText) {
                     chatScripts[currentChatPageIndex].push(`【旁白】：${narrativeText}`);
@@ -957,14 +953,9 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 saveCurrentProgress();
                 applyGameOverUi();
                 document.getElementById('loading').style.display = 'none';
-                } catch (applyError) {
-                    console.error('AI 回覆套用途中出錯,已回滾本回合所有變更。', applyError);
-                    if (typeof clearAffectionHeartPops === 'function') clearAffectionHeartPops();
-                    restoreApplyStateSnapshot(applySnapshot);
-                    throw applyError;
-                }
+        }
 
-            } catch (error) {
+        function recoverFromAIFailure(error, isOpening) {
                 console.error(error);
                 document.getElementById('loading').style.display = 'none';
                 alert(getFriendlyErrorMessage(error, 'AI 暫時無法完成這次回覆，請稍後再試。'));
@@ -986,5 +977,29 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                     const dialogueBox = document.getElementById('dialogue-box'); if (dialogueBox && dialogueBox.lastChild) { dialogueBox.removeChild(dialogueBox.lastChild); }
                 }
                 saveCurrentProgress();
+        }
+
+        async function callAI_JSON(extraPrompt = "", isOpening = false, latestPlayerAction = "", manualAffectionNpcIds = [], protectedRevivedNpcIds = []) {
+            const profile = getModelRuntimeProfile();
+            const fullPrompt = buildGamePrompt(extraPrompt, latestPlayerAction, profile);
+
+            try {
+                const rawText = await requestAIText(fullPrompt, { kind: 'normal', maxTokens: profile.normalMaxTokens });
+                let parsedData = await parseAIJsonWithRepair(rawText, fullPrompt);
+                parsedData = await repairVisibleResponseLanguage(parsedData);
+                /* 快照:自此以下開始改動遊戲狀態;若套用途中出錯,回滾後再交給外層 catch,
+                   確保 catch 裡的 saveCurrentProgress() 不會把半套用狀態寫進存檔。 */
+                const applySnapshot = captureApplyStateSnapshot();
+                try {
+                    applyAIStateChanges(parsedData, latestPlayerAction, manualAffectionNpcIds, protectedRevivedNpcIds);
+                    renderAIResponse(parsedData);
+                } catch (applyError) {
+                    console.error('AI 回覆套用途中出錯,已回滾本回合所有變更。', applyError);
+                    if (typeof clearAffectionHeartPops === 'function') clearAffectionHeartPops();
+                    restoreApplyStateSnapshot(applySnapshot);
+                    throw applyError;
+                }
+            } catch (error) {
+                recoverFromAIFailure(error, isOpening);
             }
         }

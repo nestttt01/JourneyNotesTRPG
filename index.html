@@ -37,8 +37,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
-    
+    <!-- 開機簾幕(2026/07/10):首繪即以主題紙色蓋全場,onload 尾聲(含自動驗證落定)一次掀開,
+         消除「背景/頭像/驗證區/側標籤分批現身」的載入裸奔閃爍;內建 8 秒保險自動掀開 -->
+    <div id="boot-curtain" aria-hidden="true"><div class="px-loader"><i></i><i></i><i></i></div></div>
+    <script>window.setTimeout(function () { var c = document.getElementById('boot-curtain'); if (c && !c.classList.contains('lift')) c.classList.add('lift'); }, 8000);</script>
 
     <input type="file" id="upload-game-avatar" accept="image/*" onchange="triggerGameAvatarCrop(this)" hidden class="hidden-file-input">
 

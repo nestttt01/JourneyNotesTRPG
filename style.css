@@ -1242,6 +1242,18 @@ background: var(--paper-bg);
             60% { opacity: 1; transform: translateY(-3px) scale(1.02); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
+        /* 開機簾幕(2026/07/10):首繪即以主題紙色蓋全場,就緒後 steps 掀開;色票由 head 預塗腳本先行套用 */
+        #boot-curtain { position: fixed; inset: 0; z-index: 100000; background: var(--border-dark); display: grid; place-items: center; /* 深色開機風:墨色底+螢光方塊,老遊戲機開機畫面(2026/07/10) */ }
+        #boot-curtain .px-loader { display: inline-flex; gap: 5px; }
+        #boot-curtain .px-loader i { width: 9px; height: 9px; background: var(--accent-neon); animation: px-loader-blink 0.75s infinite; }
+        #boot-curtain .px-loader i:nth-child(2) { animation-delay: 0.25s; }
+        #boot-curtain .px-loader i:nth-child(3) { animation-delay: 0.5s; }
+        #boot-curtain.lift { animation: boot-curtain-lift 0.24s steps(4, end) forwards; pointer-events: none; }
+        @keyframes boot-curtain-lift { to { opacity: 0; visibility: hidden; } }
+        @media (prefers-reduced-motion: reduce) {
+            #boot-curtain.lift { animation: none; opacity: 0; visibility: hidden; }
+            #boot-curtain .px-loader i { animation: none; }
+        }
         /* Loading 三顆像素方塊輪流閃 */
         #loading .px-loader { display: inline-flex; gap: 4px; margin-right: 9px; vertical-align: middle; }
         #loading .px-loader i {

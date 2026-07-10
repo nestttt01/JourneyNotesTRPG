@@ -369,6 +369,7 @@
         }
 
         window.onload = async () => {
+            let homeAutoVerifyPromise = null;   /* 開機簾幕要等自動背景驗證落定才掀(2026/07/10) */
             try {
                 loadUiTheme();
                 await initializePersistentStorage();
@@ -393,7 +394,14 @@
                     document.getElementById('delete-key-btn').style.display = 'inline-block';
             }
 selectedModel = localStorage.getItem(getModelStorageKey(apiProvider)) || '';
-setHomeModelAreaVisible(selectedModel && apiKey);
+/* 2026/07/10:重整後不再直接亮出主選單(模型清單未抓,下拉是空盒)——
+   一律隱藏,待驗證成功才現身(驗證鈕同時消失),與首次驗證流程一致。
+   有暫存金鑰+選過模型時自動背景驗證(靜默失敗退回驗證鈕);
+   共用裝置的風險由「保留金鑰」開關的警語把關,無暫存金鑰不會觸發。 */
+setHomeModelAreaVisible(false);
+if (savedKey && selectedModel && typeof fetchAvailableModels === 'function') {
+    homeAutoVerifyPromise = fetchAvailableModels(true);
+}
 syncSetupSideLabels();
 ensureGameModelSelectReady();
 
@@ -467,5 +475,9 @@ ensureGameModelSelectReady();
                 console.error("載入資料時發生錯誤:", e);
             }
             adjustInputHeight();
+            /* 開機簾幕:背景/頭像已在前面 await 完成;有自動背景驗證就等它落定,一次呈現最終畫面 */
+            const liftBootCurtain = () => { if (typeof dismissBootCurtain === 'function') dismissBootCurtain(); };
+            if (homeAutoVerifyPromise && typeof homeAutoVerifyPromise.finally === 'function') homeAutoVerifyPromise.finally(liftBootCurtain);
+            else liftBootCurtain();
         }
 

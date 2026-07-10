@@ -58,7 +58,8 @@
             keyInput.value = apiKey || '';
             document.getElementById('model-choice').innerHTML = '';
             document.getElementById('game-model-choice').innerHTML = '';
-            setHomeModelAreaVisible(selectedModel && apiKey);
+            /* 2026/07/10:切換供應商後模型清單已清空,主選單一律隱藏待重新驗證(驗證鈕同步復現) */
+            setHomeModelAreaVisible(false);
  document.getElementById('verify-btn').style.display = 'inline-block';
  document.getElementById('verify-btn').disabled = false;
  document.getElementById('verify-btn').innerText = '驗證金鑰';

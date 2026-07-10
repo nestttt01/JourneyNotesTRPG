@@ -3,6 +3,14 @@
             triggerCrop(input, 'home');
         }
 
+        /* 開機簾幕掀開(2026/07/10):onload 尾聲呼叫;自動背景驗證進行中會等它落定,一次呈現最終畫面 */
+        function dismissBootCurtain() {
+            const curtain = document.getElementById('boot-curtain');
+            if (!curtain || curtain.classList.contains('lift')) return;
+            curtain.classList.add('lift');
+            window.setTimeout(() => curtain.remove(), 600);
+        }
+
         function setHomeModelAreaVisible(visible) {
             const isVisible = Boolean(visible);
             const area = document.getElementById('model-selection-area');

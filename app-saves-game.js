@@ -857,10 +857,12 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
             }
         }
 
-        async function fetchAvailableModels() {
+        /* silentAuto(2026/07/10):載入時的自動背景驗證——成功直接呈現主選單,
+           失敗不彈 alert、退回驗證鈕讓玩家手動處理;手動點擊路徑行為不變。 */
+        async function fetchAvailableModels(silentAuto = false) {
             apiProvider = document.getElementById('api-provider')?.value || 'google';
             apiKey = document.getElementById('api-key').value.trim();
-            if(!apiKey) { alert("請貼上你的 API Key！"); return; }
+            if(!apiKey) { if (!silentAuto) alert("請貼上你的 API Key！"); return; }
             const verifyBtn = document.getElementById('verify-btn');
             verifyBtn.innerText = "驗證中..."; verifyBtn.disabled = true;
 
@@ -879,7 +881,7 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
                 verifyBtn.style.display = 'none';
             } catch (error) {
                 console.error('API 驗證技術資訊', error);
-                alert(getFriendlyErrorMessage(error, 'API 驗證失敗，請確認金鑰後再試。'));
+                if (!silentAuto) alert(getFriendlyErrorMessage(error, 'API 驗證失敗，請確認金鑰後再試。'));
                 verifyBtn.innerText = "驗證金鑰"; verifyBtn.disabled = false;
             }
         }
