@@ -631,7 +631,16 @@ updateSetupCurrentPresetLabel();
                 const eNname = document.getElementById(`edit-n-name-${idx}`);
                 if (eNname) n.name = eNname.value;
                 const eNaffection = document.getElementById(`edit-n-aff-${idx}`);
-                if (eNaffection && !isNpcDead(n)) n.affection = clampAffectionValue(eNaffection.value, n.affection);
+                if (eNaffection && !isNpcDead(n)) {
+                    const prevAff = clampAffectionValue(n.affection, 0);
+                    const nextAff = clampAffectionValue(eNaffection.value, n.affection);
+                    n.affection = nextAff;
+                    /* 手動改好感也彈心(2026/07/10 待辦6):純視覺回饋——不觸發里程碑/成就(編輯工具語意,防手動刷地獄見);
+                       延遲 350ms 等面板關閉,彈在該 NPC 最後一則泡泡上(沒說過話就不彈,與 AI 路徑同規) */
+                    if (nextAff !== prevAff && typeof spawnAffectionHeartPop === 'function') {
+                        window.setTimeout(() => spawnAffectionHeartPop(n.name, nextAff - prevAff), 350);
+                    }
+                }
                 const eNage = document.getElementById(`edit-n-age-${idx}`);
                 if (eNage) n.details.age = eNage.value;
                 const eNspeech = document.getElementById(`edit-n-speech-${idx}`);

@@ -217,6 +217,7 @@ font-synthesis: none;
 #status-modal-content h3,
         #status-modal-content h4,
         #status-modal-content .u-inline-016,
+        #status-modal-content .u-inline-013,
         #status-modal-content .memory-field-title,
         #status-modal-content .summary-name,
         #status-modal-content .u-inline-069,
@@ -228,12 +229,12 @@ font-synthesis: none;
         }
         #save-list { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; background: transparent; border: none; box-shadow: none; padding: 0; }
 
-        #setup-pic { width: 108px; height: 108px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-dark); filter: none; margin-bottom: 16px; cursor: pointer; box-shadow: var(--hard-shadow); transition: all 0.2s; background: var(--card-bg); align-self: center;}
+        #setup-pic { width: 108px; height: 108px; border-radius: 50%; object-fit: cover; border: none; outline: 3px solid var(--border-dark); outline-offset: -3px; filter: none; margin-bottom: 16px; cursor: pointer; box-shadow: var(--hard-shadow); transition: all 0.2s; background: var(--card-bg); align-self: center; /* 框改 outline 內縮疊在圖上:蓋掉圓形裁切的抗鋸齒白縫(2026/07/10) */}
         #setup-pic:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--accent-neon), 6px 6px 0px 2px var(--border-dark); }
 
         .avatar-setup-area { display: flex; justify-content: space-around; margin-bottom: 10px; padding: 10px; background: var(--card-bg); border-radius: 8px; border: 2px dashed #ccc; }
         .avatar-box { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; position: relative;}
-.avatar-preview { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-dark); background: var(--card-bg); transition: all 0.2s; box-shadow: 2px 2px 0px var(--accent-neon); }
+.avatar-preview { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: none; outline: 2px solid var(--border-dark); outline-offset: -2px; background: var(--card-bg); transition: all 0.2s; box-shadow: 2px 2px 0px var(--accent-neon); /* outline 內縮蓋抗鋸齒縫 */ }
         .avatar-label { font-size: 12px; font-weight: 800; color: var(--text-main); background: var(--card-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-dark);}
 
         /* 大廳用的摺疊面板 */
@@ -368,6 +369,16 @@ z-index: 10;
         .growth-stat-btn { padding: 4px 9px; border: 2px solid var(--border-dark); border-radius: 6px; background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 900; cursor: pointer; }
         .growth-stat-btn:not(:disabled):hover { background: var(--accent-neon); transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--border-dark); }
         .growth-stat-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        /* 判定加值總覽(2026/07/10,A 案單行文字條定案):平時取代六圍按鈕的唯讀顯示;黃底=含道具加值,紅字=懲罰生效 */
+        .growth-mod-title { font-size: 12px; font-weight: 900; color: var(--text-main); margin: 10px 0 6px; }
+        .growth-mod-hint { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-left: 8px; }
+        .growth-mod-line { font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace; font-size: 15px; font-weight: 400; letter-spacing: 1px; line-height: 1.9; margin-bottom: 6px; }
+        .growth-mod-line span { font-family: inherit; }   /* 全域 * 選擇器會逐元素蓋字體,子 span 強制繼承 */
+        .growth-mod-line .sep { color: var(--accent-gray); margin: 0 6px; }
+        .growth-mod-line .it { background: color-mix(in srgb, var(--accent-neon) 55%, transparent); padding: 1px 4px; }
+        .growth-mod-line .pn { color: #d43a3a; }
+        /* 成長結晶鍛造態(2026/07/10):屬性滿 20 的按鈕轉為兌換結晶 */
+        .growth-forge-btn:not(:disabled) { border-color: color-mix(in srgb, var(--accent-neon) 70%, var(--border-dark)); box-shadow: 2px 2px 0 var(--accent-neon); }
         .growth-prof-row { display: flex; gap: 8px; }
         .growth-prof-row input { flex: 1; min-width: 0; padding: 6px 10px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--text-main); font-size: 13px; }
         .growth-prof-btn { padding: 6px 12px; font-size: 12px; }
@@ -531,7 +542,7 @@ z-index: 10;
 
         .msg-wrapper { display: flex; gap: 10px; align-items: center; animation: fadeIn 0.4s ease-out; margin-top: 5px; }
         .msg-wrapper.player { flex-direction: row-reverse; }
-        .chat-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-dark); flex-shrink: 0; background: var(--card-bg); box-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+        .chat-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: none; outline: 2px solid var(--border-dark); outline-offset: -2px; flex-shrink: 0; background: var(--card-bg); box-shadow: 2px 2px 0px rgba(0,0,0,0.1); /* 同 #setup-pic:outline 內縮蓋抗鋸齒縫 */ }
         .chat-avatar.editable-avatar { cursor: pointer; }
         .chat-avatar.editable-avatar:hover,
         .chat-avatar.editable-avatar:focus-visible { outline: 3px solid var(--accent-neon); outline-offset: 2px; }
@@ -634,11 +645,22 @@ z-index: 10;
         .status-tab-btn.active { background: var(--accent-neon); box-shadow: 2px 2px 0 var(--border-dark); }
         .status-page { display: none; }
         .status-page.active { display: block; }
-        .api-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
-        .api-stat-box { background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; padding: 10px; box-shadow: 2px 2px 0 var(--accent-neon); }
-        .api-stat-label { font-size: 11px; color: var(--text-sub); font-weight: 900; margin-bottom: 4px; }
-        .api-stat-value { font-size: 18px; color: var(--text-main); font-weight: 900; word-break: break-word; }
+        .api-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; /* 2026/07/10 系統頁改版:設定在上,追蹤格縮小四欄一排 */ }
+        .api-stat-box { background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; padding: 6px 8px; box-shadow: 2px 2px 0 var(--accent-neon); }
+        .api-stat-label { font-size: 10px; color: var(--text-sub); font-weight: 900; margin-bottom: 2px; }
+        .api-stat-value { font-size: 15px; color: var(--text-main); font-weight: 900; word-break: break-word; }
         .api-stat-note { font-size: 12px; color: var(--text-sub); line-height: 1.6; font-weight: 700; margin: 10px 0; }
+        /* 面板頁級主標統一(2026/07/10):系統頁兩標題+紀錄頁「讀取摘要」+詳細頁「詳細設定」——
+           像素字放大+重點色偏移陰影;區塊小標(狀態頁)另走左欄標記款,兩層規格。 */
+        #status-page-api > .u-inline-013, #status-page-api > .u-inline-016,
+        #status-page-log > .u-inline-016, #status-page-settings > .u-inline-016 {
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+            font-size: 17px;
+            font-weight: 400;   /* 像素字只有單一字重,鎖 400 防瀏覽器假加粗造成兩標題粗度不一 */
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 var(--accent-neon);
+            margin: 18px 0 6px;
+        }
         .api-stat-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 
         #status-modal-content { padding: 0; }
@@ -734,7 +756,7 @@ z-index: 10;
             margin-bottom: 4px;
         }
 
-        #status-page-state .settings-group {
+        #status-page-api .settings-group {
             background: transparent;
             padding: 0;
             margin: 2px 0 12px;
@@ -744,9 +766,9 @@ z-index: 10;
             row-gap: 2px;
             align-items: start;
         }
-        #status-page-state .settings-group .language-setting-row { margin: 0 0 12px; grid-template-columns: 120px 150px; column-gap: 10px; align-items: center; }
-        #status-page-state .settings-group .language-setting-row:last-child { margin-bottom: 0; }
-        #status-page-state .settings-group .language-mode-select {
+        #status-page-api .settings-group .language-setting-row { margin: 0 0 12px; grid-template-columns: 120px 150px; column-gap: 10px; align-items: center; }
+        #status-page-api .settings-group .language-setting-row:last-child { margin-bottom: 0; }
+        #status-page-api .settings-group .language-mode-select {
             background: var(--accent-neon);
             border: none;
             border-radius: 0;
@@ -756,7 +778,7 @@ z-index: 10;
             min-height: 0;
             justify-self: start;
         }
-        :root[data-bg-mode="image"] #status-page-state .settings-group .language-mode-select {
+        :root[data-bg-mode="image"] #status-page-api .settings-group .language-mode-select {
             background: var(--accent-neon);
         }
         .mature-toggle {
@@ -805,7 +827,7 @@ z-index: 10;
         }
 
         /* Panel polish: lighter state page, compact language control, readable settings forms. */
-        #status-page-state .language-setting-row .scenario-label {
+        #status-page-api .language-setting-row .scenario-label {
             flex: 0 0 auto;
             font-size: 12px;
             color: var(--text-sub);
@@ -830,7 +852,7 @@ z-index: 10;
         }
 
         /* Status panel refinement: compact controls and softer summary rhythm. */
-        #status-page-state .language-setting-row .scenario-label {
+        #status-page-api .language-setting-row .scenario-label {
             font-size: 12px;
             font-weight: 900;
             color: var(--text-main);
@@ -883,7 +905,7 @@ background: var(--paper-bg);
     box-shadow: 5px 5px 0 var(--border-dark);
     transform: translate(-2px, -2px);
 }
-        #status-page-state .language-setting-row {
+        #status-page-api .language-setting-row {
             display: inline-grid;
             grid-template-columns: auto minmax(150px, 260px);
             justify-content: start;
@@ -893,7 +915,7 @@ background: var(--paper-bg);
             padding: 0;
             border: 0;
         }
-        #status-page-state .language-setting-row .scenario-label {
+        #status-page-api .language-setting-row .scenario-label {
             font-size: 13px;
             font-weight: 900;
             color: var(--text-main);
@@ -962,7 +984,18 @@ background: var(--paper-bg);
             margin: 0 0 12px;
             padding-left: 10px;
             border-left: 4px solid var(--accent-neon);
-            font-size: 13px;
+            font-size: 14px;   /* 2026/07/10:13→14,與其他小標同步 */
+            line-height: 1.25;
+        }
+
+        /* 狀態頁區塊標題(2026/07/10):狀態旗標/玩家道具/角色成長 比照 NPC 好感摘要的左欄標記 */
+        #status-page-state > .u-inline-013,
+        #status-page-state > .u-inline-016 {
+            display: inline-block;
+            margin: 14px 0 8px;
+            padding-left: 10px;
+            border-left: 4px solid var(--accent-neon);
+            font-size: 14px;   /* 2026/07/10:13→14,小標存在感微調 */
             line-height: 1.25;
         }
 
@@ -1277,6 +1310,25 @@ background: var(--paper-bg);
             75% { transform: translateX(-2px); }
             100% { transform: translateX(0); }
         }
+        /* 訊息輕彈入(2026/07/10,fx-lab A 案):僅 live 新訊息(appendMessage/appendNarrative 加 .msg-enter),
+           歷史重繪不套;覆蓋基底的平滑 fadeIn,改兩幀分格。 */
+        #dialogue-box .msg-enter { animation: bubble-enter-pop 0.16s steps(2, end) backwards; /* backwards:錯相延遲期間保持隱形 */ }
+        @keyframes bubble-enter-pop {
+            0% { opacity: 0; transform: translateY(6px); }
+            50% { opacity: 1; transform: translateY(-2px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        /* 擲骰翻面微抖(2026/07/10,fx-lab D 案):骰面輪替由 JS playDiceRollFx 驅動 */
+        #dice-btn.dice-rolling { animation: dice-roll-shake 0.7s steps(7, end); }
+        @keyframes dice-roll-shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            14% { transform: translate(-2px, 1px) rotate(-8deg); }
+            28% { transform: translate(2px, -1px) rotate(7deg); }
+            42% { transform: translate(-1px, -1px) rotate(-5deg); }
+            56% { transform: translate(2px, 1px) rotate(6deg); }
+            70% { transform: translate(-1px, 0) rotate(-4deg); }
+            84% { transform: translate(1px, 0) rotate(2deg); }
+        }
         /* AI 選項逐顆入場(app-ai.js 加 opt-enter + animation-delay) */
         .opt-btn.opt-enter { animation: opt-pop-in 0.3s steps(4, end) backwards; }
         @keyframes opt-pop-in {
@@ -1300,6 +1352,7 @@ background: var(--paper-bg);
             .px-shine:hover::after, .px-shine:focus-visible::after { animation: none; opacity: 0; }
             .stat-delta-pop, .opt-btn.opt-enter, .stat-hit, .stat-chip.hit .stat-cells, .stat-chip.healed .stat-cells, .stat-cells i.dying, .stat-cells i.filling, #loading .px-loader i, .affection-heart-pop, .affection-pop-heart, .affection-pop-heart.sad, .affection-pop-tear, .affection-pop-amount { animation: none; opacity: 1; }
             .npc-affection { animation: none; }   /* 量表心情緒動態全停;mood-dead 的靜態傾倒 transform 保留 */
+            #dialogue-box .msg-enter, #dice-btn.dice-rolling { animation: none; }   /* 訊息輕彈入/擲骰微抖全停(骰面輪替另有 JS 守門) */
             .npc-affection-spark { animation: none; opacity: 1; }   /* 星塵改常亮,避免 animation 停用後永遠隱形 */
         }
         .api-home-guide {
@@ -1826,7 +1879,7 @@ background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius
             .desktop-game-card:focus { outline: none; }
             #desktop-player-avatar {
                 width: clamp(150px, 14vw, 210px); height: clamp(150px, 14vw, 210px);
-                object-fit: cover; border-radius: 50%; border: 3px solid var(--border-dark);
+                object-fit: cover; border-radius: 50%; border: none; outline: 3px solid var(--border-dark); outline-offset: -3px;
                 background: var(--card-bg); box-shadow: 5px 5px 0 var(--accent-neon);
                 transition: transform 0.18s ease, box-shadow 0.18s ease;
             }
@@ -1855,7 +1908,7 @@ background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius
             .desktop-npc-avatar-button img,
             .desktop-npc-add-icon {
                 width: 62px; height: 62px; border-radius: 50%; object-fit: cover;
-                border: 3px solid var(--border-dark); background: var(--card-bg);
+                border: none; outline: 3px solid var(--border-dark); outline-offset: -3px; background: var(--card-bg);
                 display: grid; place-items: center; font-size: 32px; line-height: 1;
                 transition: transform 0.18s ease, box-shadow 0.18s ease;
             }
@@ -2346,7 +2399,7 @@ white-space: nowrap;
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .avatar-preview,
             #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .avatar-preview {
                 width: 104px; height: 104px; border-radius: 50%;
-                border: 2px solid var(--border-dark); box-shadow: 3px 3px 0 var(--accent-neon);
+                border: none; outline: 2px solid var(--border-dark); outline-offset: -2px; box-shadow: 3px 3px 0 var(--accent-neon);
             }
             #edit-scenario-screen[data-editor-section="player"] #input-player-name,
             #edit-scenario-screen[data-editor-section="npc"] [id^="npc-name-"] {
@@ -2528,7 +2581,7 @@ margin: 0; padding: 0; background: transparent;
                 font-size: 13px;
             }
             .api-stat-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;   /* 手機兩欄(2026/07/10 縮小版) */
             }
 
 .language-setting-row { grid-template-columns: 1fr; gap: 6px; }
@@ -2543,14 +2596,14 @@ margin: 0; padding: 0; background: transparent;
             .quick-status-value {
                 font-size: 18px;
             }
-            #status-page-state .language-setting-row {
+            #status-page-api .language-setting-row {
                 display: grid;
                 grid-template-columns: 1fr;
                 align-items: stretch;
                 width: 100%;
                 gap: 6px;
             }
-            #status-page-state .settings-group { grid-template-columns: 1fr; }
+            #status-page-api .settings-group { grid-template-columns: 1fr; }
             .quick-status-box {
                 border-right: 0;
                 border-bottom: 1px solid #d0d0d0;
@@ -3088,7 +3141,8 @@ html { background-color: var(--bg-main); }
 :root[data-bg-mode="image"] .model-select,
 :root[data-bg-mode="image"] .scenario-input,
 :root[data-bg-mode="image"] #player-input,
-:root[data-bg-mode="image"] #new-flag-input {
+:root[data-bg-mode="image"] #new-flag-input,
+:root[data-bg-mode="image"] #growth-prof-input {
     background: var(--card-bg);
     background: var(--bg-card-glass);
 }

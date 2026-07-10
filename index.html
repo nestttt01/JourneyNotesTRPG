@@ -68,7 +68,7 @@
                     <button class="status-tab-btn active" data-status-tab="state" onclick="switchStatusTab('state')">狀態</button>
                     <button class="status-tab-btn" data-status-tab="log" onclick="switchStatusTab('log')">紀錄</button>
                     <button class="status-tab-btn" data-status-tab="settings" onclick="switchStatusTab('settings')">詳細</button>
-                    <button class="status-tab-btn" data-status-tab="api" onclick="switchStatusTab('api')">API</button>
+                    <button class="status-tab-btn" data-status-tab="api" onclick="switchStatusTab('api')">系統</button>
                 </div>
 
                 <div id="status-page-state" class="status-page active">
@@ -89,50 +89,6 @@
                     <p class="u-inline-016">角色成長</p>
                     <p class="u-inline-014">達成重大成就可獲得成長點，用來提升屬性或新增擅長領域。</p>
                     <div id="ui-growth-container"></div>
-
-                    <p class="u-inline-013">顯示與輸出設定</p>
-                    <p class="u-inline-014">介面與 AI 輸出的語言，以及每回合回覆的長度。</p>
-                    <div class="settings-group">
-                    <div class="language-setting-row interface-language-setting">
-                        <div class="scenario-label">介面語言</div>
-                        <select data-ui-language-select class="language-mode-select" onchange="setUiLanguage(this.value)">
-                            <option value="zh-TW">繁體中文</option>
-                            <option value="en">English</option>
-                            <option value="ja">日本語</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">輸出語言</div>
-                        <select id="modal-language-mode" class="language-mode-select" onchange="syncGameLanguageMode(this.value)">
-                            <option value="zh-tw">繁體中文</option>
-                            <option value="en">English</option>
-                            <option value="ja">日本語</option>
-                            <option value="ja-zh">日文台詞 + 繁中翻譯</option>
-                            <option value="en-zh">英文台詞 + 繁中翻譯</option>
-                            <option value="auto">自動依玩家語言</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">回覆長度</div>
-                        <select id="reply-length-select" class="language-mode-select" onchange="setReplyLength(this.value)">
-                            <option value="short">短（精簡）</option>
-                            <option value="medium">中（適中）</option>
-                            <option value="long">長（詳細）</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">成人模式</div>
-                        <button type="button" id="mature-mode-toggle" class="mature-toggle" aria-pressed="false" onclick="toggleMatureMode()">OFF</button>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">低狀態干擾</div>
-                        <select id="survival-fx-select" class="language-mode-select" onchange="setSurvivalFxPref(this.value)">
-                            <option value="full">完整效果</option>
-                            <option value="reduced">減弱效果</option>
-                            <option value="off">關閉效果</option>
-                        </select>
-                    </div>
-                    </div>
                 </div>
 
                 <div id="status-page-settings" class="status-page">
@@ -180,6 +136,50 @@
                 </div>
 
                 <div id="status-page-api" class="status-page">
+                    <p class="u-inline-013">顯示與輸出設定</p>
+                    <p class="u-inline-014">介面與 AI 輸出的語言，以及每回合回覆的長度。</p>
+                    <div class="settings-group">
+                    <div class="language-setting-row interface-language-setting">
+                        <div class="scenario-label">介面語言</div>
+                        <select data-ui-language-select class="language-mode-select" onchange="setUiLanguage(this.value)">
+                            <option value="zh-TW">繁體中文</option>
+                            <option value="en">English</option>
+                            <option value="ja">日本語</option>
+                        </select>
+                    </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">輸出語言</div>
+                        <select id="modal-language-mode" class="language-mode-select" onchange="syncGameLanguageMode(this.value)">
+                            <option value="zh-tw">繁體中文</option>
+                            <option value="en">English</option>
+                            <option value="ja">日本語</option>
+                            <option value="ja-zh">日文台詞 + 繁中翻譯</option>
+                            <option value="en-zh">英文台詞 + 繁中翻譯</option>
+                            <option value="auto">自動依玩家語言</option>
+                        </select>
+                    </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">回覆長度</div>
+                        <select id="reply-length-select" class="language-mode-select" onchange="setReplyLength(this.value)">
+                            <option value="short">短（精簡）</option>
+                            <option value="medium">中（適中）</option>
+                            <option value="long">長（詳細）</option>
+                        </select>
+                    </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">成人模式</div>
+                        <button type="button" id="mature-mode-toggle" class="mature-toggle" aria-pressed="false" onclick="toggleMatureMode()">OFF</button>
+                    </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">低狀態干擾</div>
+                        <select id="survival-fx-select" class="language-mode-select" onchange="setSurvivalFxPref(this.value)">
+                            <option value="full">完整效果</option>
+                            <option value="reduced">減弱效果</option>
+                            <option value="off">關閉效果</option>
+                        </select>
+                    </div>
+                    </div>
+
                     <p class="u-inline-016">API 使用追蹤</p>
                     <p class="api-stat-note">只儲存在本機瀏覽器。匯出存檔時會一起保存，匯入時可恢復；清除瀏覽器資料或清除設備資料會刪除。</p>
                     <div id="api-usage-display"></div>
@@ -218,6 +218,9 @@
   <p class="u-inline-020">極限模式歸零會觸發「最後掙扎」，擲生死檢定通過就撐住，並拿到幾回合護盾。</p>
   <p class="u-inline-020">「喘息」鈕可主動擲檢定回一點 HP／SAN，用來脫離死亡螺旋（回復上限為 HP／SAN 總量的 50%，不能連按）。</p>
   <p class="u-inline-020">部分劇情道具有回復效果，在角色面板道具區按「使用」。</p>
+  <p class="u-inline-020">日常劇情也能回復：充分休息、過夜、接受治療或被安撫時，AI 會依事件小幅回復 HP／SAN（重複躺著刷不了血）。</p>
+  <p class="u-inline-020">名稱帶屬性標記的裝備道具（例如「幸運硬幣（智力+1）」）持有期間會自動加進對應骰點，失去道具即失效。</p>
+  <p class="u-inline-020">屬性點滿 20 後，該屬性按鈕會轉為鍛造：花 2 成長點兌換「成長結晶」（該屬性判定 +1，與裝備共用 +3 上限）；結晶是道具，可能因劇情失去。</p>
   <p class="u-inline-019">成長與里程碑</p>
   <p class="u-inline-020">達成重大成就會拿到成長點，可在「角色成長」區提升屬性或新增擅長領域，稱號隨成就升階。</p>
   <p class="u-inline-020">達成情境的「本場目標」會觸發章節收束，由 AI 收尾並給成長點。</p>
@@ -296,7 +299,11 @@
 <ul>
 <li>愛心大改版：面板像素愛心換成圓滾滾的糰子造型（與彈出小愛心同款），並會隨好感改變動作，從微微呼吸、雀躍蹦跳到滿值的發光麻糬彈跳；關係惡化會垂頭喪氣，跌到谷底整顆倒下。</li>
 <li>新成就「我們地獄見」：好感跌到谷底（−100）自動解鎖，並跳出恩斷義絕提示。</li>
-<li>細節：修正像素愛心放大顯示時的髮絲細縫；「遊戲玩法」補上愛心動態與觸底成就說明。</li>
+<li>道具加值：名稱帶屬性標記的裝備道具（如「幸運硬幣（智力+1）」）持有期間骰點自動加值、明細會標示，失去道具即失效。</li>
+<li>成長結晶：屬性點滿 20 後可花 2 成長點鍛造「成長結晶」，該屬性判定 +1（與裝備共用 +3 上限），點滿後的成長點有了去處。</li>
+<li>動態補完：AI 回覆逐則彈入（依字數決定節奏）、擲骰時骰面翻轉。</li>
+<li>面板整理：顯示與輸出設定移至「系統」頁（原 API 頁）並縮小追蹤格；角色成長平時改顯示六圍「判定加值總覽」（含道具加值與低狀態懲罰，即時計算），拿到成長點時才展開升級按鈕。</li>
+<li>細節：修正像素愛心放大顯示時的髮絲細縫；修正大成功／大失敗通知被壓成細條；「遊戲玩法」補上愛心動態與觸底成就說明。</li>
 </ul>
 <details class="home-update-history">
 <summary>查看更早的更新紀錄</summary>
@@ -547,6 +554,9 @@
 <p>極限模式歸零會觸發「最後掙扎」，擲生死檢定通過就撐住，並拿到幾回合護盾。</p>
 <p>「喘息」鈕可主動擲檢定回一點 HP／SAN，用來脫離死亡螺旋（回復上限為 HP／SAN 總量的 50%，不能連按）。</p>
 <p>部分劇情道具有回復效果，在角色面板道具區按「使用」。</p>
+<p>日常劇情也能回復：充分休息、過夜、接受治療或被安撫時，AI 會依事件小幅回復 HP／SAN（重複躺著刷不了血）。</p>
+<p>名稱帶屬性標記的裝備道具（例如「幸運硬幣（智力+1）」）持有期間會自動加進對應骰點，失去道具即失效。</p>
+<p>屬性點滿 20 後，該屬性按鈕會轉為鍛造：花 2 成長點兌換「成長結晶」（該屬性判定 +1，與裝備共用 +3 上限）；結晶是道具，可能因劇情失去。</p>
 </article>
 <article>
 <h3>成長與里程碑</h3>

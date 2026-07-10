@@ -525,7 +525,9 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
         function removeItem(index) {
             if (!Number.isInteger(index) || index < 0 || index >= currentItems.length) return;
             const removedName = currentItems[index];
-            currentItems.splice(index, 1);
+            /* 刪除確認(2026/07/10):× 貼著「使用」鈕,誤觸即蒸發(成長結晶=2 成長點);與擅長刪除同語彙 */
+            const confirmMsg = (typeof uiText === 'function') ? uiText('確定刪除這個道具？（成長結晶或劇情道具刪除後不會補償）') : '確定刪除這個道具？（成長結晶或劇情道具刪除後不會補償）';
+            if (!window.confirm(`${confirmMsg}\n[ ${removedName} ]`)) return;
             if (itemEffects) delete itemEffects[removedName];
             renderItems();
             saveCurrentProgress();
@@ -590,15 +592,49 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
             let html = '';
             html += `<div class="growth-head"><span class="growth-rank">${escapeStatusHtml(rank)}</span><span class="growth-points"><span class="growth-points-label">${escapeStatusHtml(t('可用成長點'))}</span>：${available}</span></div>`;
             html += `<div class="growth-sub"><span class="growth-sub-label">${escapeStatusHtml(t('累積成就'))}</span>：${achievementCount || 0}</div>`;
-            html += `<div class="growth-stat-row">`;
-            statOrder.forEach(k => {
+            /* 判定加值總覽(A 案單行文字條):兩種模式都顯示(2026/07/10 修——
+               升級抉擇時最需要看到道具加值與懲罰);黃底=含道具,紅字=懲罰生效 */
+            html += `<div class="growth-mod-title">${escapeStatusHtml(t('判定加值總覽'))}<span class="growth-mod-hint">${escapeStatusHtml(t('擲骰時自動計入'))}</span></div>`;
+            const parts = statOrder.map(k => {
                 const info = (typeof DICE_STATS === 'object' && DICE_STATS[k]) ? DICE_STATS[k] : { code: k.toUpperCase() };
                 const val = Number(stats[k] != null ? stats[k] : 10);
-                const capped = val >= 20;
-                html += `<button type="button" class="growth-stat-btn" ${disabled || capped ? 'disabled' : ''} onclick="spendGrowthOnStat('${k}')" title="${escapeStatusHtml(t('花 1 點提升此屬性'))}">${info.code} ${val}${capped ? '' : ' +'}</button>`;
+                const abilityMod = Math.floor((val - 10) / 2);
+                const itemMod = (typeof getItemDiceModifier === 'function') ? getItemDiceModifier(k) : 0;
+                const survMod = (typeof getSurvivalDiceModifier === 'function') ? getSurvivalDiceModifier(k) : 0;
+                const total = abilityMod + itemMod + survMod;
+                const signed = total >= 0 ? `+${total}` : String(total).replace('-', '−');
+                const cls = [];
+                if (itemMod > 0) cls.push('it');
+                if (itemMod < 0 || survMod < 0) cls.push('pn');
+                return `${info.code} <span${cls.length ? ` class="${cls.join(' ')}"` : ''}>${signed}</span>`;
             });
-            html += `</div>`;
-            html += `<div class="growth-prof-row"><input type="text" id="growth-prof-input" maxlength="16" placeholder="${escapeStatusHtml(t('新擅長領域（最多16字）'))}"><button type="button" class="btn growth-prof-btn" ${disabled ? 'disabled' : ''} onclick="spendGrowthOnProficiency()">${escapeStatusHtml(t('新增熟練'))}</button></div>`;
+            html += `<div class="growth-mod-line">${parts.join('<span class="sep">｜</span>')}</div>`;
+            const profs = (currentScenario && Array.isArray(currentScenario.playerProficiencies)) ? currentScenario.playerProficiencies : [];
+            if (profs.length) {
+                html += `<div class="growth-sub"><span class="growth-sub-label">${escapeStatusHtml(t('擅長領域'))}</span>：${profs.map(p => escapeStatusHtml(valueToText(p))).join('、')}<span class="growth-mod-hint">${escapeStatusHtml(t('判定符合時另 +2'))}</span></div>`;
+            }
+            if (available > 0) {
+                /* 升級模式:有成長點才展開可點的 + 按鈕與擅長輸入(2026/07/10 收斂改版) */
+                html += `<div class="growth-stat-row">`;
+                statOrder.forEach(k => {
+                    const info = (typeof DICE_STATS === 'object' && DICE_STATS[k]) ? DICE_STATS[k] : { code: k.toUpperCase() };
+                    const val = Number(stats[k] != null ? stats[k] : 10);
+                    const capped = val >= 20;
+                    if (!capped) {
+                        html += `<button type="button" class="growth-stat-btn" ${disabled ? 'disabled' : ''} onclick="spendGrowthOnStat('${k}')" title="${escapeStatusHtml(t('花 1 點提升此屬性'))}">${info.code} ${val} +</button>`;
+                        return;
+                    }
+                    /* 屬性滿 20 → 鍛造態(2026/07/10):花 2 點兌換該屬性的成長結晶(道具加值 +1,與 AI 裝備共用 ±3 上限) */
+                    const itemMod = (typeof getItemDiceModifier === 'function') ? getItemDiceModifier(k) : 0;
+                    const canForge = available >= 2 && itemMod < 3;
+                    const forgeTitle = itemMod >= 3
+                        ? t('此屬性的道具加值已達上限 +3')
+                        : t('屬性已達上限：花 2 點兌換成長結晶（該屬性判定 +1）');
+                    html += `<button type="button" class="growth-stat-btn growth-forge-btn" ${canForge ? '' : 'disabled'} onclick="forgeGrowthCrystal('${k}')" title="${escapeStatusHtml(forgeTitle)}">${info.code} ${val} ✦</button>`;
+                });
+                html += `</div>`;
+                html += `<div class="growth-prof-row"><input type="text" id="growth-prof-input" maxlength="16" placeholder="${escapeStatusHtml(t('新擅長領域（最多16字）'))}"><button type="button" class="btn growth-prof-btn" onclick="spendGrowthOnProficiency()">${escapeStatusHtml(t('新增熟練'))}</button></div>`;
+            }
             container.innerHTML = html;
         }
         function spendGrowthOnStat(stat) {
@@ -621,12 +657,47 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
             if (!text || !currentScenario) return;
             if (!Array.isArray(currentScenario.playerProficiencies)) currentScenario.playerProficiencies = [];
             if (currentScenario.playerProficiencies.includes(text)) return;
+            /* 上限防呆(2026/07/10):清單其他路徑會硬切 4 個,沒擋會「點花了、擅長被默默丟掉」 */
+            if (currentScenario.playerProficiencies.length >= 4) {
+                alert((typeof uiText === 'function') ? uiText('擅長領域最多 4 個，請先刪除一個再新增。') : '擅長領域最多 4 個，請先刪除一個再新增。');
+                return;
+            }
             currentScenario.playerProficiencies.push(text);
             growthSpent = (growthSpent || 0) + 1;
             if (input) input.value = '';
             renderGrowth();
             if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
             if (typeof createSystemAlert === 'function') createSystemAlert(survivalFxUiMessage('— 新增擅長領域：{text}（成長點 -1）—', { text }));
+        }
+
+        /* 成長結晶(2026/07/10):屬性滿 20 後的成長點出口——花 2 點兌換該屬性 +1 的加值道具。
+           與 AI 裝備共用每屬性 ±3 clamp;同名自動加序號防 items_remove 誤刪;可被劇情失去(風險稅)。 */
+        function forgeGrowthCrystal(stat) {
+            const available = Math.max(0, (achievementCount || 0) - (growthSpent || 0));
+            if (available < 2 || !currentScenario || !currentScenario.playerStats) return;
+            if (typeof DICE_STATS !== 'object' || !DICE_STATS[stat]) return;
+            const val = Number(currentScenario.playerStats[stat] != null ? currentScenario.playerStats[stat] : 10);
+            if (val < 20) return;
+            const itemMod = (typeof getItemDiceModifier === 'function') ? getItemDiceModifier(stat) : 0;
+            if (itemMod >= 3) {
+                alert((typeof uiText === 'function') ? uiText('此屬性的道具加值已達上限 +3') : '此屬性的道具加值已達上限 +3');
+                return;
+            }
+            const zhNames = (typeof ITEM_DICE_STAT_NAMES === 'object' && ITEM_DICE_STAT_NAMES[stat]) ? ITEM_DICE_STAT_NAMES[stat] : null;
+            const zh = zhNames && zhNames[1] ? zhNames[1] : DICE_STATS[stat].code;
+            if (!Array.isArray(currentItems)) currentItems = [];
+            let name = `成長結晶（${zh}+1）`;
+            let serial = 2;
+            while (currentItems.includes(name)) { name = `成長結晶・${serial}（${zh}+1）`; serial += 1; }
+            currentItems.push(name);
+            growthSpent = (growthSpent || 0) + 2;
+            renderGrowth();
+            if (typeof renderItems === 'function') renderItems();
+            if (typeof saveCurrentProgress === 'function') saveCurrentProgress();
+            if (typeof createSystemAlert === 'function') {
+                createSystemAlert(`獲得道具 [ ${name} ]`);
+                createSystemNote((typeof uiText === 'function') ? uiText('兌換成長結晶（成長點 -2）') : '兌換成長結晶（成長點 -2）');
+            }
         }
 
         function refreshOpenStatusPanel() {

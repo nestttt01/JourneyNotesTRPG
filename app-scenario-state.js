@@ -526,6 +526,9 @@ function normalizeMemoryNotes(value) {
         //（成就數 +1、寫入冒險日誌、成就揭幕線訊息），計入套用快照可完整回滾。
         function grantHellAchievement(npcName) {
             const name = valueToText(npcName) || 'NPC';
+            /* 防重複刷點(2026/07/10):保底 Flag 一生一次——Flag 已存在(好感回升後再觸底)就不再發成就。
+               Flag 隨存檔持久化,讀檔後依然有效;Flags 滿載加不進時成就一併不發,與其他里程碑同語意。 */
+            if (!addGuaranteedFlag(`與 ${name} 恩斷義絕`)) return;
             const text = window.uiMessage ? uiMessage('我們地獄見（{npc}）', { npc: name }) : `我們地獄見（${name}）`;
             achievementCount = (Number(achievementCount) || 0) + 1;
             currentAdventureLog = mergeAdventureLog(currentAdventureLog, `成就：${text}`);
@@ -662,10 +665,20 @@ function normalizeMemoryNotes(value) {
             return `<span class="npc-affection" style="width:calc(${width} * var(--u));height:calc(${height} * var(--u))">${parts.join('')}</span>`;
         }
 
-        function spawnAffectionHeartPop(npcName, delta) {
+        function spawnAffectionHeartPop(npcName, delta, skipEnterWait) {
             if (!delta) return;
             const wrapper = findLatestBubbleForSpeaker(npcName);
             if (!wrapper) return;   /* NPC 本回合沒說話就不彈,面板里程碑特效照舊 */
+            /* 訊息逐則入場(msg-enter 錯相)期間泡泡還隱形——等它的 animation-delay+入場動畫跑完再彈,
+               不然心會比泡泡早半拍浮在空白處(2026/07/10) */
+            if (!skipEnterWait && wrapper.classList.contains('msg-enter')) {
+                const enterDelay = (Number.parseInt(wrapper.style.animationDelay, 10) || 0) + 260;
+                window.setTimeout(() => {
+                    if (!document.body.contains(wrapper)) return;
+                    spawnAffectionHeartPop(npcName, delta, true);
+                }, enterDelay);
+                return;
+            }
             /* 錨定泡泡本體(.msg-text/.msg-content),不能用整列容器——那是全寬的,
                右緣等於聊天欄右邊,心會跑到版面最右側。 */
             const anchor = wrapper.querySelector('.msg-text') || wrapper.querySelector('.msg-content') || wrapper;

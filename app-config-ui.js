@@ -634,6 +634,12 @@ widget.classList.toggle('open', willOpen);
         function removeProficiency(index, inGame) {
             const list = getProficiencyListForContext(inGame).slice();
             if (index < 0 || index >= list.length) return;
+            /* 遊戲中刪除要確認(2026/07/10):用成長點買的擅長刪除不退點,防手滑蒸發;
+               配置編輯頁(創角階段)不擋,照舊直接刪。 */
+            if (inGame) {
+                const msg = (typeof uiText === 'function') ? uiText('確定刪除這個擅長領域？（用成長點新增的不會退還點數）') : '確定刪除這個擅長領域？（用成長點新增的不會退還點數）';
+                if (!window.confirm(msg)) return;
+            }
             list.splice(index, 1);
             persistProficiencyList(list, inGame);
         }

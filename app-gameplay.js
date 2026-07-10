@@ -144,12 +144,32 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             });
         }
 
+        /* 訊息輕彈入的批次錯相(2026/07/10):AI 一回合多段訊息是同一 tick 連續 append,
+           全部同時彈會糊成一團;600ms 內視為同批。節奏不規律:下一則的等待時間
+           依「上一則的字數」計(220ms + 每字 14ms,單則 280ms~1.2s,整批上限 6s),
+           像 DM 講完一段才接下一段。 */
+        let msgEnterBatchTime = 0;
+        let msgEnterBatchDelay = 0;
+        function applyMsgEnter(el, textLen) {
+            const now = Date.now();
+            if (now - msgEnterBatchTime > 600) msgEnterBatchDelay = 0;
+            msgEnterBatchTime = now;
+            el.classList.add('msg-enter');
+            if (msgEnterBatchDelay > 0) el.style.animationDelay = `${msgEnterBatchDelay}ms`;
+            const len = Number(textLen) || 0;
+            const pause = Math.max(280, Math.min(220 + len * 14, 1200));
+            msgEnterBatchDelay = Math.min(msgEnterBatchDelay + pause, 6000);
+        }
+
         function appendNarrative(text, rawLine) {
             if (!text) return; const dialogueBox = document.getElementById('dialogue-box'); const navDiv = document.createElement('div'); navDiv.className = 'msg-narrative'; navDiv.innerText = text;
             navDiv.dataset.rawLine = (rawLine !== undefined) ? rawLine : `【旁白】：${text}`;
             attachMsgMenu(navDiv, navDiv, 'narrative', '');
             dialogueBox.appendChild(navDiv);
-            if (dialogueBox.dataset.renderingHistory !== '1') dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            if (dialogueBox.dataset.renderingHistory !== '1') {
+                applyMsgEnter(navDiv, text.length);   /* 輕彈入:僅 live 新訊息,依字數錯相(2026/07/10) */
+                dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            }
             trimChatDom();
         }
 
@@ -318,7 +338,10 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             msgWrapper.dataset.rawLine = (rawLine !== undefined) ? rawLine : `${speaker}：${text}`;
             attachMsgMenu(msgWrapper, textDiv, 'msg', speaker);
             dialogueBox.appendChild(msgWrapper);
-            if (dialogueBox.dataset.renderingHistory !== '1') dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            if (dialogueBox.dataset.renderingHistory !== '1') {
+                applyMsgEnter(msgWrapper, text.length);   /* 輕彈入:僅 live 新訊息,依字數錯相,歷史重繪不套(2026/07/10) */
+                dialogueBox.scrollTop = dialogueBox.scrollHeight;
+            }
             trimChatDom();
         }
 
@@ -622,6 +645,43 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             return modifier;
         }
 
+        /* 道具加值(2026/07/10):裝備型暫時加值——道具文字帶「+1 智力」「INT +1」這類標記時,
+           持有期間該屬性骰點自動加值;失去道具即消失。全程程式判定,不動 prompt 與存檔格式。
+           每件道具對同一屬性只計第一個命中;總加值 clamp ±3 防 AI 發神器失衡。 */
+        /* 屬性同義詞:AI 會寫「耐力+1」「智慧+2」這類變體,一律收斂到六圍。
+           數值只認 1~3(後面不能再接數字):排除「恢復體力+20」這種回復量誤判。 */
+        const ITEM_DICE_STAT_NAMES = {
+            str: ['STR', '力量'],
+            dex: ['DEX', '敏捷', '身手'],
+            con: ['CON', '體質', '耐力', '體力'],
+            int: ['INT', '智力', '智慧'],
+            wis: ['WIS', '感知', '意志', '精神'],
+            cha: ['CHA', '魅力']
+        };
+        function getItemDiceModifier(statKey) {
+            if (!Array.isArray(currentItems) || !currentItems.length) return 0;
+            const names = ITEM_DICE_STAT_NAMES[statKey];
+            if (!names) return 0;
+            const patterns = [];
+            names.forEach(name => {
+                patterns.push(new RegExp(`${name}\\s*([+\\-＋−][1-3])(?!\\d)`, 'i'));
+                patterns.push(new RegExp(`([+\\-＋−][1-3])(?!\\d)\\s*${name}`, 'i'));
+            });
+            let total = 0;
+            currentItems.forEach(item => {
+                const text = valueToText(item);
+                for (const re of patterns) {
+                    const match = text.match(re);
+                    if (match) {
+                        const num = Number(match[1].replace('＋', '+').replace('−', '-'));
+                        if (Number.isFinite(num)) total += num;
+                        break;
+                    }
+                }
+            });
+            return Math.max(-3, Math.min(3, total));
+        }
+
         function calculateDiceCheck(statKey, difficultyKey = 'normal', forcedRoll = null, options = {}) {
             const statInfo = DICE_STATS[statKey];
             const difficulty = DICE_DIFFICULTIES[difficultyKey] || DICE_DIFFICULTIES.normal;
@@ -632,7 +692,8 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             const abilityModifier = Math.floor((score - 10) / 2);
             const survivalModifier = options.applySurvivalModifier === false ? 0 : getSurvivalDiceModifier(statKey);
             const proficiencyModifier = options.proficient === true ? 2 : 0;
-            const totalModifier = abilityModifier + survivalModifier + proficiencyModifier;
+            const itemModifier = options.applyItemModifier === false ? 0 : getItemDiceModifier(statKey);
+            const totalModifier = abilityModifier + survivalModifier + proficiencyModifier + itemModifier;
             const dcMin = Number.isFinite(difficulty.dcMin) ? difficulty.dcMin : difficulty.dc;
             const dcMax = Number.isFinite(difficulty.dcMax) ? difficulty.dcMax : difficulty.dc;
             const baseDc = Math.floor(Math.random() * (Math.max(dcMin, dcMax) - Math.min(dcMin, dcMax) + 1)) + Math.min(dcMin, dcMax);
@@ -656,6 +717,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                 gameDifficultyDcModifier: gameDifficulty.dcModifier,
                 survivalModifier,
                 proficiencyModifier,
+                itemModifier,
                 totalModifier,
                 dc,
                 roll,
@@ -824,6 +886,28 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             return { handled: true, success: false, npc: intent.npc, extraPrompt: `【復活硬判定結果】${eventText}。這是程式最終結果，必須演出失敗；禁止復活、禁止提供新的復活選項。` };
         }
 
+        /* 擲骰翻面(2026/07/10,fx-lab D 案):按下骰子後骰面隨機輪替 7 幀+按鈕微抖 0.7s,
+           純裝飾不卡判定流程;只換按鈕文字裡的骰面字元,不動 i18n 標籤。 */
+        function playDiceRollFx() {
+            const btn = document.getElementById('dice-btn');
+            if (!btn || btn.dataset.rollingFx === '1') return;
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            btn.dataset.rollingFx = '1';
+            btn.classList.add('dice-rolling');
+            let frame = 0;
+            const timer = window.setInterval(() => {
+                btn.textContent = btn.textContent.replace(/[⚀-⚅]/, faces[Math.floor(Math.random() * 6)]);
+                frame += 1;
+                if (frame >= 7) {
+                    window.clearInterval(timer);
+                    btn.textContent = btn.textContent.replace(/[⚀-⚅]/, '⚄');
+                    btn.classList.remove('dice-rolling');
+                    delete btn.dataset.rollingFx;
+                }
+            }, 100);
+        }
+
         async function sendDiceChoice() {
             if (getCurrentGameOver()) { applyGameOverUi(); return; }
             const inputEl = document.getElementById('player-input');
@@ -844,6 +928,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             const suggestedText = inputEl.dataset.diceSuggestedText || '';
             const suggestedStat = normalizeDiceStatKey(inputEl.dataset.diceStat);
             const hasValidSuggestion = suggestedText === playerText && DICE_STATS[suggestedStat];
+            playDiceRollFx();
             inputEl.disabled = true;
             document.getElementById('send-btn').disabled = true;
             document.getElementById('dice-btn').disabled = true;
@@ -869,17 +954,18 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                     classification.statKey,
                     classification.difficultyKey,
                     null,
-                    isNarratorDice ? { stats: neutralNpcStats, applySurvivalModifier: false, scope: 'narrator' } : { proficient: classification.proficient }
+                    isNarratorDice ? { stats: neutralNpcStats, applySurvivalModifier: false, applyItemModifier: false, scope: 'narrator' } : { proficient: classification.proficient }
                 );
                 const signedAbility = check.abilityModifier >= 0 ? `+${check.abilityModifier}` : String(check.abilityModifier);
                 const signedTotal = check.totalModifier >= 0 ? `+${check.totalModifier}` : String(check.totalModifier);
                 const gameDifficultyText = check.gameDifficultyDcModifier ? `｜遊戲難度 ${check.gameDifficultyLabel}：DC +${check.gameDifficultyDcModifier}` : `｜遊戲難度 ${check.gameDifficultyLabel}`;
                 const survivalText = check.survivalModifier ? `｜生存狀態修正 ${check.survivalModifier}` : '';
                 const proficiencyText = check.proficiencyModifier ? `｜熟練 +${check.proficiencyModifier}` : '';
+                const itemModText = check.itemModifier ? `｜道具加值 ${check.itemModifier > 0 ? '+' : ''}${check.itemModifier}` : '';
                 const scopeText = isNarratorDice ? '｜NPC／旁白支線判定，不得套用玩家 HP/SAN 或好感' : '';
                 const diceReason = `${classification.reason}${scopeText}`;
                 classification.reason = diceReason;
-                const directive = `(系統硬判定：${check.code} ${check.label}｜屬性 ${check.score}（加值 ${signedAbility}）｜行動難度 ${check.difficultyLabel}：基礎 DC ${check.difficultyDc}${gameDifficultyText}${survivalText}${proficiencyText}｜最終 DC ${check.dc}｜D20 ${check.roll} ${signedTotal} = ${check.total}｜結果【${check.result}】｜判定理由：${classification.reason}。此結果由程式計算，AI 不得更改。)`;
+                const directive = `(系統硬判定：${check.code} ${check.label}｜屬性 ${check.score}（加值 ${signedAbility}）｜行動難度 ${check.difficultyLabel}：基礎 DC ${check.difficultyDc}${gameDifficultyText}${survivalText}${proficiencyText}${itemModText}｜最終 DC ${check.dc}｜D20 ${check.roll} ${signedTotal} = ${check.total}｜結果【${check.result}】｜判定理由：${classification.reason}。此結果由程式計算，AI 不得更改。)`;
                 pendingDiceSummary = buildDiceSummary(check, isNarratorDice);
                 inputEl.value = `${playerText}\n${directive}`;
                 document.getElementById('ui-target-typing').innerText = window.uiMessage ? window.uiMessage('引擎 (DM)') : '引擎 (DM)';
