@@ -356,14 +356,75 @@ function getPresetBoundSaves(presetId) {
 return Object.entries(savesData).filter(([, save]) => {
 const scenario = save?.scenario;
 if (!scenario || typeof scenario !== 'object') return false;
-const resolvedId = resolvePresetIdForScenario(scenario);
-if (resolvedId && String(resolvedId) === String(presetId)) return true;
+const claimedId = valueToText(scenario.sourcePresetId || scenario.id);
+if (claimedId) return String(claimedId) === String(presetId);
 const presetName = valueToText(scenarioPresets[presetId]?.presetName);
-return Boolean(presetName && valueToText(scenario.presetName) === presetName);
+if (!presetName || valueToText(scenario.presetName) !== presetName) return false;
+const sameNameIds = Object.keys(scenarioPresets).filter(id =>
+valueToText(scenarioPresets[id]?.presetName) === presetName
+);
+return sameNameIds.length === 1 && String(sameNameIds[0]) === String(presetId);
 });
 }
 
-function deleteCurrentPreset() {
+let presetDeletionInProgress = false;
+
+async function deletePresetsAndBoundSaves(presetIds, label = '刪除角色配置') {
+if (presetDeletionInProgress) return null;
+const ids = [...new Set((presetIds || []).map(String).filter(id => scenarioPresets[id]))];
+if (!ids.length) return null;
+presetDeletionInProgress = true;
+try {
+const removedSaveMap = new Map();
+ids.forEach(id => {
+getPresetBoundSaves(id).forEach(([saveId, save]) => {
+removedSaveMap.set(String(saveId), save);
+});
+});
+const nextPresets = clonePersistentValue(scenarioPresets);
+const nextSaves = clonePersistentValue(savesData);
+ids.forEach(id => { delete nextPresets[id]; });
+removedSaveMap.forEach((save, saveId) => { delete nextSaves[saveId]; });
+if (!Object.keys(nextPresets).length) return null;
+const nextActivePresetId = nextPresets[activePresetId]
+? activePresetId
+: Object.keys(nextPresets)[0];
+const removedSaveIds = Array.from(removedSaveMap.keys());
+const persisted = await persistPresetDeletionTransaction(
+nextPresets,
+nextSaves,
+removedSaveIds,
+label
+);
+if (!persisted) return null;
+
+scenarioPresets = nextPresets;
+savesData = nextSaves;
+activePresetId = nextActivePresetId;
+if (removedSaveIds.includes(String(currentSaveId))) currentSaveId = null;
+removedSaveIds.forEach(saveId => {
+window.journeySelectedSaveIds?.delete(saveId);
+try {
+localStorage.removeItem(getInputDraftStorageKey(saveId));
+} catch (error) {
+console.warn(`無法清除已刪除存檔的輸入草稿：${saveId}`, error);
+}
+});
+try {
+localStorage.setItem('sanko_active_preset_id', activePresetId);
+} catch (error) {
+console.warn('無法更新目前配置偏好。', error);
+}
+return { presetIds: ids, saveIds: removedSaveIds };
+} catch (error) {
+handleIndexedWriteError(label, error);
+return null;
+} finally {
+presetDeletionInProgress = false;
+}
+}
+
+async function deleteCurrentPreset() {
 if (Object.keys(scenarioPresets).length <= 1) { alert("系統至少需要保留一組配置喔！"); return; }
 const pOld = scenarioPresets[activePresetId];
 if (pOld && pOld.isLocked) {
@@ -378,29 +439,8 @@ const confirmMessage = boundSaves.length
 : uiText('確定要刪除「{presetName}」這個配置嗎？').replace('{presetName}', presetName);
 if (!confirm(confirmMessage)) return;
 const deletedPresetId = activePresetId;
-const previousPreset = pOld;
-const removedSaves = boundSaves.map(([saveId, save]) => [saveId, save]);
-delete scenarioPresets[deletedPresetId];
-removedSaves.forEach(([saveId]) => {
-delete savesData[saveId];
-localStorage.removeItem(getInputDraftStorageKey(saveId));
-if (currentSaveId === saveId) currentSaveId = null;
-window.journeySelectedSaveIds?.delete(String(saveId));
-});
-activePresetId = Object.keys(scenarioPresets)[0];
-if (!persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置')) {
-scenarioPresets[deletedPresetId] = previousPreset;
-removedSaves.forEach(([saveId, save]) => { savesData[saveId] = save; });
-return;
-}
-let saveDeleteFailed = false;
-removedSaves.forEach(([saveId, save]) => {
-if (!removePersistedSave(saveId, '刪除遊戲存檔')) {
-savesData[saveId] = save;
-saveDeleteFailed = true;
-}
-});
-if (saveDeleteFailed) return;
+const deletionResult = await deletePresetsAndBoundSaves([deletedPresetId]);
+if (!deletionResult) return;
 renderPresetSelector();
 loadPresetToForm(activePresetId);
 renderSaveList();

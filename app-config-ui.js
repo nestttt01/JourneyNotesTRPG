@@ -272,7 +272,7 @@ box.checked = checked;
 syncPresetDeleteSelectAll();
 }
 
-function deleteSelectedPresets() {
+async function deleteSelectedPresets() {
 const selectedIds = Array.from(document.querySelectorAll('.preset-delete-checkbox:checked:not(:disabled)')).map(box => box.value);
 if (!selectedIds.length) {
 alert(uiText('請先勾選要刪除的配置。'));
@@ -292,7 +292,6 @@ return;
 const names = deletableIds.map(id => `• ${valueToText(scenarioPresets[id]?.presetName, '未命名配置')}`).join('\n');
 const confirmMessage = `${uiText('確定要刪除 {count} 個配置嗎？').replace('{count}', deletableIds.length)}\n${names}`;
 if (!confirm(confirmMessage)) return;
-const boundSaveEntries = [];
 for (const id of deletableIds) {
 const boundSaves = getPresetBoundSaves(id);
 if (!boundSaves.length) continue;
@@ -300,40 +299,13 @@ const saveName = getSaveDisplayName(boundSaves[0][1]);
 const boundMessage = uiText('此配置目前綁定「{saveName}」遊戲紀錄。刪除配置會一起刪除此紀錄，確定要刪除嗎？')
 .replace('{saveName}', saveName);
 if (!confirm(boundMessage)) return;
-boundSaves.forEach(([saveId, save]) => boundSaveEntries.push([saveId, save]));
 }
-const previousPresets = getJsonClone(scenarioPresets);
-const previousSaves = boundSaveEntries.map(([saveId, save]) => [saveId, save]);
-deletableIds.forEach(id => delete scenarioPresets[id]);
-boundSaveEntries.forEach(([saveId]) => {
-delete savesData[saveId];
-localStorage.removeItem(getInputDraftStorageKey(saveId));
-if (currentSaveId === saveId) currentSaveId = null;
-window.journeySelectedSaveIds?.delete(String(saveId));
-});
-if (!scenarioPresets[activePresetId]) activePresetId = Object.keys(scenarioPresets)[0] || 'default';
-if (!persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置')) {
-scenarioPresets = previousPresets;
-previousSaves.forEach(([saveId, save]) => { savesData[saveId] = save; });
-renderPresetDeleteList();
-return;
-}
-let saveDeleteFailed = false;
-boundSaveEntries.forEach(([saveId, save]) => {
-if (!removePersistedSave(saveId, '刪除遊戲存檔')) {
-savesData[saveId] = save;
-saveDeleteFailed = true;
-}
-});
-if (saveDeleteFailed) {
-scenarioPresets = previousPresets;
-previousSaves.forEach(([saveId, save]) => { savesData[saveId] = save; });
-persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置');
+const deletionResult = await deletePresetsAndBoundSaves(deletableIds);
+if (!deletionResult) {
 renderPresetDeleteList();
 renderSaveList();
 return;
 }
-localStorage.setItem('sanko_active_preset_id', activePresetId);
 renderPresetSelector();
 loadPresetToForm(activePresetId);
 renderDesktopGameSettings();

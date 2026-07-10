@@ -313,6 +313,84 @@
             return true;
         }
 
+        async function persistPresetDeletionTransaction(nextPresets, nextSaves, removedSaveIds, label = '刪除角色配置') {
+            const saveIds = [...new Set((removedSaveIds || []).map(String).filter(Boolean))];
+            if (!indexedDatabaseReady) {
+                let previousPresetsRaw = null;
+                let previousSavesRaw = null;
+                let snapshotCaptured = false;
+                try {
+                    previousPresetsRaw = localStorage.getItem('sanko_scenario_presets_v2');
+                    previousSavesRaw = localStorage.getItem('sanko_saves_v8');
+                    snapshotCaptured = true;
+                    localStorage.setItem('sanko_scenario_presets_v2', JSON.stringify(nextPresets));
+                    localStorage.setItem('sanko_saves_v8', JSON.stringify(nextSaves));
+                    storageWarningShown = false;
+                    return true;
+                } catch (error) {
+                    if (snapshotCaptured) {
+                        try {
+                            if (previousPresetsRaw === null) localStorage.removeItem('sanko_scenario_presets_v2');
+                            else localStorage.setItem('sanko_scenario_presets_v2', previousPresetsRaw);
+                            if (previousSavesRaw === null) localStorage.removeItem('sanko_saves_v8');
+                            else localStorage.setItem('sanko_saves_v8', previousSavesRaw);
+                        } catch (restoreError) {
+                            console.error('刪除配置失敗後無法還原 localStorage。', restoreError);
+                        }
+                    }
+                    handleIndexedWriteError(label, error);
+                    return false;
+                }
+            }
+
+            const targetKeys = [
+                'sanko_scenario_presets_v2',
+                SAVE_INDEX_KEY,
+                ...saveIds.map(getSaveStorageKey)
+            ];
+            try {
+                await indexedWriteQueue;
+                for (const key of targetKeys) {
+                    if (!pendingIndexedWrites.has(key)) continue;
+                    const flushed = await flushPendingIndexedWrite(key);
+                    if (flushed) continue;
+                    handleIndexedWriteError(label, new Error(`尚有未完成的資料寫入：${key}`));
+                    return false;
+                }
+
+                const nextStoredSaveIds = new Set(storedSaveIds);
+                const nextDeletedSaveIds = new Set(deletedSaveIds);
+                saveIds.forEach(id => {
+                    nextStoredSaveIds.delete(id);
+                    nextDeletedSaveIds.add(id);
+                });
+                const nextSaveIndex = {
+                    version: 1,
+                    ids: Array.from(nextStoredSaveIds),
+                    deleted: Array.from(nextDeletedSaveIds)
+                };
+                const database = await openGameDatabase();
+                await new Promise((resolve, reject) => {
+                    const transaction = database.transaction(GAME_DB_STORE, 'readwrite');
+                    const store = transaction.objectStore(GAME_DB_STORE);
+                    store.put(clonePersistentValue(nextPresets), 'sanko_scenario_presets_v2');
+                    store.put(nextSaveIndex, SAVE_INDEX_KEY);
+                    saveIds.forEach(id => store.delete(getSaveStorageKey(id)));
+                    transaction.oncomplete = () => resolve(true);
+                    transaction.onerror = () => reject(transaction.error || new Error('刪除配置交易失敗'));
+                    transaction.onabort = () => reject(transaction.error || new Error('刪除配置交易已中止'));
+                });
+                storedSaveIds = nextStoredSaveIds;
+                deletedSaveIds = nextDeletedSaveIds;
+                storageWarningShown = false;
+                return true;
+            } catch (error) {
+                invalidateGameDatabaseConnection();
+                handleIndexedWriteError(label, error);
+                return false;
+            }
+        }
+
         async function initializePersistentStorage() {
             try {
                 await openGameDatabase();

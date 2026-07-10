@@ -683,14 +683,21 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             if (!applyGameOverUi() && !survivalLocked) input.focus();
         }
 
-        function selectOption(text, check = '', difficulty = 'normal') {
+        function selectOption(text, check = '', difficulty = 'normal', proficient = false) {
             const inputEl = document.getElementById('player-input');
             inputEl.value = text;
             inputEl.dataset.diceSuggestedText = text;
             inputEl.dataset.diceStat = check;
             inputEl.dataset.diceDifficulty = difficulty;
+            inputEl.dataset.diceProficient = proficient === true && DICE_STATS[normalizeDiceStatKey(check)] ? '1' : '';
             adjustInputHeight();
             inputEl.focus();
+        }
+
+        function shouldApplySuggestedProficiency(inputEl, isNarratorDice = false) {
+            if (isNarratorDice || inputEl?.dataset?.diceProficient !== '1') return false;
+            return Array.isArray(currentScenario?.playerProficiencies)
+                && currentScenario.playerProficiencies.some(value => valueToText(value).trim());
         }
 
         function normalizeGameDifficulty(value) {
@@ -1004,6 +1011,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                     ? {
                         statKey: suggestedStat,
                         difficultyKey: normalizeDiceDifficulty(inputEl.dataset.diceDifficulty),
+                        proficient: shouldApplySuggestedProficiency(inputEl, isNarratorDice),
                         reason: '採用行動選項的預設檢定'
                     }
                     : await classifyDiceCheck(playerText, isNarratorDice ? { stats: neutralNpcStats, actorLabel: 'NPC／旁白支線' } : { proficiencies: currentScenario?.playerProficiencies });
@@ -1231,6 +1239,7 @@ ${transitionRule}`;
                 delete inputEl.dataset.diceSuggestedText;
                 delete inputEl.dataset.diceStat;
                 delete inputEl.dataset.diceDifficulty;
+                delete inputEl.dataset.diceProficient;
                 saveCurrentProgress();
                 if (!playerText) { inputEl.focus(); return; }
             }
@@ -1253,6 +1262,7 @@ ${transitionRule}`;
                     delete inputEl.dataset.diceSuggestedText;
                     delete inputEl.dataset.diceStat;
                     delete inputEl.dataset.diceDifficulty;
+                    delete inputEl.dataset.diceProficient;
                     const options = document.getElementById('options-area');
                     if (options) options.innerHTML = '';
                     saveCurrentProgress();
@@ -1297,6 +1307,7 @@ ${transitionRule}`;
             delete inputEl.dataset.diceSuggestedText;
             delete inputEl.dataset.diceStat;
             delete inputEl.dataset.diceDifficulty;
+            delete inputEl.dataset.diceProficient;
             document.getElementById('options-area').innerHTML = ''; document.getElementById('loading').style.display = 'block';
 
             if (inputContext.mode === 'creator') {
@@ -2076,7 +2087,8 @@ function getSurvivalHiddenOption(btn) {
  text,
  check: normalizeDiceStatKey(btn.dataset.survivalHiddenCheck) || 'wis',
  difficulty: normalizeDiceDifficulty(btn.dataset.survivalHiddenDifficulty || 'hard'),
- forceDice: btn.dataset.survivalHiddenForceDice === '1'
+ forceDice: btn.dataset.survivalHiddenForceDice === '1',
+ proficient: false
  };
 }
 
@@ -2094,6 +2106,7 @@ function getSurvivalOptionMutation(btn, originalText, originalCheck = '', origin
  text: hidden.text,
  check: hidden.check || originalCheck || 'wis',
  difficulty: 'normal',
+ proficient: false,
  forceDice: false,
  original
  };
@@ -2105,7 +2118,8 @@ function getSurvivalOptionMutation(btn, originalText, originalCheck = '', origin
  .map(other => ({
  text: getSurvivalOptionMainText(other),
  check: other.dataset.survivalOptionCheck || '',
- difficulty: other.dataset.survivalOptionDifficulty || 'normal'
+ difficulty: other.dataset.survivalOptionDifficulty || 'normal',
+ proficient: other.dataset.survivalOptionProficient === '1'
  }))
  .filter(item => item.text && item.text !== original);
  if (!candidates.length) return null;
@@ -2114,22 +2128,23 @@ function getSurvivalOptionMutation(btn, originalText, originalCheck = '', origin
  text: picked.text,
  check: picked.check || originalCheck || '',
  difficulty: picked.difficulty || originalDifficulty || 'normal',
+ proficient: picked.proficient === true,
  forceDice: false,
  original
  };
 }
 
-function handleSurvivalOptionClick(btn, text, check = '', difficulty = 'normal') {
+function handleSurvivalOptionClick(btn, text, check = '', difficulty = 'normal', proficient = false) {
     const mutation = getSurvivalOptionMutation(btn, text, check, difficulty);
     if (!mutation) {
-        selectOption(text, check, difficulty);
+        selectOption(text, check, difficulty, proficient);
         return;
     }
     btn.dataset.survivalGhost = mutation.original;
     btn.classList.add('survival-option-corrupt', 'survival-option-mutated');
     setSurvivalOptionVisibleText(btn, mutation.text, mutation.check);
     nudgeSurvivalOption(btn, true);
-    selectOption(mutation.text, mutation.check, mutation.difficulty);
+    selectOption(mutation.text, mutation.check, mutation.difficulty, mutation.proficient);
     window.setTimeout(() => {
         if (mutation.forceDice && typeof sendDiceChoice === 'function') sendDiceChoice();
  else if (typeof sendChoice === 'function') sendChoice();

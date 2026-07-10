@@ -727,6 +727,10 @@ return `sanko_input_draft_${saveId || 'none'}`;
             const items = currentItems.slice(0, 24).map(item => truncatePromptText(item, 60));
             const omittedItems = Math.max(0, currentItems.length - items.length);
             const playerStats = currentScenario.playerStats || { str:10, dex:10, con:10, int:10, wis:10, cha:10 };
+            const playerProficiencies = Array.isArray(currentScenario.playerProficiencies)
+                ? currentScenario.playerProficiencies.map(value => truncatePromptText(value, 40)).filter(Boolean).slice(0, 12)
+                : [];
+            const playerProficiencyText = playerProficiencies.length ? playerProficiencies.join('、') : '無';
             currentScenario.playerDynamic = normalizeDynamicState(currentScenario.playerDynamic);
             const difficulty = getGameDifficultyInfo();
 
@@ -753,6 +757,7 @@ ${buildSceneParticipationInstruction(scene)}
 
 【玩家：${valueToText(currentScenario.playerName, '玩家')}】
 能力：STR ${playerStats.str}／DEX ${playerStats.dex}／CON ${playerStats.con}／INT ${playerStats.int}／WIS ${playerStats.wis}／CHA ${playerStats.cha}
+擅長領域：${playerProficiencyText}
 ${formatDetails(currentScenario.playerDetails)}
 
 【本回合相關 NPC】
@@ -773,6 +778,7 @@ ${getMemoryBriefForPrompt()}
 【判定與狀態規則】
 - 輸入中的「系統硬判定」已由程式算定，必須直接承接，不得重擲或改變成敗。
 - 沒有硬判定時，不要假裝已擲骰；風險行動可在 options 建議檢定。
+- options[].proficient 必須填 true 或 false。只有該選項有六屬性檢定，而且行動明顯符合玩家上列任一「擅長領域」時才可 true；沒有擅長領域、check 為 none 或只是勉強相關時一律 false。此欄位只供程式判定熟練 +2，不得因此改寫 check 或 difficulty。
 - When SAN <= 20, hidden_san_option must be an AI-written fourth hidden loss-of-control action for the current scene. Do not use a fixed template, and do not duplicate options. check must be int/wis/cha; difficulty must be at least hard.
 - 困難或極限模式下，高風險場景應讓玩家有機會取得、交換、消耗或犧牲符合世界觀的抽象資源。資源可為物資、工具、防護、線索、通行權、人脈、信任、人情、承諾或其他故事優勢；不要固定生成特定物品名稱。玩家合理使用資源時，可降低風險、減輕失敗代價或打開新路線。
 - 創作者指令是角色外舞台命令；NPC 不得聽見，也不得因此改變好感。輔助旁白不是玩家角色的言行。
@@ -823,7 +829,7 @@ Return narrative, dialogues, and options. When SAN is 20 or lower, also return h
 {
   "narrative":"旁白文字",
   "dialogues":[{"speaker":"<角色名>","text":"台詞"}],
-  "options":[{"text":"下一步","check":"none|str|dex|con|int|wis|cha","difficulty":"trivial|easy|normal|hard|extreme"}],
+  "options":[{"text":"下一步","check":"none|str|dex|con|int|wis|cha","difficulty":"trivial|easy|normal|hard|extreme","proficient":false}],
 "hidden_san_option":{"text":"Hidden low-SAN loss-of-control action","check":"int|wis|cha","difficulty":"hard|extreme","forceDice":true},
   "memory":{"category":"task|relationship|item|status|clue|decision|scene","event":"重大既定事實","story_summary":[],"relationship_summary":[],"task_updates":[{"action":"add|complete|fail|reopen|remove","text":"任務","reason":"完成或永久失敗的明確原因；其他動作可留空"}]},
   "changes":{
@@ -836,7 +842,7 @@ Return narrative, dialogues, and options. When SAN is 20 or lower, also return h
     "scene_state":{"location":"","time":"","present":["<目前在場角色名>"]}
   }
 }
-dialogues only lists actual speakers. options must contain exactly 3 entries, usually at most 1 check option and at least 1 option with check none; hidden_san_option is not shown to the player and is only used when low-SAN option corruption triggers. Omit unchanged fields inside changes.`;
+dialogues only lists actual speakers. options must contain exactly 3 entries; options with check none must set proficient false; usually at most 1 check option and at least 1 option with check none; hidden_san_option is not shown to the player and is only used when low-SAN option corruption triggers. Omit unchanged fields inside changes.`;
         }
 
         function populateModelSelects(models, preferredModel = "") {

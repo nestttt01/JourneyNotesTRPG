@@ -369,7 +369,7 @@
  };
  const prompt = `${getLanguageInstruction(mode)}
 
-The player-facing strings in the JSON below violate the output-language rule. Rewrite only narrative, dialogues[].text, options[].text, and hidden_san_option.text. Keep speaker, check, difficulty, changes, memory, and all numeric values exactly unchanged. Do not add or remove events, dialogue, or options. Output valid JSON only.
+The player-facing strings in the JSON below violate the output-language rule. Rewrite only narrative, dialogues[].text, options[].text, and hidden_san_option.text. Keep speaker, check, difficulty, proficient, changes, memory, and all numeric values exactly unchanged. Do not add or remove events, dialogue, or options. Output valid JSON only.
 
 JSON to repair:
 ${JSON.stringify(visiblePayload)}`;
@@ -511,13 +511,15 @@ ${JSON.stringify(visiblePayload)}`;
         }
 
         function normalizeOptionEntry(option) {
- if (typeof option === 'string') return { text: option.trim(), check: '', difficulty: 'normal', forceDice: false };
- if (!option || typeof option !== 'object') return { text: '', check: '', difficulty: 'normal', forceDice: false };
+ if (typeof option === 'string') return { text: option.trim(), check: '', difficulty: 'normal', forceDice: false, proficient: false };
+ if (!option || typeof option !== 'object') return { text: '', check: '', difficulty: 'normal', forceDice: false, proficient: false };
+ const check = normalizeDiceStatKey(option.check || option.attribute || option.stat);
  return {
  text: valueToText(option.text || option.action || option.label || option.content).replace(/\s+/g, ' ').trim(),
- check: normalizeDiceStatKey(option.check || option.attribute || option.stat),
+ check,
  difficulty: normalizeDiceDifficulty(option.difficulty),
- forceDice: Boolean(option.forceDice || option.force_dice || option.forceCheck || option.force_check || option.mustCheck || option.must_check)
+ forceDice: Boolean(option.forceDice || option.force_dice || option.forceCheck || option.force_check || option.mustCheck || option.must_check),
+ proficient: Boolean(check && (option.proficient === true || option.isProficient === true || option.is_proficient === true))
  };
  }
 
@@ -1020,6 +1022,7 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
  btn.dataset.survivalOptionText = option.text;
  btn.dataset.survivalOptionCheck = option.check || '';
  btn.dataset.survivalOptionDifficulty = option.difficulty || 'normal';
+ btn.dataset.survivalOptionProficient = option.proficient ? '1' : '';
  if (hiddenSanOption) {
  btn.dataset.survivalHiddenText = hiddenSanOption.text;
  btn.dataset.survivalHiddenCheck = hiddenSanOption.check || 'wis';
@@ -1034,8 +1037,8 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
  btn.appendChild(checkLabel);
  }
  btn.onclick = () => {
- if (typeof handleSurvivalOptionClick === 'function') handleSurvivalOptionClick(btn, option.text, option.check, option.difficulty);
- else selectOption(option.text, option.check, option.difficulty);
+ if (typeof handleSurvivalOptionClick === 'function') handleSurvivalOptionClick(btn, option.text, option.check, option.difficulty, option.proficient);
+ else selectOption(option.text, option.check, option.difficulty, option.proficient);
  };
  optArea.appendChild(btn);
                     });
