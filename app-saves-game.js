@@ -173,7 +173,14 @@ updateSaveSelectAllState();
             if (scenarioPresets[boundPresetId]?.presetName) newSave.scenario.presetName = scenarioPresets[boundPresetId].presetName;
             savesData[id] = newSave;
             if (!persistSingleSave(id, '遊戲存檔')) { delete savesData[id]; return; }
-            loadGame(id); 
+            loadGame(id);
+            /* 一次性新手指路(2026/07/10):人生第一次開新局——不論用哪個配置——
+               對話欄丟一則系統提示指向教學資源;旗標記在 localStorage,只出現這一次。 */
+            if (!localStorage.getItem('sanko_tutorial_hint_shown_v1')) {
+                localStorage.setItem('sanko_tutorial_hint_shown_v1', '1');
+                const hintText = '第一次跑團嗎？首頁側邊的「遊戲玩法」有完整指南；想被牽著走一遍基本操作，可改用預設配置的「序章：出門前的小演練」。';
+                if (typeof createSystemNote === 'function') createSystemNote((typeof uiText === 'function') ? uiText(hintText) : hintText);
+            }
         }
 
 
@@ -586,6 +593,30 @@ return `sanko_input_draft_${saveId || 'none'}`;
                 .map(entry => entry.npc);
         }
 
+        /* 新手教學模式規則(2026/07/10 v3):Flag「新手教學進行中」存在時才注入(其他玩家零 token)。
+           小模型記不住教到哪——由程式掃對話紀錄偵測進度(輸入/擲骰/用道具)直接告訴它,
+           並在三項齊備時強制推進收尾;完成旗標由 app-ai 的寬容匹配收走。 */
+        /* 教學進度快照:規則注入與 app-ai 的完成硬驗收共用同一份偵測 */
+        function getTutorialProgressSnapshot() {
+            const history = (Array.isArray(chatScripts) ? chatScripts.flat() : []).join('\n');
+            const playerName = valueToText(currentScenario?.playerName);
+            return {
+                input: Boolean((playerName && history.includes(`${playerName}：`)) || history.includes('【旁白】：玩家行動')),
+                dice: /系統硬判定|｜(大成功|大失敗|成功|失敗|Crit!|Success|Fail|Fumble)｜/.test(history),
+                item: /使用了 |を使った|Used /.test(history),
+                affection: (currentScenario?.npcs || []).some(n => Number(n?.affection) > 0)
+            };
+        }
+
+        function getTutorialModeRules() {
+            if (!Array.isArray(currentFlags) || !currentFlags.includes('新手教學進行中')) return '';
+            const progress = getTutorialProgressSnapshot();
+            const yn = value => (value ? '是' : '否');
+            return `
+【新手教學模式（Flags 含「新手教學進行中」，此段規則優先）】允許後設提及介面：輸入框、「⚄ 擲骰」按鈕、右側「角色面板」、道具的「使用」按鈕。按五步教學，每回合只推進一步、等玩家做了才進下一步：①請玩家在輸入框自由輸入 ②安排無風險小狀況鼓勵按「⚄ 擲骰」，成敗都溫柔收尾 ③讓 NPC 贈送符合世界觀的小食物或飲品（items_add＋item_effects 標 san 8~12），提醒到角色面板按「使用」 ④玩家友善互動後回傳該 NPC 好感 +5 ⑤恭喜玩家並宣布教學結束。教學中禁止任何危險、扣血或負面事件。
+【教學進度（程式偵測，請相信這裡而非你的記憶）】已自由輸入=${yn(progress.input)}；已擲骰=${yn(progress.dice)}；已使用道具=${yn(progress.item)}；已給好感=${yn(progress.affection)}。標「是」的步驟絕不重教；有任何一項是「否」，本回合就專心教那一步，且絕對不可以宣布教學結束或回傳完成旗標——程式會駁回搶跑的完成宣告。四項皆「是」時，本回合執行第⑤步收尾：不再贈送道具、不再安排新事件，單純恭喜與告別，並在 flags_add 原樣回傳「新手教學完成」這六個字。`;
+        }
+
         function getCompactSystemInstruction(latestPlayerAction = '', profile = getModelRuntimeProfile()) {
             syncSurvivalFlags({ announce: false });
             const scene = currentScenario.scenarios?.[currentScenarioIndex] || {};
@@ -696,7 +727,7 @@ ${getMemoryBriefForPrompt()}
 - 困難或極限模式下，高風險場景應讓玩家有機會取得、交換、消耗或犧牲符合世界觀的抽象資源。資源可為物資、工具、防護、線索、通行權、人脈、信任、人情、承諾或其他故事優勢；不要固定生成特定物品名稱。玩家合理使用資源時，可降低風險、減輕失敗代價或打開新路線。
 - 創作者指令是角色外舞台命令；NPC 不得聽見，也不得因此改變好感。輔助旁白不是玩家角色的言行。
 - 只有角色行動模式才可改變玩家 HP、SAN、道具或好感；必須依實際事件填入 changes。
-- 玩家在劇情中獲得、撿到或被贈與任何可保留的物品時，必須同步填入 items_add，不得只在敘事文字裡描述；除非玩家明確說要當場使用，否則不要替玩家自行消耗剛獲得的物品——用不用、何時用，由玩家在道具區的「使用」按鈕自行決定。
+- 玩家獲得、撿到或被贈與「會隨身保留」的物品時，必須同步填入 items_add，不得只在敘事文字裡描述；除非玩家明確說要當場使用，否則不要替玩家自行消耗——用不用由玩家在道具區的「使用」按鈕決定。但「持有」認定從嚴：當場吃掉喝掉、端給他人、擺在桌上或場景裡、正在製作中的東西都不算持有，不要進 items_add 也不要標效果；重做或升級同一件東西用換名處理，不要一回合內反覆入手又喪失。單回合新增道具原則上最多 2 件。
 - items_add 裡凡是玩家能實際使用、食用、用一次就會消耗掉的恢復性道具，必須同時在 changes.item_effects 標效果——不限藥品：急救包、繃帶、藥水藥劑等治療用品標 hp；食物、熱飲、鎮靜劑，以及他人親手做的點心、帶著心意的小物等能安撫情緒的標 san（情感價值也是回復）。格式 {"道具名":{"type":"hp|san","amount":8-40}}，鍵名須與 items_add 中的道具名完全一致；日常食物或小心意 8~15、專業治療或強效藥劑 16~40。來歷不明或可疑的藥物在鑑定前不要標；裝備、線索、純紀念品等非消耗品不要標。回復由程式在玩家實際使用時執行，不要在敘事或 changes.hp/san 裡自行改動數值。
 - 稀有或特殊的裝備型道具可在名稱附上屬性加值標記，如「幸運硬幣（智力+1）」「獵人護符（DEX+1）」；每件限一項屬性、加值限 +1 或 +2，整場少量發放。持有期間的骰點加值由程式自動計算，AI 不得自行更改骰值。標記屬性限用六圍標準名稱：力量／敏捷／體質／智力／感知／魅力（或 STR/DEX/CON/INT/WIS/CHA），不要用耐力、智慧等別名。劇情中道具被鑑定、附魔、升級或詛咒顯現而獲得（或失去、轉為負面）加值時，用 items_remove 移除舊名、items_add 加回帶新標記的名稱（如「透明石頭」鑑定後改為「透明石頭（感知+1）」、詛咒顯現後改為「詛咒的墜飾（感知-2）」）；來歷不明的道具在鑑定前不要帶標記。
 - 玩家充分休息、過夜、接受治療或被安撫等正向事件，應在 changes.hp/san 給小幅回復：短暫歇息或安撫 +3~8；完整過夜、專業治療或重大心靈慰藉 +10~20；單回合合計上限 20。不得無事自動回復；連續重複休息應遞減或無效，不可躺著刷血；重傷或深度失常狀態下回復減半，不應一夜滿血。
@@ -704,7 +735,7 @@ ${getMemoryBriefForPrompt()}
 - 場景延續：地點、時間、在場角色預設延續「現在狀況」。只有本回合輸入或劇情明確改變現場時，才在 changes.scene_state 回報變動欄位（present 填目前實際在現場的角色名單，玩家不在場時不要列入玩家）；現場沒變動就省略 scene_state。
 - npc_states 的 memoryNotes 不是日誌：只有重大約定、未公開秘密、關係里程碑或不可逆選擇才可新增，且必須 persistent:true。
 - 每名角色每回合最多新增 1 條 memoryNotes，限 36 字內的短標題。普通情緒、氣氛、對話內容、受傷與日常互動不得寫入；相似內容不得換句話重複新增。
-- 只有劇情文字已明確確認 NPC 死亡時，才可填 npc_deaths；重傷、昏迷、失蹤或生死不明都不算死亡。
+- 只有劇情文字已明確確認 NPC 死亡時，才可填 npc_deaths；重傷、昏迷、失蹤或生死不明都不算死亡。${getTutorialModeRules()}
 - ${difficulty.key === 'standard' ? '標準模式：劇情明確演出復活，或「神」直接介入時可填 npc_revives；不強制檢定。' : (difficulty.key === 'hard' ? '困難模式：每次死亡只有一次復活嘗試。所有復活相關 options 都必須有六屬性檢定且 difficulty 至少為 hard；程式會執行成敗，npc_revives 必須留空。若已標記復活失敗，禁止再提供任何復活選項。' : '極限模式：死亡永久成立，npc_revives 必須為空，禁止提供任何復活行動或選項。')}
 
 【長期記憶判定】

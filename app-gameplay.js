@@ -58,13 +58,36 @@ optArea.innerHTML = '';
             } else {
 const emptyMessage = window.uiMessage ? window.uiMessage('此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場') : '此情境/支線尚無對話。請輸入動作，或讓 AI 生成開場';
 const systemMsg = document.createElement('div'); systemMsg.className = 'system-msg'; systemMsg.innerHTML = `<i>— ${emptyMessage} —</i>`; msgBox.appendChild(systemMsg); msgBox.scrollTop = msgBox.scrollHeight;
+                /* 引導教學開場鈕(2026/07/10):空情境時排在隨機開場上方;情境無關——
+                   用玩家當前世界觀與 NPC 執行五步教學。點擊即記旗標,一生只出現到按過為止
+                   (中途放棄不再出現屬刻意,想重跑可用預設配置的序章)。 */
+                if (!localStorage.getItem('sanko_tutorial_done_v1')) {
+                    const tutorialBtn = document.createElement('button');
+                    tutorialBtn.className = 'opt-btn';
+                    tutorialBtn.style.borderColor = 'var(--accent-neon)';
+                    tutorialBtn.style.width = 'fit-content';
+                    tutorialBtn.style.alignSelf = 'center';
+                    tutorialBtn.textContent = window.uiMessage ? window.uiMessage('✦ 第一次跑團？從引導教學開始') : '✦ 第一次跑團？從引導教學開始';
+                    tutorialBtn.onclick = () => {
+                        localStorage.setItem('sanko_tutorial_done_v1', '1');
+                        optArea.innerHTML = '';
+                        document.getElementById('loading').style.display = 'block';
+                        /* 教學守則不放這裡——放 Flag,由 getCompactSystemInstruction 條件式注入,
+                           每回合都在(小模型第二回合就忘的根治法);AI 回報完成後程式自動摘旗。 */
+                        if (typeof addGuaranteedFlag === 'function') addGuaranteedFlag('新手教學進行中');
+                        const currentScenName = currentScenario.scenarios[currentChatPageIndex].name;
+                        const prompt = `【系統啟動要求】目前視角處於「${currentScenName}」情境。新手教學開始：請依系統規則中的「新手教學模式」執行第一步，用符合世界觀的輕鬆場面開局，並讓合適的 NPC 講出第一句話。`;
+                        callAI_JSON(prompt, true);
+                    };
+                    optArea.appendChild(tutorialBtn);
+                }
 const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.style.borderColor = 'var(--accent-neon)'; btn.style.width = 'fit-content'; btn.style.alignSelf = 'center'; btn.textContent = window.uiMessage ? window.uiMessage('⚄ 讓 AI 根據「情境設定」隨機生成開場事件') : '⚄ 讓 AI 根據「情境設定」隨機生成開場事件';
-                btn.onclick = () => { 
-                    optArea.innerHTML = ''; 
-                    document.getElementById('loading').style.display = 'block'; 
+                btn.onclick = () => {
+                    optArea.innerHTML = '';
+                    document.getElementById('loading').style.display = 'block';
                     const currentScenName = currentScenario.scenarios[currentChatPageIndex].name;
-                    const prompt = `【系統啟動要求】目前視角處於「${currentScenName}」情境。請嚴格根據「當前場景的世界觀與物理法則」以及「NPC在此的總體身分」，隨機生成一個極具帶入感的開局事件（例如：遭遇突發危機、日常衝突、或是某個角色正在做符合他人設的行為）。請利用 narrative 豐富描寫場景氣氛，並讓合適的 NPC 講出第一句話。`; 
-                    callAI_JSON(prompt, true); 
+                    const prompt = `【系統啟動要求】目前視角處於「${currentScenName}」情境。請嚴格根據「當前場景的世界觀與物理法則」以及「NPC在此的總體身分」，隨機生成一個極具帶入感的開局事件（例如：遭遇突發危機、日常衝突、或是某個角色正在做符合他人設的行為）。請利用 narrative 豐富描寫場景氣氛，並讓合適的 NPC 講出第一句話。`;
+                    callAI_JSON(prompt, true);
                 };
                 optArea.appendChild(btn);
             }
@@ -576,6 +599,23 @@ if(saveData.scenario) {
                     if (eff && currentItems.includes(k)) itemEffects[k] = eff;
                 });
             }
+            /* 存量道具正規化(2026/07/10):修正管線上線前入袋的「名稱帶 (SAN+N)/(HP+N)」道具——
+               讀檔時剝掉標記、補上效果,讓舊道具也長出使用鈕;已有效果或改名撞名則不動。
+               解析走 parseItemEffectNameTag 單一事實來源。 */
+            currentItems = currentItems.map(itemName => {
+                const tag = parseItemEffectNameTag(itemName);
+                if (!tag) return itemName;
+                const cleanName = tag.cleanName;
+                if (cleanName !== itemName && currentItems.includes(cleanName)) return itemName;
+                if (itemEffects[itemName] && cleanName !== itemName) {
+                    itemEffects[cleanName] = itemEffects[itemName];
+                    delete itemEffects[itemName];
+                }
+                if (!itemEffects[cleanName]) {
+                    itemEffects[cleanName] = { type: tag.type, amount: tag.amount };
+                }
+                return cleanName;
+            });
             achievementCount = Math.max(0, Math.floor(Number(saveData.achievementCount)) || 0);
             growthSpent = Math.max(0, Math.min(achievementCount, Math.floor(Number(saveData.growthSpent)) || 0));
             completedObjectives = Array.isArray(saveData.completedObjectives) ? saveData.completedObjectives.map(v => valueToText(v)).filter(Boolean) : [];
@@ -2358,6 +2398,19 @@ function getRequiredSurvivalFlags() {
             if (!eff) return '';
             const kind = eff.type === 'hp' ? 'HP' : 'SAN';
             return survivalFxUiMessage('回復 {kind} {amount}', { kind, amount: eff.amount });
+        }
+
+        /* 名稱效果標記 (SAN±N)/(HP±N) 的單一事實來源(2026/07/10):
+           入袋管線(app-ai items_add)與讀檔正規化(loadGame)共用,避免三處正則各自漂移。 */
+        function parseItemEffectNameTag(rawName) {
+            const text = valueToText(rawName);
+            const match = text.match(/[（(]\s*(SAN|HP)\s*[+＋]\s*(\d{1,3})\s*[）)]/i);
+            if (!match) return null;
+            return {
+                type: match[1].toLowerCase() === 'hp' ? 'hp' : 'san',
+                amount: Math.max(1, Math.min(40, Number.parseInt(match[2], 10) || 10)),
+                cleanName: (text.replace(/[（(]\s*(SAN|HP)\s*[+＋]\s*\d{1,3}\s*[）)]/gi, '').trim() || text).trim()
+            };
         }
         function useItem(index) {
             if (!Number.isInteger(index) || index < 0 || index >= currentItems.length) return;

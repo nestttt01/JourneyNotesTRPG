@@ -793,13 +793,32 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 }
                 
                 const addedItems = Array.isArray(changes.items_add) ? changes.items_add : parsedData.new_items;
+                const fallbackEffectQueue = [];
                 if(playerEffectsAllowed && Array.isArray(addedItems) && addedItems.length > 0) {
                     addedItems.forEach(item => {
-                        const itemText = valueToText(item);
+                        const rawText = valueToText(item);
+                        /* Lite 實測會把使用說明或效果寫進道具名(「…(請記得使用以回復 SAN)」「…(SAN+8)」)
+                           卻漏掉 item_effects。先剝指令式括號,再交給 parseItemEffectNameTag(單一事實來源)
+                           解析效果標記與乾淨名(2026/07/10) */
+                        const baseText = rawText.replace(/[（(][^（）()]*使用[^（）()]*(回復|回复|SAN|HP)[^（）()]*[）)]/gi, '').trim() || rawText;
+                        const effectTag = (typeof parseItemEffectNameTag === 'function') ? parseItemEffectNameTag(baseText) : null;
+                        const hintSan = /回復\s*(SAN|理智|精神)/i.test(rawText) || /(SAN|理智|精神)[^）)]{0,12}回復/i.test(rawText);
+                        const hintHp = /回復\s*(HP|生命|體力|体力)/i.test(rawText) || /(HP|生命|體力|体力)[^）)]{0,12}回復/i.test(rawText);
+                        const itemText = (effectTag ? effectTag.cleanName : baseText).trim();
                         if(itemText && !currentItems.includes(itemText)) {
                             currentItems.push(itemText);
                             createSystemAlert(`獲得道具 [ ${itemText} ]`);
                             itemJournalEvents.push(`獲得 ${itemText}`);
+                            /* 保底效果候選:名稱帶 (SAN+N)/(HP+N) 明示標記(直接採用其數字)>
+                               名稱明示回復意圖 > 教學模式贈禮毯子(排除加值裝備與懸念道具) */
+                            if (effectTag) {
+                                fallbackEffectQueue.push({ name: itemText, type: effectTag.type, amount: effectTag.amount });
+                            } else if (hintSan || hintHp) fallbackEffectQueue.push({ name: itemText, type: hintSan ? 'san' : 'hp' });
+                            else if (currentFlags.includes('新手教學進行中')
+                                && !/[+＋−-]\s*\d/.test(itemText)
+                                && !/神秘|不明|可疑|未知|奇怪/.test(itemText)) {
+                                fallbackEffectQueue.push({ name: itemText, type: 'san' });
+                            }
                         }
                     });
                 }
@@ -830,6 +849,15 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                             itemEffects[itemName] = eff;
                             createSystemAlert(`可使用道具 [ ${itemName} ]：${(typeof itemEffectLabel === 'function') ? itemEffectLabel(eff) : ''}`);
                         }
+                    });
+                }
+                /* 恢復道具保底(2026/07/10,Lite 實測漏 item_effects):候選道具若 AI 沒標效果,
+                   程式補預設值(san 10/hp 12)讓「使用」鈕一定長出來;AI 有標則尊重 AI 的數值。 */
+                if (playerEffectsAllowed) {
+                    fallbackEffectQueue.forEach(entry => {
+                        if (itemEffects[entry.name]) return;
+                        itemEffects[entry.name] = { type: entry.type, amount: entry.amount || (entry.type === 'hp' ? 12 : 10) };
+                        createSystemAlert(`可使用道具 [ ${entry.name} ]：${(typeof itemEffectLabel === 'function') ? itemEffectLabel(itemEffects[entry.name]) : ''}`);
                     });
                 }
 
@@ -867,6 +895,21 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 // 關係里程碑保底旗標：好感滿值 / 好感觸底 / NPC 死亡由程式硬保證。
                 // 好感里程碑若 AI 本回合已回傳含角色名的標籤，優先採用 AI 措辭，程式不重複補。
                 flushRelationshipMilestoneFlags(Array.isArray(addedFlags) ? addedFlags : []);
+
+                /* 新手教學收尾(2026/07/10):AI 回報完成旗標(寬容匹配中日英變體)後,
+                   程式「硬驗收」四項進度(輸入/擲骰/用道具/好感)——比照里程碑保底哲學,
+                   AI 說完成不算數:全過才摘旗道別;沒過=搶跑,沒收完成旗標、教學繼續。 */
+                const TUTORIAL_DONE_RE = /新手教學完成|新手教学完成|チュートリアル(完了|終了)|tutorial\s*(complete|completed|finished)/i;
+                if (currentFlags.some(flag => TUTORIAL_DONE_RE.test(flag))) {
+                    const progress = (typeof getTutorialProgressSnapshot === 'function') ? getTutorialProgressSnapshot() : null;
+                    const verified = !progress || (progress.input && progress.dice && progress.item && progress.affection);
+                    if (verified) {
+                        currentFlags = currentFlags.filter(flag => flag !== '新手教學進行中' && !TUTORIAL_DONE_RE.test(flag));
+                        createSystemNote('新手教學結束，祝旅途愉快！');
+                    } else {
+                        currentFlags = currentFlags.filter(flag => !TUTORIAL_DONE_RE.test(flag));
+                    }
+                }
 
                 // 冒險日誌安全網：AI 未回傳 memory.event（無聲漏記或截斷）時，
                 // 把本回合具體發生的大事（物品得失、場景移動）補進冒險日誌，避免大事遺失。

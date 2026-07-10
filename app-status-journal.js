@@ -458,7 +458,10 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
 
                 const tag = document.createElement('div');
                 tag.className = 'flag-tag';
-                tag.appendChild(document.createTextNode(`${cleanFlag} `));
+                /* 顯示層翻譯(2026/07/10):系統旗標(如「新手教學進行中」)有 i18n key 就翻,
+                   玩家自訂旗標查無 key 原樣顯示;儲存值恆為原文,prompt 比對不受影響 */
+                const displayFlag = (typeof uiText === 'function') ? uiText(cleanFlag) : cleanFlag;
+                tag.appendChild(document.createTextNode(`${displayFlag} `));
 
                 const removeButton = document.createElement('span');
                 removeButton.innerText = '✖';
