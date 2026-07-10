@@ -539,9 +539,9 @@ heart: '--heart-base'
            抽屜只認「開啟狀態」:關閉時它們是 opacity:0 但盒子還在,
            而 backdrop-filter 不理會 opacity,會留下幽靈濾鏡暗塊。 */
         /* 更新抽屜/核心準則抽屜為閱讀面,實測玻璃化易讀性差,已退回原樣(2026/07/09 定案)。
-           玻璃只保留在非閱讀元件:AI 選項按鈕、質疑小視窗。 */
+           玻璃只保留在非閱讀元件:低 SAN AI 選項按鈕、質疑小視窗。 */
         const PX_GLASS_TARGETS = [
-            { selector: '#options-area .opt-btn', preset: 'strong' },
+            { selector: 'body.survival-fx-san #options-area .opt-btn', preset: 'strong' },
             { selector: '.survival-fx-shard', preset: 'shard' }
         ];
         const PX_GLASS_PRESETS = {

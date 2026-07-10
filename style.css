@@ -586,7 +586,7 @@ z-index: 10;
 #dice-btn { background: var(--accent-neon); color: var(--border-dark); border: 2px solid var(--border-dark); padding: 12px 14px; }
 #send-btn { background: var(--border-dark); color: #fff; }
 
-#loading { display: none; color: var(--text-sub); font-style: italic; font-weight: bold; font-size: 12px; text-align: center; padding: 10px 0; animation: pulse 1.5s infinite; }
+#loading { display: none; color: var(--text-sub); font-style: italic; font-weight: bold; font-size: 12px; text-align: center; padding: 10px 0; }
         #cancel-ai-btn { margin-left: 8px; padding: 4px 9px; border: 1px solid var(--border-dark); border-radius: 6px; background: var(--card-bg); color: var(--text-main); font-size: 11px; font-style: normal; font-weight: 900; cursor: pointer; }
 
         #crop-container { box-sizing: content-box; width: 250px; height: 250px; border-radius: 50%; border: 4px solid var(--accent-neon); overflow: hidden; position: relative; background: var(--card-bg); box-shadow: 0 0 20px rgba(0,0,0,0.5); touch-action: none; margin-top: 20px;}
@@ -2469,6 +2469,21 @@ margin: 0; padding: 0; background: transparent;
 .relationship-heart-effect { top: clamp(120px, 32dvh, 240px); max-width: calc(100vw - 24px); }
 .relationship-heart-effect-label { max-width: calc(100vw - 36px); white-space: normal; text-align: center; font-size: 14px; line-height: 1.35; }
             .opt-btn { padding: 10px 12px; font-size: 13px; }
+            #game-container #options-area .opt-btn {
+                min-height: 44px;
+                box-sizing: border-box;
+                touch-action: manipulation;
+            }
+            #game-container #input-area > button.btn {
+                min-width: 44px;
+                touch-action: manipulation;
+            }
+            body:not(.survival-fx-san) #game-container #options-area .opt-btn:active,
+            #game-container #input-area > button.btn:active {
+                background: var(--accent-neon);
+                box-shadow: 1px 1px 0 var(--border-dark);
+                transform: translate(2px, 2px);
+            }
             .modal-overlay { padding: max(8px, env(safe-area-inset-top)) 6px max(8px, env(safe-area-inset-bottom)); overflow-x: hidden !important; touch-action: pan-y; overscroll-behavior: contain; }
             #status-modal-content > .modal-header-sticky {
                 padding: 12px 12px;
@@ -2616,9 +2631,9 @@ line-height: 1;
 @media screen and (max-width: 768px) {
 #game-container #input-area > button#dice-btn.btn,
 #game-container #input-area > button#send-btn.btn {
-height: 40px;
-min-height: 40px;
-max-height: 40px;
+height: 44px;
+min-height: 44px;
+max-height: 44px;
 }
 }
 

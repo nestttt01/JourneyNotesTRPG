@@ -989,15 +989,31 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 if (typeof clearRestCooldown === 'function') clearRestCooldown();
 
                 const hiddenSanOption = normalizeHiddenSanOption(parsedData.hidden_san_option || parsedData.hiddenSanOption || parsedData.san_option || parsedData.sanOption);
- if(!getCurrentGameOver() && !(survivalOutcome && survivalOutcome.lastStand) && parsedData.options && Array.isArray(parsedData.options)) {
+                const survivalOptionFx = typeof getSurvivalFxState === 'function'
+                    ? getSurvivalFxState()
+                    : null;
+                const lowSanInterference = Boolean(
+                    survivalOptionFx
+                    && survivalOptionFx.sanSeverity > 0
+                    && !survivalOptionFx.reduced
+                );
+                const lowSanGlass = lowSanInterference
+                    && typeof pxGlassSupported === 'function'
+                    && pxGlassSupported()
+                    && document.documentElement.dataset.bgMode === 'image'
+                    && window.innerWidth > 600;
+                if(!getCurrentGameOver() && !(survivalOutcome && survivalOutcome.lastStand) && parsedData.options && Array.isArray(parsedData.options)) {
                     const optArea = document.getElementById('options-area');
                     parsedData.options.forEach((opt, optIndex) => {
                         const option = enforceResurrectionOptionRules(normalizeOptionEntry(opt));
                         if (!option) return;
                         if (!option.text) return;
                         const btn = document.createElement('button');
- btn.className = 'opt-btn opt-enter';
- btn.style.animationDelay = (optIndex * 130) + 'ms';
+                        btn.className = lowSanInterference ? 'opt-btn' : 'opt-btn opt-enter';
+                        if (lowSanGlass) btn.classList.add('px-glass-refract');
+                        if (!lowSanInterference) {
+                            btn.style.animationDelay = (optIndex * 130) + 'ms';
+                        }
  btn.textContent = option.text;
  btn.dataset.survivalOptionText = option.text;
  btn.dataset.survivalOptionCheck = option.check || '';

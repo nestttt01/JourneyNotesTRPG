@@ -1435,6 +1435,7 @@ let survivalFxLastSignalAt = 0;
 let survivalFxHiddenCooldown = 0;
 let survivalFxLastTextCorruptAt = 0;
 let survivalFxActiveOption = null;
+let survivalFxOptionAnimationFrame = 0;
 let survivalFxOptionState = new WeakMap();
 let survivalFxOptionDelegated = false;
 let survivalFxPointer = { x: 0, y: 0, active: false };
@@ -2038,11 +2039,12 @@ function nudgeSurvivalOption(btn, strong = false) {
     const horizontal = (strong ? 8 : 5) + Math.random() * (strong ? 8 : 5);
  const verticalPool = [-4, -2, 0, 2, 4];
  const yPick = verticalPool[Math.floor(Math.random() * verticalPool.length)] + Math.random() * 2 - 1;
- state.tx = Math.max(-18, Math.min(18, side * horizontal * (0.72 + fx.sanSeverity * 0.12)));
- state.ty = Math.max(-6, Math.min(6, yPick));
+ state.tx = Math.round(Math.max(-18, Math.min(18, side * horizontal * (0.72 + fx.sanSeverity * 0.12))));
+ state.ty = Math.round(Math.max(-6, Math.min(6, yPick)));
  state.hover = true;
     state.nextNudge = Date.now() + 560 + Math.random() * 520;
     btn.classList.add('survival-option-drifting');
+    scheduleSurvivalOptionAnimation();
     }
 
 function getSurvivalOptionMainText(btn) {
@@ -2140,17 +2142,25 @@ function isPointerInsideOption(btn, pad = 8) {
     return survivalFxPointer.x >= rect.left - pad && survivalFxPointer.x <= rect.right + pad && survivalFxPointer.y >= rect.top - pad && survivalFxPointer.y <= rect.bottom + pad;
 }
 
+function scheduleSurvivalOptionAnimation() {
+    if (survivalFxOptionAnimationFrame) return;
+    survivalFxOptionAnimationFrame = window.requestAnimationFrame(animateSurvivalOptions);
+}
+
 function animateSurvivalOptions() {
+    survivalFxOptionAnimationFrame = 0;
     const btn = survivalFxActiveOption;
-    if (btn) {
-        const state = getSurvivalOptionState(btn);
-        if (state.hover) {
-            state.x += (state.tx - state.x) * 0.058;
-            state.y += (state.ty - state.y) * 0.058;
-            btn.style.transform = `translate3d(${state.x.toFixed(1)}px, ${state.y.toFixed(1)}px, 0)`;
-        }
+    if (!btn) return;
+    const state = getSurvivalOptionState(btn);
+    if (!state.hover) return;
+    const dx = state.tx - state.x;
+    const dy = state.ty - state.y;
+    state.x += Math.sign(dx) * Math.min(2, Math.abs(dx));
+    state.y += Math.sign(dy) * Math.min(1, Math.abs(dy));
+    btn.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
+    if (state.x !== state.tx || state.y !== state.ty) {
+        scheduleSurvivalOptionAnimation();
     }
-    window.requestAnimationFrame(animateSurvivalOptions);
 }
 
 function ensureSurvivalOptionInterference() {
@@ -2187,7 +2197,6 @@ function ensureSurvivalOptionInterference() {
         survivalFxPointer.active = false;
         if (survivalFxActiveOption) resetSurvivalOption(survivalFxActiveOption);
     });
-    window.requestAnimationFrame(animateSurvivalOptions);
 }
 
 function syncSurvivalVisualEffects() {
@@ -2200,6 +2209,7 @@ function syncSurvivalVisualEffects() {
     body.classList.toggle('survival-fx-san', state.sanSeverity > 0);
     body.classList.toggle('survival-fx-hp', state.hpSeverity > 0);
     body.classList.toggle('survival-fx-zero', state.zero);
+    if (typeof schedulePixelGlass === 'function') schedulePixelGlass(0);
     if (!state.active) {
         layer.style.setProperty('--survival-fx-severity', '0');
         layer.style.setProperty('--survival-fx-dark', '0');
