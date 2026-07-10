@@ -4,6 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>旅途筆記</title>
+    <script>
+    /* 防主題閃爍（2026/07/10）：首繪前同步套用自訂色票（sanko_ui_theme_v1），
+       消除重整時先閃預設色再變自訂色的 FOUC。完整邏輯仍在 app-core.js 的
+       loadUiTheme/applyUiTheme，此處只做最小預塗；資料損壞時靜默跳過交給主流程。 */
+    (function () {
+        try {
+            var theme = JSON.parse(localStorage.getItem('sanko_ui_theme_v1') || 'null');
+            if (!theme || typeof theme !== 'object') return;
+            var map = { background: '--bg-main', paper: '--paper-bg', surface: '--card-bg', ink: '--border-dark', accent: '--accent-neon', dialogue: '--accent-gray', heart: '--heart-base' };
+            var ok = function (v) { return /^#[0-9A-Fa-f]{6}$/.test(String(v || '')); };
+            var root = document.documentElement;
+            Object.keys(map).forEach(function (key) {
+                if (ok(theme[key])) root.style.setProperty(map[key], theme[key]);
+            });
+            if (ok(theme.ink)) {
+                root.style.setProperty('--text-main', theme.ink);
+                root.style.setProperty('--text-sub', theme.ink + 'A6');
+            }
+            if (ok(theme.surface) && ok(theme.ink)) {
+                var mix = function (base, overlay, ratio) {
+                    var part = function (c, i) { return parseInt(c.slice(i, i + 2), 16); };
+                    return '#' + [1, 3, 5].map(function (i) {
+                        return Math.round(part(base, i) * (1 - ratio) + part(overlay, i) * ratio).toString(16).padStart(2, '0');
+                    }).join('').toUpperCase();
+                };
+                root.style.setProperty('--surface-muted', mix(theme.surface, theme.ink, 0.12));
+            }
+        } catch (e) { /* 靜默 */ }
+    })();
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
