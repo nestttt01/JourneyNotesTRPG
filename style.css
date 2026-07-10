@@ -410,13 +410,17 @@ z-index: 10;
 .memory-task-list { display: grid; gap: 8px; }
 .memory-task-empty { margin: 0; padding: 10px 12px; border: 2px dashed #b8b8b8; border-radius: 8px; color: var(--text-sub); font-size: 12px; font-weight: 800; }
 .memory-task-row { display: grid; grid-template-columns: 18px minmax(0, 1fr) 22px 22px; align-items: end; gap: 8px; padding: 4px 2px 3px; border: 0; border-radius: 0; background: transparent; }
-.memory-task-check { width: 14px; height: 14px; margin: 0 0 5px 2px; accent-color: var(--accent-neon); cursor: pointer; }
+.memory-task-check-shell { position: relative; width: 14px; height: 14px; margin: 0 0 5px 2px; }
+.memory-task-check { display: block; width: 14px; height: 14px; margin: 0; accent-color: var(--accent-neon); cursor: pointer; }
+.memory-task-failed-mark { position: absolute; inset: 0; display: none; place-items: center; box-sizing: border-box; border: 1px solid var(--border-dark); border-radius: 2px; background: var(--accent-neon); color: var(--border-dark); font-size: 12px; font-weight: 900; line-height: 1; pointer-events: none; }
+.memory-task-row.failed .memory-task-failed-mark { display: grid; }
 .memory-task-text { min-width: 0; width: 100%; padding: 5px 8px 6px; border: 0; border-bottom: 1px dashed var(--text-sub); outline: none; background: linear-gradient(to bottom, transparent 0 48%, color-mix(in srgb, var(--card-bg) 72%, transparent) 48% 100%); color: var(--text-main); font-size: 12px; font-weight: 800; }
 .memory-task-row.done .memory-task-text { text-decoration: line-through; color: var(--text-sub); }
-.memory-task-row.failed .memory-task-text { color: #9b3942; text-decoration: line-through; }
+.memory-task-row.failed .memory-task-text { color: var(--border-dark); text-decoration: none; }
 .memory-task-fail, .memory-task-remove { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text-sub); font-size: 13px; font-weight: 900; line-height: 22px; cursor: pointer; }
-.memory-task-fail:hover, .memory-task-fail:focus-visible, .memory-task-row.failed .memory-task-fail { color: #9b3942; outline: none; }
-.memory-task-remove { color: #9b3942; font-size: 15px; }
+.memory-task-fail:hover, .memory-task-fail:focus-visible, .memory-task-row.failed .memory-task-fail { color: var(--border-dark); outline: none; }
+.memory-task-remove { color: var(--text-sub); font-size: 13px; }
+.memory-task-remove:hover, .memory-task-remove:focus-visible { color: var(--border-dark); outline: none; }
         .memory-task-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; margin-top: 8px; }
         .memory-task-add input { min-width: 0; padding: 9px 10px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 700; }
         .memory-task-add button { width: auto; padding: 8px 11px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--accent-neon); color: var(--text-main); font-size: 12px; font-weight: 900; }

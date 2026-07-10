@@ -793,6 +793,14 @@ ${getMemoryBriefForPrompt()}
 只有任務異動、關係或承諾實質改變、重要物品得失、永久狀態、重要線索、不可逆選擇，或會影響後續的場景變化，才回傳 memory。上述任一情況一旦發生，memory 為必填、不得省略；即使本回合 JSON 內容較長，也必須完整輸出 memory 欄位到最後。
 memory.category 只能是 task、relationship、item、status、clue、decision、scene；memory.event 只寫一條簡短既定事實。story_summary 與 relationship_summary 只有重大變化時才回傳完整精簡快照，否則省略。不得把普通事件硬寫成重點。
 
+【任務狀態更新（task_updates）——嚴格】
+- action 只可使用 add、complete、fail、reopen、remove；text 必須沿用「目前任務」原文，不得改寫名稱。
+- complete 只用於任務目標已在劇情中明確達成；只是接近、部分完成或未確認一律不得結案。
+- fail 只用於目標已永久不可能完成，且 reason 必須寫明確、已發生的不可逆原因；reason 缺失時程式會拒絕套用。
+- NPC 死亡或永久離場不等於所有相關任務失敗；例如「護送 A」可能失敗，但「調查 A 的死亡」或「替 A 復仇」仍可繼續。
+- 暫時離場、失蹤、生死不明、目前無法接觸都不能判失敗。
+- 已完成或已失敗的任務不得自動翻轉；只有玩家或創作者明確要求時才可 reopen。
+
 【狀態旗標（flags_add）判定——嚴格，預設不加】
 只有「會長期存在、之後每回合都該當成既定前提」的關鍵標記才寫入 flags_add，且必須屬於下列之一：
 1. 持久身分／處境：取得的身分、職位、陣營、被通緝、未解的中毒或傷病、失明、懷孕等會延續多回合的狀態。
@@ -817,7 +825,7 @@ Return narrative, dialogues, and options. When SAN is 20 or lower, also return h
   "dialogues":[{"speaker":"<角色名>","text":"台詞"}],
   "options":[{"text":"下一步","check":"none|str|dex|con|int|wis|cha","difficulty":"trivial|easy|normal|hard|extreme"}],
 "hidden_san_option":{"text":"Hidden low-SAN loss-of-control action","check":"int|wis|cha","difficulty":"hard|extreme","forceDice":true},
-  "memory":{"category":"task|relationship|item|status|clue|decision|scene","event":"重大既定事實","story_summary":[],"relationship_summary":[],"task_updates":[{"action":"add|complete|reopen|remove","text":"任務"}]},
+  "memory":{"category":"task|relationship|item|status|clue|decision|scene","event":"重大既定事實","story_summary":[],"relationship_summary":[],"task_updates":[{"action":"add|complete|fail|reopen|remove","text":"任務","reason":"完成或永久失敗的明確原因；其他動作可留空"}]},
   "changes":{
     "hp":0,"san":0,
     "affection_change":{"<角色名>":0},"affection_set":{"<角色名>":0},

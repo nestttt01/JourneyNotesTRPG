@@ -813,7 +813,6 @@ ${rawAction}
                     : valueToText(parsedData.adventure_log);
 if (memoryEvent) currentAdventureLog = mergeAdventureLog(currentAdventureLog, memoryEvent);
 npcLifeEvents.forEach(event => { currentAdventureLog = mergeAdventureLog(currentAdventureLog, event); });
-if (npcLifeEvents.length) failTasksRelatedToNpcEvents(npcLifeEvents);
 if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEvents });
                 if (memoryPayload) {
                     const automaticMemory = { ...memoryPayload };

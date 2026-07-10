@@ -275,33 +275,17 @@ let changed = false;
                 const previous = previousByKey.get(key);
                 const wasDone = Boolean(previous?.done);
                 const wasFailed = Boolean(previous?.failed);
-                if (task.done && !wasDone) changed = appendTaskJournalEntry('done', task.text, reason) || changed;
-                if (task.failed && !wasFailed) changed = appendTaskJournalEntry('failed', task.text, reason) || changed;
+                const transitionReason = reason instanceof Map
+                    ? valueToText(reason.get(key))
+                    : valueToText(reason);
+                if (task.done && !wasDone) {
+                    changed = appendTaskJournalEntry('done', task.text, transitionReason) || changed;
+                }
+                if (task.failed && !wasFailed) {
+                    changed = appendTaskJournalEntry('failed', task.text, transitionReason) || changed;
+                }
             });
 return changed;
-}
-
-function failTasksRelatedToNpcEvents(events) {
-const names = (Array.isArray(events) ? events : [])
-.map(event => valueToText(event).match(/^(.+?)\s*已死亡/)?.[1]?.trim())
-.filter(Boolean);
-if (!names.length) return false;
-const tasks = parseTaskChecklist(currentOpenTasks);
-const previousTasks = parseTaskChecklist(tasks);
-let changed = false;
-tasks.forEach(task => {
-if (task.done || task.failed) return;
-const matchedName = names.find(name => name && task.text.includes(name));
-if (!matchedName) return;
-task.failed = true;
-task.done = false;
-changed = true;
-});
-if (!changed) return false;
-recordTaskStatusTransitions(previousTasks, tasks, '相關角色死亡或離場');
-currentOpenTasks = serializeTaskChecklist(tasks);
-renderTaskChecklist(currentOpenTasks);
-return true;
 }
 
 function renderTaskChecklist(value = currentOpenTasks) {
@@ -316,10 +300,20 @@ function renderTaskChecklist(value = currentOpenTasks) {
             }
 container.innerHTML = tasks.map((task, index) => `
 <div class="memory-task-row ${task.done ? 'done' : ''} ${task.failed ? 'failed' : ''}" data-task-index="${index}" data-task-status="${task.failed ? 'failed' : task.done ? 'done' : 'open'}">
+<span class="memory-task-check-shell">
 <input class="memory-task-check" type="checkbox" aria-label="完成任務：${escapeStatusHtml(task.text)}" ${task.done ? 'checked' : ''} onchange="setMemoryTaskStatus(${index}, this.checked ? 'done' : 'open')">
+<span class="memory-task-failed-mark" aria-hidden="true">✕</span>
+</span>
 <input class="memory-task-text" type="text" value="${escapeStatusHtml(task.text)}" aria-label="任務內容" onchange="handleMemoryTaskChange()">
-<button class="memory-task-fail" type="button" aria-label="標記任務失敗" title="標記任務失敗" onclick="setMemoryTaskStatus(${index}, '${task.failed ? 'open' : 'failed'}')">!</button>
-<button class="memory-task-remove" type="button" aria-label="刪除任務" onclick="removeMemoryTask(${index})">×</button>
+<button class="memory-task-fail" type="button"
+aria-label="${escapeStatusHtml(uiText(task.failed ? '取消失敗標記' : '標記任務失敗'))}"
+title="${escapeStatusHtml(uiText(task.failed ? '取消失敗標記' : '標記任務失敗'))}"
+aria-pressed="${task.failed ? 'true' : 'false'}"
+onclick="setMemoryTaskStatus(${index}, '${task.failed ? 'open' : 'failed'}')">!</button>
+<button class="memory-task-remove" type="button"
+aria-label="${escapeStatusHtml(uiText('刪除任務'))}"
+title="${escapeStatusHtml(uiText('刪除任務'))}"
+onclick="removeMemoryTask(${index})">🗑</button>
 </div>`).join('');
 }
 
@@ -379,31 +373,49 @@ saveCurrentProgress();
 
         function applyTaskUpdates(updates) {
             if (!Array.isArray(updates) || !updates.length) return false;
-const tasks = parseTaskChecklist(currentOpenTasks);
-const previousTasks = parseTaskChecklist(tasks);
-let changed = false;
+            const tasks = parseTaskChecklist(currentOpenTasks);
+            const previousTasks = parseTaskChecklist(tasks);
+            const transitionReasons = new Map();
+            let changed = false;
             updates.forEach(update => {
                 if (!update || typeof update !== 'object') return;
                 const text = normalizeTaskText(update.text || update.task || update.title);
                 const action = valueToText(update.action || update.status).trim().toLowerCase();
+                const reason = truncatePromptText(valueToText(update.reason), 120);
                 if (!text || !action) return;
                 const index = findMemoryTaskIndex(tasks, text);
                 if (['add', 'new', 'open'].includes(action)) {
-if (index < 0) { tasks.push({ text, done: false, failed: false }); changed = true; }
-else if ((tasks[index].done || tasks[index].failed) && action === 'open') { tasks[index].done = false; tasks[index].failed = false; changed = true; }
+                    if (index < 0) {
+                        tasks.push({ text, done: false, failed: false });
+                        changed = true;
+                    }
                 } else if (['done', 'complete', 'completed', 'finish', 'finished'].includes(action)) {
-if (index >= 0 && (!tasks[index].done || tasks[index].failed)) { tasks[index].done = true; tasks[index].failed = false; changed = true; }
-} else if (['fail', 'failed', 'failure', 'lost', 'dead', 'impossible', 'cancelled', 'canceled'].includes(action)) {
-if (index >= 0 && !tasks[index].failed) { tasks[index].failed = true; tasks[index].done = false; changed = true; }
-} else if (['reopen', 'undo'].includes(action)) {
-if (index >= 0 && (tasks[index].done || tasks[index].failed)) { tasks[index].done = false; tasks[index].failed = false; changed = true; }
+                    if (index >= 0 && !tasks[index].done && !tasks[index].failed) {
+                        tasks[index].done = true;
+                        transitionReasons.set(normalizeTaskKey(tasks[index].text), reason);
+                        changed = true;
+                    }
+                } else if (['fail', 'failed', 'failure', 'lost', 'dead', 'impossible', 'cancelled', 'canceled'].includes(action)) {
+                    if (!reason) return;
+                    if (index >= 0 && !tasks[index].done && !tasks[index].failed) {
+                        tasks[index].failed = true;
+                        transitionReasons.set(normalizeTaskKey(tasks[index].text), reason);
+                        changed = true;
+                    }
+                } else if (['reopen', 'undo'].includes(action)) {
+                    if (index >= 0 && (tasks[index].done || tasks[index].failed)) {
+                        tasks[index].done = false;
+                        tasks[index].failed = false;
+                        changed = true;
+                    }
                 } else if (['remove', 'delete'].includes(action) && index >= 0) {
-                    tasks.splice(index, 1); changed = true;
+                    tasks.splice(index, 1);
+                    changed = true;
                 }
             });
-if (changed) {
-recordTaskStatusTransitions(previousTasks, tasks);
-currentOpenTasks = serializeTaskChecklist(tasks);
+            if (changed) {
+                recordTaskStatusTransitions(previousTasks, tasks, transitionReasons);
+                currentOpenTasks = serializeTaskChecklist(tasks);
                 renderTaskChecklist(currentOpenTasks);
             }
             return changed;
