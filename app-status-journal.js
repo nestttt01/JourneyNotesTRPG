@@ -1230,6 +1230,80 @@ const important = Array.isArray(save.importantJournalEntries) ? save.importantJo
 return splitAdventureLog(save.log).map((text, index) => ({ text, index, important: important.includes(index) }));
 }
 
+function getImportantAdventureLogEntries(save, log = save?.log) {
+    if (!save) {
+        return [];
+    }
+    const entries = splitAdventureLog(log);
+    const importantIndices = Array.isArray(save.importantJournalEntries)
+        ? save.importantJournalEntries.map(Number)
+        : [];
+    return [...new Set(importantIndices)]
+        .filter(index => Number.isInteger(index) && index >= 0 && index < entries.length)
+        .sort((a, b) => a - b)
+        .map(index => entries[index]);
+}
+
+function restoreImportantAdventureLogEntries(organizedLog, importantEntries = []) {
+    if (!Array.isArray(importantEntries) || !importantEntries.length) {
+        return organizedLog;
+    }
+    const mergedEntries = splitAdventureLog(organizedLog);
+    const availableCounts = new Map();
+    mergedEntries.forEach(entry => {
+        const key = normalizeAdventureLogKey(entry);
+        if (!key) {
+            return;
+        }
+        availableCounts.set(key, (availableCounts.get(key) || 0) + 1);
+    });
+    const requiredCounts = new Map();
+    importantEntries.forEach(entry => {
+        const key = normalizeAdventureLogKey(entry);
+        if (!key) {
+            return;
+        }
+        const requiredCount = (requiredCounts.get(key) || 0) + 1;
+        requiredCounts.set(key, requiredCount);
+        if ((availableCounts.get(key) || 0) >= requiredCount) {
+            return;
+        }
+        mergedEntries.push(entry);
+        availableCounts.set(key, (availableCounts.get(key) || 0) + 1);
+    });
+    return formatBulletListText(mergedEntries, '');
+}
+
+function remapImportantJournalEntries(save, importantEntries = [], log = save?.log) {
+    if (!save) {
+        return [];
+    }
+    const availableIndices = new Map();
+    splitAdventureLog(log).forEach((entry, index) => {
+        const key = normalizeAdventureLogKey(entry);
+        if (!key) {
+            return;
+        }
+        const indices = availableIndices.get(key) || [];
+        indices.push(index);
+        availableIndices.set(key, indices);
+    });
+    const consumedCounts = new Map();
+    const nextIndices = [];
+    importantEntries.forEach(entry => {
+        const key = normalizeAdventureLogKey(entry);
+        const indices = availableIndices.get(key) || [];
+        const consumedCount = consumedCounts.get(key) || 0;
+        if (!key || consumedCount >= indices.length) {
+            return;
+        }
+        nextIndices.push(indices[consumedCount]);
+        consumedCounts.set(key, consumedCount + 1);
+    });
+    save.importantJournalEntries = nextIndices.sort((a, b) => a - b);
+    return save.importantJournalEntries;
+}
+
 function toggleJournalEntryImportant(entryIndex) {
 const save = savesData[journalSelectedSaveId];
 if (!save) return;
@@ -1437,6 +1511,7 @@ renderAdventureJournal();
         async function organizeSelectedJournalLog() {
             const save = savesData[journalSelectedSaveId];
             if (!save) return;
+            const importantEntries = getImportantAdventureLogEntries(save);
  if (!confirm(uiText('整理會合併語意重複的事件。系統會先保留備份，確定要繼續嗎？'))) return;
             const button = document.getElementById('journal-organize-btn');
             const originalLabel = button?.innerText || '';
@@ -1450,11 +1525,13 @@ renderAdventureJournal();
  }
                 });
  if (!organizedLog) throw new Error(uiText('AI 沒有回傳可用的冒險紀錄。'));
- const finalLog = restoreProtectedAdventureLogEntries(save.log, organizedLog);
+ const protectedLog = restoreProtectedAdventureLogEntries(save.log, organizedLog);
+ const finalLog = restoreImportantAdventureLogEntries(protectedLog, importantEntries);
  if (!Array.isArray(save.memoryLogBackups)) save.memoryLogBackups = [];
  save.memoryLogBackups.push({ date: new Date().toLocaleString(), log: save.log });
  save.memoryLogBackups = save.memoryLogBackups.slice(-3);
  save.log = finalLog;
+ remapImportantJournalEntries(save, importantEntries, finalLog);
  save.date = new Date().toLocaleString();
  if (journalSelectedSaveId === currentSaveId) currentAdventureLog = finalLog;
                 persistSingleSave(journalSelectedSaveId, '整理冒險日誌');
@@ -1475,8 +1552,10 @@ renderAdventureJournal();
             const backups = Array.isArray(save?.memoryLogBackups) ? save.memoryLogBackups : [];
             if (!backups.length) { alert('這份存檔目前沒有可復原的整理備份。'); return; }
             const latest = backups[backups.length - 1];
+            const importantEntries = getImportantAdventureLogEntries(save);
             if (!confirm(`要復原 ${latest.date || '上一次'} 整理前的冒險紀錄嗎？`)) return;
             save.log = formatBulletListText(latest.log, '• 故事剛開始，目前尚無重大事件發生。');
+            remapImportantJournalEntries(save, importantEntries, save.log);
             backups.pop();
             save.memoryLogBackups = backups;
             save.date = new Date().toLocaleString();

@@ -447,15 +447,18 @@ ${JSON.stringify(visiblePayload)}`;
                 const profile = getModelRuntimeProfile();
                 if (kind === 'log') {
                     const save = savesData[currentSaveId];
+                    const importantEntries = getImportantAdventureLogEntries(save, currentAdventureLog);
                     const organizedLog = await organizeAdventureLogWithAI(save, (current, total) => {
                         if (activeButton) activeButton.innerText = total > 1 ? `整理中 ${current}/${total}` : '整理中…';
                     });
  if (!organizedLog) throw new Error(uiText('AI 沒有回傳可用的冒險紀錄。'));
- const finalLog = restoreProtectedAdventureLogEntries(currentAdventureLog, organizedLog);
+ const protectedLog = restoreProtectedAdventureLogEntries(currentAdventureLog, organizedLog);
+ const finalLog = restoreImportantAdventureLogEntries(protectedLog, importantEntries);
  if (!Array.isArray(save.memoryLogBackups)) save.memoryLogBackups = [];
  save.memoryLogBackups.push({ date: new Date().toLocaleString(), log: currentAdventureLog });
  save.memoryLogBackups = save.memoryLogBackups.slice(-3);
  currentAdventureLog = finalLog;
+ remapImportantJournalEntries(save, importantEntries, finalLog);
                 } else {
                     const prompt = buildMemoryOrganizerPrompt('summary');
                     const rawText = await requestAIText(prompt, { kind: 'summary', maxTokens: profile.summaryMaxTokens });
