@@ -336,6 +336,20 @@ output.isLocked = false;
 return output;
 }
 
+function getUniqueImportedPresetName(name) {
+    const baseName = valueToText(name, '匯入配置').replace(/（匯入\d*）$/, '');
+    const existingNames = new Set(
+        Object.values(scenarioPresets || {}).map(preset => valueToText(preset?.presetName))
+    );
+    let candidate = `${baseName}（匯入）`;
+    let counter = 2;
+    while (existingNames.has(candidate)) {
+        candidate = `${baseName}（匯入${counter}）`;
+        counter += 1;
+    }
+    return candidate;
+}
+
 function getPresetImportSignature(preset) {
 const copy = stripImagesAndPrivateData(getJsonClone(preset || {}));
 delete copy.id;
@@ -380,8 +394,16 @@ return getPresetImportSignature(existing) === incomingSignature;
 
 function importPresetWithoutDuplicate(rawPreset, sections = { characters: true, scenarios: true }, options = {}) {
 const preset = normalizeImportedPreset(rawPreset, sections);
-const existingId = findExistingPresetForImport(preset, {
-originalId: rawPreset?.id || options.originalId,
+const originalId = valueToText(rawPreset?.id || options.originalId);
+const hasIdCollision = Boolean(originalId && scenarioPresets[originalId]);
+const hasNameCollision = Object.values(scenarioPresets || {}).some(existing =>
+valueToText(existing?.presetName) === valueToText(preset.presetName)
+);
+if (options.forceCopy === true && (hasIdCollision || hasNameCollision)) {
+preset.presetName = getUniqueImportedPresetName(preset.presetName);
+}
+const existingId = options.forceCopy === true ? '' : findExistingPresetForImport(preset, {
+originalId,
 matchByNameAndContent: options.matchByNameAndContent
 });
 if (existingId) return { id: existingId, imported: false, preset: scenarioPresets[existingId] };
@@ -451,7 +473,7 @@ validateImportCollections({}, importedPresets);
 let count = 0;
 Object.values(importedPresets || {}).forEach(rawPreset => {
 if (!rawPreset || typeof rawPreset !== 'object' || Array.isArray(rawPreset)) return;
-const result = importPresetWithoutDuplicate(rawPreset, sections);
+const result = importPresetWithoutDuplicate(rawPreset, sections, { forceCopy: true });
 activePresetId = result.id;
 if (!result.imported) return;
 count += 1;
