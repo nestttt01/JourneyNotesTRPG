@@ -15,7 +15,22 @@ if (button) button.disabled = true;
 if (output) output.textContent = uiText('生成中...');
 try {
 const scene = editingScenarios[0] || {};
-const prompt = `你是 TRPG 角色語氣測試器。請根據角色設定，輸出這個角色在開場時可能說的一句話與一小段動作描寫。不要改設定，不要新增劇情結論，不要 Markdown，80字內。\n角色：${JSON.stringify(character)}\n目前情境：${JSON.stringify({ name: scene.name || '', lore: scene.lore || '', npcRoles: scene.npcRoles || '', playerRole: scene.playerRole || '' })}`;
+const characterDetails = character.details && typeof character.details === 'object'
+? character.details
+: {};
+const characterPrompt = {
+name: truncatePromptText(character.name, 80),
+affection: Math.max(-100, Math.min(100, Math.round(Number(character.affection)) || 0)),
+details: {
+age: truncatePromptText(characterDetails.age, 80),
+speech: truncatePromptText(characterDetails.speech, 160),
+likes: truncatePromptText(characterDetails.likes, 140),
+dislikes: truncatePromptText(characterDetails.dislikes, 140),
+app: truncatePromptText(characterDetails.app, 320),
+bg: truncatePromptText(characterDetails.bg, 420)
+}
+};
+const prompt = `你是 TRPG 角色語氣測試器。請根據角色設定，輸出這個角色在開場時可能說的一句話與一小段動作描寫。不要改設定，不要新增劇情結論，不要 Markdown，80字內。\n角色：${JSON.stringify(characterPrompt)}\n目前情境：${JSON.stringify({ name: scene.name || '', lore: scene.lore || '', npcRoles: scene.npcRoles || '', playerRole: scene.playerRole || '' })}`;
 const text = await requestAIText(prompt, { kind: 'generation', maxTokens: 220 });
 if (output) output.textContent = valueToText(text, uiText('沒有取得測試內容。')).replace(/\s+/g, ' ').trim();
 } catch (error) {

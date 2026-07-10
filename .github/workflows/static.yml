@@ -33,6 +33,29 @@ jobs:
         uses: actions/checkout@v5
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Validate static sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in i18n.js app-*.js; do
+            node --check "$file"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source_files = [Path("index.html"), Path("style.css"), Path("i18n.js"), *Path(".").glob("app-*.js")]
+          for source_file in source_files:
+              raw = source_file.read_bytes()
+              assert not raw.startswith(b"\xef\xbb\xbf"), f"BOM found: {source_file}"
+              text = raw.decode("utf-8", errors="strict")
+              assert "\r" not in text, f"CR/CRLF found: {source_file}"
+              assert "\ufffd" not in text, f"replacement character found: {source_file}"
+          html = Path("index.html").read_text(encoding="utf-8")
+          css = Path("style.css").read_text(encoding="utf-8")
+          assert html.rstrip().endswith("</html>"), "index.html is truncated"
+          assert css.count("{") == css.count("}"), "style.css braces are unbalanced"
+          assert css.rstrip().endswith("}"), "style.css is truncated"
+          PY
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -534,6 +534,9 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
                 alert('這份存檔格式不正確，無法載入。');
                 return;
  }
+ if (typeof invalidateGameAIRequestContext === 'function') {
+     invalidateGameAIRequestContext();
+ }
  currentSaveId = id;
  const fallbackScenario = scenarioPresets[activePresetId] || defaultPreset;
 if (!saveData.scenario || typeof saveData.scenario !== 'object' || Array.isArray(saveData.scenario)) {
@@ -591,6 +594,17 @@ if(saveData.scenario) {
 
             currentHp = normalizeSurvivalValue(saveData.hp, 100);
             currentSan = normalizeSurvivalValue(saveData.san, 100);
+            const savedSurvivalState = saveData.survivalState
+                && typeof saveData.survivalState === 'object'
+                && !Array.isArray(saveData.survivalState)
+                ? saveData.survivalState
+                : {};
+            survivalGraceTurns = Math.max(0, Math.min(3, Math.floor(Number(savedSurvivalState.graceTurns)) || 0));
+            pendingLastStand = savedSurvivalState.pendingLastStand === true && !getCurrentGameOver();
+            pendingLastStandReason = pendingLastStand
+                ? valueToText(savedSurvivalState.pendingLastStandReason).slice(0, 80)
+                : '';
+            restJustUsed = savedSurvivalState.restJustUsed === true;
             currentItems = Array.isArray(saveData.items) ? saveData.items.map(item => valueToText(item)).filter(Boolean) : [];
             itemEffects = {};
             if (saveData.itemEffects && typeof saveData.itemEffects === 'object' && !Array.isArray(saveData.itemEffects)) {
@@ -629,8 +643,6 @@ if(saveData.scenario) {
             const lightweightDraft = localStorage.getItem(getInputDraftStorageKey(id));
             playerInput.value = lightweightDraft !== null ? lightweightDraft : valueToText(saveData.inputDraft);
             adjustInputHeight();
-            const loadSurvivalOutcome = resolveSurvivalOutcome();
-            if (loadSurvivalOutcome.rescued || loadSurvivalOutcome.gameOver) saveCurrentProgress();
 
             document.getElementById('ui-hp').innerText = currentHp; document.getElementById('ui-san').innerText = currentSan; document.getElementById('ui-target-typing').innerText = window.uiMessage ? window.uiMessage('引擎 (DM)') : '引擎 (DM)';
             
@@ -651,12 +663,24 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             const loadedText = window.uiMessage ? window.uiMessage('— 遊戲紀錄已載入 —') : '— 遊戲紀錄已載入 —';
             const sysMsg = document.createElement('div'); sysMsg.className = 'system-msg'; sysMsg.innerText = loadedText; msgBox.appendChild(sysMsg); msgBox.scrollTop = msgBox.scrollHeight;
 
+            let loadSurvivalOutcome;
+            if (pendingLastStand) {
+                const reason = pendingLastStandReason || 'HP / SAN 歸零';
+                renderLastStandOption(reason);
+                loadSurvivalOutcome = { gameOver: false, lastStand: true, reason };
+            } else {
+                loadSurvivalOutcome = resolveSurvivalOutcome(null, { consumeGrace: false });
+            }
+            const survivalLocked = Boolean(loadSurvivalOutcome.gameOver || loadSurvivalOutcome.lastStand);
             const input = document.getElementById('player-input');
-            input.disabled = false;
-            document.getElementById('send-btn').disabled = false;
-            document.getElementById('dice-btn').disabled = false;
+            input.disabled = survivalLocked;
+            document.getElementById('send-btn').disabled = survivalLocked;
+            document.getElementById('dice-btn').disabled = survivalLocked;
+            if (loadSurvivalOutcome.rescued || loadSurvivalOutcome.gameOver || loadSurvivalOutcome.lastStand) {
+                saveCurrentProgress();
+            }
             setCreatorInputMode(false, false);
-            if (!applyGameOverUi()) input.focus();
+            if (!applyGameOverUi() && !survivalLocked) input.focus();
         }
 
         function selectOption(text, check = '', difficulty = 'normal') {
@@ -2234,14 +2258,17 @@ function getRequiredSurvivalFlags() {
 
         let survivalGraceTurns = 0;
         let pendingLastStand = false;
+        let pendingLastStandReason = '';
         let restJustUsed = false;
-        function resolveSurvivalOutcome(forcedRoll = null) {
+        function resolveSurvivalOutcome(forcedRoll = null, options = {}) {
             if (getCurrentGameOver()) return { gameOver: true, existing: true };
             const zeroKinds = [];
             if (currentHp <= 0) zeroKinds.push('HP');
             if (currentSan <= 0) zeroKinds.push('SAN');
             const inSurvivalGrace = survivalGraceTurns > 0;
-            if (inSurvivalGrace) survivalGraceTurns -= 1;
+            if (inSurvivalGrace && options.consumeGrace !== false) {
+                survivalGraceTurns -= 1;
+            }
 
             if (!zeroKinds.length) return { gameOver: false, rescued: false, grace: inSurvivalGrace };
 
@@ -2266,7 +2293,7 @@ function getRequiredSurvivalFlags() {
 
             if (mode.gameOver === 'possible') {
                 survivalRoll = forcedRoll === null ? Math.floor(Math.random() * 20) + 1 : Math.max(1, Math.min(20, Math.round(forcedRoll)));
-                gameOver = survivalRoll >= 11;
+                gameOver = survivalRoll < 11;
             }
 
             if (gameOver) {
@@ -2290,6 +2317,7 @@ function getRequiredSurvivalFlags() {
 
         function beginLastStand(reason) {
             pendingLastStand = true;
+            pendingLastStandReason = valueToText(reason).slice(0, 80);
             const input = document.getElementById('player-input');
             const sendBtn = document.getElementById('send-btn');
             const diceBtn = document.getElementById('dice-btn');
@@ -2316,6 +2344,7 @@ function getRequiredSurvivalFlags() {
         function rollLastStand(reason) {
             if (!pendingLastStand) return;
             pendingLastStand = false;
+            pendingLastStandReason = '';
             const roll = Math.floor(Math.random() * 20) + 1;
             const survived = roll >= 8;
             const optArea = document.getElementById('options-area');

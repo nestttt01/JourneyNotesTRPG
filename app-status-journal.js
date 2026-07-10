@@ -531,7 +531,10 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
             /* 刪除確認(2026/07/10):× 貼著「使用」鈕,誤觸即蒸發(成長結晶=2 成長點);與擅長刪除同語彙 */
             const confirmMsg = (typeof uiText === 'function') ? uiText('確定刪除這個道具？（成長結晶或劇情道具刪除後不會補償）') : '確定刪除這個道具？（成長結晶或劇情道具刪除後不會補償）';
             if (!window.confirm(`${confirmMsg}\n[ ${removedName} ]`)) return;
-            if (itemEffects) delete itemEffects[removedName];
+            currentItems.splice(index, 1);
+            if (itemEffects && !currentItems.includes(removedName)) {
+                delete itemEffects[removedName];
+            }
             renderItems();
             saveCurrentProgress();
         }

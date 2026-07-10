@@ -115,6 +115,7 @@ exportedAt: new Date().toISOString(),
 saves: sanitizeSavesCollection(savesData, saveIds),
 scenarioPresets: sanitizePresetCollection(scenarioPresets, presetSections, referencedPresetIds),
 activePresetId,
+uiTheme: normalizeUiTheme(uiTheme),
 privacy: {
 excludes: ['apiKeys', 'homePhoto', 'privateTokens']
 }
@@ -237,6 +238,85 @@ if (!scenarioPresets[candidate]) return candidate;
 let counter = 1;
 while (scenarioPresets[`${candidate}_${counter}`]) counter += 1;
 return `${candidate}_${counter}`;
+}
+
+function isPlainImportObject(value) {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function rejectInvalidImportShape() {
+    throw new Error('檔案格式不正確或已損毀。');
+}
+
+function validateImportedPresetShape(rawPreset) {
+    if (!isPlainImportObject(rawPreset)) {
+        rejectInvalidImportShape();
+    }
+    ['playerDetails', 'playerStats'].forEach(field => {
+        if (rawPreset[field] !== undefined && !isPlainImportObject(rawPreset[field])) {
+            rejectInvalidImportShape();
+        }
+    });
+    if (rawPreset.npcs !== undefined) {
+        if (!Array.isArray(rawPreset.npcs)) {
+            rejectInvalidImportShape();
+        }
+        rawPreset.npcs.forEach(npc => {
+            if (!isPlainImportObject(npc)) {
+                rejectInvalidImportShape();
+            }
+            if (npc.details !== undefined && !isPlainImportObject(npc.details)) {
+                rejectInvalidImportShape();
+            }
+            if (npc.dynamic !== undefined && !isPlainImportObject(npc.dynamic)) {
+                rejectInvalidImportShape();
+            }
+        });
+    }
+    if (rawPreset.scenarios !== undefined) {
+        if (!Array.isArray(rawPreset.scenarios)) {
+            rejectInvalidImportShape();
+        }
+        rawPreset.scenarios.forEach(scene => {
+            if (!isPlainImportObject(scene)) {
+                rejectInvalidImportShape();
+            }
+            if (scene.runtimeSituation !== undefined && !isPlainImportObject(scene.runtimeSituation)) {
+                rejectInvalidImportShape();
+            }
+        });
+    }
+    if (rawPreset.playerDynamic !== undefined && !isPlainImportObject(rawPreset.playerDynamic)) {
+        rejectInvalidImportShape();
+    }
+    return rawPreset;
+}
+
+function validateImportedSaveShape(rawSave) {
+    if (!isPlainImportObject(rawSave)) {
+        rejectInvalidImportShape();
+    }
+    if (rawSave.scenario !== undefined) {
+        validateImportedPresetShape(rawSave.scenario);
+    }
+    if (rawSave.scripts !== undefined) {
+        if (!Array.isArray(rawSave.scripts) || rawSave.scripts.some(page => !Array.isArray(page))) {
+            rejectInvalidImportShape();
+        }
+    }
+    if (rawSave.script !== undefined && !Array.isArray(rawSave.script)) {
+        rejectInvalidImportShape();
+    }
+    return rawSave;
+}
+
+function validateImportCollections(saves = {}, presets = {}) {
+    if (!isPlainImportObject(saves) || !isPlainImportObject(presets)) {
+        rejectInvalidImportShape();
+    }
+    Object.values(presets).forEach(validateImportedPresetShape);
+    Object.values(saves).forEach(validateImportedSaveShape);
+    return true;
 }
 
 function normalizeImportedPreset(rawPreset, sections = { characters: true, scenarios: true }) {
@@ -367,6 +447,7 @@ const importedPresets = importedData.type === 'journey-notes-preset'
 ? { imported: importedData.preset }
 : (importedData.scenarioPresets || importedData.presets || {});
 const sections = importedData.exportSections || { characters: true, scenarios: true };
+validateImportCollections({}, importedPresets);
 let count = 0;
 Object.values(importedPresets || {}).forEach(rawPreset => {
 if (!rawPreset || typeof rawPreset !== 'object' || Array.isArray(rawPreset)) return;

@@ -14,6 +14,9 @@ document.getElementById('save-menu-screen').style.display = 'flex'; renderSaveLi
 
 function backToSetup() { restoreSaveMenuFromSetupHome(); restoreJournalFromSetupHome(); document.getElementById('save-menu-screen').style.display = 'none'; document.getElementById('setup-screen').style.display = 'flex'; showHomeInfoView('main'); }
 function backToSaveMenu() {
+if (typeof invalidateGameAIRequestContext === 'function') {
+invalidateGameAIRequestContext();
+}
 saveCurrentProgress();
 if (journalEmbedded) closeAdventureJournal();
 const saveMenuScreen = document.getElementById('save-menu-screen');
@@ -231,6 +234,7 @@ const importedData = JSON.parse(event.target.result);
 const normalizedImport = normalizeImportPayload(importedData);
 const importedSaves = normalizedImport.saves;
 const importedPresets = normalizedImport.presets;
+validateImportCollections(importedSaves, importedPresets);
 if ((!importedSaves || typeof importedSaves !== 'object' || Array.isArray(importedSaves))
 && (!importedPresets || typeof importedPresets !== 'object' || Array.isArray(importedPresets))) {
 throw new Error('沒有可用的存檔或角色配置');
@@ -264,13 +268,38 @@ if (!rawSave || typeof rawSave !== 'object' || Array.isArray(rawSave)) return;
 const targetId = savesData[sourceId] ? `save_${Date.now()}_${Math.random().toString(36).slice(2, 7)}` : sourceId;
 const copiedSave = stripImagesAndPrivateData(getJsonClone(rawSave));
 const originalPresetId = copiedSave.scenario?.sourcePresetId || copiedSave.scenario?.id || '';
-if (originalPresetId && presetIdMap[originalPresetId]) {
-copiedSave.scenario.sourcePresetId = presetIdMap[originalPresetId];
-if (copiedSave.scenario.id === originalPresetId) copiedSave.scenario.id = presetIdMap[originalPresetId];
+const mappedPresetId = originalPresetId ? valueToText(presetIdMap[originalPresetId]) : '';
+if (mappedPresetId) {
+copiedSave.scenario.sourcePresetId = mappedPresetId;
+if (copiedSave.scenario.id === originalPresetId) {
+copiedSave.scenario.id = mappedPresetId;
+}
 }
 if (findExistingSaveForImport(copiedSave)) {
 skippedSaveCount += 1;
 return;
+}
+if (!mappedPresetId && copiedSave.scenario && typeof copiedSave.scenario === 'object') {
+const reusablePresetId = originalPresetId
+&& scenarioPresets[originalPresetId]
+&& getPresetImportSignature(scenarioPresets[originalPresetId]) === getPresetImportSignature(copiedSave.scenario)
+? originalPresetId
+: '';
+if (reusablePresetId) {
+copiedSave.scenario.sourcePresetId = reusablePresetId;
+copiedSave.scenario.id = reusablePresetId;
+} else {
+const snapshotId = getUniquePresetId(originalPresetId || `preset_imported_${Date.now()}`);
+const importedSnapshot = createPresetSnapshotFromScenario(copiedSave.scenario);
+importedSnapshot.id = snapshotId;
+importedSnapshot.presetName = valueToText(importedSnapshot.presetName, '未命名配置');
+importedSnapshot.isLocked = false;
+scenarioPresets[snapshotId] = importedSnapshot;
+copiedSave.scenario.sourcePresetId = snapshotId;
+copiedSave.scenario.id = snapshotId;
+copiedSave.scenario.presetName = importedSnapshot.presetName;
+clonedPresetCount += 1;
+}
 }
 /* 綁定的配置已被其他存檔占用 → 複製一份配置給這個匯入存檔,徹底切斷共用 */
 const boundPresetId = valueToText(copiedSave.scenario?.sourcePresetId || copiedSave.scenario?.id);
@@ -300,8 +329,21 @@ saveCount += 1;
 });
 presetCount += clonedPresetCount;
 if (!saveCount && !presetCount && !skippedSaveCount) throw new Error('沒有可用的存檔或角色配置');
-persistJson('sanko_scenario_presets_v2', scenarioPresets, '匯入角色配置');
-persistJson('sanko_saves_v8', savesData, '匯入存檔');
+const presetsPersisted = persistJson('sanko_scenario_presets_v2', scenarioPresets, '匯入角色配置');
+const savesPersisted = persistJson('sanko_saves_v8', savesData, '匯入存檔');
+if (!presetsPersisted || !savesPersisted) {
+throw new Error('無法寫入瀏覽器資料庫。請先匯出備份，並確認瀏覽器沒有封鎖本機儲存。');
+}
+const importedActivePresetId = valueToText(importedData.activePresetId);
+const restoredActivePresetId = valueToText(presetIdMap[importedActivePresetId])
+|| (scenarioPresets[importedActivePresetId] ? importedActivePresetId : '');
+if (restoredActivePresetId) {
+activePresetId = restoredActivePresetId;
+localStorage.setItem('sanko_active_preset_id', activePresetId);
+}
+if (importedData.uiTheme && typeof importedData.uiTheme === 'object' && !Array.isArray(importedData.uiTheme)) {
+applyUiTheme(importedData.uiTheme, true);
+}
 renderPresetSelector();
 renderSaveList();
 if (preservedUiLanguage && window.setUiLanguage) {
@@ -335,6 +377,14 @@ reader.readAsText(file);
             savesData[currentSaveId].chatPageIndex = currentChatPageIndex;
             savesData[currentSaveId].hp = normalizeSurvivalValue(currentHp, 100);
             savesData[currentSaveId].san = normalizeSurvivalValue(currentSan, 100);
+            savesData[currentSaveId].survivalState = {
+                graceTurns: Math.max(0, Math.min(3, Math.floor(Number(survivalGraceTurns)) || 0)),
+                pendingLastStand: pendingLastStand === true,
+                pendingLastStandReason: pendingLastStand
+                    ? valueToText(pendingLastStandReason).slice(0, 80)
+                    : '',
+                restJustUsed: restJustUsed === true
+            };
             savesData[currentSaveId].items = currentItems;
             savesData[currentSaveId].itemEffects = itemEffects;
             savesData[currentSaveId].achievementCount = achievementCount;
@@ -858,7 +908,8 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
             return validModels;
         }
 
-        async function fetchAnthropicModels() {
+        async function fetchAnthropicModels(options = {}) {
+            const allowFallback = options.allowFallback !== false;
             const fallbackModels = [
                 { id: 'claude-opus-4-8', name: 'Claude Opus 4.8', context_length: 200000 },
                 { id: 'claude-sonnet-5', name: 'Claude Sonnet 5', context_length: 200000 },
@@ -876,6 +927,11 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
                 const data = await res.json();
                 if (!res.ok || data.error) {
                     if (res.status === 401 || res.status === 403) throw new Error(data.error?.message || 'Anthropic API 金鑰無效或沒有權限。');
+                    if (!allowFallback) {
+                        const validationError = new Error(data.error?.message || '');
+                        validationError.status = res.status;
+                        throw validationError;
+                    }
                     return fallbackModels;
                 }
                 const list = (data.data || [])
@@ -884,6 +940,9 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
                 return list.length ? list : fallbackModels;
             } catch (error) {
                 if (/金鑰|無效|沒有權限|invalid|unauthor|forbidden/i.test(String(error?.message || ''))) throw error;
+                if (!allowFallback) {
+                    throw error;
+                }
                 return fallbackModels;
             }
         }
@@ -902,7 +961,11 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
                 sessionApiKeys[apiProvider] = apiKey;
 
                 const preferredModel = localStorage.getItem(getModelStorageKey(apiProvider)) || selectedModel || '';
-                const models = apiProvider === 'openrouter' ? await fetchOpenRouterModels() : apiProvider === 'anthropic' ? await fetchAnthropicModels() : await fetchGoogleModels();
+                const models = apiProvider === 'openrouter'
+                    ? await fetchOpenRouterModels()
+                    : apiProvider === 'anthropic'
+                        ? await fetchAnthropicModels({ allowFallback: false })
+                        : await fetchGoogleModels();
                 populateModelSelects(models, preferredModel);
                 if (rememberApiKey) persistApiKey(apiProvider, apiKey);
                 else removePersistedApiKeys();
@@ -1002,6 +1065,9 @@ dialogues only lists actual speakers. options must contain exactly 3 entries, us
             const newIndex = Number.parseInt(indexStr, 10);
             if (!Number.isInteger(newIndex) || !currentScenario.scenarios?.[newIndex]) return;
             if (newIndex === currentScenarioIndex && newIndex === currentChatPageIndex) return;
+            if (typeof invalidateGameAIRequestContext === 'function') {
+                invalidateGameAIRequestContext();
+            }
 
             /* 翻頁式轉場(2026/07/10 定案):舊內容上淡出→切場景→新內容下浮入,外框不動 */
             const doSwitch = () => {

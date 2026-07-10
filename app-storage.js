@@ -316,10 +316,13 @@
         async function initializePersistentStorage() {
             try {
                 await openGameDatabase();
+                const migratedLegacyKeys = [];
                 for (const key of INDEXED_DATA_KEYS) {
                     const storedValue = await readIndexedValue(key);
                     if (storedValue !== undefined) {
-                        localStorage.removeItem(key);
+                        if (localStorage.getItem(key) !== null) {
+                            migratedLegacyKeys.push(key);
+                        }
                         continue;
                     }
                     const legacyValue = localStorage.getItem(key);
@@ -330,8 +333,9 @@
                         catch (error) { console.warn(`略過損毀的舊資料：${key}`, error); continue; }
                     }
                     await writeIndexedValue(key, migratedValue);
-                    localStorage.removeItem(key);
+                    migratedLegacyKeys.push(key);
                 }
+                migratedLegacyKeys.forEach(key => localStorage.removeItem(key));
                 indexedDatabaseReady = true;
                 return true;
             } catch (error) {
@@ -379,7 +383,11 @@
                 const providerSelect = document.getElementById('api-provider');
                 if (providerSelect) providerSelect.value = apiProvider;
 
-                const hasPersistedKey = Boolean(getPersistedApiKey('google') || getPersistedApiKey('openrouter'));
+                const hasPersistedKey = Boolean(
+                    getPersistedApiKey('google')
+                    || getPersistedApiKey('openrouter')
+                    || getPersistedApiKey('anthropic')
+                );
                 const savedRememberPreference = localStorage.getItem('sanko_remember_api_key');
                 rememberApiKey = hasPersistedKey || savedRememberPreference === 'true';
                 localStorage.setItem('sanko_remember_api_key', String(rememberApiKey));
@@ -415,6 +423,11 @@ ensureGameModelSelectReady();
                     scenarioPresets = savedPresets;
                     let presetRuntimeStateRemoved = false;
                     for(let k in scenarioPresets) {
+                        if (!scenarioPresets[k] || typeof scenarioPresets[k] !== 'object' || Array.isArray(scenarioPresets[k])) {
+                            delete scenarioPresets[k];
+                            presetRuntimeStateRemoved = true;
+                            continue;
+                        }
                         if(!scenarioPresets[k].playerStats) {
                             scenarioPresets[k].playerStats = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
                         }
@@ -426,11 +439,17 @@ ensureGameModelSelectReady();
                         if(!scenarioPresets[k].gameDifficulty) { scenarioPresets[k].gameDifficulty = 'standard'; }
                         
                         // 舊存檔相容
-                        if(!scenarioPresets[k].playerDetails) {
+                        if(!scenarioPresets[k].playerDetails
+                            || typeof scenarioPresets[k].playerDetails !== 'object'
+                            || Array.isArray(scenarioPresets[k].playerDetails)) {
                             scenarioPresets[k].playerDetails = { age: '', speech: '', likes: '', dislikes: '', app: '', bg: scenarioPresets[k].playerPersona || '' };
+                            presetRuntimeStateRemoved = true;
                         }
                         
-                        if(!scenarioPresets[k].npcs) {
+                        const validNpcs = Array.isArray(scenarioPresets[k].npcs)
+                            ? scenarioPresets[k].npcs.filter(n => n && typeof n === 'object' && !Array.isArray(n))
+                            : [];
+                        if(!validNpcs.length) {
                             scenarioPresets[k].npcs = [{
                                 id: 'npc_' + Date.now(),
                                 name: scenarioPresets[k].targetName || '未知目標',
@@ -438,15 +457,31 @@ ensureGameModelSelectReady();
                                 details: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: scenarioPresets[k].targetPersona || '' },
                                 affection: 0
                             }];
+                            presetRuntimeStateRemoved = true;
                         } else {
+                            if (validNpcs.length !== scenarioPresets[k].npcs.length) {
+                                presetRuntimeStateRemoved = true;
+                            }
+                            scenarioPresets[k].npcs = validNpcs;
                             scenarioPresets[k].npcs.forEach(n => { 
                                 if (n.affection === undefined) n.affection = 0; 
-                                if (!n.details) n.details = { age: '', speech: '', likes: '', dislikes: '', app: '', bg: n.persona || '' };
+                                if (!n.details || typeof n.details !== 'object' || Array.isArray(n.details)) {
+                                    n.details = { age: '', speech: '', likes: '', dislikes: '', app: '', bg: n.persona || '' };
+                                    presetRuntimeStateRemoved = true;
+                                }
                             });
                         }
-                        if(!scenarioPresets[k].scenarios) {
+                        const validScenarios = Array.isArray(scenarioPresets[k].scenarios)
+                            ? scenarioPresets[k].scenarios.filter(sc => sc && typeof sc === 'object' && !Array.isArray(sc))
+                            : [];
+                        if(!validScenarios.length) {
                             scenarioPresets[k].scenarios = [{name: '預設場景', lore: '', npcRoles: scenarioPresets[k].targetRole || '', playerRole: '', transitionRule: ''}];
+                            presetRuntimeStateRemoved = true;
                         } else {
+                            if (validScenarios.length !== scenarioPresets[k].scenarios.length) {
+                                presetRuntimeStateRemoved = true;
+                            }
+                            scenarioPresets[k].scenarios = validScenarios;
                             scenarioPresets[k].scenarios.forEach(sc => {
                                 if(sc.npcRoles === undefined) sc.npcRoles = sc.targetRole || '';
                                 if(sc.playerRole === undefined) sc.playerRole = '';
@@ -460,6 +495,10 @@ ensureGameModelSelectReady();
                             scenarioPresets[k] = createPresetSnapshotFromScenario(scenarioPresets[k], scenarioPresets[k]);
                             presetRuntimeStateRemoved = true;
                         }
+                    }
+                    if (!Object.keys(scenarioPresets).length) {
+                        scenarioPresets = { 'default': clonePersistentValue(defaultPreset) };
+                        presetRuntimeStateRemoved = true;
                     }
                     if (presetRuntimeStateRemoved) persistJson('sanko_scenario_presets_v2', scenarioPresets, '清理角色配置中的遊戲進度');
                 } else {

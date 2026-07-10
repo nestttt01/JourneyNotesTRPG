@@ -172,6 +172,31 @@
             activeAIAbortController.abort();
         }
 
+        let gameAIRequestContextVersion = 0;
+        function invalidateGameAIRequestContext() {
+            gameAIRequestContextVersion += 1;
+            cancelActiveAIRequest();
+        }
+
+        function captureGameAIRequestContext() {
+            return {
+                version: gameAIRequestContextVersion,
+                saveId: currentSaveId,
+                scenarioIndex: currentScenarioIndex,
+                chatPageIndex: currentChatPageIndex,
+                chatScriptsRef: chatScripts
+            };
+        }
+
+        function isGameAIRequestContextCurrent(context) {
+            return Boolean(context)
+                && context.version === gameAIRequestContextVersion
+                && context.saveId === currentSaveId
+                && context.scenarioIndex === currentScenarioIndex
+                && context.chatPageIndex === currentChatPageIndex
+                && context.chatScriptsRef === chatScripts;
+        }
+
         function isRetryableAIRequestError(error) {
             if (error?.retryable === true) return true;
             if (error?.name === 'TypeError' || error?.name === 'SyntaxError') return true;
@@ -627,6 +652,10 @@ ${rawAction}
             return {
                 hp: currentHp,
                 san: currentSan,
+                survivalGraceTurns,
+                pendingLastStand,
+                pendingLastStandReason,
+                restJustUsed,
                 items: currentItems.slice(),
                 itemEffects: { ...(itemEffects || {}) },
                 flags: currentFlags.slice(),
@@ -649,6 +678,10 @@ ${rawAction}
             if (!snap) return;
             currentHp = snap.hp;
             currentSan = snap.san;
+            survivalGraceTurns = snap.survivalGraceTurns;
+            pendingLastStand = snap.pendingLastStand;
+            pendingLastStandReason = snap.pendingLastStandReason;
+            restJustUsed = snap.restJustUsed;
             currentItems = snap.items;
             itemEffects = snap.itemEffects;
             currentFlags = snap.flags;
@@ -1023,13 +1056,23 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
         }
 
         async function callAI_JSON(extraPrompt = "", isOpening = false, latestPlayerAction = "", manualAffectionNpcIds = [], protectedRevivedNpcIds = []) {
+            const requestContext = captureGameAIRequestContext();
             const profile = getModelRuntimeProfile();
             const fullPrompt = buildGamePrompt(extraPrompt, latestPlayerAction, profile);
 
             try {
                 const rawText = await requestAIText(fullPrompt, { kind: 'normal', maxTokens: profile.normalMaxTokens });
+                if (!isGameAIRequestContextCurrent(requestContext)) {
+                    return;
+                }
                 let parsedData = await parseAIJsonWithRepair(rawText, fullPrompt);
+                if (!isGameAIRequestContextCurrent(requestContext)) {
+                    return;
+                }
                 parsedData = await repairVisibleResponseLanguage(parsedData);
+                if (!isGameAIRequestContextCurrent(requestContext)) {
+                    return;
+                }
                 /* 快照:自此以下開始改動遊戲狀態;若套用途中出錯,回滾後再交給外層 catch,
                    確保 catch 裡的 saveCurrentProgress() 不會把半套用狀態寫進存檔。 */
                 const applySnapshot = captureApplyStateSnapshot();
@@ -1043,6 +1086,9 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                     throw applyError;
                 }
             } catch (error) {
+                if (!isGameAIRequestContextCurrent(requestContext)) {
+                    return;
+                }
                 recoverFromAIFailure(error, isOpening);
             }
         }
