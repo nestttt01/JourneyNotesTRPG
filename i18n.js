@@ -658,6 +658,7 @@
         '目前沒有資料可以匯出。': ['There is no data to export.', 'エクスポートするデータがありません。'],
         '請貼上你的 API Key！': ['Please paste your API key.', 'APIキーを貼り付けてください。'],
         '這份存檔格式不正確，無法載入。': ['This save has an invalid format and cannot be loaded.', 'このデータ形式は正しくないため読み込めません。'],
+        '這份舊紀錄缺少原始配置快照，無法還原當時的角色與情境設定。已為它建立獨立的空白配置，並保留原有對話與進度；請在角色配置中補回設定。': ['This legacy save is missing its original preset snapshot, so its previous character and scenario settings cannot be restored. A separate blank preset was created for this save, while its dialogue and progress were preserved. Re-enter the missing settings in Presets.', 'この古いデータには元の設定スナップショットがないため、当時のキャラクターとシナリオ設定は復元できません。このデータ専用の空の設定を作成し、会話と進行状況は保持しました。設定画面で不足している内容を補ってください。'],
         '找不到這名角色，頭像未變更。': ['Character not found. The avatar was not changed.', 'キャラクターが見つからないため、画像は変更されませんでした。'],
         '請先輸入你打算做什麼，再來擲骰子喔！': ['Enter what you want to do before rolling.', '先に行動を入力してからダイスを振ってください。'],
         '「神」模式是創作者指令，不使用玩家六圍。請按一般發送。': ['Creator mode does not use player attributes. Use Send instead.', '「神」モードは能力値を使いません。通常送信を使用してください。'],

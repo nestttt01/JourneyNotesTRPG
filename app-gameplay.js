@@ -528,21 +528,86 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             setTimeout(() => t.remove(), 1400);
         }
 
+        function createIsolatedLegacySaveScenario(saveId, saveData) {
+            const presetId = getUniquePresetId(`preset_legacy_${String(saveId || Date.now())}`);
+            const presetName = valueToText(saveData?.title, uiText('未命名配置'));
+            const savedPageCount = Array.isArray(saveData?.scripts)
+                ? Math.min(100, saveData.scripts.length)
+                : 1;
+            const savedScenarioIndex = Math.max(0, Math.min(99, Math.floor(Number(saveData?.scenIndex)) || 0));
+            const scenarioCount = Math.max(1, savedPageCount, savedScenarioIndex + 1);
+            const preset = {
+                id: presetId,
+                presetName,
+                playerName: uiText('玩家'),
+                playerAvatar: emptyAvatar,
+                playerStats: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+                isLocked: false,
+                statsLocked: false,
+                languageMode: 'zh-tw',
+                gameDifficulty: 'standard',
+                playerDetails: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: '' },
+                npcs: [{
+                    id: 'npc_legacy_recovery',
+                    name: uiText('新角色'),
+                    avatar: emptyAvatar,
+                    details: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: '' },
+                    affection: Math.max(-100, Math.min(100, Math.round(Number(saveData?.love)) || 0))
+                }],
+                scenarios: Array.from({ length: scenarioCount }, (_, index) => ({
+                    name: index === 0 ? presetName : `${presetName} ${index + 1}`,
+                    lore: '',
+                    npcRoles: '',
+                    playerRole: '',
+                    transitionRule: ''
+                }))
+            };
+            const scenario = createFreshScenarioFromPreset(preset);
+            scenario.sourcePresetId = presetId;
+            scenario.id = presetId;
+            return { presetId, preset, scenario };
+        }
+
         function loadGame(id) {
             const saveData = savesData[id];
             if (!saveData || typeof saveData !== 'object' || Array.isArray(saveData)) {
-                alert('這份存檔格式不正確，無法載入。');
+                alert(uiText('這份存檔格式不正確，無法載入。'));
                 return;
- }
- if (typeof invalidateGameAIRequestContext === 'function') {
-     invalidateGameAIRequestContext();
- }
- currentSaveId = id;
- const fallbackScenario = scenarioPresets[activePresetId] || defaultPreset;
-if (!saveData.scenario || typeof saveData.scenario !== 'object' || Array.isArray(saveData.scenario)) {
-saveData.scenario = JSON.parse(JSON.stringify(fallbackScenario));
-}
-saveData.scenario = getCanonicalScenarioForSave(saveData.scenario);
+            }
+            const scenarioMissing = saveData.scenario === undefined || saveData.scenario === null;
+            if (!scenarioMissing && (typeof saveData.scenario !== 'object' || Array.isArray(saveData.scenario))) {
+                alert(uiText('這份存檔格式不正確，無法載入。'));
+                return;
+            }
+            if (scenarioMissing) {
+                const originalScenario = saveData.scenario;
+                const recovery = createIsolatedLegacySaveScenario(id, saveData);
+                scenarioPresets[recovery.presetId] = recovery.preset;
+                saveData.scenario = recovery.scenario;
+                const presetSaved = persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置');
+                const saveSaved = presetSaved && persistSingleSave(id, '遊戲存檔');
+                if (!presetSaved || !saveSaved) {
+                    delete scenarioPresets[recovery.presetId];
+                    if (originalScenario === undefined) {
+                        delete saveData.scenario;
+                    } else {
+                        saveData.scenario = originalScenario;
+                    }
+                    if (presetSaved) {
+                        persistJson('sanko_scenario_presets_v2', scenarioPresets, '角色配置');
+                    }
+                    return;
+                }
+                if (typeof renderPresetSelector === 'function') {
+                    renderPresetSelector();
+                }
+                alert(uiText('這份舊紀錄缺少原始配置快照，無法還原當時的角色與情境設定。已為它建立獨立的空白配置，並保留原有對話與進度；請在角色配置中補回設定。'));
+            }
+            if (typeof invalidateGameAIRequestContext === 'function') {
+                invalidateGameAIRequestContext();
+            }
+            currentSaveId = id;
+            saveData.scenario = getCanonicalScenarioForSave(saveData.scenario);
 
 if(saveData.scenario) {
                 currentScenario = saveData.scenario; 
