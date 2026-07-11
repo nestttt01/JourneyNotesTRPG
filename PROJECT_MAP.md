@@ -368,4 +368,6 @@
 
 範例：
 
-> 請只改桌機角色配置的配置列表排版。
+> 請只改桌機角色配置的配置列表排版。不要動存檔格式、AI prompt、手機版。改完請列出 CSS selector，並對你改到的 `app-*.js` 跑 `node --check`（例如 `node --check app-config-ui.js`）/ `node --check i18n.js`。
+
+> 請整理冒險日誌分頁按鈕，不新增功能。保留任務完成與成就保護規則。不要改備份匯出。

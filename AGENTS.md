@@ -11,6 +11,7 @@
 
 - `AGENTS.md`：唯一現行專案規則來源，Claude 與 Codex 共用。
 - `PROJECT_MAP.md`：只記錄目前架構、載入順序、函式位置與危險區，不是規則替代品。
+- `TECH_DEBT.md`：只記錄技術債、風險與漸進處理建議；不是現行規則來源，列出的項目也不代表可以直接刪除或重構。
 - `PROJECT_HISTORY.md`、交接文件與盤點文件：只供查閱歷史，不得拿舊描述覆蓋現行規則或程式碼。
 - `CLAUDE.md`：只負責引導 Claude 閱讀前述文件，不複製規則。
 - 使用者當次任務可以縮小修改範圍；若任務、工具高層限制與本檔互相衝突，停止寫入並列出衝突，不得自行猜測或靜默降級。
@@ -52,7 +53,7 @@
 
 - Claude Cowork、AI sandbox、同步／workspace 掛載層，或其他已知會局部落盤、可能讀到舊快取的通道，禁止使用 Edit／Write／apply_patch／patch 類工具修改本專案。
 - Codex 桌面版或 CLI 若直接操作使用者本機 workspace、不經上述 sandbox／同步掛載層，其原生 `apply_patch` 可作為允許例外。
-- 使用 Codex 原生 `apply_patch` 前，仍須完成寫前 bytes／SHA-256 確認、第二讀取通道比對（可取得時），以及私有 MD 的工作區外交易備份；只可精準修改必要區塊。
+- 使用 Codex 原生 `apply_patch` 前，仍須完成寫前 bytes／SHA-256 確認、第二讀取通道比對（可取得時）；修改未追蹤／私有 MD 前另須建立工作區外交易備份，已納入 Git 的四份核心文件則依「私有 MD 的交易備份與持久歸檔」節的追蹤檔規則處理。只可精準修改必要區塊。
 - 此例外不豁免單一寫入者、UTF-8／換行、預期 bytes 全等、錨點／檔尾、語法、可讀 diff、立即驗證、延遲複驗與跨通道複驗。
 - 若無法確認工具是否直接操作本機 workspace，或任何讀取通道的 bytes／SHA-256 不一致，立即停止寫入，不得自行選一份覆蓋。
 - 禁止用 PowerShell 的 `Get-Content | Set-Content`、`Out-File`、`Add-Content`、`>`、`>>` 或其他文字管線改寫原始碼。
