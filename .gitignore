@@ -9,6 +9,11 @@ _cleanup_bak/
 
 # 內部筆記／教學文件（不上傳到公開 repo）
 *.md
+# 例外：現行規則與帳本文件納入版本控制（2026-07-11 起）
+!AGENTS.md
+!PROJECT_MAP.md
+!TECH_DEBT.md
+!CLAUDE.md
 
 _handoff/
 
