@@ -341,9 +341,6 @@ if (restoredActivePresetId) {
 activePresetId = restoredActivePresetId;
 localStorage.setItem('sanko_active_preset_id', activePresetId);
 }
-if (importedData.uiTheme && typeof importedData.uiTheme === 'object' && !Array.isArray(importedData.uiTheme)) {
-applyUiTheme(importedData.uiTheme, true);
-}
 renderPresetSelector();
 renderSaveList();
 if (preservedUiLanguage && window.setUiLanguage) {
@@ -1123,4 +1120,3 @@ dialogues only lists actual speakers. options must contain exactly 3 entries; op
                 window.setTimeout(() => dialogueBox.classList.remove('scene-page-in'), 320);
             }, 210);
         }
-

@@ -210,7 +210,7 @@
 - 重複匯入同一份記錄檔備份時，應偵測內容指紋並略過重複存檔，不要一直建立同名副本。
 - 修改 `buildBackupPayload()`、`sanitizeSavesCollection()`、`sanitizePresetCollection()`、`stripImagesAndPrivateData()` 前，必須先確認是否會改變匯出內容。
 - `saveCurrentProgress()` 是主要保存入口，請勿把非存檔資料混進遊戲紀錄。
-- 匯出資料目前應保留遊戲紀錄、頁面配色、人物設定、情境配置；API key 不可包含。
+- 記錄檔／完整備份只保留遊戲紀錄與角色配置（含人物與情境）；不得包含頁面配色、外觀設定或 API key。匯入舊備份時即使存在 `uiTheme` 也必須忽略，保留目前裝置的外觀。
 - 修改匯入流程時，避免破壞舊備份檔相容性。
 
 ## UI / CSS 規則

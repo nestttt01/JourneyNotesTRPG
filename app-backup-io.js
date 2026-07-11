@@ -115,7 +115,6 @@ exportedAt: new Date().toISOString(),
 saves: sanitizeSavesCollection(savesData, saveIds),
 scenarioPresets: sanitizePresetCollection(scenarioPresets, presetSections, referencedPresetIds),
 activePresetId,
-uiTheme: normalizeUiTheme(uiTheme),
 privacy: {
 excludes: ['apiKeys', 'homePhoto', 'privateTokens']
 }
@@ -512,4 +511,3 @@ reader.readAsText(file);
             "en-zh": "英文台詞 + 繁中翻譯",
             "auto": "自動依玩家語言"
         };
-

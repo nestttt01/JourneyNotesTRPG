@@ -16,7 +16,7 @@
 - `app-core.js`：啟動、`window.onerror`、全域狀態變數、`getModelRuntimeProfile()`、首頁導覽外殼、UI 主題、材質切換（Classic/Liquid Glass）。
 - `app-storage.js`：IndexedDB／localStorage 持久化層、兩階段舊資料遷移、`window.onload` 主載入與損壞配置修復。
 - `app-ui-helpers.js`：`loadPic`、首頁語言切換、玩家屬性骰點、頭像裁切 modal。
-- `app-backup-io.js`：匯出匯入、sanitize、`buildBackupPayload()`、`validateImportCollections()`、頁面配色備份、存檔選取、`importPresetConfig()`。
+- `app-backup-io.js`：匯出匯入、sanitize、`buildBackupPayload()`、`validateImportCollections()`、存檔選取、`importPresetConfig()`。
 - `app-memory.js`：語言指令、API 用量統計、`uiText` 系列、冒險日誌／記憶／任務清單輔助。
 - `app-scenario-state.js`：`persistJson()`、情境快照、動態狀態、NPC 死亡與好感、狀態摘要渲染。
 - `app-api.js`：API key 與模型（危險區）。
@@ -159,7 +159,7 @@
 - `createNewSave()`：建立新紀錄。
 - `loadSave()`：載入紀錄。
 - `deleteSelectedSaves()`：刪除選取紀錄。
-- `buildBackupPayload()`：組合完整備份資料，包含正規化後的 `uiTheme`，仍不得包含 API key。
+- `buildBackupPayload()`：組合完整備份資料，只包含遊戲紀錄、角色配置與必要識別資訊；不得包含 `uiTheme` 或 API key。
 - `sanitizeSavesCollection()`：匯出前清理存檔。
 - `sanitizePresetCollection()`：匯出前清理配置。
 - `exportSaves()`：匯出備份。
@@ -180,7 +180,7 @@
 - 匯入同一份備份時，`getSaveImportSignature()`／`findExistingSaveForImport()` 會略過重複存檔。
 - 完整備份匯入配置時，只在原始 ID 與內容簽章相符時重用；衝突時建立獨立快照並重新綁定，避免覆寫本機同 ID 配置。
 - 直接匯入配置檔（`importPresetConfig()`）一律建立獨立副本：ID 或名稱碰撞時自動改名「（匯入N）」；內容完全相同時先 confirm，取消則沿用既有配置不建副本（`forceCopy`／`confirmIdenticalReuse` 選項）。
-- 完整備份會保存並還原頁面配色；持久化回報失敗時匯入必須中止並顯示錯誤。
+- 完整備份不得保存或還原頁面配色；匯入舊備份時必須忽略 `uiTheme` 並保留目前裝置外觀。持久化回報失敗時匯入必須中止並顯示錯誤。
 
 ### AI Prompt / 回覆解析　〔模組：app-ai.js（`buildLatestActionPrompt()`／`buildGamePrompt()`／`callAI_JSON()`／`requestAIText()`／JSON 修復／語言修復）；`getCompactSystemInstruction()`／`buildSceneTransitionPrompt()` 在 app-saves-game.js〕
 
