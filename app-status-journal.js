@@ -344,9 +344,11 @@ function openStatusModal() {
         function setStatusPanelOpen(isOpen) {
             const statusModal = document.getElementById('status-modal');
             if (!statusModal) return;
+            const wasOpen = statusModal.style.display === 'block';
             statusModal.style.display = isOpen ? 'block' : 'none';
             document.body.classList.toggle('status-panel-open', Boolean(isOpen));
-            if (typeof resetStatusModalDrag === 'function') resetStatusModalDrag();
+            /* 只在開關狀態改變時重置拖曳；面板開著時的內容刷新（AI 回合後）不得把拖走的面板彈回原位 */
+            if (Boolean(isOpen) !== wasOpen && typeof resetStatusModalDrag === 'function') resetStatusModalDrag();
             if (isOpen) statusModal.scrollTop = 0;
         }
 

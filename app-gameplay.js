@@ -2235,12 +2235,18 @@ function animateSurvivalOptions() {
     if (!state.hover) return;
     const dx = state.tx - state.x;
     const dy = state.ty - state.y;
-    state.x += Math.sign(dx) * Math.min(2, Math.abs(dx));
-    state.y += Math.sign(dy) * Math.min(1, Math.abs(dy));
-    btn.style.transform = `translate3d(${state.x}px, ${state.y}px, 0)`;
-    if (state.x !== state.tx || state.y !== state.ty) {
-        scheduleSurvivalOptionAnimation();
+    /* 指數緩動（原版手感）：每幀走剩餘距離的 5.8%，越接近越慢，保留「默默滑開」的黏滯感；
+       距離小於 0.5px 時直接吸附到位並停止排程，避免 SAN 恢復後動畫殘留。 */
+    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+        state.x = state.tx;
+        state.y = state.ty;
+        btn.style.transform = `translate3d(${state.tx}px, ${state.ty}px, 0)`;
+        return;
     }
+    state.x += dx * 0.058;
+    state.y += dy * 0.058;
+    btn.style.transform = `translate3d(${state.x.toFixed(1)}px, ${state.y.toFixed(1)}px, 0)`;
+    scheduleSurvivalOptionAnimation();
 }
 
 function ensureSurvivalOptionInterference() {
