@@ -522,7 +522,17 @@ const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.sty
             if (banner) banner.remove();
         }
         function tinyToast(msg) {
-        const t = document.createElement('div'); t.className = 'tiny-toast'; t.textContent = (typeof uiText === 'function') ? uiText(msg) : msg;
+            let text = msg;
+            if (typeof window.uiSystemMessage === 'function') {
+                text = window.uiSystemMessage(msg);
+            } else if (typeof window.uiMessage === 'function') {
+                text = window.uiMessage(msg);
+            } else if (typeof uiText === 'function') {
+                text = uiText(msg);
+            }
+            const t = document.createElement('div');
+            t.className = 'tiny-toast';
+            t.textContent = text;
             document.body.appendChild(t);
             requestAnimationFrame(() => t.classList.add('show'));
             setTimeout(() => t.remove(), 1400);

@@ -1597,7 +1597,7 @@ renderAdventureJournal();
                 journalPageIndex = 0;
                 renderAdventureJournalSaveSelector();
                 renderAdventureJournal();
- if (typeof tinyToast === 'function') tinyToast('冒險紀錄已整理完成；如不滿意可按「復原上次整理」。');
+ if (typeof tinyToast === 'function') tinyToast('冒險紀錄已整理；若結果不如預期，可按「還原」。');
             } catch (error) {
                 console.error(error);
                 alert(`${getFriendlyErrorMessage(error, 'AI 暫時無法完成整理。')}\n原本內容沒有被刪除。`);

@@ -689,7 +689,7 @@
         '無法刪除當前所在的情境！請先返回遊戲切換到其他情境後，再來進行刪除。': ['You cannot delete the active scenario. Switch to another scenario first.', '現在いるシナリオは削除できません。別のシナリオへ移動してください。'],
         '這筆紀錄不能是空白；若要移除請按「刪除此筆」。': ['This entry cannot be blank. Use Delete Entry to remove it.', '記録を空欄にはできません。削除する場合は「この項目を削除」を使用してください。'],
         '整理會合併語意重複的事件。系統會先保留備份，確定要繼續嗎？': ['Organizing merges semantically duplicate events. A backup will be kept. Continue?', '整理すると意味の重複するイベントを統合します。バックアップを保存して続行しますか？'],
-        '冒險紀錄已整理完成；如不滿意可按「復原上次整理」。': ['Adventure log organized. Use Undo Last Organize if needed.', '冒険記録を整理しました。必要なら「前回の整理を戻す」を使用してください。'],
+        '冒險紀錄已整理；若結果不如預期，可按「還原」。': ['Adventure log organized. If the result is not as expected, press “Undo”.', '冒険日誌を整理しました。結果が期待どおりでない場合は「元に戻す」を押してください。'],
         '這份存檔目前沒有可復原的整理備份。': ['This save has no organization backup to restore.', 'このデータには復元できる整理バックアップがありません。'],
         '目前沒有可復原的整理備份。': ['There is no organization backup to restore.', '復元できる整理バックアップがありません。'],
         '已復原整理前的完整冒險紀錄。': ['The adventure log was restored.', '整理前の冒険記録を復元しました。'],

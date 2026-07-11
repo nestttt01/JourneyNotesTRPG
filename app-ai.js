@@ -471,7 +471,9 @@ ${JSON.stringify(visiblePayload)}`;
                 }
                 refreshMemoryEditorFields();
                 saveCurrentProgress();
-                alert(kind === 'log' ? '冒險紀錄已整理完成；如不滿意可按「復原上次整理」。' : '摘要與任務清單已整理完成。');
+                tinyToast(kind === 'log'
+                    ? '冒險紀錄已整理；若結果不如預期，可按「還原」。'
+                    : '摘要與任務清單已整理完成。');
             } catch (error) {
                 console.error(error);
                 alert(`${getFriendlyErrorMessage(error, 'AI 暫時無法完成整理。')}\n原本的內容沒有被刪除。`);

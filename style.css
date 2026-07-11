@@ -595,8 +595,11 @@ z-index: 10;
         }
         .status-log-view-title {
             margin: 0 0 3px;
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
             font-size: 16px;
-            font-weight: 900;
+            font-synthesis: none;
+            font-weight: 400;
+            letter-spacing: 1px;
             line-height: 1.35;
         }
         .status-log-view-divider {
