@@ -2385,7 +2385,8 @@ function getRequiredSurvivalFlags() {
             }
 
             let survivalRoll = null;
-            let gameOver = mode.gameOver === 'forced';
+            /* 極限模式已在上方 early-return 進「最後掙扎」，此處只會是標準/困難模式 */
+            let gameOver = false;
 
             if (mode.gameOver === 'possible') {
                 survivalRoll = forcedRoll === null ? Math.floor(Math.random() * 20) + 1 : Math.max(1, Math.min(20, Math.round(forcedRoll)));
@@ -2394,9 +2395,7 @@ function getRequiredSurvivalFlags() {
 
             if (gameOver) {
                 savesData[currentSaveId].gameOver = { reason, mode: mode.key, roll: survivalRoll, at: new Date().toLocaleString() };
-                createSystemAlert(mode.gameOver === 'forced'
-                    ? `— GAME OVER：${reason}（極限模式）—`
-                    : `— 生死檢定失敗：D20 ${survivalRoll}，GAME OVER —`);
+                createSystemAlert(`— 生死檢定失敗：D20 ${survivalRoll}，GAME OVER —`);
                 applyGameOverUi();
                 return { gameOver: true, roll: survivalRoll, reason };
             }
