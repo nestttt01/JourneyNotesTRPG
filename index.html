@@ -37,6 +37,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <svg class="theme-svg-sprite" aria-hidden="true" focusable="false">
+        <symbol id="theme-icon-home" viewBox="0 0 24 24">
+            <path d="M 12 2 A 1 1 0 0 0 11.289062 2.296875 L 1.203125 11.097656 A 0.5 0.5 0 0 0 1 11.5 A 0.5 0.5 0 0 0 1.5 12 L 4 12 L 4 20 C 4 20.552 4.448 21 5 21 L 9 21 C 9.552 21 10 20.552 10 20 L 10 14 L 14 14 L 14 20 C 14 20.552 14.448 21 15 21 L 19 21 C 19.552 21 20 20.552 20 20 L 20 12 L 22.5 12 A 0.5 0.5 0 0 0 23 11.5 A 0.5 0.5 0 0 0 22.796875 11.097656 L 12.716797 2.3027344 A 1 1 0 0 0 12.710938 2.296875 A 1 1 0 0 0 12 2 Z"></path>
+        </symbol>
+        <symbol id="theme-icon-up" viewBox="0 0 154.684 200">
+            <path d="M442.8,1963.3l0-65.354-44.662-44.662-32.678-32.676-32.676,32.673-44.665,44.667V1963.3l55.086-55.085v112.391h44.51v-112.4Z" transform="translate(-288.116 -1820.605)"></path>
+        </symbol>
+    </svg>
     <!-- 開機簾幕(2026/07/10):首繪即以主題紙色蓋全場,onload 尾聲(含自動驗證落定)一次掀開,
          消除「背景/頭像/驗證區/側標籤分批現身」的載入裸奔閃爍;內建 8 秒保險自動掀開 -->
     <div id="boot-curtain" aria-hidden="true"><div class="px-loader"><i></i><i></i><i></i></div></div>
@@ -199,10 +207,6 @@
                         </select>
                     </div>
                     <div class="language-setting-row">
-                        <div class="scenario-label">成人模式</div>
-                        <button type="button" id="mature-mode-toggle" class="mature-toggle" aria-pressed="false" onclick="toggleMatureMode()">OFF</button>
-                    </div>
-                    <div class="language-setting-row">
                         <div class="scenario-label">低狀態干擾</div>
                         <select id="survival-fx-select" class="language-mode-select" onchange="setSurvivalFxPref(this.value)">
                             <option value="full">完整效果</option>
@@ -215,6 +219,10 @@
                         <select id="game-model-choice" class="language-mode-select game-model-select" onchange="syncModelSelection(this.value)">
                             <option value="">核心切換</option>
                         </select>
+                    </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">成人模式</div>
+                        <button type="button" id="mature-mode-toggle" class="mature-toggle" aria-pressed="false" onclick="toggleMatureMode()">OFF</button>
                     </div>
                     </div>
 
@@ -317,7 +325,7 @@
 <div class="setup-home-frame">
 <button id="home-diary-tab" class="home-diary-tab" type="button" onclick="openDiary()" aria-label="日記">日記</button>
 <nav class="setup-side-tabs" aria-label="首頁快捷選單">
-<button type="button" class="setup-side-tab setup-home-tab" data-home-tab="main" onclick="goHomeFromSetupNav()" aria-label="回到首頁" title="回到首頁"><img src="assets/icons/home.svg" alt="" aria-hidden="true"></button>
+<button type="button" class="setup-side-tab setup-home-tab" data-home-tab="main" onclick="goHomeFromSetupNav()" aria-label="回到首頁" title="回到首頁"><svg class="theme-svg-icon theme-svg-home" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#theme-icon-home"></use></svg></button>
 <button type="button" class="setup-side-tab" data-home-tab="api" data-side-label="API說明" data-no-i18n onclick="openApiGuideModal()">API說明</button>
 <button type="button" class="setup-side-tab" data-home-tab="guide" data-side-label="遊戲玩法" data-no-i18n onclick="openTutorialModal()">遊戲玩法</button>
 <div class="setup-side-unlocked" aria-label="已驗證功能">
@@ -691,7 +699,7 @@
 </aside>
 </div>
             <div class="desktop-config-tabs" aria-label="配置分類">
-                <button type="button" class="desktop-config-tab desktop-config-home-tab" onclick="cancelEdit()" aria-label="儲存並回到首頁" title="儲存並回到首頁"><img src="assets/icons/home.svg" alt="" aria-hidden="true"></button>
+                <button type="button" class="desktop-config-tab desktop-config-home-tab" onclick="cancelEdit()" aria-label="儲存並回到首頁" title="儲存並回到首頁"><svg class="theme-svg-icon theme-svg-home" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#theme-icon-home"></use></svg></button>
                 <button type="button" class="desktop-config-tab active" data-config-section="characters" onclick="switchDesktopConfigWorkspace('characters')">角色設定</button>
                 <button type="button" class="desktop-config-tab" data-config-section="scenarios" onclick="switchDesktopConfigWorkspace('scenarios')">情境設定</button>
                 <button type="button" class="desktop-config-tab" data-config-section="game" onclick="switchDesktopConfigWorkspace('game')">遊戲設定</button>
@@ -999,7 +1007,7 @@
 </div>
         
         <div id="floating-menu-btn" onclick="toggleStatusPanel()" role="button" tabindex="0" aria-label="開啟或收回角色面板">角色面板</div>
-        <button type="button" id="game-home-tab" onclick="backToSaveMenu()" aria-label="返回首頁" title="返回首頁"><img src="assets/icons/home.svg" alt="" aria-hidden="true"></button>
+        <button type="button" id="game-home-tab" onclick="backToSaveMenu()" aria-label="回到首頁" title="回到首頁"><svg class="theme-svg-icon theme-svg-home" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#theme-icon-home"></use></svg></button>
 
         <div id="status-bar">
             <div class="top-row">
@@ -1011,7 +1019,6 @@
             </div>
             <div class="scroll-row">
                 <select id="btn-location" class="btn-location" onchange="changeScenario(this.value)"></select>
-                <button id="creator-mode-btn" class="mini-add-btn creator-mode-btn" type="button" onclick="toggleCreatorInputMode()" aria-pressed="false" title="切換持續創作者指令模式">神</button>
                 <button id="rest-btn" class="mini-add-btn" type="button" onclick="takeBreath()" title="喘息穩住身心：擲檢定回復 HP／SAN（上限 50%，不能連續使用）">喘息</button>
                 
                 <div class="spacer"></div>
@@ -1026,9 +1033,31 @@
         <div id="loading"><span class="px-loader" aria-hidden="true"><i></i><i></i><i></i></span><span id="ui-target-typing">遊戲引擎 (DM)</span> 正在進行判定與演算... <button id="cancel-ai-btn" type="button" onclick="cancelActiveAIRequest()">取消等待</button></div>
 
         <div id="input-area">
-            <textarea id="player-input" rows="1" placeholder="輸入你的開局動作，或點選上方選項..." onkeydown="checkInputKey(event)"></textarea>
-            <button class="btn" id="dice-btn" onclick="sendDiceChoice()" title="由 AI 判斷檢定屬性後隨機擲出 D20">⚄ 擲骰</button>
-            <button class="btn px-shine" id="send-btn" onclick="sendChoice()">發送</button>
+            <div class="input-mode-tabs" role="group" aria-label="輸入模式">
+                <button type="button" id="input-mode-character" class="input-mode-tab"
+                    onclick="setGameInputMode('character')" aria-pressed="true">行動</button>
+                <button type="button" id="input-mode-narrator" class="input-mode-tab"
+                    onclick="setGameInputMode('narrator')" aria-pressed="false">旁白</button>
+                <button type="button" id="creator-mode-btn" class="input-mode-tab creator-mode-btn"
+                    onclick="setGameInputMode('creator')" aria-pressed="false"
+                    title="切換持續創作者指令模式">神</button>
+            </div>
+            <div class="input-compose-row">
+                <textarea id="player-input" rows="1"
+                    placeholder="輸入你的開局動作，或點選上方選項..."
+                    onkeydown="checkInputKey(event)"></textarea>
+                <span class="input-action-divider" aria-hidden="true"></span>
+                <button type="button" class="input-action-btn" id="dice-btn"
+                    onclick="sendDiceChoice()" aria-label="擲骰"
+                    title="由 AI 判斷檢定屬性後隨機擲出 D20">
+                    <span class="input-action-icon" aria-hidden="true">⚄</span>
+                </button>
+                <span class="input-action-divider" aria-hidden="true"></span>
+                <button type="button" class="input-action-btn" id="send-btn"
+                    onclick="sendChoice()" aria-label="發送">
+                    <svg class="input-action-icon theme-svg-icon theme-svg-up" viewBox="0 0 154.684 200" aria-hidden="true" focusable="false"><use href="#theme-icon-up"></use></svg>
+                </button>
+            </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

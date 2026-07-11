@@ -67,6 +67,10 @@
   - `#game-container`
   - `#dialogue-box`
   - `#options-area`
+  - `#input-area`
+  - `#input-mode-character`
+  - `#input-mode-narrator`
+  - `#creator-mode-btn`
   - `#player-input`
   - `#send-btn`
   - `#dice-btn`
@@ -201,10 +205,13 @@
 - `calculateDiceCheck()`：計算 D20 結果。
 - `classifyDiceCheck()`：AI 分類檢定屬性與難度。
 - `sendDiceChoice()`：骰點按鈕入口。
+- `setGameInputMode()`：切換行動／旁白／神輸入模式；行動與旁白同步目前場景參與狀態，神模式沿用創作者指令武裝。
 - `resolveSurvivalOutcome()`：處理 HP／SAN 歸零、困難模式生死檢定、極限模式瀕死選擇與恢復期；讀檔可用 `consumeGrace: false` 還原而不消耗寬限回合。
 
 目前規則：
 
+- 遊戲輸入列採單一外框：上層為行動／旁白／神模式籤，下層為輸入框與圖示化骰點／發送鈕；手機模式籤與操作鈕至少 44px。
+- 神模式會將骰點鈕反灰並停用滑鼠／觸控操作；`parseSceneInputContext()` 的既有文字模式指令仍保持相容。
 - 玩家角色行動使用玩家六圍與 HP/SAN 修正。
 - 旁白 / NPC 支線手動骰點使用中性六圍，不套用玩家 HP/SAN。
 - 困難模式 DC +2；HP／SAN 歸零時 D20 ≥11 存活，D20 1 必定失敗、D20 20 可存活。

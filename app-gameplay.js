@@ -1028,18 +1028,19 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
            純裝飾不卡判定流程;只換按鈕文字裡的骰面字元,不動 i18n 標籤。 */
         function playDiceRollFx() {
             const btn = document.getElementById('dice-btn');
-            if (!btn || btn.dataset.rollingFx === '1') return;
+            const icon = btn?.querySelector('.input-action-icon');
+            if (!btn || !icon || btn.dataset.rollingFx === '1') return;
             if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
             const faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
             btn.dataset.rollingFx = '1';
             btn.classList.add('dice-rolling');
             let frame = 0;
             const timer = window.setInterval(() => {
-                btn.textContent = btn.textContent.replace(/[⚀-⚅]/, faces[Math.floor(Math.random() * 6)]);
+                icon.textContent = faces[Math.floor(Math.random() * 6)];
                 frame += 1;
                 if (frame >= 7) {
                     window.clearInterval(timer);
-                    btn.textContent = btn.textContent.replace(/[⚀-⚅]/, '⚄');
+                    icon.textContent = '⚄';
                     btn.classList.remove('dice-rolling');
                     delete btn.dataset.rollingFx;
                 }
@@ -1259,32 +1260,87 @@ ${transitionRule}`;
             return `【場景視角與在場規則】玩家角色 ${currentScenario.playerName} 預設在場，普通輸入視為角色行動；標有［創作者指令］的內容仍是角色外最高權限指示。`;
         }
 
+        function getGameInputMode() {
+            if (creatorInputArmed) return 'creator';
+            return getSceneParticipationMode() === 'narrator' ? 'narrator' : 'character';
+        }
+
+        function updateGameInputModeUI() {
+            const activeMode = getGameInputMode();
+            const modeButtons = [
+                ['input-mode-character', 'character'],
+                ['input-mode-narrator', 'narrator'],
+                ['creator-mode-btn', 'creator']
+            ];
+            modeButtons.forEach(([buttonId, mode]) => {
+                const button = document.getElementById(buttonId);
+                if (!button) return;
+                const isActive = mode === activeMode;
+                button.classList.toggle('active', isActive);
+                button.setAttribute('aria-pressed', String(isActive));
+            });
+
+            const creatorButton = document.getElementById('creator-mode-btn');
+            if (creatorButton) {
+                const title = creatorInputArmed
+                    ? '關閉持續創作者指令模式'
+                    : '開啟持續創作者指令模式';
+                creatorButton.title = window.uiMessage ? window.uiMessage(title) : title;
+            }
+
+            const diceButton = document.getElementById('dice-btn');
+            if (diceButton) {
+                diceButton.classList.toggle('mode-disabled', creatorInputArmed);
+                diceButton.setAttribute('aria-disabled', String(creatorInputArmed));
+                diceButton.tabIndex = creatorInputArmed ? -1 : 0;
+            }
+        }
+
         function updatePlayerInputPlaceholder() {
             const input = document.getElementById('player-input');
             if (!input) return;
+            let placeholder;
             if (creatorInputArmed) {
-                input.placeholder = window.uiMessage ? window.uiMessage('輸入本回合的創作者指令...') : '輸入本回合的創作者指令...';
-                return;
+                placeholder = '輸入本回合的創作者指令...';
+            } else {
+                placeholder = getSceneParticipationMode() === 'narrator'
+                    ? '輸入輔助旁白，或點「神」下達創作者指令...'
+                    : '輸入角色行動，或點「神」下達創作者指令...';
             }
-            const placeholder = getSceneParticipationMode() === 'narrator'
-                ? '輸入輔助旁白，或點「神」下達創作者指令...'
-                : '輸入角色行動，或點「神」下達創作者指令...';
             input.placeholder = window.uiMessage ? window.uiMessage(placeholder) : placeholder;
+            updateGameInputModeUI();
         }
 
         function setCreatorInputMode(enabled, focusInput = true) {
             creatorInputArmed = Boolean(enabled);
-            const button = document.getElementById('creator-mode-btn');
-            if (button) {
-                button.classList.toggle('active', creatorInputArmed);
-                button.setAttribute('aria-pressed', String(creatorInputArmed));
-                const title = creatorInputArmed ? '關閉持續創作者指令模式' : '開啟持續創作者指令模式';
-                button.title = window.uiMessage ? window.uiMessage(title) : title;
-                if (!creatorInputArmed) button.blur();
-            }
             updatePlayerInputPlaceholder();
             const input = document.getElementById('player-input');
             if (focusInput && input && !input.disabled) input.focus();
+        }
+
+        function setGameInputMode(mode, focusInput = true) {
+            if (!['character', 'narrator', 'creator'].includes(mode)) return;
+            if (document.getElementById('player-input')?.disabled) return;
+            if (mode === 'creator') {
+                setCreatorInputMode(true, focusInput);
+                return;
+            }
+
+            const previousMode = getGameInputMode();
+            const scene = currentScenario.scenarios?.[currentScenarioIndex];
+            if (scene) {
+                scene.runtimePlayerPresence = mode === 'narrator' ? 'absent' : 'present';
+                if (mode === 'narrator') {
+                    scene.runtimeGuideRole = scene.runtimeGuideRole || '輔助旁白';
+                } else {
+                    delete scene.runtimeGuideRole;
+                }
+            }
+
+            setCreatorInputMode(false, focusInput);
+            if (previousMode !== mode && currentSaveId && typeof saveCurrentProgress === 'function') {
+                saveCurrentProgress();
+            }
         }
 
         function toggleCreatorInputMode() {

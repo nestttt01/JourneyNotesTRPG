@@ -479,6 +479,29 @@ z-index: 10;
             box-shadow: 8px 8px 0px rgba(0,0,0,0.05); position: relative;
         }
 
+.theme-svg-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.theme-svg-icon {
+    display: block;
+    flex: 0 0 auto;
+    color: var(--text-main);
+    fill: currentColor;
+    pointer-events: none;
+}
+.theme-svg-home {
+    width: 22px;
+    height: 22px;
+}
+.theme-svg-up {
+    width: 18px;
+    height: 22px;
+}
+
         #game-home-tab {
             display: none; position: absolute; left: -36px; top: 52px;
             width: 36px; min-height: 54px; padding: 13px 5px;
@@ -487,13 +510,8 @@ z-index: 10;
             align-items: center; justify-content: center;
             box-shadow: -5px 5px 0 var(--accent-gray); z-index: 50;
         }
-        #game-home-tab img {
-            width: 22px; height: 22px; display: block; object-fit: contain;
-            filter: brightness(0) saturate(100%) invert(13%) sepia(0%) saturate(0%) hue-rotate(183deg) brightness(95%) contrast(87%);
-            pointer-events: none;
-        }
         #game-home-tab:hover { transform: translateX(-2px); }
-        @media (min-width: 1101px) {
+        @media (min-width: 1100px) {
             #game-home-tab { display: inline-flex; }
             #exit-game-btn { display: none; }
             #status-bar .top-row { justify-content: flex-end; }
@@ -533,26 +551,35 @@ z-index: 10;
 .red-accent { color: #fff; font-weight: 900; background: #ff4444; padding: 2px 6px; border-radius: 4px; border: none; }
 .purple-accent { color: #fff; font-weight: 900; background: #9b59b6; padding: 2px 6px; border-radius: 4px; border: none; }
 
-        select.btn-location, .game-model-select { white-space: nowrap; flex-shrink: 0; background: var(--card-bg); padding: 6px 12px; border-radius: 8px; border: 2px solid var(--border-dark); font-size: 12px; font-weight: 800; color: var(--text-main); cursor: pointer; }
+        .game-model-select { white-space: nowrap; flex-shrink: 0; background: var(--card-bg); padding: 6px 12px; border-radius: 8px; border: 2px solid var(--border-dark); font-size: 12px; font-weight: 800; color: var(--text-main); cursor: pointer; }
 #btn-location.btn-location {
   width: 150px;
   max-width: 40vw;
-  height: 27px;
-  padding: 3px 30px 3px 10px;
+  height: 26px;
+  min-height: 26px;
+  padding: 2px 30px 2px 10px;
   box-sizing: border-box;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: var(--accent-neon);
+  border: 0;
+  border-radius: 0;
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+#btn-location.btn-location:focus {
+  outline: none;
+  box-shadow: 3px 3px 0 var(--accent-neon);
 }
 
         .game-model-select { max-width: 130px; text-overflow: ellipsis; overflow: hidden; }
 
         .mini-add-btn { background: var(--card-bg); border: 2px solid var(--border-dark); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; color: var(--text-main); transition: all 0.2s; flex-shrink: 0; white-space: nowrap; }
         .mini-add-btn:active { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
-        .creator-mode-btn { width: auto; height: auto; padding: 5px 10px; display: inline-grid; place-items: center; font-size: 11px; border-radius: 8px; }
-        .creator-mode-btn.active { background: var(--accent-neon); color: var(--border-dark); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
-        .creator-mode-btn:not(.active) { background: var(--card-bg) !important; box-shadow: none !important; transform: none !important; }
-        .creator-mode-btn:disabled { opacity: 0.45; box-shadow: none; transform: none; cursor: not-allowed; }
-        /* 喘息鈕與『神』鈕(.creator-mode-btn)採同一盒模型，讓上下高度一致。 */
         #rest-btn { width: auto; height: auto; display: inline-grid; place-items: center; }
         @media (hover: hover) and (pointer: fine) {
             .mini-add-btn:hover { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
@@ -618,19 +645,136 @@ z-index: 10;
             #options-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px; align-items: stretch; }
         }
 
-        #input-area { display: flex; gap: 10px; border-top: 2px dashed #a0a0a0; padding-top: 15px; align-items: flex-end; flex-shrink: 0; }
-        #player-input { flex-grow: 1; background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 10px; padding: 14px; color: var(--text-main); font-size: 14px; font-weight: 600; transition: all 0.2s; min-height: 48px; max-height: 100px; resize: none; overflow-y: auto; }
-        #player-input:focus { outline: none; box-shadow: 4px 4px 0px var(--accent-neon); transform: translate(-2px, -2px); }
-
+        #input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-dark);
+            border-radius: 16px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        #input-area:focus-within {
+            box-shadow: 4px 4px 0 var(--accent-neon);
+        }
+        .input-mode-tabs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 34px;
+        }
+        .input-mode-tab {
+            min-height: 34px;
+            padding: 5px 12px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-sub);
+            font: inherit;
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 1;
+            cursor: pointer;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .input-mode-tab:hover:not(.active),
+            .input-action-btn:hover:not(.mode-disabled):not(:disabled) {
+                background: color-mix(in srgb, var(--accent-neon) 45%, transparent);
+                color: var(--text-main);
+            }
+        }
+        .input-mode-tab.active {
+            background: var(--border-dark);
+            color: var(--card-bg);
+        }
+        .input-mode-tab:focus-visible,
+        .input-action-btn:focus-visible {
+            outline: 2px solid var(--accent-neon);
+            outline-offset: 2px;
+        }
+        .input-compose-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 1px 46px 1px 46px;
+            align-items: end;
+            min-width: 0;
+        }
+        #player-input {
+            width: 100%;
+            min-width: 0;
+            min-height: 42px;
+            max-height: 100px;
+            padding: 10px 6px 8px;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+            box-sizing: border-box;
+            resize: none;
+            overflow-y: auto;
+        }
+        #player-input::placeholder {
+            color: var(--text-sub);
+            opacity: 0.72;
+        }
+        #player-input:focus {
+            outline: none;
+            box-shadow: none;
+            transform: none;
+        }
+        .input-action-divider {
+            width: 1px;
+            height: 40px;
+            margin-bottom: 2px;
+            background: var(--accent-gray);
+            align-self: end;
+        }
+        .input-action-btn {
+            width: 46px;
+            min-width: 46px;
+            height: 46px;
+            padding: 0;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-main);
+            display: inline-grid;
+            place-items: center;
+            align-self: end;
+            font: inherit;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .input-action-btn:active:not(.mode-disabled):not(:disabled) {
+            background: var(--accent-neon);
+            transform: translateY(1px);
+        }
+        .input-action-btn:disabled,
+        .input-action-btn.mode-disabled {
+            background: color-mix(in srgb, var(--accent-gray) 42%, transparent);
+            color: var(--text-sub);
+            opacity: 0.45;
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed;
+        }
+        .input-action-btn.mode-disabled {
+            pointer-events: none;
+        }
         .btn { background: var(--card-bg); border: 2px solid var(--border-dark); color: var(--text-main); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 900; transition: all 0.2s; white-space: nowrap; letter-spacing: 1px; }
         .btn:active { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-2px, -2px); }
         @media (hover: hover) and (pointer: fine) {
             .btn:hover { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-2px, -2px); }
         }
         .btn:disabled { background: #ddd !important; border-color: var(--text-sub) !important; color: var(--text-sub) !important; cursor: not-allowed; transform: none; box-shadow: none !important; }
-
-#dice-btn { background: var(--accent-neon); color: var(--border-dark); border: 2px solid var(--border-dark); padding: 12px 14px; }
-#send-btn { background: var(--border-dark); color: #fff; }
 
 #loading { display: none; color: var(--text-sub); font-style: italic; font-weight: bold; font-size: 12px; text-align: center; padding: 10px 0; }
         #cancel-ai-btn { margin-left: 8px; padding: 4px 9px; border: 1px solid var(--border-dark); border-radius: 6px; background: var(--card-bg); color: var(--text-main); font-size: 11px; font-style: normal; font-weight: 900; cursor: pointer; }
@@ -728,6 +872,21 @@ z-index: 10;
         .language-setting-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: center; margin: 8px 0 12px; }
         .language-setting-row .scenario-label { margin: 0; }
         .language-mode-select { width: 100%; background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; padding: 10px 12px; color: var(--text-main); font-size: 13px; font-weight: 800; }
+        #status-modal-content button:focus,
+        #status-modal-content input:focus,
+        #status-modal-content textarea:focus,
+        #status-modal-content select:focus {
+            outline: none;
+        }
+        #status-modal-content input:not([type="checkbox"]):not([type="radio"]):not(.memory-task-text):focus,
+        #status-modal-content textarea:focus,
+        #status-modal-content select:focus {
+            border-color: var(--border-dark);
+            box-shadow: 3px 3px 0 var(--accent-neon);
+        }
+        #status-modal-content button:focus-visible {
+            box-shadow: 2px 2px 0 var(--accent-neon);
+        }
         .status-panel-hint { font-size: 12px; color: var(--text-sub); font-weight: 800; line-height: 1.5; margin: 8px 0 12px; }
         #ui-flags-container,
         #ui-items-container {
@@ -762,10 +921,16 @@ z-index: 10;
             background: var(--accent-neon);
             border: none;
             border-radius: 0;
-            font-weight: 900;
-            padding: 3px 12px;
+            box-sizing: border-box;
             width: 150px;
-            min-height: 0;
+            max-width: 150px;
+            height: 26px;
+            min-height: 26px;
+            padding: 2px 8px;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.2;
             justify-self: start;
         }
         :root[data-bg-mode="image"] #status-page-api .settings-group .language-mode-select {
@@ -889,15 +1054,9 @@ background: var(--paper-bg);
             color: var(--text-main);
         }
 
-.game-model-select {
-  width: 100px;       /* 左右長度 */
-  max-width: 100px;   /* 跟 width 一樣 */
-  min-height: 26px;   /* 上下高度 */
-  padding: 4px 8px;   /* 內距 */
-  border-width: 2px;
-  border-radius: 8px;
-  font-size: 11px;
-}
+        #status-page-api .settings-group .game-model-select {
+            font-size: 11px;
+        }
 
         /* 分頁列:塊內矛盾宣告整併為生效值(2026/07/10 整理債) */
         #status-modal-content .status-tabs {
@@ -2085,11 +2244,23 @@ border: 0; border-radius: 0; box-shadow: none;
 .desktop-game-inline-control { display: grid; grid-template-columns: auto auto; gap: 8px; justify-content: start; }
 .desktop-game-preset-control { display: block; }
 .desktop-game-inline-control select,
-#desktop-preset-name-input,
-.desktop-game-setting-grid select {
+#desktop-preset-name-input {
 width: min(260px, 100%); min-width: 0; min-height: 34px; padding: 7px 10px;
 border: 2px solid var(--border-dark); border-radius: 8px;
 background: var(--card-bg); color: var(--text-main); font-size: 13px; font-weight: 800;
+}
+.desktop-game-setting-grid select {
+width: min(260px, 100%);
+min-width: 0;
+min-height: 30px;
+padding: 5px 10px;
+border: 0;
+border-radius: 0;
+background: var(--accent-neon);
+color: var(--text-main);
+font-size: 13px;
+font-weight: 800;
+box-shadow: none;
 }
 .desktop-game-preset-control #desktop-preset-selector {
 width: min(260px, 100%);
@@ -2109,6 +2280,12 @@ border: 0;
 border-bottom: 2px dotted var(--text-sub);
 border-radius: 0;
 background: transparent;
+}
+.desktop-game-preset-control #desktop-preset-selector:focus,
+#desktop-preset-name-input:focus,
+.desktop-game-setting-grid select:focus {
+outline: none;
+box-shadow: 3px 3px 0 var(--accent-neon);
 }
 .desktop-preset-binding-note {
 min-height: 1.35em;
@@ -2482,10 +2659,32 @@ margin: 0; padding: 0; background: transparent;
             .msg-narrative { padding: 8px 12px; font-size: 13px; line-height: 1.5; margin: 0 5px; }
             #dialogue-box { gap: 12px; padding: 0; }
             #status-bar { padding-bottom: 8px; margin-bottom: 8px; gap: 6px; }
-            #input-area { padding-top: 8px; gap: 6px; }
-#player-input { padding: 10px; font-size: 14px; min-height: 40px; }
+            #input-area {
+                padding: 8px 10px;
+                gap: 4px;
+                border-width: 2px;
+                border-radius: 14px;
+            }
+            .input-mode-tabs { gap: 4px; }
+            .input-mode-tab {
+                min-height: 44px;
+                padding: 0 12px;
+            }
+            .input-compose-row {
+                grid-template-columns: minmax(0, 1fr) 1px 44px 1px 44px;
+            }
+            #player-input {
+                min-height: 44px;
+                padding: 8px 4px;
+                font-size: 14px;
+            }
+            .input-action-divider { height: 38px; }
+            .input-action-btn {
+                width: 44px;
+                min-width: 44px;
+                height: 44px;
+            }
 .btn { padding: 8px 12px; font-size: 13px; }
-#dice-btn { padding: 8px 10px; }
 #options-area { gap: 6px; margin-bottom: 6px; }
 .relationship-heart-effect { top: clamp(120px, 32dvh, 240px); max-width: calc(100vw - 24px); }
 .relationship-heart-effect-label { max-width: calc(100vw - 36px); white-space: normal; text-align: center; font-size: 14px; line-height: 1.35; }
@@ -2497,12 +2696,7 @@ margin: 0; padding: 0; background: transparent;
                 box-sizing: border-box;
                 touch-action: manipulation;
             }
-            #game-container #input-area > button.btn {
-                min-width: 44px;
-                touch-action: manipulation;
-            }
-            body:not(.survival-fx-san) #game-container #options-area .opt-btn:active,
-            #game-container #input-area > button.btn:active {
+            body:not(.survival-fx-san) #game-container #options-area .opt-btn:active {
                 background: var(--accent-neon);
                 box-shadow: 1px 1px 0 var(--border-dark);
                 transform: translate(2px, 2px);
@@ -2601,9 +2795,9 @@ input:not([type="checkbox"]):not([type="radio"]), textarea, select:not(#btn-loca
             .top-row { gap: 6px; }
             .u-inline-058 { min-width: 0; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
             .u-inline-059 { display: none; }
-            #input-area { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; width: 100%; }
-            #player-input { min-width: 0; width: 100%; }
-.key-input:focus, .model-select:focus, .scenario-input:focus, #player-input:focus { transform: none; box-shadow: 2px 2px 0 var(--accent-neon); }
+            #input-area { width: 100%; }
+            .input-compose-row, #player-input { min-width: 0; width: 100%; }
+.key-input:focus, .model-select:focus, .scenario-input:focus { transform: none; box-shadow: 2px 2px 0 var(--accent-neon); }
 #status-modal { overflow-y: auto !important; overflow-x: hidden !important; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 #status-modal-content { width: 100% !important; max-height: none !important; min-height: calc(100dvh - 16px); margin: 0 auto !important; overflow: visible !important; box-shadow: none !important; }
 #status-modal-content > .u-inline-012 { flex: none !important; min-height: auto !important; overflow: visible !important; touch-action: pan-y; }
@@ -2633,31 +2827,6 @@ font-size: 16px;
 .npc-summary-list {
  grid-template-columns: 1fr;
  }
-}
-
-/* 遊戲底部送出列：鎖定骰點與送出按鈕同高。放在檔案最後，避免被前面的按鈕樣式覆蓋。 */
-#game-container #input-area > button#dice-btn.btn,
-#game-container #input-area > button#send-btn.btn {
-height: 48px;
-min-height: 48px;
-max-height: 48px;
-box-sizing: border-box;
-padding-top: 0;
-padding-bottom: 0;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-align-self: flex-end;
-line-height: 1;
-}
-
-@media screen and (max-width: 768px) {
-#game-container #input-area > button#dice-btn.btn,
-#game-container #input-area > button#send-btn.btn {
-height: 44px;
-min-height: 44px;
-max-height: 44px;
-}
 }
 
 .setup-current-preset {
@@ -2789,16 +2958,6 @@ text-orientation: mixed;
 display: inline-flex;
 align-items: center;
 justify-content: center;
-}
-
-.setup-home-tab img,
-.desktop-config-home-tab img {
-width: 22px;
-height: 22px;
-display: block;
-object-fit: contain;
-filter: brightness(0) saturate(100%) invert(13%) sepia(0%) saturate(0%) hue-rotate(183deg) brightness(95%) contrast(87%);
-pointer-events: none;
 }
 
 .setup-side-tab.setup-home-tab:hover,
@@ -3073,7 +3232,7 @@ html { background-color: var(--bg-main); }
 :root[data-bg-mode="image"] .key-input,
 :root[data-bg-mode="image"] .model-select,
 :root[data-bg-mode="image"] .scenario-input,
-:root[data-bg-mode="image"] #player-input,
+:root[data-bg-mode="image"] #input-area,
 :root[data-bg-mode="image"] #new-flag-input,
 :root[data-bg-mode="image"] #growth-prof-input {
     background: var(--card-bg);
