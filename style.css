@@ -575,7 +575,7 @@ z-index: 10;
 #options-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding-right: 5px; flex-shrink: 0; }
         .opt-btn { background: var(--card-bg); border: 2px solid var(--border-dark); color: var(--text-main); padding: 7px 10px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 800; text-align: left; transition: all 0.2s; line-height: 1.4; border-left: 6px solid var(--accent-neon); }
         .opt-btn:hover { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-3px, -3px); }
-        .opt-btn .opt-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 5px; }
+        .opt-btn .opt-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 5px; min-height: 20px; }
         .opt-btn .opt-meta span, .opt-btn .opt-text { font-family: inherit; }   /* 全域 * 選擇器會逐元素蓋字體，子 span 強制繼承按鈕的像素字 */
         .opt-btn .opt-tag {
             padding: 3px 8px; border: 0; border-radius: 6px;
