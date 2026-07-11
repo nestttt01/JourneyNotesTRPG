@@ -2171,9 +2171,9 @@ function getSurvivalOptionMainText(btn) {
     return clone.textContent.trim();
 }
 
-function setSurvivalOptionVisibleText(btn, text, check = '', difficulty = 'normal') {
+function setSurvivalOptionVisibleText(btn, text, check = '', difficulty = 'normal', proficient = false) {
     if (!btn) return;
-    applyOptionCardContent(btn, text, check, difficulty, false);
+    applyOptionCardContent(btn, text, check, difficulty, proficient === true);
 }
 
 function getSurvivalHiddenOption(btn) {
@@ -2239,7 +2239,7 @@ function handleSurvivalOptionClick(btn, text, check = '', difficulty = 'normal',
     }
     btn.dataset.survivalGhost = mutation.original;
     btn.classList.add('survival-option-corrupt', 'survival-option-mutated');
-    setSurvivalOptionVisibleText(btn, mutation.text, mutation.check, mutation.difficulty);
+    setSurvivalOptionVisibleText(btn, mutation.text, mutation.check, mutation.difficulty, mutation.proficient);
     nudgeSurvivalOption(btn, true);
     selectOption(mutation.text, mutation.check, mutation.difficulty, mutation.proficient);
     window.setTimeout(() => {
