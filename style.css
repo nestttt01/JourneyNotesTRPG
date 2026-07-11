@@ -722,7 +722,7 @@ z-index: 10;
         .journal-actions .journal-action-tool:hover,
         .journal-actions .journal-action-tool:active,
         .journal-actions .journal-action-tool:focus-visible {
-            border-bottom-color: var(--accent-neon);
+            color: var(--accent-neon);
             background: transparent;
             box-shadow: none;
             outline: none;
@@ -735,7 +735,7 @@ z-index: 10;
             min-width: 36px;
         }
         #journal-important-filter-btn[aria-pressed="true"] {
-            border-bottom: 3px solid var(--accent-neon);
+            color: var(--accent-neon);
             background: transparent;
             box-shadow: none;
         }

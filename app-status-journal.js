@@ -1572,7 +1572,6 @@ renderAdventureJournal();
             const save = savesData[journalSelectedSaveId];
             if (!save) return;
             const importantEntries = getImportantAdventureLogEntries(save);
- if (!confirm(uiText('整理會合併語意重複的事件。系統會先保留備份，確定要繼續嗎？'))) return;
             const button = document.getElementById('journal-organize-btn');
             const originalLabel = button?.innerText || '';
  if (button) { button.disabled = true; button.innerText = uiText('整理中…'); }
@@ -1598,7 +1597,7 @@ renderAdventureJournal();
                 journalPageIndex = 0;
                 renderAdventureJournalSaveSelector();
                 renderAdventureJournal();
- alert(uiText('冒險紀錄已整理完成；如不滿意可按「復原上次整理」。'));
+ if (typeof tinyToast === 'function') tinyToast('冒險紀錄已整理完成；如不滿意可按「復原上次整理」。');
             } catch (error) {
                 console.error(error);
                 alert(`${getFriendlyErrorMessage(error, 'AI 暫時無法完成整理。')}\n原本內容沒有被刪除。`);
@@ -1610,7 +1609,7 @@ renderAdventureJournal();
         function restoreSelectedJournalBackup() {
             const save = savesData[journalSelectedSaveId];
             const backups = Array.isArray(save?.memoryLogBackups) ? save.memoryLogBackups : [];
-            if (!backups.length) { alert('這份存檔目前沒有可復原的整理備份。'); return; }
+            if (!backups.length) { if (typeof tinyToast === 'function') tinyToast('這份存檔目前沒有可復原的整理備份。'); return; }
             const latest = backups[backups.length - 1];
             const importantEntries = getImportantAdventureLogEntries(save);
             if (!confirm(`要復原 ${latest.date || '上一次'} 整理前的冒險紀錄嗎？`)) return;
