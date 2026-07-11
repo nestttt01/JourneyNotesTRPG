@@ -41,6 +41,9 @@
         <symbol id="theme-icon-home" viewBox="0 0 24 24">
             <path d="M 12 2 A 1 1 0 0 0 11.289062 2.296875 L 1.203125 11.097656 A 0.5 0.5 0 0 0 1 11.5 A 0.5 0.5 0 0 0 1.5 12 L 4 12 L 4 20 C 4 20.552 4.448 21 5 21 L 9 21 C 9.552 21 10 20.552 10 20 L 10 14 L 14 14 L 14 20 C 14 20.552 14.448 21 15 21 L 19 21 C 19.552 21 20 20.552 20 20 L 20 12 L 22.5 12 A 0.5 0.5 0 0 0 23 11.5 A 0.5 0.5 0 0 0 22.796875 11.097656 L 12.716797 2.3027344 A 1 1 0 0 0 12.710938 2.296875 A 1 1 0 0 0 12 2 Z"></path>
         </symbol>
+        <symbol id="theme-icon-plus" viewBox="0 0 24 24">
+            <path d="M12 3v18M3 12h18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"></path>
+        </symbol>
         <symbol id="theme-icon-up" viewBox="0 0 154.684 200">
             <path d="M442.8,1963.3l0-65.354-44.662-44.662-32.678-32.676-32.676,32.673-44.665,44.667V1963.3l55.086-55.085v112.391h44.51v-112.4Z" transform="translate(-288.116 -1820.605)"></path>
         </symbol>
@@ -102,9 +105,12 @@
     <div id="status-modal" class="modal-overlay">
                 <div id="status-modal-content">
             <div class="modal-header-sticky">
-                <h3 class="u-inline-005">玩家狀態與面板</h3>
+                <div class="status-save-indicator">
+                    <span class="status-save-dot" aria-hidden="true"></span>
+                    <span>已自動儲存</span>
+                </div>
                 <div class="u-inline-009">
-                    <button class="btn u-inline-010" onclick="saveAsNewGameFile()">另存新檔</button>
+                    <button class="status-save-as-btn" type="button" onclick="saveAsNewGameFile()">另存新檔</button>
                     <button id="status-save-btn" class="btn u-inline-011 px-shine" onclick="saveStatusModal()">儲存並返回</button>
                     <button class="status-panel-close" type="button" onclick="collapseStatusPanel()" aria-label="關閉角色面板" title="關閉角色面板">×</button>
                 </div>
@@ -125,8 +131,10 @@
                     <div id="ui-flags-container"></div>
                     <p id="flags-budget-note" class="memory-budget-note"></p>
                     <div id="flag-input-area">
-                        <input type="text" id="new-flag-input" maxlength="48" placeholder="新增狀態或旗標（最多 48 字）...">
-                        <button class="btn u-inline-015" onclick="manualAddFlag()">加入</button>
+                        <input class="status-inline-input" type="text" id="new-flag-input" maxlength="48" placeholder="新增狀態或旗標（最多 48 字）...">
+                        <button class="status-add-icon-btn" type="button" onclick="manualAddFlag()" aria-label="新增狀態旗標" title="新增狀態旗標">
+                            <svg class="theme-svg-icon theme-svg-plus" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#theme-icon-plus"></use></svg>
+                        </button>
                     </div>
                     
                     <p class="u-inline-016">玩家道具</p>
@@ -145,41 +153,58 @@
                 </div>
 
                 <div id="status-page-log" class="status-page">
-                    <p class="u-inline-016">讀取摘要</p>
-                    <p class="u-inline-014">每回合會自動更新重點、任務與關係；完整冒險紀錄仍保留在下方，不會自動刪除。</p>
-
-                    <div class="memory-action-row">
-                        <button id="organize-summary-btn" class="memory-action-btn" onclick="organizeMemoryWithAI('summary')">整理摘要</button>
-                        <button id="inline-journal-toggle-btn" class="memory-action-btn" onclick="toggleInlineAdventureJournal(currentSaveId)">開啟完整冒險日誌</button>
-                        <span class="memory-action-note">完整紀錄可直接在本分頁展開；AI 仍會讀取同一份存檔資料。</span>
+                    <div class="status-log-view-switch" role="tablist" aria-label="紀錄內容">
+                        <button id="status-log-summary-tab" class="status-log-view-option is-active" type="button" role="tab"
+                            aria-selected="true" aria-controls="status-log-summary-view" data-status-log-view="summary"
+                            onclick="switchStatusLogView('summary')">
+                            <span class="status-log-view-kicker">閱讀與整理</span>
+                            <strong class="status-log-view-title">摘要內容</strong>
+                            <span class="status-log-view-description">重點／任務／關係</span>
+                        </button>
+                        <span class="status-log-view-divider" aria-hidden="true"></span>
+                        <button id="status-log-journal-tab" class="status-log-view-option" type="button" role="tab"
+                            aria-selected="false" aria-controls="inline-journal-host" data-status-log-view="journal"
+                            onclick="switchStatusLogView('journal')">
+                            <span class="status-log-view-kicker">完整紀錄</span>
+                            <strong class="status-log-view-title">完整冒險日誌</strong>
+                            <span class="status-log-view-description">所有事件紀錄</span>
+                        </button>
                     </div>
 
-                    <div id="inline-journal-host" class="inline-journal-host"></div>
+                    <div id="status-log-summary-view" class="status-log-summary-view" role="tabpanel" aria-labelledby="status-log-summary-tab">
+                        <div class="memory-action-row status-log-summary-actions">
+                            <button id="organize-summary-btn" class="memory-action-btn" onclick="organizeMemoryWithAI('summary')">整理摘要</button>
+                            <span class="memory-action-note">每回合會自動更新重點、任務與關係；完整冒險紀錄仍保留在下方，不會自動刪除。</span>
+                        </div>
 
-                    <div class="memory-brief-card">
-                        <div class="memory-brief-grid">
-                            <div>
-                                <div class="memory-field-title">重點劇情</div>
-                                <p class="memory-field-hint">用 3～8 條保留目前劇情主線、最近重大轉折與當前場景狀況。</p>
-                                <textarea id="ui-story-summary" placeholder="例如：&#10;• 玩家與 NPC 已確認合作關係&#10;• 目前準備前往下一個場景" oninput="autoResize(this)" onblur="normalizeMemoryTextarea(this)"></textarea>
-                            </div>
-                            <div class="memory-task-block">
-                                <div class="memory-field-title">任務清單</div>
-                                <p class="memory-field-hint">遇到新任務會新增空格；事件完成後會自動打勾，也可以手動修改。</p>
-                                <div id="ui-open-tasks" class="memory-task-list"></div>
-                                <div class="memory-task-add">
-                                    <input id="ui-new-memory-task" type="text" placeholder="手動新增任務..." onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addMemoryTaskFromInput(); }">
-                                    <button type="button" onclick="addMemoryTaskFromInput()">＋新增</button>
+                        <div class="memory-brief-card">
+                            <div class="memory-brief-grid">
+                                <div>
+                                    <div class="memory-field-title">重點劇情</div>
+                                    <p class="memory-field-hint">用 3～8 條保留目前劇情主線、最近重大轉折與當前場景狀況。</p>
+                                    <textarea id="ui-story-summary" placeholder="例如：&#10;• 玩家與 NPC 已確認合作關係&#10;• 目前準備前往下一個場景" oninput="autoResize(this)" onblur="normalizeMemoryTextarea(this)"></textarea>
                                 </div>
-                            </div>
-                            <div>
-                                <div class="memory-field-title">整體角色關係圖</div>
-                                <p class="memory-field-hint">只記角色彼此之間的全局關係、重大承諾、界線與張力；每位 NPC 此刻對玩家的態度放在「設定 → 動態狀態」。</p>
-                                <textarea id="ui-relationship-summary" placeholder="例如：&#10;• 玩家與 NPC 已建立信任&#10;• NPC 知道玩家正在承擔風險" oninput="autoResize(this)" onblur="normalizeMemoryTextarea(this)"></textarea>
+                                <div class="memory-task-block">
+                                    <div class="memory-field-title">任務清單</div>
+                                    <p class="memory-field-hint">遇到新任務會新增空格；事件完成後會自動打勾，也可以手動修改。</p>
+                                    <div id="ui-open-tasks" class="memory-task-list"></div>
+                                    <div class="memory-task-add">
+                                        <input class="status-inline-input" id="ui-new-memory-task" type="text" placeholder="手動新增任務..." onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addMemoryTaskFromInput(); }">
+                                        <button class="status-add-icon-btn" type="button" onclick="addMemoryTaskFromInput()" aria-label="新增任務" title="新增任務">
+                                            <svg class="theme-svg-icon theme-svg-plus" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#theme-icon-plus"></use></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="memory-field-title">整體角色關係圖</div>
+                                    <p class="memory-field-hint">只記角色彼此之間的全局關係、重大承諾、界線與張力；每位 NPC 此刻對玩家的態度放在「設定 → 動態狀態」。</p>
+                                    <textarea id="ui-relationship-summary" placeholder="例如：&#10;• 玩家與 NPC 已建立信任&#10;• NPC 知道玩家正在承擔風險" oninput="autoResize(this)" onblur="normalizeMemoryTextarea(this)"></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <div id="inline-journal-host" class="inline-journal-host status-log-journal-view" role="tabpanel" aria-labelledby="status-log-journal-tab" aria-hidden="true"></div>
                 </div>
 
                 <div id="status-page-api" class="status-page">

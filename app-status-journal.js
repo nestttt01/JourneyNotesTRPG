@@ -359,7 +359,11 @@ function openStatusModal() {
 
         function updateStatusSaveButtonLabel() {
             const button = document.getElementById('status-save-btn');
-            if (button) button.textContent = shouldKeepStatusPanelOpenAfterSave() ? '儲存' : '儲存並返回';
+            if (!button) {
+                return;
+            }
+            const labelKey = shouldKeepStatusPanelOpenAfterSave() ? '儲存' : '儲存並返回';
+            button.textContent = typeof uiText === 'function' ? uiText(labelKey) : labelKey;
         }
 
         function collapseStatusPanel() {
@@ -730,7 +734,9 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
             if (event.target === event.currentTarget) collapseStatusPanel();
         });
         document.addEventListener('keydown', event => {
-            if (event.key === 'Escape' && document.getElementById('status-modal')?.style.display === 'block') collapseStatusPanel();
+            if (event.key === 'Escape' && document.getElementById('status-modal')?.style.display === 'block') {
+                collapseStatusPanel();
+            }
             if ((event.key === 'Enter' || event.key === ' ') && event.target?.id === 'floating-menu-btn') {
                 event.preventDefault();
                 toggleStatusPanel();
@@ -1097,6 +1103,41 @@ const diaryView = document.querySelector('.setup-home-view[data-home-view="diary
 if (diaryView && diaryView.classList.contains('active')) renderDiary();
 });
 
+function syncStatusLogViewState(viewName) {
+    const showJournal = viewName === 'journal';
+    const page = document.getElementById('status-page-log');
+    if (!page) {
+        return;
+    }
+    page.classList.toggle('journal-inline-open', showJournal);
+    page.querySelectorAll('[data-status-log-view]').forEach(button => {
+        const isActive = button.dataset.statusLogView === (showJournal ? 'journal' : 'summary');
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', String(isActive));
+    });
+    document.getElementById('status-log-summary-view')
+        ?.setAttribute('aria-hidden', String(showJournal));
+    document.getElementById('inline-journal-host')
+        ?.setAttribute('aria-hidden', String(!showJournal));
+}
+
+function switchStatusLogView(viewName) {
+    const showJournal = viewName === 'journal';
+    if (showJournal) {
+        if (journalEmbedded) {
+            syncStatusLogViewState('journal');
+        } else {
+            openAdventureJournal(currentSaveId);
+        }
+        return;
+    }
+    if (journalEmbedded) {
+        closeAdventureJournal();
+        return;
+    }
+    syncStatusLogViewState('summary');
+}
+
 function openAdventureJournal(preferredSaveId = '') {
 const gameVisible = document.getElementById('game-container')?.style.display === 'flex';
 const saveMenuVisible = document.getElementById('save-menu-screen')?.style.display === 'flex';
@@ -1113,12 +1154,7 @@ saveCurrentProgress();
                     journalScreen.classList.add('journal-screen-embedded');
                     journalScreen.style.display = 'flex';
                     journalEmbedded = true;
-                    document.getElementById('status-page-log')?.classList.add('journal-inline-open');
-                    const toggleButton = document.getElementById('inline-journal-toggle-btn');
-                    if (toggleButton) {
-                        toggleButton.textContent = '收起完整冒險日誌';
-                        toggleButton.classList.add('is-open');
-                    }
+                    syncStatusLogViewState('journal');
 const closeButton = document.getElementById('journal-close-btn');
 if (closeButton) closeButton.textContent = '收起';
 }
@@ -1147,11 +1183,6 @@ if (el) el.style.display = 'none';
             if (!journalEmbedded) window.scrollTo(0, 0);
         }
 
-        function toggleInlineAdventureJournal(preferredSaveId = '') {
-            if (journalEmbedded) closeAdventureJournal();
-            else openAdventureJournal(preferredSaveId);
-        }
-
 function closeAdventureJournal() {
 const journalScreen = document.getElementById('journal-screen');
 journalScreen.style.display = 'none';
@@ -1164,12 +1195,7 @@ if (journalEmbedded) {
 journalScreen.classList.remove('journal-screen-embedded');
 document.getElementById('journal-screen-home')?.after(journalScreen);
 journalEmbedded = false;
-                document.getElementById('status-page-log')?.classList.remove('journal-inline-open');
-                const toggleButton = document.getElementById('inline-journal-toggle-btn');
-                if (toggleButton) {
-                    toggleButton.textContent = '開啟完整冒險日誌';
-                    toggleButton.classList.remove('is-open');
-                }
+                syncStatusLogViewState('summary');
                 const closeButton = document.getElementById('journal-close-btn');
                 if (closeButton) closeButton.textContent = '返回';
                 return;
