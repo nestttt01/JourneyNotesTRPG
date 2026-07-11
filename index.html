@@ -326,8 +326,19 @@
 <button id="home-update-tab" class="home-update-tab" type="button" onclick="toggleHomeUpdateNotes()" aria-label="更新內容" aria-expanded="false"></button>
 <aside id="home-update-drawer" class="home-update-drawer" aria-label="更新內容">
 <button class="home-update-close" type="button" onclick="toggleHomeUpdateNotes(false)" aria-label="關閉更新內容">×</button>
-<p class="home-update-kicker">v2.7 更新（07/10）</p>
+<p class="home-update-kicker">v2.8 更新（07/11）</p>
 <h3>更新內容</h3>
+<ul>
+<li>行動選項改為卡片式：顯示檢定類別（觀察・WIS 等）與行動難度，符合擅長領域的行動會掛上「★熟練」徽章；桌機並排顯示、手機直疊。</li>
+<li>冒險日誌新增「只看★」篩選；標記重要（★）的紀錄在 AI 整理時會原文保留並留在原位置，不再被合併或搬動。</li>
+<li>匯入與本機完全相同的配置檔時會先詢問，不再無條件建立「（匯入）」副本。</li>
+<li>極限模式歸零的提示改為「最後掙扎」說明（D20 ≥ 8 存活），與實際機制一致。</li>
+<li>任務失敗會連同原因寫入冒險日誌；任務刪除鈕改為 DEL。</li>
+<li>細節：載入缺少配置快照的舊存檔會自動建立獨立空白配置、角色面板不再於 AI 回合後彈回拖曳前位置、低 SAN 選項漂移恢復緩動手感、更新內容與核心準則抽屜的閱讀透明度統一。</li>
+</ul>
+<details class="home-update-history">
+<summary>查看更早的更新紀錄</summary>
+<p class="home-update-kicker">v2.7 更新（07/10）</p>
 <ul>
 <li>愛心大改版：面板像素愛心換成圓滾滾的糰子造型（與彈出小愛心同款），並會隨好感改變動作，從微微呼吸、雀躍蹦跳到滿值的發光麻糬彈跳；關係惡化會垂頭喪氣，跌到谷底整顆倒下。</li>
 <li>新成就「我們地獄見」：好感跌到谷底（−100）自動解鎖，並跳出恩斷義絕提示。</li>
@@ -338,8 +349,6 @@
 <li>面板整理：顯示與輸出設定移至「系統」頁（原 API 頁）並縮小追蹤格；角色成長平時改顯示六圍「判定加值總覽」（含道具加值與低狀態懲罰，即時計算），拿到成長點時才展開升級按鈕。</li>
 <li>細節：修正像素愛心放大顯示時的髮絲細縫；修正大成功／大失敗通知被壓成細條；「遊戲玩法」補上愛心動態與觸底成就說明。</li>
 </ul>
-<details class="home-update-history">
-<summary>查看更早的更新紀錄</summary>
 <p class="home-update-kicker">v2.6 更新（07/10）</p>
 <ul>
 <li>好感回饋：好感增減時，NPC 對話泡泡旁會彈出小愛心與增減值；愛心顏色可在「外觀配色」自訂，面板愛心也新增光澤與星塵（越愛越閃）。</li>
@@ -517,7 +526,7 @@
 <option value="ja">日本語</option>
 </select>
 </label>
-<p class="setup-version"> Threads @ miyazaki.617 · v2.7 · 2026/07/10</p>
+<p class="setup-version"> Threads @ miyazaki.617 · v2.8 · 2026/07/11</p>
 </div>
 </section>
 

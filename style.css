@@ -212,7 +212,6 @@ font-synthesis: none;
 #save-menu-screen h2,
 #save-menu-screen .save-title,
 #journal-screen .journal-header h2,
-#setup-screen .diary-title,
 #status-modal-content h3,
         #status-modal-content h4,
         #status-modal-content .u-inline-016,
@@ -3043,9 +3042,7 @@ html { background-color: var(--bg-main); }
 :root[data-bg-mode="image"] .dark-card-content,
 :root[data-bg-mode="image"] .storage-health-card,
 :root[data-bg-mode="image"] .memory-brief-card,
-:root[data-bg-mode="image"] #model-selection-area,
 :root[data-bg-mode="image"] .stat-box,
-:root[data-bg-mode="image"] #desktop-config-editor .stat-box,
 :root[data-bg-mode="image"] .save-slot,
 :root[data-bg-mode="image"] .journal-entry,
 :root[data-bg-mode="image"] .key-input,
@@ -3144,7 +3141,6 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 
 :root[data-bg-mode="image"] .desktop-overview-card,
 :root[data-bg-mode="image"] .desktop-game-card,
-:root[data-bg-mode="image"] .desktop-overview-add-card,
 :root[data-bg-mode="image"] #desktop-config-editor .anime-sheet,
 :root[data-bg-mode="image"] #desktop-config-editor .stat-box,
 :root[data-bg-mode="image"] .anime-sheet input,
@@ -3152,10 +3148,25 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 :root[data-bg-mode="image"] .dynamic-state-field input,
 :root[data-bg-mode="image"] .dynamic-state-field textarea,
 :root[data-bg-mode="image"] #ui-story-summary,
-:root[data-bg-mode="image"] #ui-relationship-summary,
-:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn {
+:root[data-bg-mode="image"] #ui-relationship-summary {
     background: var(--card-bg);
     background: var(--bg-card-glass);
+}
+:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn {
+    position: relative;
+    border-color: transparent;
+    background: var(--card-bg);
+    background: var(--bg-card-glass);
+}
+:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn::before {
+    /* 可見框改由覆蓋層繪製：畫在半透明背景「上方」，根治框緣透光毛邊 */
+    content: '';
+    position: absolute;
+    inset: -2px -2px -2px -6px;
+    border: 2px solid var(--border-dark);
+    border-left: 6px solid var(--accent-neon);
+    border-radius: 10px;
+    pointer-events: none;
 }
 :root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn:hover {
     background: var(--accent-neon);
@@ -3185,8 +3196,10 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 
 /* ---- 背景圖模式：補上首頁「更新內容」抽屜 ---- */
 :root[data-bg-mode="image"] .home-update-drawer {
+    /* 閱讀面統一：透明度對齊遊戲面板（--bg-panel-glass 74%），加模糊保留可讀性 */
     background: var(--paper-bg);
     background: var(--bg-panel-glass);
+    backdrop-filter: blur(8px);
 }
 
 /* === 核心準則側邊標籤：尺寸同更新內容、配色同首頁鍵；只在角色設定頁與遊戲頁出現 === */
@@ -3273,8 +3286,8 @@ transform: none;
   .core-rules-editor { font-size: 16px; }
 }
 :root[data-bg-mode="image"] .core-rules-drawer {
-background: rgba(238, 238, 238, 0.94);
-background: color-mix(in srgb, var(--paper-bg) 94%, transparent);
+background: var(--paper-bg);
+background: var(--bg-panel-glass);
 backdrop-filter: blur(8px);
 }
 

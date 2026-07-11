@@ -16,16 +16,12 @@
 
 深度靜態分析證明五處皆同 selector＋同 media、屬性全被後繼覆蓋：整塊刪除 3 個（`.delete-scen-btn` 舊定位、`.avatar-preview` 方形舊版、`.anime-sheet` 舊排版），拆組手術 2 個（自 1922 六選一群組摘除 `[player] #preset-player-editor`、自 grid 群組摘除 `.game-difficulty-note`）。清除後 style.css SHA-256 前 16 碼：`ea22d3e121089060`。
 
-### 剩餘 4 個（B2：藏在逗號群組，鄰居還活著）
+### 第三波已清（2026-07-11，B2 收官）——殭屍帳清零
 
-該 selector 本身是殭屍，但整塊不能刪；要動需把 selector 從群組拆出（手術級），建議改到該區時再處理：
-
-| 行（ea22 版） | selector |
-|---|---|
-| 225 | `#setup-screen .diary-title` |
-| 3036 | `:root[data-bg-mode="image"] #desktop-config-editor .stat-box` |
-| 3036 | `:root[data-bg-mode="image"] #model-selection-area` |
-| 3140 | `:root[data-bg-mode="image"] .desktop-overview-add-card` |
+拆組手術 3 個：`#setup-screen .diary-title`（自 Cubic 字體群組摘除，行 3360 後繼完整重定義）、`:root[data-bg-mode="image"] #model-selection-area` 與 `#desktop-config-editor .stat-box`（自卡片玻璃群組摘除，後繼分別於「無底色」節與桌機卡片節接手）。
+`.desktop-overview-add-card`：初判「非殭屍」是誤判——當時它所屬群組被一次錯誤的規則插入攔腰污染（詳見下）。群組修復後確認仍為殭屍，已完成拆組摘除。
+**本節結案：全檔已無「整塊屬性被後繼覆蓋」的死層。**
+事故記錄（2026-07-11 晚）：在逗號群組**中段**插入新規則會把群組攔腰切斷、前半 selector 併入新規則共用宣告；bytes 級驗證無法察覺此類 CSS 語意破壞，本次靠 Codex 唯讀複查發現（症狀：背景圖模式桌機卡片邊框消失）。**預防守則：CSS 錨點必須落在完整規則塊邊界（前一塊的 `}` 之後），插入前先確認錨點行不是某群組的中段成員；同 selector 想覆蓋請直接改原塊，不要往檔尾疊新塊。**
 
 ## 二、`!important` 清單（共 63 個）
 
