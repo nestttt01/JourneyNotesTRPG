@@ -1,0 +1,133 @@
+{
+  "version": 5,
+  "type": "journey-notes-backup",
+  "exportedAt": "2026-07-11T00:00:00.000Z",
+  "saves": {
+    "fixture_save": {
+      "title": "Duplicate Import Fixture",
+      "date": "2026-07-11 00:00:00",
+      "hp": 100,
+      "san": 100,
+      "items": [],
+      "scenIndex": 0,
+      "chatPageIndex": 0,
+      "scripts": [
+        [
+          "Narrator: Fixture opening"
+        ]
+      ],
+      "log": "Fixture log entry",
+      "memoryBrief": {
+        "story": "Fixture summary",
+        "tasks": "",
+        "relationships": ""
+      },
+      "flags": [],
+      "inputDraft": "",
+      "scenario": {
+        "id": "fixture_preset",
+        "sourcePresetId": "fixture_preset",
+        "presetName": "Duplicate Import Preset",
+        "playerName": "Fixture Player",
+        "playerAvatar": "",
+        "playerStats": {
+          "str": 10,
+          "dex": 10,
+          "con": 10,
+          "int": 10,
+          "wis": 10,
+          "cha": 10
+        },
+        "playerDetails": {
+          "age": "",
+          "speech": "",
+          "likes": "",
+          "dislikes": "",
+          "app": "",
+          "bg": ""
+        },
+        "npcs": [
+          {
+            "id": "fixture_npc",
+            "name": "Fixture NPC",
+            "avatar": "",
+            "affection": 0,
+            "details": {
+              "age": "",
+              "speech": "",
+              "likes": "",
+              "dislikes": "",
+              "app": "",
+              "bg": ""
+            }
+          }
+        ],
+        "scenarios": [
+          {
+            "name": "Fixture Scene",
+            "lore": "Synthetic data for duplicate import testing.",
+            "npcRoles": "",
+            "playerRole": "",
+            "transitionRule": ""
+          }
+        ],
+        "languageMode": "zh-tw",
+        "gameDifficulty": "standard"
+      }
+    }
+  },
+  "scenarioPresets": {
+    "fixture_preset": {
+      "id": "fixture_preset",
+      "presetName": "Duplicate Import Preset",
+      "playerName": "Fixture Player",
+      "playerAvatar": "",
+      "playerStats": {
+        "str": 10,
+        "dex": 10,
+        "con": 10,
+        "int": 10,
+        "wis": 10,
+        "cha": 10
+      },
+      "playerDetails": {
+        "age": "",
+        "speech": "",
+        "likes": "",
+        "dislikes": "",
+        "app": "",
+        "bg": ""
+      },
+      "npcs": [
+        {
+          "id": "fixture_npc",
+          "name": "Fixture NPC",
+          "avatar": "",
+          "affection": 0,
+          "details": {
+            "age": "",
+            "speech": "",
+            "likes": "",
+            "dislikes": "",
+            "app": "",
+            "bg": ""
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Fixture Scene",
+          "lore": "Synthetic data for duplicate import testing.",
+          "npcRoles": "",
+          "playerRole": "",
+          "transitionRule": ""
+        }
+      ],
+      "languageMode": "zh-tw",
+      "gameDifficulty": "standard",
+      "isLocked": false,
+      "statsLocked": true
+    }
+  },
+  "activePresetId": "fixture_preset"
+}

@@ -14,3 +14,8 @@ _handoff/
 
 # 本機一鍵上傳工具(不上傳到公開 repo)
 *.bat
+
+# Playwright 測試依賴與產出（不上傳）
+node_modules/
+playwright-report/
+test-results/

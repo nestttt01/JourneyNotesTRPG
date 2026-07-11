@@ -1,0 +1,11 @@
+{
+  "name": "journey-notes-trpg-tests",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1"
+  }
+}
