@@ -1919,7 +1919,6 @@ background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius
                 padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; gap: 8px;
             }
             #desktop-config-editor #edit-scenario-container > * { display: none; }
-            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor,
             #edit-scenario-screen[data-editor-section="npc"] #npc-list-container,
             #edit-scenario-screen[data-editor-section="scenario"] #scenario-list-container,
             #edit-scenario-screen[data-editor-section="game"] #edit-scenario-container > .u-inline-035,
@@ -1931,8 +1930,7 @@ background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .game-difficulty-note { display: none; }
             #edit-scenario-screen[data-editor-section="game"] #preset-player-editor > * { display: none; }
             #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .language-setting-row,
-            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .game-difficulty-row,
-            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .game-difficulty-note { display: grid; }
+            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .game-difficulty-row { display: grid; }
             #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .game-difficulty-note { display: block; }
 
 #desktop-config-editor #preset-player-editor {
@@ -2001,7 +1999,6 @@ border: 1px solid #808080; box-shadow: none; background: var(--card-bg);
             }
             #desktop-config-editor details.desktop-active-card > summary { display: none; }
             #desktop-config-editor details.desktop-active-card > .foldable-content { padding: 0; background: transparent; }
-            #desktop-config-editor details.desktop-active-card .delete-scen-btn { top: 2px; right: 2px; }
 
             #desktop-config-editor > .u-inline-049 { display: none; }
             #edit-scenario-screen[data-editor-section="game"] #desktop-config-editor > .u-inline-049 { display: flex; }
@@ -2226,10 +2223,6 @@ padding: 20px 28px 24px;
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > .avatar-setup-area {
                 order: 0; margin: 0 auto 8px; padding: 0;
             }
-            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .avatar-preview {
-                width: 104px; height: 104px; border-radius: 10px;
-                border: 2px solid #282828; box-shadow: none;
-            }
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > .scenario-label:not(.u-inline-040) { display: none; }
             #edit-scenario-screen[data-editor-section="player"] #input-player-name {
                 order: 1; width: min(240px, 70%); margin: 0 auto 14px; padding: 7px 10px;
@@ -2265,9 +2258,6 @@ padding: 20px 28px 24px;
             }
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card > summary { display: none; }
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card > .foldable-content { padding: 0; }
-            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet {
-                grid-template-columns: 1fr 1fr; gap: 8px 10px; margin: 0; padding: 0; background: transparent;
-            }
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input,
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea {
                 border: 1px solid #808080; border-radius: 5px; background: var(--card-bg);
