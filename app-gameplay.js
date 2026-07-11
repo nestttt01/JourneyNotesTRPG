@@ -2123,25 +2123,57 @@ function nudgeSurvivalOption(btn, strong = false) {
     scheduleSurvivalOptionAnimation();
     }
 
+function buildOptionMetaRow(check = '', difficulty = 'normal', proficient = false) {
+    const meta = document.createElement('span');
+    meta.className = 'opt-meta';
+    const statInfo = check && DICE_STATS[check] ? DICE_STATS[check] : null;
+    if (statInfo) {
+        const tag = document.createElement('span');
+        tag.className = 'opt-tag';
+        const category = DICE_CHECK_CATEGORIES[check] || '';
+        const categoryWord = category && window.uiMessage ? window.uiMessage(category) : category;
+        tag.textContent = categoryWord ? `${categoryWord}・${statInfo.code}` : statInfo.code;
+        meta.appendChild(tag);
+        const diffInfo = DICE_DIFFICULTIES[difficulty] || DICE_DIFFICULTIES.normal;
+        const diff = document.createElement('span');
+        diff.className = 'opt-diff';
+        diff.textContent = window.uiMessage ? window.uiMessage(diffInfo.label) : diffInfo.label;
+        meta.appendChild(diff);
+        if (proficient === true) {
+            const prof = document.createElement('span');
+            prof.className = 'opt-prof';
+            prof.textContent = window.uiMessage ? window.uiMessage('★熟練') : '★熟練';
+            meta.appendChild(prof);
+        }
+    } else {
+        const free = document.createElement('span');
+        free.className = 'opt-diff';
+        free.textContent = window.uiMessage ? window.uiMessage('自由行動') : '自由行動';
+        meta.appendChild(free);
+    }
+    return meta;
+}
+
+function applyOptionCardContent(btn, text, check = '', difficulty = 'normal', proficient = false) {
+    btn.textContent = '';
+    btn.appendChild(buildOptionMetaRow(check, difficulty, proficient));
+    const textSpan = document.createElement('span');
+    textSpan.className = 'opt-text';
+    textSpan.textContent = text;
+    btn.appendChild(textSpan);
+}
+
 function getSurvivalOptionMainText(btn) {
     if (!btn) return '';
     if (btn.dataset && btn.dataset.survivalOptionText) return btn.dataset.survivalOptionText.trim();
     const clone = btn.cloneNode(true);
-    clone.querySelectorAll('.opt-check-label').forEach(label => label.remove());
+    clone.querySelectorAll('.opt-check-label, .opt-meta').forEach(label => label.remove());
     return clone.textContent.trim();
 }
 
-function setSurvivalOptionVisibleText(btn, text, check = '') {
+function setSurvivalOptionVisibleText(btn, text, check = '', difficulty = 'normal') {
     if (!btn) return;
-    btn.textContent = text;
-    const statInfo = check && DICE_STATS && DICE_STATS[check] ? DICE_STATS[check] : null;
-    if (statInfo) {
-        const checkLabel = document.createElement('span');
-        checkLabel.className = 'opt-check-label';
-        const checkWord = window.uiMessage ? window.uiMessage('判定') : '判定';
-        checkLabel.textContent = `${statInfo.code} ${checkWord}`;
-        btn.appendChild(checkLabel);
-    }
+    applyOptionCardContent(btn, text, check, difficulty, false);
 }
 
 function getSurvivalHiddenOption(btn) {
@@ -2207,7 +2239,7 @@ function handleSurvivalOptionClick(btn, text, check = '', difficulty = 'normal',
     }
     btn.dataset.survivalGhost = mutation.original;
     btn.classList.add('survival-option-corrupt', 'survival-option-mutated');
-    setSurvivalOptionVisibleText(btn, mutation.text, mutation.check);
+    setSurvivalOptionVisibleText(btn, mutation.text, mutation.check, mutation.difficulty);
     nudgeSurvivalOption(btn, true);
     selectOption(mutation.text, mutation.check, mutation.difficulty, mutation.proficient);
     window.setTimeout(() => {

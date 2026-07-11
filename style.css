@@ -575,6 +575,23 @@ z-index: 10;
 #options-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding-right: 5px; flex-shrink: 0; }
         .opt-btn { background: var(--card-bg); border: 2px solid var(--border-dark); color: var(--text-main); padding: 7px 10px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 800; text-align: left; transition: all 0.2s; line-height: 1.4; border-left: 6px solid var(--accent-neon); }
         .opt-btn:hover { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-3px, -3px); }
+        .opt-btn .opt-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 5px; }
+        .opt-btn .opt-meta span, .opt-btn .opt-text { font-family: inherit; }   /* 全域 * 選擇器會逐元素蓋字體，子 span 強制繼承按鈕的像素字 */
+        .opt-btn .opt-tag {
+            padding: 3px 8px; border: 0; border-radius: 6px;
+            background: var(--card-bg); color: var(--text-main);
+            font-size: 10px; font-weight: 800; line-height: 1.4; white-space: nowrap;
+        }
+        .opt-btn .opt-diff { color: var(--text-sub); font-size: 10px; font-weight: 800; white-space: nowrap; }
+        .opt-btn .opt-prof {
+            padding: 3px 8px; border: 0; border-radius: 6px;
+            background: var(--accent-gray); color: var(--text-main);
+            font-size: 10px; font-weight: 800; line-height: 1.4; white-space: nowrap;
+        }
+        .opt-btn .opt-text { display: block; }
+        @media (min-width: 1100px) {
+            #options-area { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px; align-items: stretch; }
+        }
 
         #input-area { display: flex; gap: 10px; border-top: 2px dashed #a0a0a0; padding-top: 15px; align-items: flex-end; flex-shrink: 0; }
         #player-input { flex-grow: 1; background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 10px; padding: 14px; color: var(--text-main); font-size: 14px; font-weight: 600; transition: all 0.2s; min-height: 48px; max-height: 100px; resize: none; overflow-y: auto; }
@@ -2448,6 +2465,8 @@ margin: 0; padding: 0; background: transparent;
 .relationship-heart-effect { top: clamp(120px, 32dvh, 240px); max-width: calc(100vw - 24px); }
 .relationship-heart-effect-label { max-width: calc(100vw - 36px); white-space: normal; text-align: center; font-size: 14px; line-height: 1.35; }
             .opt-btn { padding: 10px 12px; font-size: 13px; }
+            .opt-btn .opt-meta { gap: 5px; margin-bottom: 4px; }
+            .opt-btn .opt-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
             #game-container #options-area .opt-btn {
                 min-height: 44px;
                 box-sizing: border-box;
@@ -3133,6 +3152,18 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 :root[data-bg-mode="image"] .dynamic-state-field textarea,
 :root[data-bg-mode="image"] #ui-story-summary,
 :root[data-bg-mode="image"] #ui-relationship-summary,
+:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn {
+    background: var(--card-bg);
+    background: var(--bg-card-glass);
+    outline: 2px solid var(--border-dark);   /* 疊在邊框同位置的實心圈，蓋掉半透明底在圓角接縫透出的淺色毛邊 */
+    outline-offset: -2px;
+}
+:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn:hover {
+    background: var(--accent-neon);
+    background: var(--bg-accent-tab-glass);
+    outline: 2px solid var(--border-dark);
+    outline-offset: -2px;
+}
 :root[data-bg-mode="image"] .random-preview,
 :root[data-bg-mode="image"] .journal-toolbar select,
 :root[data-bg-mode="image"] .journal-toolbar input,

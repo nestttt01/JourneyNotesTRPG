@@ -264,6 +264,7 @@ event.returnValue = '';
             wis: { code: 'WIS', label: '感知' },
             cha: { code: 'CHA', label: '魅力' }
         };
+        const DICE_CHECK_CATEGORIES = { str: '強行', dex: '身手', con: '硬撐', int: '調查', wis: '觀察', cha: '交涉' };
         const DICE_DIFFICULTIES = {
             trivial: { label: '超簡單', dc: 4, dcMin: 3, dcMax: 5 },
             easy: { label: '簡單', dc: 10, dcMin: 9, dcMax: 11 },

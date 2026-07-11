@@ -1018,7 +1018,7 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                         if (!lowSanInterference) {
                             btn.style.animationDelay = (optIndex * 130) + 'ms';
                         }
- btn.textContent = option.text;
+ applyOptionCardContent(btn, option.text, option.check, option.difficulty, option.proficient);
  btn.dataset.survivalOptionText = option.text;
  btn.dataset.survivalOptionCheck = option.check || '';
  btn.dataset.survivalOptionDifficulty = option.difficulty || 'normal';
@@ -1028,13 +1028,6 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
  btn.dataset.survivalHiddenCheck = hiddenSanOption.check || 'wis';
  btn.dataset.survivalHiddenDifficulty = hiddenSanOption.difficulty || 'hard';
  btn.dataset.survivalHiddenForceDice = hiddenSanOption.forceDice ? '1' : '';
- }
- if (option.check && DICE_STATS[option.check]) {
- const checkLabel = document.createElement('span');
- checkLabel.className = 'opt-check-label';
- const checkWord = window.uiMessage ? window.uiMessage('判定') : '判定';
- checkLabel.textContent = `${DICE_STATS[option.check].code} ${checkWord}`;
- btn.appendChild(checkLabel);
  }
  btn.onclick = () => {
  if (typeof handleSurvivalOptionClick === 'function') handleSurvivalOptionClick(btn, option.text, option.check, option.difficulty, option.proficient);
