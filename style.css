@@ -3155,14 +3155,10 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 :root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn {
     background: var(--card-bg);
     background: var(--bg-card-glass);
-    outline: 2px solid var(--border-dark);   /* 疊在邊框同位置的實心圈，蓋掉半透明底在圓角接縫透出的淺色毛邊 */
-    outline-offset: -2px;
 }
 :root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn:hover {
     background: var(--accent-neon);
     background: var(--bg-accent-tab-glass);
-    outline: 2px solid var(--border-dark);
-    outline-offset: -2px;
 }
 :root[data-bg-mode="image"] .random-preview,
 :root[data-bg-mode="image"] .journal-toolbar select,
