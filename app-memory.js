@@ -313,7 +313,7 @@ onclick="setMemoryTaskStatus(${index}, '${task.failed ? 'open' : 'failed'}')">!<
 <button class="memory-task-remove" type="button"
 aria-label="${escapeStatusHtml(uiText('刪除任務'))}"
 title="${escapeStatusHtml(uiText('刪除任務'))}"
-onclick="removeMemoryTask(${index})">🗑</button>
+onclick="removeMemoryTask(${index})">DEL</button>
 </div>`).join('');
 }
 

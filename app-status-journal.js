@@ -1136,6 +1136,7 @@ if (el) el.style.display = 'none';
                     : (journalSelectedSaveId && savesData[journalSelectedSaveId] ? journalSelectedSaveId : (keys[0] || '')));
             journalPageIndex = 0;
             journalSearchText = '';
+            journalImportantOnly = false;
             const search = document.getElementById('journal-search');
             if (search) search.value = '';
             renderAdventureJournalSaveSelector();
@@ -1223,6 +1224,12 @@ journalEmbedded = false;
             renderAdventureJournal();
         }
 
+        function toggleJournalImportantFilter() {
+            journalImportantOnly = !journalImportantOnly;
+            journalPageIndex = 0;
+            renderAdventureJournal();
+        }
+
 function getAdventureJournalEntries(saveId = journalSelectedSaveId) {
 const save = savesData[saveId];
 if (!save) return [];
@@ -1241,7 +1248,7 @@ function getImportantAdventureLogEntries(save, log = save?.log) {
     return [...new Set(importantIndices)]
         .filter(index => Number.isInteger(index) && index >= 0 && index < entries.length)
         .sort((a, b) => a - b)
-        .map(index => entries[index]);
+        .map(index => ({ index, text: entries[index] }));
 }
 
 function restoreImportantAdventureLogEntries(organizedLog, importantEntries = []) {
@@ -1259,7 +1266,8 @@ function restoreImportantAdventureLogEntries(organizedLog, importantEntries = []
     });
     const requiredCounts = new Map();
     importantEntries.forEach(entry => {
-        const key = normalizeAdventureLogKey(entry);
+        const text = typeof entry === 'string' ? entry : valueToText(entry?.text);
+        const key = normalizeAdventureLogKey(text);
         if (!key) {
             return;
         }
@@ -1268,7 +1276,9 @@ function restoreImportantAdventureLogEntries(organizedLog, importantEntries = []
         if ((availableCounts.get(key) || 0) >= requiredCount) {
             return;
         }
-        mergedEntries.push(entry);
+        const originalIndex = Number.isInteger(entry?.index) ? entry.index : mergedEntries.length;
+        const insertAt = Math.max(0, Math.min(originalIndex, mergedEntries.length));
+        mergedEntries.splice(insertAt, 0, text);
         availableCounts.set(key, (availableCounts.get(key) || 0) + 1);
     });
     return formatBulletListText(mergedEntries, '');
@@ -1291,7 +1301,8 @@ function remapImportantJournalEntries(save, importantEntries = [], log = save?.l
     const consumedCounts = new Map();
     const nextIndices = [];
     importantEntries.forEach(entry => {
-        const key = normalizeAdventureLogKey(entry);
+        const entryText = typeof entry === 'string' ? entry : valueToText(entry?.text);
+        const key = normalizeAdventureLogKey(entryText);
         const indices = availableIndices.get(key) || [];
         const consumedCount = consumedCounts.get(key) || 0;
         if (!key || consumedCount >= indices.length) {
@@ -1353,15 +1364,22 @@ renderAdventureJournal();
  }
             if (organizeButton) organizeButton.disabled = false;
             const allEntries = getAdventureJournalEntries();
-            const filteredEntries = journalSearchText
+            const searchedEntries = journalSearchText
                 ? allEntries.filter(entry => entry.text.toLowerCase().includes(journalSearchText))
                 : allEntries;
+            const filteredEntries = journalImportantOnly
+                ? searchedEntries.filter(entry => entry.important)
+                : searchedEntries;
+            const importantFilterButton = document.getElementById('journal-important-filter-btn');
+            if (importantFilterButton) {
+                importantFilterButton.setAttribute('aria-pressed', journalImportantOnly ? 'true' : 'false');
+            }
             const pageCount = Math.max(1, Math.ceil(filteredEntries.length / JOURNAL_PAGE_SIZE));
             journalPageIndex = Math.max(0, Math.min(journalPageIndex, pageCount - 1));
             const start = journalPageIndex * JOURNAL_PAGE_SIZE;
             const visibleEntries = filteredEntries.slice(start, start + JOURNAL_PAGE_SIZE);
  const locale = uiLocale();
- meta.textContent = journalSearchText
+ meta.textContent = (journalSearchText || journalImportantOnly)
  ? uiText('找到 {filtered} / {total} 條紀錄')
  .replace('{filtered}', filteredEntries.length)
  .replace('{total}', allEntries.length)
@@ -1439,7 +1457,9 @@ renderAdventureJournal();
         }
 
         function jumpAdventureJournalToLatest() {
-            const entries = getAdventureJournalEntries().filter(entry => !journalSearchText || entry.text.toLowerCase().includes(journalSearchText));
+            const entries = getAdventureJournalEntries().filter(entry =>
+                (!journalSearchText || entry.text.toLowerCase().includes(journalSearchText))
+                && (!journalImportantOnly || entry.important));
             journalPageIndex = Math.max(0, Math.ceil(entries.length / JOURNAL_PAGE_SIZE) - 1);
             renderAdventureJournal();
             window.scrollTo(0, document.body.scrollHeight);
@@ -1496,7 +1516,18 @@ renderAdventureJournal();
 
         async function organizeAdventureLogWithAI(save, onProgress = null) {
             const profile = getModelRuntimeProfile();
-            const chunks = chunkAdventureLog(save?.log, profile.id === 'gpt-4.1' ? 6000 : 8000);
+            const importantIndices = new Set(
+                (Array.isArray(save?.importantJournalEntries) ? save.importantJournalEntries.map(Number) : [])
+                    .filter(index => Number.isInteger(index) && index >= 0)
+            );
+            const organizerEntries = splitAdventureLog(save?.log)
+                .filter((entry, index) => !importantIndices.has(index));
+            if (!organizerEntries.length) {
+                const emptyError = new Error(uiText('所有紀錄都已標記為重要（★），沒有需要 AI 整理的內容。'));
+                emptyError.userFriendly = true;
+                throw emptyError;
+            }
+            const chunks = chunkAdventureLog(organizerEntries, profile.id === 'gpt-4.1' ? 6000 : 8000);
             const organizedEntries = [];
             for (let index = 0; index < chunks.length; index += 1) {
                 if (typeof onProgress === 'function') onProgress(index + 1, chunks.length);
@@ -1525,8 +1556,8 @@ renderAdventureJournal();
  }
                 });
  if (!organizedLog) throw new Error(uiText('AI 沒有回傳可用的冒險紀錄。'));
- const protectedLog = restoreProtectedAdventureLogEntries(save.log, organizedLog);
- const finalLog = restoreImportantAdventureLogEntries(protectedLog, importantEntries);
+ const importantLog = restoreImportantAdventureLogEntries(organizedLog, importantEntries);
+ const finalLog = restoreProtectedAdventureLogEntries(save.log, importantLog);
  if (!Array.isArray(save.memoryLogBackups)) save.memoryLogBackups = [];
  save.memoryLogBackups.push({ date: new Date().toLocaleString(), log: save.log });
  save.memoryLogBackups = save.memoryLogBackups.slice(-3);

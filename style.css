@@ -419,7 +419,7 @@ z-index: 10;
 .memory-task-row.failed .memory-task-text { color: var(--border-dark); text-decoration: none; }
 .memory-task-fail, .memory-task-remove { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text-sub); font-size: 13px; font-weight: 900; line-height: 22px; cursor: pointer; }
 .memory-task-fail:hover, .memory-task-fail:focus-visible, .memory-task-row.failed .memory-task-fail { color: var(--border-dark); outline: none; }
-.memory-task-remove { color: var(--text-sub); font-size: 13px; }
+.memory-task-remove { color: #9b3942; font-size: 9px; font-weight: 900; letter-spacing: 0.4px; }
 .memory-task-remove:hover, .memory-task-remove:focus-visible { color: var(--border-dark); outline: none; }
         .memory-task-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; margin-top: 8px; }
         .memory-task-add input { min-width: 0; padding: 9px 10px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 700; }
@@ -443,6 +443,7 @@ z-index: 10;
         .journal-toolbar select, .journal-toolbar input { width: 100%; min-width: 0; padding: 11px 12px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--text-main); font-size: 16px; font-weight: 800; }
         .journal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
         .journal-actions .btn { flex: 0 1 auto; padding: 8px 11px; font-size: 12px; }
+        #journal-important-filter-btn[aria-pressed="true"] { background: var(--accent-neon); box-shadow: 1px 1px 0 var(--border-dark); }
         .journal-meta { margin-bottom: 10px; color: var(--text-sub); font-size: 12px; font-weight: 800; }
         .journal-entry-list { display: grid; gap: 9px; min-width: 0; margin-bottom: 0; }
         .journal-empty { padding: 20px 14px; border: 2px dashed #aaa; border-radius: 10px; color: var(--text-sub); text-align: center; font-size: 13px; font-weight: 800; }

@@ -395,6 +395,15 @@ return getPresetImportSignature(existing) === incomingSignature;
 function importPresetWithoutDuplicate(rawPreset, sections = { characters: true, scenarios: true }, options = {}) {
 const preset = normalizeImportedPreset(rawPreset, sections);
 const originalId = valueToText(rawPreset?.id || options.originalId);
+if (options.forceCopy === true && options.confirmIdenticalReuse === true) {
+const identicalId = findExistingPresetForImport(preset, { originalId, matchByNameAndContent: true });
+if (identicalId) {
+const existingName = valueToText(scenarioPresets[identicalId]?.presetName, '未命名配置');
+const message = uiText('本機已有內容完全相同的配置「{presetName}」。仍要另外建立一份匯入副本嗎？')
+.replace('{presetName}', existingName);
+if (!confirm(message)) return { id: identicalId, imported: false, preset: scenarioPresets[identicalId] };
+}
+}
 const hasIdCollision = Boolean(originalId && scenarioPresets[originalId]);
 const hasNameCollision = Object.values(scenarioPresets || {}).some(existing =>
 valueToText(existing?.presetName) === valueToText(preset.presetName)
@@ -473,7 +482,7 @@ validateImportCollections({}, importedPresets);
 let count = 0;
 Object.values(importedPresets || {}).forEach(rawPreset => {
 if (!rawPreset || typeof rawPreset !== 'object' || Array.isArray(rawPreset)) return;
-const result = importPresetWithoutDuplicate(rawPreset, sections, { forceCopy: true });
+const result = importPresetWithoutDuplicate(rawPreset, sections, { forceCopy: true, confirmIdenticalReuse: true });
 activePresetId = result.id;
 if (!result.imported) return;
 count += 1;

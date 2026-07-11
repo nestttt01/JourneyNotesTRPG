@@ -314,6 +314,7 @@ event.returnValue = '';
         let journalSelectedSaveId = '';
         let journalPageIndex = 0;
         let journalSearchText = '';
+        let journalImportantOnly = false;
 let journalReturnTarget = 'setup';
 let journalEmbedded = false;
 let editScenarioDirty = false;
