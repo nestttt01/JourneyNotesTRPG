@@ -69,3 +69,80 @@ test('option proficiency flag flows into the suggested-check path', async ({ pag
     expect(result.applyWithoutList).toBe(false);
     expect(result.datasetNoCheck).toBe('');
 });
+
+test('low SAN option mutation waits for a narrator dice roll', async ({ page }) => {
+    await openApp(page);
+    const result = await page.evaluate(async scenario => {
+        currentScenario = {
+            ...scenario,
+            scenarios: [{ runtimePlayerPresence: 'absent' }]
+        };
+        currentScenarioIndex = 0;
+        currentHp = 100;
+        currentSan = 5;
+        creatorInputArmed = false;
+        survivalFxHiddenCooldown = 0;
+        localStorage.setItem('sanko_survival_fx', 'full');
+
+        const inputEl = document.getElementById('player-input');
+        const optionsEl = document.getElementById('options-area');
+        optionsEl.innerHTML = '';
+        const button = document.createElement('button');
+        button.className = 'opt-btn';
+        button.dataset.survivalHiddenText = 'hidden choice';
+        button.dataset.survivalHiddenCheck = 'wis';
+        button.dataset.survivalHiddenDifficulty = 'hard';
+        button.dataset.survivalHiddenForceDice = '0';
+        optionsEl.appendChild(button);
+
+        const originalSendChoice = sendChoice;
+        const originalRandom = Math.random;
+        let sendCount = 0;
+        sendChoice = async () => {
+            sendCount += 1;
+        };
+        Math.random = () => 0;
+
+        try {
+            handleSurvivalOptionClick(button, 'narrator choice', 'int', 'hard', false);
+            await new Promise(resolve => window.setTimeout(resolve, 150));
+            const narrator = {
+                mode: getGameInputMode(),
+                interference: shouldApplySurvivalOptionInterference(),
+                value: inputEl.value,
+                stat: inputEl.dataset.diceStat,
+                difficulty: inputEl.dataset.diceDifficulty,
+                sendCount,
+                mutated: button.classList.contains('survival-option-mutated')
+            };
+
+            currentScenario.scenarios[0].runtimePlayerPresence = 'present';
+            handleSurvivalOptionClick(button, 'character choice', 'cha', 'normal', false);
+            await new Promise(resolve => window.setTimeout(resolve, 150));
+            const character = {
+                mode: getGameInputMode(),
+                interference: shouldApplySurvivalOptionInterference(),
+                value: inputEl.value,
+                sendCount,
+                mutated: button.classList.contains('survival-option-mutated')
+            };
+            return { narrator, character };
+        } finally {
+            sendChoice = originalSendChoice;
+            Math.random = originalRandom;
+        }
+    }, fixtureScenario());
+
+    expect(result.narrator.mode).toBe('narrator');
+    expect(result.narrator.interference).toBe(false);
+    expect(result.narrator.value).toBe('narrator choice');
+    expect(result.narrator.stat).toBe('int');
+    expect(result.narrator.difficulty).toBe('hard');
+    expect(result.narrator.sendCount).toBe(0);
+    expect(result.narrator.mutated).toBe(false);
+    expect(result.character.mode).toBe('character');
+    expect(result.character.interference).toBe(true);
+    expect(result.character.value).toBe('hidden choice');
+    expect(result.character.sendCount).toBe(1);
+    expect(result.character.mutated).toBe(true);
+});

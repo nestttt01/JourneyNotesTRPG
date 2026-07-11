@@ -1024,27 +1024,17 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             return { handled: true, success: false, npc: intent.npc, extraPrompt: `【復活硬判定結果】${eventText}。這是程式最終結果，必須演出失敗；禁止復活、禁止提供新的復活選項。` };
         }
 
-        /* 擲骰翻面(2026/07/10,fx-lab D 案):按下骰子後骰面隨機輪替 7 幀+按鈕微抖 0.7s,
-           純裝飾不卡判定流程;只換按鈕文字裡的骰面字元,不動 i18n 標籤。 */
+        /* Keep the D20 SVG intact while the button and icon animate for 0.7 seconds. */
         function playDiceRollFx() {
             const btn = document.getElementById('dice-btn');
-            const icon = btn?.querySelector('.input-action-icon');
-            if (!btn || !icon || btn.dataset.rollingFx === '1') return;
+            if (!btn || btn.dataset.rollingFx === '1') return;
             if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            const faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
             btn.dataset.rollingFx = '1';
             btn.classList.add('dice-rolling');
-            let frame = 0;
-            const timer = window.setInterval(() => {
-                icon.textContent = faces[Math.floor(Math.random() * 6)];
-                frame += 1;
-                if (frame >= 7) {
-                    window.clearInterval(timer);
-                    icon.textContent = '⚄';
-                    btn.classList.remove('dice-rolling');
-                    delete btn.dataset.rollingFx;
-                }
-            }, 100);
+            window.setTimeout(() => {
+                btn.classList.remove('dice-rolling');
+                delete btn.dataset.rollingFx;
+            }, 700);
         }
 
         async function sendDiceChoice() {
@@ -2130,6 +2120,10 @@ function stopSurvivalAmbientEffects() {
     document.querySelectorAll('.survival-fx-signal,.survival-fx-shard,.survival-fx-backtext').forEach(node => node.remove());
 }
 
+function shouldApplySurvivalOptionInterference() {
+    return getGameInputMode() === 'character';
+}
+
 function resetSurvivalOption(btn) {
     if (!btn) return;
     const state = survivalFxOptionState.get(btn);
@@ -2158,7 +2152,7 @@ function getSurvivalOptionState(btn) {
 
 function nudgeSurvivalOption(btn, strong = false) {
     const fx = getSurvivalFxState();
-    if (fx.sanSeverity <= 0 || fx.reduced || !btn) return;
+    if (fx.sanSeverity <= 0 || fx.reduced || !btn || !shouldApplySurvivalOptionInterference()) return;
     if (survivalFxActiveOption && survivalFxActiveOption !== btn) resetSurvivalOption(survivalFxActiveOption);
     survivalFxActiveOption = btn;
     const state = getSurvivalOptionState(btn);
@@ -2249,7 +2243,7 @@ function getSurvivalHiddenOption(btn) {
 
 function getSurvivalOptionMutation(btn, originalText, originalCheck = '', originalDifficulty = 'normal') {
  const state = getSurvivalFxState();
- if (state.sanSeverity <= 0 || state.reduced || !btn) return null;
+ if (state.sanSeverity <= 0 || state.reduced || !btn || !shouldApplySurvivalOptionInterference()) return null;
  const original = valueToText(originalText).trim();
  const wasOnHiddenCooldown = survivalFxHiddenCooldown > 0;
  if (survivalFxHiddenCooldown > 0) survivalFxHiddenCooldown -= 1;
@@ -2290,6 +2284,11 @@ function getSurvivalOptionMutation(btn, originalText, originalCheck = '', origin
 }
 
 function handleSurvivalOptionClick(btn, text, check = '', difficulty = 'normal', proficient = false) {
+    if (!shouldApplySurvivalOptionInterference()) {
+        resetSurvivalOption(btn);
+        selectOption(text, check, difficulty, proficient);
+        return;
+    }
     const mutation = getSurvivalOptionMutation(btn, text, check, difficulty);
     if (!mutation) {
         selectOption(text, check, difficulty, proficient);

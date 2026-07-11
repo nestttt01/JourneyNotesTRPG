@@ -44,6 +44,13 @@
         <symbol id="theme-icon-up" viewBox="0 0 154.684 200">
             <path d="M442.8,1963.3l0-65.354-44.662-44.662-32.678-32.676-32.676,32.673-44.665,44.667V1963.3l55.086-55.085v112.391h44.51v-112.4Z" transform="translate(-288.116 -1820.605)"></path>
         </symbol>
+        <symbol id="theme-icon-d20" viewBox="0 0 120 120">
+            <path d="M60 8 108 36v48l-48 28-48-28V36L60 8Z" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M12 36h96M60 8v28M12 36l22 38 26-38 26 38 22-38M12 84l22-10h52l22 10M34 74l26 38 26-38" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </symbol>
+        <symbol id="theme-icon-cup" viewBox="0 0 200 161.458">
+            <g transform="translate(-15.064 -266.634)"><path d="M22.791,266.634V368.21a26.277,26.277,0,0,0,26.335,26.335H145.06A26.278,26.278,0,0,0,171.4,368.21V352.6c15.908,2.54,32.609-7.022,39.985-22.893,8.585-18.479,1.651-39-15.487-45.836a31.7,31.7,0,0,0-12.3-2.213,35.674,35.674,0,0,0-12.195,2.467V266.635Zm158.876,36.122h0a12.955,12.955,0,0,1,5.025.9c7,2.793,9.833,11.176,6.326,18.725S181,333.791,173.994,331a12.172,12.172,0,0,1-2.6-1.437V307.119a15.513,15.513,0,0,1,10.272-4.363Zm-9.392,105.236-.2,0H25.544a10.052,10.052,0,1,0,0,20.085H172.076a10.052,10.052,0,1,0,.2-20.09Z" transform="translate(0 0)"/></g>
+        </symbol>
     </svg>
     <!-- 開機簾幕(2026/07/10):首繪即以主題紙色蓋全場,onload 尾聲(含自動驗證落定)一次掀開,
          消除「背景/頭像/驗證區/側標籤分批現身」的載入裸奔閃爍;內建 8 秒保險自動掀開 -->
@@ -1019,8 +1026,6 @@
             </div>
             <div class="scroll-row">
                 <select id="btn-location" class="btn-location" onchange="changeScenario(this.value)"></select>
-                <button id="rest-btn" class="mini-add-btn" type="button" onclick="takeBreath()" title="喘息穩住身心：擲檢定回復 HP／SAN（上限 50%，不能連續使用）">喘息</button>
-                
                 <div class="spacer"></div>
                 <button id="game-model-indicator" class="game-model-indicator" type="button" onclick="openStatusModal(); switchStatusTab('api');" title="模型設定已移至角色面板的「系統」頁"></button>
             </div>
@@ -1041,6 +1046,11 @@
                 <button type="button" id="creator-mode-btn" class="input-mode-tab creator-mode-btn"
                     onclick="setGameInputMode('creator')" aria-pressed="false"
                     title="切換持續創作者指令模式">神</button>
+                <button type="button" id="rest-btn" class="input-mode-tab input-rest-btn"
+                    onclick="takeBreath()"
+                    title="喘息穩住身心：擲檢定回復 HP／SAN（上限 50%，不能連續使用）" aria-label="喘息穩住身心：擲檢定回復 HP／SAN（上限 50%，不能連續使用）">
+                    <svg class="theme-svg-icon theme-svg-cup" viewBox="0 0 200 161.458" aria-hidden="true" focusable="false"><use href="#theme-icon-cup"></use></svg>
+                </button>
             </div>
             <div class="input-compose-row">
                 <textarea id="player-input" rows="1"
@@ -1050,7 +1060,7 @@
                 <button type="button" class="input-action-btn" id="dice-btn"
                     onclick="sendDiceChoice()" aria-label="擲骰"
                     title="由 AI 判斷檢定屬性後隨機擲出 D20">
-                    <span class="input-action-icon" aria-hidden="true">⚄</span>
+                    <svg class="input-action-icon theme-svg-icon theme-svg-d20" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#theme-icon-d20"></use></svg>
                 </button>
                 <span class="input-action-divider" aria-hidden="true"></span>
                 <button type="button" class="input-action-btn" id="send-btn"

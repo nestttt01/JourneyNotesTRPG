@@ -28,6 +28,17 @@
         body { min-width: 0; }
         img, input, textarea, select, button { max-width: 100%; }
 
+        :where(button, input, textarea, select, [role="button"], [tabindex]):focus {
+            outline: none;
+        }
+        :where(input:not([type="checkbox"]):not([type="radio"]), textarea, select):focus-visible {
+            box-shadow: 3px 3px 0 var(--accent-neon);
+        }
+        :where(button, [role="button"], [tabindex], input[type="checkbox"], input[type="radio"]):focus-visible {
+            outline: 2px solid var(--accent-neon);
+            outline-offset: 2px;
+        }
+
         ::-webkit-scrollbar { display: none; }
 
         #setup-screen, #edit-scenario-screen, #save-menu-screen, #journal-screen {
@@ -501,6 +512,17 @@ z-index: 10;
     width: 18px;
     height: 22px;
 }
+.theme-svg-d20 {
+    width: 24px;
+    height: 24px;
+}
+.theme-svg-cup {
+    width: 16px;
+    height: 13px;
+    position: relative;
+    left: -1px;
+    top: 1px;
+}
 
         #game-home-tab {
             display: none; position: absolute; left: -36px; top: 52px;
@@ -543,7 +565,7 @@ z-index: 10;
         .status-panel-close:hover,
         .status-panel-close:focus-visible { background: var(--accent-neon); outline: none; box-shadow: 2px 2px 0 var(--border-dark); }
 
-        #status-bar { display: flex; flex-direction: column; gap: 10px; border-bottom: 2px dashed #a0a0a0; padding-bottom: 15px; margin-bottom: 10px; width: 100%; flex-shrink: 0; }
+        #status-bar { display: flex; flex-direction: column; gap: 10px; border-bottom: 2px dashed #a0a0a0; padding-bottom: 15px; margin-bottom: 0; width: 100%; flex-shrink: 0; }
         .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px; }
         .scroll-row { display: flex; gap: 8px; align-items: center; width: 100%; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -ms-overflow-style: none; justify-content: flex-start; }
         .spacer { flex-grow: 1; min-width: 10px; }
@@ -580,7 +602,6 @@ z-index: 10;
 
         .mini-add-btn { background: var(--card-bg); border: 2px solid var(--border-dark); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; color: var(--text-main); transition: all 0.2s; flex-shrink: 0; white-space: nowrap; }
         .mini-add-btn:active { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
-        #rest-btn { width: auto; height: auto; display: inline-grid; place-items: center; }
         @media (hover: hover) and (pointer: fine) {
             .mini-add-btn:hover { background: var(--accent-neon); box-shadow: 2px 2px 0px var(--border-dark); transform: translate(-1px, -1px); }
         }
@@ -588,7 +609,7 @@ z-index: 10;
             .mini-add-btn:hover:not(.active), .mini-add-btn:focus:not(.active) { background: var(--card-bg); box-shadow: none; transform: none; }
         }
 
-        #dialogue-box { background: transparent; padding: 5px; margin: 5px 0; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; position: relative; }
+        #dialogue-box { background: transparent; padding: 5px; margin: 0; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; position: relative; }
         /* 訊息一律不可被 flex 壓縮(2026/07/10 修):帶 overflow:hidden 的訊息(如骰點大成功掃光)
            會失去 min-height:auto 保底,被整欄的壓縮額度壓成細條、文字裁半。聊天內容本來就靠捲動。 */
         #dialogue-box > * { flex-shrink: 0; }
@@ -624,6 +645,7 @@ z-index: 10;
 @keyframes relationshipHeartBeat { 0%, 100% { transform: translateY(0); } 14%, 28% { transform: translateY(calc(-1 * var(--u))); } 42% { transform: translateY(0); } 58% { transform: translateY(calc(-0.5 * var(--u))); } 72% { transform: translateY(0); } }
 
 #options-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding-right: 5px; flex-shrink: 0; }
+#options-area:empty { display: none; }
         .opt-btn { background: var(--card-bg); border: 2px solid var(--border-dark); color: var(--text-main); padding: 7px 10px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 800; text-align: left; transition: all 0.2s; line-height: 1.4; border-left: 6px solid var(--accent-neon); }
         .opt-btn:hover { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-3px, -3px); }
         .opt-btn { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; }   /* 等高網格下內容固定貼頂，避免短卡內容垂直置中造成籤列下沉 */
@@ -679,6 +701,14 @@ z-index: 10;
             font-weight: 900;
             line-height: 1;
             cursor: pointer;
+        }
+        .input-rest-btn {
+            width: 42px;
+            min-width: 42px;
+            padding: 0;
+            display: inline-grid;
+            place-items: center;
+            flex: 0 0 auto;
         }
         @media (hover: hover) and (pointer: fine) {
             .input-mode-tab:hover:not(.active),
@@ -1414,8 +1444,13 @@ background: var(--paper-bg);
             50% { opacity: 1; transform: translateY(-2px); }
             100% { opacity: 1; transform: translateY(0); }
         }
-        /* 擲骰翻面微抖(2026/07/10,fx-lab D 案):骰面輪替由 JS playDiceRollFx 驅動 */
+        /* The D20 icon rotates while the button keeps the existing 0.7-second shake. */
         #dice-btn.dice-rolling { animation: dice-roll-shake 0.7s steps(7, end); }
+        #dice-btn.dice-rolling .theme-svg-d20 { animation: dice-icon-turn 0.7s steps(7, end); }
+        @keyframes dice-icon-turn {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
         @keyframes dice-roll-shake {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
             14% { transform: translate(-2px, 1px) rotate(-8deg); }
@@ -1460,7 +1495,8 @@ background: var(--paper-bg);
             .px-shine:hover::after, .px-shine:focus-visible::after { animation: none; opacity: 0; }
             .stat-delta-pop, .opt-btn.opt-enter, .stat-hit, .stat-chip.hit .stat-cells, .stat-chip.healed .stat-cells, .stat-cells i.dying, .stat-cells i.filling, #loading .px-loader i, .affection-heart-pop, .affection-pop-heart, .affection-pop-heart.sad, .affection-pop-tear, .affection-pop-amount { animation: none; opacity: 1; }
             .npc-affection { animation: none; }   /* 量表心情緒動態全停;mood-dead 的靜態傾倒 transform 保留 */
-            #dialogue-box .msg-enter, #dice-btn.dice-rolling { animation: none; }   /* 訊息輕彈入/擲骰微抖全停(骰面輪替另有 JS 守門) */
+            #dialogue-box .msg-enter, #dice-btn.dice-rolling,
+            #dice-btn.dice-rolling .theme-svg-d20 { animation: none; }
             .npc-affection-spark { animation: none; opacity: 1; }   /* 星塵改常亮,避免 animation 停用後永遠隱形 */
         }
         .api-home-guide {
@@ -2658,7 +2694,7 @@ margin: 0; padding: 0; background: transparent;
             .msg-text { padding: 8px 12px; font-size: 14px; line-height: 1.5; }
             .msg-narrative { padding: 8px 12px; font-size: 13px; line-height: 1.5; margin: 0 5px; }
             #dialogue-box { gap: 12px; padding: 0; }
-            #status-bar { padding-bottom: 8px; margin-bottom: 8px; gap: 6px; }
+            #status-bar { padding-bottom: 8px; margin-bottom: 0; gap: 6px; }
             #input-area {
                 padding: 8px 10px;
                 gap: 4px;
@@ -2670,6 +2706,12 @@ margin: 0; padding: 0; background: transparent;
                 min-height: 44px;
                 padding: 0 12px;
             }
+            .input-rest-btn {
+                width: 44px;
+                min-width: 44px;
+                padding: 0;
+            }
+    .theme-svg-cup { left: -2px; }
             .input-compose-row {
                 grid-template-columns: minmax(0, 1fr) 1px 44px 1px 44px;
             }
