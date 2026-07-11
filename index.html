@@ -168,7 +168,7 @@
 
                     <div id="status-log-summary-view" class="status-log-summary-view" role="tabpanel" aria-labelledby="status-log-summary-tab">
                         <div class="memory-action-row status-log-summary-actions">
-                            <button id="organize-summary-btn" class="memory-action-btn" onclick="organizeMemoryWithAI('summary')">整理摘要</button>
+                            <button id="organize-summary-btn" class="memory-action-btn" aria-label="整理摘要" title="整理摘要" onclick="organizeMemoryWithAI('summary')">整理</button>
                             <span class="memory-action-note">每回合會自動更新重點、任務與關係；完整冒險紀錄仍保留在下方，不會自動刪除。</span>
                         </div>
 
@@ -1001,10 +1001,10 @@
             <input id="journal-search" type="search" placeholder="搜尋事件、角色或地點..." aria-label="搜尋冒險日誌" oninput="filterAdventureJournal(this.value)">
         </div>
         <div class="journal-actions">
-            <button id="journal-organize-btn" class="btn" onclick="organizeSelectedJournalLog()">整理重複事件</button>
-            <button class="btn" onclick="restoreSelectedJournalBackup()">↶ 復原上次整理</button>
-            <button class="btn" onclick="jumpAdventureJournalToLatest()">跳到最新</button>
-            <button id="journal-important-filter-btn" class="btn" type="button" aria-pressed="false" onclick="toggleJournalImportantFilter()">只看★</button>
+            <button id="journal-organize-btn" class="btn journal-action-tool journal-action-organize" aria-label="整理冒險日誌" title="整理冒險日誌" onclick="organizeSelectedJournalLog()">整理</button>
+            <button class="btn journal-action-tool" aria-label="還原上次整理" title="還原上次整理" onclick="restoreSelectedJournalBackup()">還原</button>
+            <button class="btn journal-action-tool" aria-label="跳到最新" title="跳到最新" onclick="jumpAdventureJournalToLatest()">最新</button>
+            <button id="journal-important-filter-btn" class="btn journal-action-tool journal-action-filter" type="button" aria-pressed="false" aria-label="只看重要標記" title="只看重要標記" onclick="toggleJournalImportantFilter()">★</button>
         </div>
         <p id="journal-meta" class="journal-meta"></p>
         <div id="journal-entry-list" class="journal-entry-list"></div>
