@@ -479,6 +479,31 @@ z-index: 10;
             box-shadow: 8px 8px 0px rgba(0,0,0,0.05); position: relative;
         }
 
+        #game-home-tab {
+            display: none; position: absolute; left: -36px; top: 52px;
+            width: 36px; min-height: 54px; padding: 13px 5px;
+            background: var(--accent-neon); border: 2px solid var(--border-dark); border-right: 0;
+            border-radius: 12px 0 0 12px; cursor: pointer;
+            align-items: center; justify-content: center;
+            box-shadow: -5px 5px 0 var(--accent-gray); z-index: 50;
+        }
+        #game-home-tab img {
+            width: 22px; height: 22px; display: block; object-fit: contain;
+            filter: brightness(0) saturate(100%) invert(13%) sepia(0%) saturate(0%) hue-rotate(183deg) brightness(95%) contrast(87%);
+            pointer-events: none;
+        }
+        #game-home-tab:hover { transform: translateX(-2px); }
+        @media (min-width: 1101px) {
+            #game-home-tab { display: inline-flex; }
+            #exit-game-btn { display: none; }
+            #status-bar .top-row { justify-content: flex-end; }
+        }
+        .game-model-indicator {
+            background: transparent; border: 0; padding: 4px 6px;
+            color: var(--text-sub); font-size: 11px; font-weight: 800;
+            max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            cursor: pointer;
+        }
         #floating-menu-btn {
             position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
             background: var(--border-dark); color: var(--accent-neon);
@@ -3105,6 +3130,7 @@ box-shadow: -5px 5px 0 var(--bg-tab-shadow);
 
 :root[data-bg-mode="image"] .setup-side-tab.setup-home-tab,
 :root[data-bg-mode="image"] .desktop-config-tab.desktop-config-home-tab,
+:root[data-bg-mode="image"] #game-home-tab,
 :root[data-bg-mode="image"] .core-rules-tab {
 background: var(--accent-neon);
 background-color: var(--accent-neon);
@@ -3123,6 +3149,7 @@ box-shadow: 5px 5px 0 var(--bg-tab-shadow);
 
 :root[data-bg-mode="image"] #floating-menu-btn:hover,
 :root[data-bg-mode="image"] .setup-side-tab.setup-home-tab:hover,
+:root[data-bg-mode="image"] #game-home-tab:hover,
 :root[data-bg-mode="image"] .desktop-config-tab.desktop-config-home-tab:hover,
 :root[data-bg-mode="image"] .core-rules-tab:hover,
 :root[data-bg-mode="image"] .core-rules-tab:focus-visible,

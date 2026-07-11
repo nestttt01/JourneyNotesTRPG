@@ -67,6 +67,14 @@
  ensureGameModelSelectReady();
 }
 
+function updateGameModelIndicator() {
+    const indicator = document.getElementById('game-model-indicator');
+    if (!indicator) return;
+    const gameSelect = document.getElementById('game-model-choice');
+    const label = gameSelect?.selectedOptions?.[0]?.textContent || '';
+    indicator.textContent = label.replace(/^▪ /, '');
+}
+
 function syncModelSelection(modelName) {
 if (modelName === '__load_models__') {
  fetchAvailableModelsFromGame();
@@ -80,6 +88,7 @@ selectedModel = modelName;
 localStorage.setItem(getModelStorageKey(apiProvider), modelName);
 setSelectValueWithFallback(document.getElementById('model-choice'), modelName);
 setSelectValueWithFallback(document.getElementById('game-model-choice'), modelName);
+updateGameModelIndicator();
 renderApiUsageStats();
 }
 

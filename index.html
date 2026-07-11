@@ -210,6 +210,12 @@
                             <option value="off">關閉效果</option>
                         </select>
                     </div>
+                    <div class="language-setting-row">
+                        <div class="scenario-label">模型</div>
+                        <select id="game-model-choice" class="language-mode-select game-model-select" onchange="syncModelSelection(this.value)">
+                            <option value="">核心切換</option>
+                        </select>
+                    </div>
                     </div>
 
                     <p class="u-inline-016">API 使用追蹤</p>
@@ -993,10 +999,11 @@
 </div>
         
         <div id="floating-menu-btn" onclick="toggleStatusPanel()" role="button" tabindex="0" aria-label="開啟或收回角色面板">角色面板</div>
+        <button type="button" id="game-home-tab" onclick="backToSaveMenu()" aria-label="返回首頁" title="返回首頁"><img src="assets/icons/home.svg" alt="" aria-hidden="true"></button>
 
         <div id="status-bar">
             <div class="top-row">
-                <button class="btn u-inline-057" onclick="backToSaveMenu()">離開</button>
+                <button id="exit-game-btn" class="btn u-inline-057" onclick="backToSaveMenu()">離開</button>
                 <div class="u-inline-058">
                     <span class="stat-chip hp"><span class="stat-chip-icon" aria-hidden="true">♥</span><span class="stat-cells" aria-hidden="true"></span><b id="ui-hp">100</b></span>
                     <span class="stat-chip san"><span class="stat-chip-icon" aria-hidden="true">✦</span><span class="stat-cells" aria-hidden="true"></span><b id="ui-san">100</b></span>
@@ -1004,14 +1011,11 @@
             </div>
             <div class="scroll-row">
                 <select id="btn-location" class="btn-location" onchange="changeScenario(this.value)"></select>
-                <button class="mini-add-btn" onclick="addMidGameScenarioAndEdit()">+ 新情境</button>
                 <button id="creator-mode-btn" class="mini-add-btn creator-mode-btn" type="button" onclick="toggleCreatorInputMode()" aria-pressed="false" title="切換持續創作者指令模式">神</button>
                 <button id="rest-btn" class="mini-add-btn" type="button" onclick="takeBreath()" title="喘息穩住身心：擲檢定回復 HP／SAN（上限 50%，不能連續使用）">喘息</button>
                 
                 <div class="spacer"></div>
-                <select id="game-model-choice" class="game-model-select" onchange="syncModelSelection(this.value)">
-                    <option value="">核心切換</option>
-                </select>
+                <button id="game-model-indicator" class="game-model-indicator" type="button" onclick="openStatusModal(); switchStatusTab('api');" title="模型設定已移至角色面板的「系統」頁"></button>
             </div>
             <span id="ui-tokens">0</span>
         </div>

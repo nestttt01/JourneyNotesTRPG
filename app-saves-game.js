@@ -534,6 +534,14 @@ return `sanko_input_draft_${saveId || 'none'}`;
             return { name, lore: '', npcRoles: '', playerRole: '', transitionRule: '' };
         }
 
+        function appendAddScenarioOption(locSelect) {
+            if (!locSelect) return;
+            const addOpt = document.createElement('option');
+            addOpt.value = '__add_scenario__';
+            addOpt.innerText = window.uiText ? window.uiText('＋ 新增情境') : '＋ 新增情境';
+            locSelect.appendChild(addOpt);
+        }
+
         function refreshGameLocationSelect() {
             const locSelect = document.getElementById('btn-location');
             if (!locSelect) return;
@@ -545,6 +553,7 @@ return `sanko_input_draft_${saveId || 'none'}`;
                 if (i === currentScenarioIndex) opt.selected = true;
                 locSelect.appendChild(opt);
             });
+            appendAddScenarioOption(locSelect);
         }
 
         function addScenarioToCurrentGame(scenario) {
@@ -1076,6 +1085,12 @@ dialogues only lists actual speakers. options must contain exactly 3 entries; op
         }
 
         function changeScenario(indexStr) {
+            if (indexStr === '__add_scenario__') {
+                const locSelect = document.getElementById('btn-location');
+                if (locSelect) locSelect.value = String(currentScenarioIndex);
+                addMidGameScenarioAndEdit();
+                return;
+            }
             const newIndex = Number.parseInt(indexStr, 10);
             if (!Number.isInteger(newIndex) || !currentScenario.scenarios?.[newIndex]) return;
             if (newIndex === currentScenarioIndex && newIndex === currentChatPageIndex) return;

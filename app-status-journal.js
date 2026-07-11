@@ -418,6 +418,7 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
                         const opt = document.createElement('option'); opt.value = i; opt.innerText = `✦ ${sc.name}`;
                         if(i === currentScenarioIndex) opt.selected = true; locSelect.appendChild(opt);
                     });
+                    if (typeof appendAddScenarioOption === 'function') appendAddScenarioOption(locSelect);
                 }
 
                 if (shouldKeepStatusPanelOpenAfterSave()) {

@@ -716,9 +716,11 @@ if(saveData.scenario) {
                 const opt = document.createElement('option'); opt.value = i; opt.innerText = `✦ ${sc.name}`;
                 if(i === currentScenarioIndex) opt.selected = true; locSelect.appendChild(opt);
             });
+            if (typeof appendAddScenarioOption === 'function') appendAddScenarioOption(locSelect);
             
  ensureGameModelSelectReady();
  setSelectValueWithFallback(document.getElementById('game-model-choice'), selectedModel);
+ if (typeof updateGameModelIndicator === 'function') updateGameModelIndicator();
  document.getElementById('dialogue-box').innerHTML = ''; document.getElementById('options-area').innerHTML = '';
 document.getElementById('setup-screen').style.display = 'none'; document.getElementById('save-menu-screen').style.display = 'none'; document.getElementById('game-container').style.display = 'flex';
             
