@@ -264,6 +264,99 @@ async function openStatusDetailFixture(page) {
     });
 }
 
+test('status panel typography uses the five-level scale', async ({ page }) => {
+    await openStatusDetailFixture(page);
+    await page.evaluate(() => {
+        currentScenario.scenarios = [{
+            name: '旅店',
+            lore: '安靜的老旅店',
+            npcRoles: '店主正在準備晚餐',
+            playerRole: '暫住的旅客',
+            objective: '',
+            transitionRule: ''
+        }];
+        currentScenarioIndex = 0;
+        currentFlags = ['出遊開心'];
+        currentItems = ['調查筆記'];
+        itemEffects = { '調查筆記': { type: 'hp', amount: 1 } };
+        currentOpenTasks = '☐ 確認旅店出口';
+        openStatusModal();
+        switchStatusTab('settings');
+    });
+
+    const typography = await page.evaluate(() => {
+        const panel = document.getElementById('status-modal-content');
+        const expected = {
+            saveButton: ['#status-save-btn', '14px'],
+            saveIndicator: ['.status-save-indicator', '12px'],
+            saveAsButton: ['.status-save-as-btn', '12px'],
+            tab: ['.status-tab-btn', '14px'],
+            stateHeading: ['#status-page-state > .u-inline-013', '14px'],
+            flag: ['.flag-tag', '14px'],
+            item: ['.item-tag', '14px'],
+            itemUse: ['.item-use-btn', '12px'],
+            growthRank: ['.growth-rank', '14px'],
+            growthPoints: ['.growth-points', '14px'],
+            growthHint: ['.growth-mod-hint', '12px'],
+            growthModifiers: ['.growth-mod-line', '16px'],
+            logTitle: ['.status-log-view-title', '16px'],
+            logDescription: ['.status-log-view-description', '10px'],
+            actionNote: ['.memory-action-note', '10px'],
+            memoryTitle: ['.memory-field-title', '12px'],
+            memoryHint: ['.memory-field-hint', '12px'],
+            storyText: ['#ui-story-summary', '14px'],
+            taskText: ['.memory-task-text', '12px'],
+            taskFail: ['.memory-task-fail', '14px'],
+            taskRemove: ['.memory-task-remove', '10px'],
+            playerName: ['.u-inline-069', '16px'],
+            statLabel: ['.status-stat-item > span', '12px'],
+            statValue: ['.status-stat-item > strong', '14px'],
+            detailHeading: ['.status-detail-heading h4', '16px'],
+            detailLabel: ['.status-detail-read-item > span', '10px'],
+            detailText: ['.status-detail-read-item > p', '14px'],
+            npcChoice: ['.status-detail-npc-choice', '10px'],
+            npcAvatar: ['.status-detail-npc-avatar', '14px'],
+            npcName: ['.status-detail-npc-name', '20px'],
+            dynamicHeading: ['.status-detail-dynamic-heading strong', '16px'],
+            memorySummary: ['.status-detail-memory summary', '12px'],
+            scenarioHeading: ['.section-header-flex h4', '14px'],
+            scenarioAdd: ['.section-add-btn', '12px'],
+            scenarioName: ['.summary-name', '16px'],
+            scenarioTag: ['.summary-tag', '12px'],
+            scenarioLabel: ['#status-page-settings .scenario-label', '14px'],
+            scenarioInput: ['#status-page-settings .scenario-input', '14px'],
+            apiHeading: ['#status-page-api > .u-inline-013', '16px'],
+            apiLabel: ['.api-stat-label', '10px'],
+            apiValue: ['.api-stat-value', '16px'],
+            apiNote: ['.api-stat-note', '12px'],
+            apiFieldLabel: ['#status-page-api .scenario-label', '14px'],
+            apiSelect: ['#status-page-api .language-mode-select', '14px'],
+            matureToggle: ['.mature-toggle', '12px']
+        };
+        const actual = {};
+        const missing = [];
+        Object.entries(expected).forEach(([name, [selector]]) => {
+            const element = panel.querySelector(selector);
+            if (!element) {
+                missing.push(selector);
+                return;
+            }
+            actual[name] = getComputedStyle(element).fontSize;
+        });
+        return {
+            actual,
+            expected: Object.fromEntries(Object.entries(expected).map(([name, value]) => [name, value[1]])),
+            missing
+        };
+    });
+
+    expect(typography.missing).toEqual([]);
+    expect(typography.actual).toEqual(typography.expected);
+    expect([...new Set(Object.values(typography.actual))].sort()).toEqual([
+        '10px', '12px', '14px', '16px', '20px'
+    ]);
+});
+
 test('status details are read-first and return to the overview after editing', async ({ page }) => {
     await openStatusDetailFixture(page);
 
@@ -458,7 +551,11 @@ test('mobile status reading layer fills the panel without a visible scrollbar', 
             background: getComputedStyle(scrollerElement).backgroundColor,
             readingLayer: getComputedStyle(document.documentElement).getPropertyValue('--status-reading-layer').trim(),
             overlayScrollbarWidth: getComputedStyle(overlayElement).scrollbarWidth,
-            horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+            horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            tabSize: getComputedStyle(document.querySelector('#status-modal-content .status-tab-btn')).fontSize,
+            descriptionSize: getComputedStyle(document.querySelector('.status-log-view-description')).fontSize,
+            saveIndicatorSize: getComputedStyle(document.querySelector('.status-save-indicator')).fontSize,
+            inputSize: getComputedStyle(document.getElementById('ui-story-summary')).fontSize
         };
     });
     expect(Math.abs(mobileSurface.leftGap)).toBeLessThan(1);
@@ -469,6 +566,10 @@ test('mobile status reading layer fills the panel without a visible scrollbar', 
     expect(mobileSurface.readingLayer).toContain('80%');
     expect(mobileSurface.overlayScrollbarWidth).toBe('none');
     expect(mobileSurface.horizontalOverflow).toBeLessThanOrEqual(1);
+    expect(mobileSurface.tabSize).toBe('14px');
+    expect(mobileSurface.descriptionSize).toBe('10px');
+    expect(mobileSurface.saveIndicatorSize).toBe('10px');
+    expect(mobileSurface.inputSize).toBe('16px');
 });
 
 test('live NPC status refreshes in read mode and merges safely during editing', async ({ page }) => {

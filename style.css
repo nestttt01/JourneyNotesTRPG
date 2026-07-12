@@ -279,7 +279,7 @@ font-synthesis: none;
                 /* 移除底框，改為純文字並套用對話框的粉灰色與灰色 */
         details.dark-card summary::after {
             content: "▼ 展開";
-            font-size: 13px;
+            font-size: 14px;
             color: var(--accent-gray); /* 對話框使用的粉灰色 */
             background: transparent;   /* 拿掉螢光黃底框 */
             padding: 0;                /* 移除內距 */
@@ -300,12 +300,12 @@ font-synthesis: none;
 
                 /* ======= 遊戲內：新版深色卡片 UI ======= */
         details.dark-card { background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; margin-bottom: 12px; overflow: hidden; box-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
-        details.dark-card summary { background: var(--border-dark); color: var(--card-bg); padding: 12px 15px; font-size: 15px; font-weight: 800; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s; }
+        details.dark-card summary { background: var(--border-dark); color: var(--card-bg); padding: 12px 15px; font-size: 16px; font-weight: 800; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s; }
         details.dark-card summary::-webkit-details-marker { display: none; }
         details.dark-card[open] summary { background: var(--border-dark); }
 
         .summary-left { display: flex; align-items: center; gap: 15px; flex-grow: 1; min-width: 0;}
-        .summary-name { font-size: 15px; font-weight: 900; white-space: nowrap; flex-shrink: 0;}
+        .summary-name { font-size: 16px; font-weight: 900; white-space: nowrap; flex-shrink: 0;}
         .summary-tag { color: var(--accent-neon); font-size: 12px; font-weight: 900; letter-spacing: 1px; white-space: nowrap; flex-shrink: 0;}
 
         /* 這裡把展開與收起的按鈕底框拿掉，改用文字顏色 */
@@ -314,10 +314,10 @@ font-synthesis: none;
 
         .section-header-flex { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--border-dark); padding-bottom: 8px; margin-top: 25px; margin-bottom: 15px; }
         .section-header-flex h4 { font-size: 14px; margin: 0; color: var(--text-main); font-weight: 900;}
-        .section-add-btn { background: var(--border-dark); color: var(--card-bg); border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s;}
+        .section-add-btn { background: var(--border-dark); color: var(--card-bg); border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;}
         .section-add-btn:hover { background: var(--border-dark); box-shadow: 2px 2px 0px var(--accent-neon); transform: translate(-1px,-1px); }
 
-        .delete-btn-red { background: #ff4444; color: #fff; border: 2px solid var(--border-dark); border-radius: 6px; font-size: 11px; padding: 4px 12px; cursor: pointer; font-weight: bold; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); transition: all 0.2s;}
+        .delete-btn-red { background: #ff4444; color: #fff; border: 2px solid var(--border-dark); border-radius: 6px; font-size: 12px; padding: 4px 12px; cursor: pointer; font-weight: bold; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); transition: all 0.2s;}
         .delete-btn-red:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0px var(--border-dark); }
         /* ======================================= */
 
@@ -399,7 +399,7 @@ z-index: 10;
             color: var(--accent-neon);
             box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
             font-family: var(--font-ui);
-            font-size: 13px;
+            font-size: 14px;
             font-synthesis: none;
             font-weight: 400;
             white-space: normal;
@@ -426,13 +426,13 @@ z-index: 10;
             color: var(--text-main);
             box-shadow: 2px 2px 0px var(--accent-neon);
             font-family: var(--font-ui);
-            font-size: 13px;
+            font-size: 14px;
             font-synthesis: none;
             font-weight: 400;
             white-space: nowrap;
         }
         .item-tag > span { font-family: inherit; }
-        .item-use-btn { margin-left: 8px; padding: 1px 8px; border: 2px solid var(--border-dark); border-radius: 5px; background: var(--accent-neon); color: var(--border-dark); font-size: 11px; font-weight: 900; line-height: 16px; cursor: pointer; white-space: nowrap; }
+        .item-use-btn { margin-left: 8px; padding: 1px 8px; border: 2px solid var(--border-dark); border-radius: 5px; background: var(--accent-neon); color: var(--border-dark); font-size: 12px; font-weight: 900; line-height: 16px; cursor: pointer; white-space: nowrap; }
         .item-use-btn:hover, .item-use-btn:focus-visible { outline: none; transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--border-dark); }
         .growth-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 2px 0 6px; flex-wrap: wrap; }
         .growth-rank {
@@ -445,7 +445,7 @@ z-index: 10;
             font-synthesis: none;
             font-weight: 400;
         }
-        .growth-points { font-size: 13px; font-weight: 900; color: var(--text-main); }
+        .growth-points { font-size: 14px; font-weight: 900; color: var(--text-main); }
         .growth-sub { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; }
         .growth-stat-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
         .growth-stat-btn { padding: 4px 9px; border: 2px solid var(--border-dark); border-radius: 6px; background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 900; cursor: pointer; }
@@ -453,8 +453,8 @@ z-index: 10;
         .growth-stat-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         /* 判定加值總覽(2026/07/10,A 案單行文字條定案):平時取代六圍按鈕的唯讀顯示;黃底=含道具加值,紅字=懲罰生效 */
         .growth-mod-title { font-size: 12px; font-weight: 900; color: var(--text-main); margin: 10px 0 6px; }
-        .growth-mod-hint { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-left: 8px; }
-        .growth-mod-line { font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace; font-size: 15px; font-weight: 400; letter-spacing: 1px; line-height: 1.9; margin-bottom: 6px; }
+        .growth-mod-hint { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-left: 8px; }
+        .growth-mod-line { font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace; font-size: 16px; font-weight: 400; letter-spacing: 1px; line-height: 1.9; margin-bottom: 6px; }
         .growth-mod-line span { font-family: inherit; }   /* 全域 * 選擇器會逐元素蓋字體,子 span 強制繼承 */
         .growth-mod-line .sep { color: var(--accent-gray); margin: 0 6px; }
         .growth-mod-line .it { background: color-mix(in srgb, var(--accent-neon) 55%, transparent); padding: 1px 4px; }
@@ -477,7 +477,7 @@ z-index: 10;
             border-radius: 0;
             background: transparent;
             color: var(--text-main);
-            font-size: 13px;
+            font-size: 14px;
         }
         .growth-prof-row input:focus {
             border-bottom-color: var(--accent-neon);
@@ -492,7 +492,7 @@ z-index: 10;
             box-shadow: 2px 2px 0 var(--border-dark);
         }
         .growth-prof-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .item-remove-btn { width: 16px; height: 16px; margin-left: 7px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #ff4444; font-size: 13px; font-weight: 900; line-height: 16px; text-align: center; cursor: pointer; }
+        .item-remove-btn { width: 16px; height: 16px; margin-left: 7px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #ff4444; font-size: 14px; font-weight: 900; line-height: 16px; text-align: center; cursor: pointer; }
         .item-remove-btn:hover, .item-remove-btn:focus-visible { background: #ff4444; color: #fff; outline: none; }
 
         #flag-input-area,
@@ -514,7 +514,7 @@ z-index: 10;
             background: transparent;
             color: var(--text-main);
             box-shadow: none;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
         }
         #status-modal-content .status-inline-input:focus {
@@ -571,7 +571,7 @@ z-index: 10;
             background: transparent;
             color: var(--text-main);
             box-shadow: none;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             line-height: 1.6;
             resize: vertical;
@@ -616,7 +616,7 @@ z-index: 10;
             margin: -2px 0 8px;
             padding-left: 13px;
             color: var(--text-sub);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 800;
             line-height: 1.45;
         }
@@ -764,9 +764,9 @@ z-index: 10;
 }
 .memory-task-row.done .memory-task-text { text-decoration: line-through; color: var(--text-sub); }
 .memory-task-row.failed .memory-task-text { color: var(--border-dark); text-decoration: none; }
-.memory-task-fail, .memory-task-remove { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text-sub); font-size: 13px; font-weight: 900; line-height: 22px; cursor: pointer; }
+.memory-task-fail, .memory-task-remove { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text-sub); font-size: 14px; font-weight: 900; line-height: 22px; cursor: pointer; }
 .memory-task-fail:hover, .memory-task-fail:focus-visible, .memory-task-row.failed .memory-task-fail { color: var(--border-dark); outline: none; }
-.memory-task-remove { color: #9b3942; font-size: 9px; font-weight: 900; letter-spacing: 0.4px; }
+.memory-task-remove { color: #9b3942; font-size: 10px; font-weight: 900; letter-spacing: 0.4px; }
 .memory-task-remove:hover, .memory-task-remove:focus-visible { color: var(--border-dark); outline: none; }
         .memory-task-add { margin-top: 8px; }
         .memory-log-details { margin-top: 12px; }
@@ -1442,14 +1442,14 @@ z-index: 10;
         .api-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; /* 2026/07/10 系統頁改版:設定在上,追蹤格縮小四欄一排 */ }
         .api-stat-box { background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; padding: 6px 8px; box-shadow: 2px 2px 0 var(--accent-neon); }
         .api-stat-label { font-size: 10px; color: var(--text-sub); font-weight: 900; margin-bottom: 2px; }
-        .api-stat-value { font-size: 15px; color: var(--text-main); font-weight: 900; word-break: break-word; }
+        .api-stat-value { font-size: 16px; color: var(--text-main); font-weight: 900; word-break: break-word; }
         .api-stat-note { font-size: 12px; color: var(--text-sub); line-height: 1.6; font-weight: 700; margin: 10px 0; }
         /* 面板頁級主標統一(2026/07/10):系統頁兩標題+紀錄頁「讀取摘要」+詳細頁「詳細設定」——
            像素字放大+重點色偏移陰影;區塊小標(狀態頁)另走左欄標記款,兩層規格。 */
         #status-page-api > .u-inline-013, #status-page-api > .u-inline-016,
         #status-page-log > .u-inline-016, #status-page-settings > .u-inline-016 {
             font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 400;   /* 像素字只有單一字重,鎖 400 防瀏覽器假加粗造成兩標題粗度不一 */
             letter-spacing: 1px;
             text-shadow: 2px 2px 0 var(--accent-neon);
@@ -1473,7 +1473,7 @@ z-index: 10;
             gap: 8px;
             color: var(--text-sub);
             font-family: var(--font-ui);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 800;
             white-space: nowrap;
         }
@@ -1510,7 +1510,7 @@ z-index: 10;
             background: transparent;
             color: var(--text-sub);
             box-shadow: none;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 900;
             cursor: pointer;
         }
@@ -1561,7 +1561,7 @@ z-index: 10;
         /* quick-status 快速狀態格:UI 已永久隱藏(#status-summary-display .quick-status-grid display:none),樣式群已清(2026/07/10 整理債) */
         #status-page-state .u-inline-016,
         #status-page-state .u-inline-013 {
-            font-size: 13px;
+            font-size: 14px;
             margin-top: 16px;
             margin-bottom: 4px;
         }
@@ -1589,7 +1589,7 @@ z-index: 10;
             min-height: 26px;
             padding: 2px 8px;
             color: var(--text-main);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 900;
             line-height: 1.2;
             justify-self: start;
@@ -1623,7 +1623,7 @@ z-index: 10;
         .mature-toggle:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--accent-neon); }
         #status-page-state .u-inline-014,
         .status-panel-hint {
-            font-size: 11px;
+            font-size: 12px;
             line-height: 1.45;
             color: var(--text-sub);
         }
@@ -1710,7 +1710,7 @@ background: var(--paper-bg);
             background: transparent;
             color: var(--text-sub);
             box-shadow: none;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 400;
             font-synthesis: none;
             letter-spacing: 0;
@@ -1749,13 +1749,13 @@ background: var(--paper-bg);
             border: 0;
         }
         #status-page-api .language-setting-row .scenario-label {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 900;
             color: var(--text-main);
         }
 
         #status-page-api .settings-group .game-model-select {
-            font-size: 11px;
+            font-size: 12px;
         }
 
         /* 分頁列:塊內矛盾宣告整併為生效值(2026/07/10 整理債) */
@@ -1913,7 +1913,7 @@ background: var(--paper-bg);
         .u-inline-008 { width:100%; margin-top:10px; background:var(--border-dark); color:#fff; }
         .u-inline-009 { display:flex; gap: 10px; }
         .u-inline-010 { background: var(--card-bg); color: var(--border-dark); padding: 6px 12px; font-size: 13px; border-width: 2px; }
-        .u-inline-011 { background: var(--accent-neon); padding: 6px 12px; font-size: 13px; border-width: 2px; }
+        .u-inline-011 { background: var(--accent-neon); padding: 6px 12px; font-size: 14px; border-width: 2px; }
         .u-inline-012 { flex: 1; overflow-y: auto; padding-right: 5px; min-height: 0; }
         .u-inline-013 { font-size:12px; color:var(--text-main); font-weight:900; margin-bottom:4px; margin-top:5px; }
         .u-inline-014 { font-size:11px; color:var(--text-sub); margin-bottom:8px; font-weight:800; }
@@ -2330,7 +2330,7 @@ background: var(--paper-bg);
             flex: 0 1 auto;
             min-width: 0;
             color: var(--text-main);
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 400;
             font-synthesis: none;
             letter-spacing: 1px;
@@ -2392,13 +2392,16 @@ background: var(--paper-bg);
         #edit-scen-lore-\24 \7b idx\7d  { margin-bottom:10px; }
         #edit-scen-npcs-\24 \7b idx\7d  { margin-bottom:10px; }
         .u-inline-076 { font-size:12px; color:var(--text-sub); }
-        .u-inline-077 { text-align:center; color:var(--text-sub); font-size:13px; font-weight:bold; }
+        .u-inline-077 { text-align:center; color:var(--text-sub); font-size:14px; font-weight:bold; }
         /* ===== End consolidated inline styles ===== */
 
         /* 角色動態狀態：核心設定不受 AI 覆寫 */
         /* 角色面板詳細頁：閱讀優先，只有編輯狀態顯示正式輸入框。 */
         #status-page-settings .status-detail-section {
             margin: 26px 0 0;
+        }
+        #status-page-settings .scenario-label {
+            font-size: 14px;
         }
         #status-page-settings #status-player-detail-body,
         #status-page-settings #status-npc-detail-body {
@@ -2453,7 +2456,7 @@ background: var(--paper-bg);
             margin: 0;
             color: var(--text-main);
             font-family: var(--font-ui);
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 400;
             font-synthesis: none;
         }
@@ -2477,7 +2480,7 @@ background: var(--paper-bg);
             color: var(--text-sub);
             box-shadow: none;
             font-family: var(--font-ui);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 400;
             cursor: pointer;
         }
@@ -2525,7 +2528,7 @@ background: var(--paper-bg);
             margin: 0;
             color: var(--text-sub);
             font-family: var(--font-reading);
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 400;
             line-height: 1.65;
             overflow-wrap: anywhere;
@@ -2580,7 +2583,7 @@ background: var(--paper-bg);
             color: var(--text-main);
             box-shadow: none;
             font-family: var(--font-ui);
-            font-size: 13px;
+            font-size: 14px;
             transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
         #status-page-settings .status-detail-npc-avatar::before {
@@ -2659,7 +2662,7 @@ background: var(--paper-bg);
         #status-page-settings .status-detail-dynamic-heading > span {
             margin-left: auto;
             color: var(--text-sub);
-            font-size: 9px;
+            font-size: 10px;
             text-align: right;
         }
         #status-page-settings .status-detail-memory {
@@ -2673,7 +2676,7 @@ background: var(--paper-bg);
             padding: 4px 0;
             color: var(--text-main);
             font-family: var(--font-ui);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 400;
             list-style: none;
             cursor: pointer;
@@ -2721,7 +2724,7 @@ background: var(--paper-bg);
             background: var(--card-bg);
             color: var(--text-main);
             font-family: var(--font-reading);
-            font-size: 13px;
+            font-size: 14px;
             box-shadow: none;
         }
         #status-page-settings .status-detail-editor textarea {
@@ -2748,7 +2751,12 @@ background: var(--paper-bg);
             align-items: center;
             gap: 9px;
             font-family: var(--font-ui);
+            font-size: 14px;
             font-weight: 400;
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-field label,
+        #status-page-settings .status-detail-editing .dynamic-memory-details summary {
+            font-size: 12px;
         }
         #status-page-settings .status-detail-editing .dynamic-memory-details {
             border: 0;
@@ -3891,7 +3899,7 @@ margin: 0; padding: 0; background: transparent;
                 padding: 7px 2px 10px;
             }
             .status-log-view-title { font-size: 14px; }
-            .status-log-view-description { font-size: 9px; }
+            .status-log-view-description { font-size: 10px; }
 
 #journal-screen { padding: 18px 12px calc(22px + env(safe-area-inset-bottom)); }
             .journal-header { align-items: flex-start; }
@@ -4000,7 +4008,7 @@ margin: 0; padding: 0; background: transparent;
                 min-width: 72px;
                 min-height: 44px;
                 padding: 0 4px;
-                font-size: 13px;
+                font-size: 14px;
             }
             .api-stat-grid {
                 grid-template-columns: 1fr 1fr;   /* 手機兩欄(2026/07/10 縮小版) */
