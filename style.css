@@ -24,9 +24,11 @@
             --control-focus-shadow: 3px 3px 0 var(--accent-neon);
             --surface-muted: #E2E2E2;
             --hard-shadow: 4px 4px 0px var(--border-dark);
+            --font-ui: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+            --font-reading: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-reading); }
         body, html {
             width: 100%; max-width: 100%; min-height: 100%; overflow-x: hidden;
             overscroll-behavior-x: none;
@@ -1060,13 +1062,16 @@ z-index: 10;
             min-height: 34px;
             padding: 5px 12px;
             border: 0;
-            border-radius: 8px;
+            border-bottom: 1px solid transparent;
+            border-radius: 0;
             background: transparent;
             color: var(--text-sub);
-            font: inherit;
+            font-family: var(--font-ui);
+            font-synthesis: none;
             font-size: 14px;
-            font-weight: 900;
+            font-weight: 400;
             line-height: 1;
+            text-shadow: none;
             cursor: pointer;
         }
         .input-rest-btn {
@@ -1077,21 +1082,49 @@ z-index: 10;
             place-items: center;
             flex: 0 0 auto;
         }
+        .input-rest-btn .theme-svg-icon {
+            color: var(--text-sub);
+        }
         @media (hover: hover) and (pointer: fine) {
-            .input-mode-tab:hover:not(.active),
-            .input-action-btn:hover:not(.mode-disabled):not(:disabled) {
-                background: color-mix(in srgb, var(--accent-neon) 45%, transparent);
+            .input-mode-tab:hover:not(.active) {
+                background: transparent;
                 color: var(--text-main);
+                text-shadow: 1px 1px 0 color-mix(in srgb, var(--accent-neon) 48%, transparent);
+            }
+            .input-rest-btn:hover:not(:disabled) .theme-svg-icon {
+                color: var(--text-main);
+            }
+            .input-action-btn:hover:not(.mode-disabled):not(:disabled) {
+                background: transparent;
+                color: var(--text-main);
+            }
+            .input-action-btn:hover:not(.mode-disabled):not(:disabled) .input-action-icon-base {
+                filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent-neon) 82%, transparent));
+            }
+            .input-action-btn:hover:not(.mode-disabled):not(:disabled) .input-action-icon-glint {
+                opacity: 1;
+                animation: input-action-icon-scan 0.72s linear infinite;
             }
         }
         .input-mode-tab.active {
-            background: var(--border-dark);
-            color: var(--card-bg);
+            background: transparent;
+            color: var(--text-main);
+            text-shadow: 1px 1px 0 var(--accent-neon);
         }
-        .input-mode-tab:focus-visible,
+        .input-mode-tab:focus-visible {
+            border-bottom-color: var(--accent-neon);
+            outline: none;
+        }
         .input-action-btn:focus-visible {
             outline: 2px solid var(--accent-neon);
             outline-offset: 2px;
+        }
+        .input-action-btn:focus-visible:not(.mode-disabled):not(:disabled) .input-action-icon-base {
+            filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent-neon) 82%, transparent));
+        }
+        .input-action-btn:focus-visible:not(.mode-disabled):not(:disabled) .input-action-icon-glint {
+            opacity: 1;
+            animation: input-action-icon-scan 0.72s linear infinite;
         }
         .input-compose-row {
             display: grid;
@@ -1109,9 +1142,12 @@ z-index: 10;
             border: 0;
             border-radius: 0;
             color: var(--text-main);
+            font-family: var(--font-ui);
+            font-synthesis: none;
             font-size: 14px;
-            font-weight: 600;
-            line-height: 1.5;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            line-height: 1.6;
             box-sizing: border-box;
             resize: none;
             overflow-y: auto;
@@ -1150,21 +1186,73 @@ z-index: 10;
             cursor: pointer;
             touch-action: manipulation;
         }
+        .input-action-icon-stack {
+            display: inline-grid;
+            place-items: center;
+            color: inherit;
+            pointer-events: none;
+        }
+        .input-action-icon-stack .input-action-icon {
+            grid-area: 1 / 1;
+        }
+        .input-action-icon-stack .input-action-icon-base {
+            color: inherit;
+            transform-origin: center;
+        }
+        .input-action-icon-stack .input-action-icon-glint {
+            color: color-mix(in srgb, var(--accent-neon) 58%, #ffffff);
+            opacity: 0;
+            clip-path: polygon(-35% 0, -5% 0, -55% 100%, -85% 100%);
+            transform-origin: center;
+        }
         .input-action-btn:active:not(.mode-disabled):not(:disabled) {
-            background: var(--accent-neon);
-            transform: translateY(1px);
+            background: transparent;
+            transform: none;
+        }
+        .input-action-btn:active:not(.mode-disabled):not(:disabled) .input-action-icon-base {
+            animation: input-action-pixel-press 0.22s steps(3, end);
         }
         .input-action-btn:disabled,
         .input-action-btn.mode-disabled {
-            background: color-mix(in srgb, var(--accent-gray) 42%, transparent);
+            background: transparent;
             color: var(--text-sub);
-            opacity: 0.45;
+            opacity: 1;
             box-shadow: none;
             transform: none;
             cursor: not-allowed;
         }
+        .input-action-btn:disabled .input-action-icon-stack,
+        .input-action-btn.mode-disabled .input-action-icon-stack {
+            color: var(--text-sub);
+            opacity: 0.62;
+        }
+        #send-btn.input-action-commit:disabled .input-action-icon-stack,
+        #dice-btn.dice-rolling:disabled .input-action-icon-stack {
+            color: var(--text-main);
+            opacity: 1;
+        }
+        #send-btn.input-action-commit .input-action-icon-base {
+            animation: input-action-pixel-press 0.22s steps(3, end);
+        }
+        #send-btn.input-action-commit .input-action-icon-glint,
+        #dice-btn.dice-rolling .input-action-icon-glint {
+            opacity: 0;
+            animation: none;
+        }
         .input-action-btn.mode-disabled {
             pointer-events: none;
+        }
+        @keyframes input-action-icon-scan {
+            from { clip-path: polygon(-35% 0, -5% 0, -55% 100%, -85% 100%); }
+            to { clip-path: polygon(105% 0, 135% 0, 85% 100%, 55% 100%); }
+        }
+        @keyframes input-action-pixel-press {
+            0%, 100% { transform: translateY(0); filter: none; }
+            45% {
+                transform: translateY(2px);
+                filter: drop-shadow(1px -1px 0 var(--accent-neon))
+                    drop-shadow(-1px -1px 0 var(--accent-neon));
+            }
         }
         .btn { background: var(--card-bg); border: 2px solid var(--border-dark); color: var(--text-main); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 900; transition: all 0.2s; white-space: nowrap; letter-spacing: 1px; }
         .btn:active { background: var(--accent-neon); box-shadow: var(--hard-shadow); transform: translate(-2px, -2px); }
@@ -1905,10 +1993,25 @@ background: var(--paper-bg);
         }
         /* The D20 icon rotates while the button keeps the existing 0.7-second shake. */
         #dice-btn.dice-rolling { animation: dice-roll-shake 0.7s steps(7, end); }
-        #dice-btn.dice-rolling .theme-svg-d20 { animation: dice-icon-turn 0.7s steps(7, end); }
+        #dice-btn.dice-rolling .input-action-icon-base.theme-svg-d20 {
+            animation: dice-icon-turn 0.7s steps(7, end);
+        }
         @keyframes dice-icon-turn {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+                filter: drop-shadow(1px 0 0 var(--accent-neon))
+                    drop-shadow(-1px 0 0 var(--accent-neon));
+            }
+            50% {
+                filter: drop-shadow(2px 0 0 var(--accent-neon))
+                    drop-shadow(-2px 0 0 var(--accent-neon))
+                    drop-shadow(0 2px 0 var(--accent-neon));
+            }
+            100% {
+                transform: rotate(360deg);
+                filter: drop-shadow(1px 0 0 var(--accent-neon))
+                    drop-shadow(-1px 0 0 var(--accent-neon));
+            }
         }
         @keyframes dice-roll-shake {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -1956,7 +2059,9 @@ background: var(--paper-bg);
             .stat-delta-pop, .opt-btn.opt-enter, .stat-hit, .stat-chip.hit .stat-cells, .stat-chip.healed .stat-cells, .stat-cells i.dying, .stat-cells i.filling, #loading .px-loader i, .affection-heart-pop, .affection-pop-heart, .affection-pop-heart.sad, .affection-pop-tear, .affection-pop-amount { animation: none; opacity: 1; }
             .npc-affection { animation: none; }   /* 量表心情緒動態全停;mood-dead 的靜態傾倒 transform 保留 */
             #dialogue-box .msg-enter, #dice-btn.dice-rolling,
-            #dice-btn.dice-rolling .theme-svg-d20 { animation: none; }
+            #dice-btn.dice-rolling .input-action-icon-base.theme-svg-d20,
+            #send-btn.input-action-commit .input-action-icon-base { animation: none; }
+            .input-action-icon-glint { animation: none; opacity: 0; }
             .npc-affection-spark { animation: none; opacity: 1; }   /* 星塵改常亮,避免 animation 停用後永遠隱形 */
         }
         .api-home-guide {

@@ -1035,6 +1035,15 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
         }
 
         /* Keep the D20 SVG intact while the button and icon animate for 0.7 seconds. */
+        function playInputActionCommitFx(button, duration = 220) {
+            if (!button) return;
+            const reduceMotion = window.matchMedia
+                && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduceMotion) return;
+            button.classList.add('input-action-commit');
+            window.setTimeout(() => button.classList.remove('input-action-commit'), duration);
+        }
+
         function playDiceRollFx() {
             const btn = document.getElementById('dice-btn');
             if (!btn || btn.dataset.rollingFx === '1') return;
@@ -1426,7 +1435,12 @@ ${transitionRule}`;
             pendingDiceSummary = null;
             const displayText = stripHardDiceDirective(playerText);
 
-            inputEl.value = ""; inputEl.style.height = "auto"; inputEl.disabled = true; sendBtn.disabled = true; diceBtn.disabled = true;
+            playInputActionCommitFx(sendBtn, 220);
+            inputEl.value = "";
+            inputEl.style.height = "auto";
+            inputEl.disabled = true;
+            sendBtn.disabled = true;
+            diceBtn.disabled = true;
             delete inputEl.dataset.diceSuggestedText;
             delete inputEl.dataset.diceStat;
             delete inputEl.dataset.diceDifficulty;

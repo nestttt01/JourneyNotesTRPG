@@ -1079,12 +1079,18 @@
                 <button type="button" class="input-action-btn" id="dice-btn"
                     onclick="sendDiceChoice()" aria-label="擲骰"
                     title="由 AI 判斷檢定屬性後隨機擲出 D20">
-                    <svg class="input-action-icon theme-svg-icon theme-svg-d20" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#theme-icon-d20"></use></svg>
+                    <span class="input-action-icon-stack" aria-hidden="true">
+                        <svg class="input-action-icon input-action-icon-base theme-svg-icon theme-svg-d20" viewBox="0 0 120 120" focusable="false"><use href="#theme-icon-d20"></use></svg>
+                        <svg class="input-action-icon input-action-icon-glint theme-svg-icon theme-svg-d20" viewBox="0 0 120 120" focusable="false"><use href="#theme-icon-d20"></use></svg>
+                    </span>
                 </button>
                 <span class="input-action-divider" aria-hidden="true"></span>
                 <button type="button" class="input-action-btn" id="send-btn"
                     onclick="sendChoice()" aria-label="發送">
-                    <svg class="input-action-icon theme-svg-icon theme-svg-up" viewBox="0 0 154.684 200" aria-hidden="true" focusable="false"><use href="#theme-icon-up"></use></svg>
+                    <span class="input-action-icon-stack" aria-hidden="true">
+                        <svg class="input-action-icon input-action-icon-base theme-svg-icon theme-svg-up" viewBox="0 0 154.684 200" focusable="false"><use href="#theme-icon-up"></use></svg>
+                        <svg class="input-action-icon input-action-icon-glint theme-svg-icon theme-svg-up" viewBox="0 0 154.684 200" focusable="false"><use href="#theme-icon-up"></use></svg>
+                    </span>
                 </button>
             </div>
         </div>
