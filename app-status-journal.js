@@ -1021,7 +1021,15 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
                     html += `<button type="button" class="growth-stat-btn growth-forge-btn" ${canForge ? '' : 'disabled'} onclick="forgeGrowthCrystal('${k}')" title="${escapeStatusHtml(forgeTitle)}">${info.code} ${val} ✦</button>`;
                 });
                 html += `</div>`;
-                html += `<div class="growth-prof-row"><input type="text" id="growth-prof-input" maxlength="16" placeholder="${escapeStatusHtml(t('新擅長領域（最多16字）'))}"><button type="button" class="btn growth-prof-btn" onclick="spendGrowthOnProficiency()">${escapeStatusHtml(t('新增熟練'))}</button></div>`;
+                const addProficiencyLabel = escapeStatusHtml(t('新增熟練'));
+                html += `<div class="growth-prof-row">`;
+                html += `<input class="status-inline-input" type="text" id="growth-prof-input" maxlength="16"`;
+                html += ` placeholder="${escapeStatusHtml(t('新擅長領域（最多16字）'))}">`;
+                html += `<button class="status-add-icon-btn" type="button" onclick="spendGrowthOnProficiency()"`;
+                html += ` aria-label="${addProficiencyLabel}" title="${addProficiencyLabel}">`;
+                html += `<svg class="theme-svg-icon theme-svg-plus" viewBox="0 0 24 24" aria-hidden="true"`;
+                html += ` focusable="false"><use href="#theme-icon-plus"></use></svg>`;
+                html += `</button></div>`;
             }
             container.innerHTML = html;
         }

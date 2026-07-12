@@ -462,35 +462,13 @@ z-index: 10;
         .growth-forge-btn:not(:disabled) { border-color: color-mix(in srgb, var(--accent-neon) 70%, var(--border-dark)); box-shadow: 2px 2px 0 var(--accent-neon); }
         .growth-prof-row {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
+            grid-template-columns: minmax(0, 1fr) 44px;
             align-items: end;
             gap: 8px;
+            box-sizing: border-box;
+            width: calc(100% - 9px);
+            margin: 8px 0 0 9px;
         }
-        .growth-prof-row input {
-            width: 100%;
-            min-width: 0;
-            height: var(--control-height);
-            padding: 8px 4px 6px;
-            border: 0;
-            border-bottom: 1px solid var(--input-line);
-            border-radius: 0;
-            background: transparent;
-            color: var(--text-main);
-            font-size: 14px;
-        }
-        .growth-prof-row input:focus {
-            border-bottom-color: var(--accent-neon);
-            box-shadow: 0 2px 0 color-mix(in srgb, var(--accent-neon) 55%, transparent);
-        }
-        .growth-prof-btn {
-            min-height: 36px;
-            padding: 7px 12px;
-            border-width: 1px;
-            background: var(--accent-neon);
-            font-size: 12px;
-            box-shadow: 2px 2px 0 var(--border-dark);
-        }
-        .growth-prof-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .item-remove-btn { width: 16px; height: 16px; margin-left: 7px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #ff4444; font-size: 14px; font-weight: 900; line-height: 16px; text-align: center; cursor: pointer; }
         .item-remove-btn:hover, .item-remove-btn:focus-visible { background: #ff4444; color: #fff; outline: none; }
 
@@ -696,7 +674,8 @@ z-index: 10;
             text-shadow: 2px 2px 0 var(--accent-neon);
         }
         .status-log-view-option.is-active::after {
-            border-color: var(--border-dark);
+            z-index: 1;
+            border-color: var(--accent-neon);
             background: var(--accent-neon);
         }
         .status-log-view-option:hover,
@@ -1772,8 +1751,9 @@ background: var(--paper-bg);
             right: 0;
             bottom: -2px;
             left: 0;
+            z-index: 1;
             height: 5px;
-            border: 1px solid var(--border-dark);
+            border: 1px solid var(--accent-neon);
             background: var(--accent-neon);
         }
         @media (hover: hover) and (pointer: fine) {
@@ -3958,8 +3938,7 @@ margin: 0; padding: 0; background: transparent;
             .journal-header h2 { font-size: 24px; }
             .journal-toolbar { grid-template-columns: 1fr; }
             .journal-actions .btn,
-            .memory-action-btn,
-            .growth-prof-btn { min-height: var(--control-height); }
+            .memory-action-btn { min-height: var(--control-height); }
 .journal-entry { grid-template-columns: 32px minmax(0, 1fr) auto auto; }
             .journal-entry-text { font-size: 15px; line-height: 1.65; }
             .journal-pagination { grid-template-columns: 1fr 1.2fr 1fr; }
@@ -4572,8 +4551,7 @@ html { background-color: var(--bg-main); }
 :root[data-bg-mode="image"] .key-input,
 :root[data-bg-mode="image"] .model-select,
 :root[data-bg-mode="image"] .scenario-input,
-:root[data-bg-mode="image"] #input-area,
-:root[data-bg-mode="image"] #growth-prof-input {
+:root[data-bg-mode="image"] #input-area {
     background: var(--card-bg);
     background: var(--bg-card-glass);
 }

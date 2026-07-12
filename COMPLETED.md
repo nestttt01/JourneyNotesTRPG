@@ -61,3 +61,18 @@
 - [x] 只刪除被後繼同 selector 同屬性覆蓋的死宣告（10 個錨點、-7 行），未合併或搬移規則塊，渲染零變化。
 - [x] `#flag-input-area { margin-bottom: 25px; }` 死規則整條移除；flags／items 容器三塊收斂為各自僅存生效宣告。
 - [x] 驗證：錨點唯一命中、CSS 括號平衡、LF 對帳、context 感知複掃衝突歸零（僅剩 PROJECT_MAP 白名單 #player-input 手機 16px 設計）。
+
+### 新增擅長控制列與狀態指示條（2026-07-12）
+
+- [x] 成長區「新增擅長領域」沿用手動新增任務的底線輸入樣式，文字按鈕改為既有主題加號 SVG。
+- [x] 狀態分頁與摘要內容選項的黃色指示條保留 1px 外框，外框改為重點色並以 z-index: 1 疊在灰色分隔線上。
+- [x] 修改檔案：app-status-journal.js、style.css、AGENTS.md；未改存檔格式、資料欄位、AI prompt、API key 或語言鍵。
+- [x] 驗證：實際頁面計算樣式符合重點色外框方案；Playwright 21/21、JS 語法、CSS 結構、UTF-8／LF 與跨 Python／Node hash 複驗通過。
+
+### 預覽流程規則校正與擅長輸入透明化（2026-07-12）
+
+- [x] AGENTS.md 改為：專案主主動要求預覽時，才使用瀏覽器工具實際渲染 HTML/CSS 供審核；未要求且需求簡單明確時，可在溝通後直接修改。
+- [x] TODO.md 使用流程同步新規則，並移除尚未 PUSH 完成紀錄中的舊工具硬性要求。
+- [x] style.css 將 #growth-prof-input 從背景圖模式的卡片底色群組移除，保留 status-inline-input 的透明背景；其他輸入欄不受影響。
+- [x] 修改檔案：AGENTS.md、TODO.md、COMPLETED.md、style.css；未改存檔格式、資料欄位、AI prompt、API key、翻譯鍵或輸入行為。
+- [x] 驗證：Playwright 21/21、CSS 括號與檔尾、UTF-8／LF、無錯誤工具名稱殘留及跨 Python／Node hash 複驗通過。
