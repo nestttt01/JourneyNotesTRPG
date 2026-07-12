@@ -6,6 +6,14 @@
             font-weight: 400;
         }
 
+@font-face {
+            font-family: "Glow Sans TC Normal Medium";
+            src: url("./fonts/GlowSansTC-Normal-Medium.otf") format("opentype");
+            font-display: swap;
+            font-style: normal;
+            font-weight: 500;
+        }
+
 :root {
 --bg-main: #EEEEEE;
 --paper-bg: #EEEEEE;
@@ -25,7 +33,7 @@
             --surface-muted: #E2E2E2;
             --hard-shadow: 4px 4px 0px var(--border-dark);
             --font-ui: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
-            --font-reading: -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif;
+            --font-reading: "Glow Sans TC Normal Medium", -apple-system, "Segoe UI", "Microsoft JhengHei", sans-serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-reading); }
@@ -1353,6 +1361,7 @@ z-index: 10;
             align-items: center;
             gap: 8px;
             color: var(--text-sub);
+            font-family: var(--font-ui);
             font-size: 11px;
             font-weight: 800;
             white-space: nowrap;
@@ -1491,7 +1500,7 @@ z-index: 10;
             color: #e03131;
             font-size: 12px;
             font-weight: 900;
-            font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", Arial, sans-serif;
+            font-family: var(--font-ui);
             letter-spacing: 0.5px;
             cursor: pointer;
             box-shadow: 2px 2px 0px var(--accent-neon);

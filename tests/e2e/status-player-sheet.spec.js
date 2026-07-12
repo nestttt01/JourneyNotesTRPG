@@ -29,6 +29,9 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
     const sheetState = await page.locator('.u-inline-067').evaluate(sheet => {
         const respecButton = sheet.querySelector('.u-inline-065');
         const activeTab = document.querySelector('.status-tab-btn.active');
+        const saveIndicator = document.querySelector('.status-save-indicator');
+        const readingText = document.querySelector('.status-detail-read-item > p');
+        const matureToggle = document.getElementById('mature-mode-toggle');
         const sheetStyle = getComputedStyle(sheet);
         const buttonStyle = getComputedStyle(respecButton);
         const tabStyle = getComputedStyle(activeTab);
@@ -48,9 +51,17 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
             respecTitle: respecButton.title,
             respecIconCount: respecButton.querySelectorAll('.status-respec-icon').length,
             respecUseTarget: respecButton.querySelector('use').getAttribute('href'),
+            tabFont: tabStyle.fontFamily,
             tabWeight: tabStyle.fontWeight,
-            tabShadow: tabStyle.textShadow
+            tabShadow: tabStyle.textShadow,
+            saveIndicatorFont: getComputedStyle(saveIndicator).fontFamily,
+            readingFont: getComputedStyle(readingText).fontFamily,
+            matureToggleFont: getComputedStyle(matureToggle).fontFamily
         };
+    });
+    const readingFontLoaded = await page.evaluate(async () => {
+        await document.fonts.ready;
+        return document.fonts.check('16px "Glow Sans TC Normal Medium"');
     });
 
     expect(sheetState.background).toBe('rgba(0, 0, 0, 0)');
@@ -70,8 +81,13 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
     expect(sheetState.respecTitle).toBe('找守墓人洗點 (剩餘 2 次)');
     expect(sheetState.respecIconCount).toBe(2);
     expect(sheetState.respecUseTarget).toBe('#theme-icon-skull');
+    expect(sheetState.tabFont).toContain('TRPG Cubic Pixel');
     expect(sheetState.tabWeight).toBe('400');
     expect(sheetState.tabShadow).toBe('rgb(255, 120, 183) 1px 1px 0px');
+    expect(sheetState.saveIndicatorFont).toContain('TRPG Cubic Pixel');
+    expect(sheetState.readingFont).toContain('Glow Sans TC Normal Medium');
+    expect(sheetState.matureToggleFont).toContain('TRPG Cubic Pixel');
+    expect(readingFontLoaded).toBe(true);
 
     const respecButton = page.locator('.u-inline-065');
     await respecButton.hover();
