@@ -1773,7 +1773,7 @@ background: var(--paper-bg);
             align-items: center;
             flex: 0 0 auto;
             gap: 28px;
-            margin: 0 20px;
+            margin: -11px 20px 0;
             padding: 0 4px;
             border-bottom: 2px solid var(--text-sub);
             background: var(--paper-bg);

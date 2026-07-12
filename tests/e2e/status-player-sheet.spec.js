@@ -436,6 +436,7 @@ test('status details are read-first and return to the overview after editing', a
             pageBackground: getComputedStyle(settingsElement).backgroundColor,
             headerBackground: getComputedStyle(document.querySelector('.modal-header-sticky')).backgroundColor,
             tabsBackground: getComputedStyle(tabsElement).backgroundColor,
+            tabsMarginTop: getComputedStyle(tabsElement).marginTop,
             panelLayer: getComputedStyle(document.documentElement).getPropertyValue('--bg-panel-glass').trim(),
             readingLayer: getComputedStyle(document.documentElement).getPropertyValue('--status-reading-layer').trim(),
             tabsParentId: tabsElement.parentElement.id,
@@ -457,6 +458,7 @@ test('status details are read-first and return to the overview after editing', a
     expect(readingSurface.pageBackground).toBe('rgba(0, 0, 0, 0)');
     expect(readingSurface.headerBackground).toBe('rgba(0, 0, 0, 0)');
     expect(readingSurface.tabsBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(readingSurface.tabsMarginTop).toBe('-11px');
     expect(readingSurface.panelLayer).toContain('74%');
     expect(readingSurface.readingLayer).toContain('80%');
     expect(readingSurface.tabsParentId).toBe('status-modal-content');
@@ -597,6 +599,7 @@ test('mobile status reading layer fills the panel without a visible scrollbar', 
             leftGap: scroller.left - (modal.left + parseFloat(modalStyle.borderLeftWidth)),
             rightGap: modal.right - parseFloat(modalStyle.borderRightWidth) - scroller.right,
             topGap: scroller.top - tabs.bottom,
+            tabsMarginTop: getComputedStyle(tabsElement).marginTop,
             bottomGap: modal.bottom - parseFloat(modalStyle.borderBottomWidth) - scroller.bottom,
             background: getComputedStyle(scrollerElement).backgroundColor,
             readingLayer: getComputedStyle(document.documentElement).getPropertyValue('--status-reading-layer').trim(),
@@ -611,6 +614,7 @@ test('mobile status reading layer fills the panel without a visible scrollbar', 
     expect(Math.abs(mobileSurface.leftGap)).toBeLessThan(1);
     expect(Math.abs(mobileSurface.rightGap)).toBeLessThan(1);
     expect(Math.abs(mobileSurface.topGap)).toBeLessThan(1);
+    expect(mobileSurface.tabsMarginTop).toBe('0px');
     expect(Math.abs(mobileSurface.bottomGap)).toBeLessThan(1);
     expect(mobileSurface.background).not.toBe('rgba(0, 0, 0, 0)');
     expect(mobileSurface.readingLayer).toContain('80%');
