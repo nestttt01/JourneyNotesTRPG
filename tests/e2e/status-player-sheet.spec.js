@@ -291,9 +291,10 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
             saveIndicator: ['.status-save-indicator', '12px'],
             saveAsButton: ['.status-save-as-btn', '12px'],
             tab: ['.status-tab-btn', '14px'],
-            stateHeading: ['#status-page-state > .u-inline-013', '14px'],
-            flag: ['.flag-tag', '14px'],
-            item: ['.item-tag', '14px'],
+            stateHeading: ['#status-page-state > .u-inline-013', '16px'],
+            npcSummaryHeading: ['#status-summary-display .u-inline-016', '16px'],
+            flag: ['.flag-tag', '12px'],
+            item: ['.item-tag', '12px'],
             itemUse: ['.item-use-btn', '12px'],
             growthRank: ['.growth-rank', '14px'],
             growthPoints: ['.growth-points', '14px'],
@@ -302,13 +303,13 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
             logTitle: ['.status-log-view-title', '16px'],
             logDescription: ['.status-log-view-description', '10px'],
             actionNote: ['.memory-action-note', '10px'],
-            memoryTitle: ['.memory-field-title', '12px'],
+            memoryTitle: ['.memory-field-title', '16px'],
             memoryHint: ['.memory-field-hint', '12px'],
             storyText: ['#ui-story-summary', '14px'],
             taskText: ['.memory-task-text', '12px'],
             taskFail: ['.memory-task-fail', '14px'],
             taskRemove: ['.memory-task-remove', '10px'],
-            playerName: ['.u-inline-069', '16px'],
+            playerName: ['.u-inline-069', '20px'],
             statLabel: ['.status-stat-item > span', '12px'],
             statValue: ['.status-stat-item > strong', '14px'],
             detailHeading: ['.status-detail-heading h4', '16px'],
@@ -355,6 +356,50 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
     expect([...new Set(Object.values(typography.actual))].sort()).toEqual([
         '10px', '12px', '14px', '16px', '20px'
     ]);
+    expect(typography.actual.memoryTitle).toBe(typography.actual.npcSummaryHeading);
+    expect(typography.actual.playerName).toBe(typography.actual.npcName);
+
+    const stateLayout = await page.evaluate(() => {
+        switchStatusTab('state');
+        const heading = document.querySelector('#status-page-state > .u-inline-013');
+        const headingStyle = getComputedStyle(heading);
+        const headingTextStart = heading.getBoundingClientRect().left
+            + Number.parseFloat(headingStyle.borderLeftWidth)
+            + Number.parseFloat(headingStyle.paddingLeft);
+        const contentSelectors = [
+            '.npc-summary-list',
+            '#ui-flags-container',
+            '#flags-budget-note',
+            '#flag-input-area',
+            '#ui-items-container',
+            '#ui-growth-container'
+        ];
+        return {
+            headingTextStart,
+            contentStarts: contentSelectors.map(selector => (
+                document.querySelector(selector).getBoundingClientRect().left
+            ))
+        };
+    });
+    stateLayout.contentStarts.forEach(start => {
+        expect(Math.abs(start - stateLayout.headingTextStart)).toBeLessThan(1);
+    });
+
+    const systemSpacing = await page.evaluate(() => {
+        switchStatusTab('api');
+        const settingsHeading = document.querySelector('#status-page-api > .u-inline-013');
+        const settingsContent = document.querySelector('#status-page-api > .settings-group');
+        const usageHeading = document.querySelector('#status-page-api > .u-inline-016');
+        const usageContent = document.querySelector('#status-page-api > .api-stat-note');
+        return {
+            settingsGap: settingsContent.getBoundingClientRect().top
+                - settingsHeading.getBoundingClientRect().bottom,
+            usageGap: usageContent.getBoundingClientRect().top
+                - usageHeading.getBoundingClientRect().bottom
+        };
+    });
+    expect(systemSpacing.settingsGap).toBeGreaterThanOrEqual(15);
+    expect(systemSpacing.usageGap).toBeGreaterThanOrEqual(15);
 });
 
 test('status details are read-first and return to the overview after editing', async ({ page }) => {
@@ -421,6 +466,7 @@ test('status details are read-first and return to the overview after editing', a
     expect(readingSurface.labelColor).toBe(readingSurface.mainColor);
     expect(readingSurface.contentColor).toBe(readingSurface.subColor);
 
+    await expect(page.locator('#status-page-settings > .u-inline-016')).toHaveCount(0);
     await expect(page.locator('#status-player-detail-section h4')).toHaveText('玩家細節');
     await expect(page.locator('#edit-p-age')).toHaveCount(0);
     await expect(page.locator('#status-player-detail-body')).toContainText('22歲 / 152cm');
@@ -474,6 +520,7 @@ test('status details are read-first and return to the overview after editing', a
         const storyHint = storyElement.previousElementSibling;
         const organizeButton = document.getElementById('organize-summary-btn');
         const actionNote = document.querySelector('.status-log-summary-actions .memory-action-note');
+        const taskInput = document.getElementById('ui-new-memory-task');
         const summaryOption = document.getElementById('status-log-summary-tab');
         const titleTextStart = element => {
             const rect = element.getBoundingClientRect();
@@ -501,6 +548,8 @@ test('status details are read-first and return to the overview after editing', a
             storyTitleTextStart: titleTextStart(titles[0]),
             storyHintTextStart: contentTextStart(storyHint),
             storyTextStart: contentTextStart(storyElement),
+            taskTitleTextStart: titleTextStart(titles[1]),
+            taskInputTextStart: contentTextStart(taskInput),
             taskHintCount: document.querySelectorAll('.memory-task-block > .memory-field-hint').length,
             relationshipTitleTextStart: titleTextStart(titles[2]),
             relationshipHintCount: relationshipElement.parentElement.querySelectorAll('.memory-field-hint').length,
@@ -520,6 +569,7 @@ test('status details are read-first and return to the overview after editing', a
     expect(memorySurface.actionNoteTextStart).toBeCloseTo(memorySurface.organizeTextStart, 1);
     expect(memorySurface.storyHintTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
     expect(memorySurface.storyTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
+    expect(memorySurface.taskInputTextStart).toBeCloseTo(memorySurface.taskTitleTextStart, 1);
     expect(memorySurface.taskHintCount).toBe(0);
     expect(memorySurface.relationshipHintCount).toBe(0);
     expect(memorySurface.relationshipTextStart).toBeCloseTo(memorySurface.relationshipTitleTextStart, 1);

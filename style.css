@@ -399,7 +399,7 @@ z-index: 10;
             color: var(--accent-neon);
             box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
             font-family: var(--font-ui);
-            font-size: 14px;
+            font-size: 12px;
             font-synthesis: none;
             font-weight: 400;
             white-space: normal;
@@ -426,7 +426,7 @@ z-index: 10;
             color: var(--text-main);
             box-shadow: 2px 2px 0px var(--accent-neon);
             font-family: var(--font-ui);
-            font-size: 14px;
+            font-size: 12px;
             font-synthesis: none;
             font-weight: 400;
             white-space: nowrap;
@@ -600,7 +600,7 @@ z-index: 10;
             margin-bottom: 5px;
             color: var(--text-main);
             font-family: var(--font-ui);
-            font-size: 12px;
+            font-size: 16px;
             font-synthesis: none;
             font-weight: 400;
             letter-spacing: 1px;
@@ -768,7 +768,11 @@ z-index: 10;
 .memory-task-fail:hover, .memory-task-fail:focus-visible, .memory-task-row.failed .memory-task-fail { color: var(--border-dark); outline: none; }
 .memory-task-remove { color: #9b3942; font-size: 10px; font-weight: 900; letter-spacing: 0.4px; }
 .memory-task-remove:hover, .memory-task-remove:focus-visible { color: var(--border-dark); outline: none; }
-        .memory-task-add { margin-top: 8px; }
+        .memory-task-add {
+            box-sizing: border-box;
+            width: calc(100% - 9px);
+            margin: 8px 0 0 9px;
+        }
         .memory-log-details { margin-top: 12px; }
         .memory-log-details .dark-card-content { padding: 14px; }
 
@@ -1444,16 +1448,19 @@ z-index: 10;
         .api-stat-label { font-size: 10px; color: var(--text-sub); font-weight: 900; margin-bottom: 2px; }
         .api-stat-value { font-size: 16px; color: var(--text-main); font-weight: 900; word-break: break-word; }
         .api-stat-note { font-size: 12px; color: var(--text-sub); line-height: 1.6; font-weight: 700; margin: 10px 0; }
-        /* 面板頁級主標統一(2026/07/10):系統頁兩標題+紀錄頁「讀取摘要」+詳細頁「詳細設定」——
-           像素字放大+重點色偏移陰影;區塊小標(狀態頁)另走左欄標記款,兩層規格。 */
+        /* Panel-level titles: API sections and the log summary heading. */
         #status-page-api > .u-inline-013, #status-page-api > .u-inline-016,
-        #status-page-log > .u-inline-016, #status-page-settings > .u-inline-016 {
+        #status-page-log > .u-inline-016 {
             font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
             font-size: 16px;
             font-weight: 400;   /* 像素字只有單一字重,鎖 400 防瀏覽器假加粗造成兩標題粗度不一 */
             letter-spacing: 1px;
             text-shadow: 2px 2px 0 var(--accent-neon);
             margin: 18px 0 6px;
+        }
+        #status-page-api > .u-inline-013,
+        #status-page-api > .u-inline-016 {
+            margin-bottom: 16px;
         }
         .api-stat-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 
@@ -1561,7 +1568,7 @@ z-index: 10;
         /* quick-status 快速狀態格:UI 已永久隱藏(#status-summary-display .quick-status-grid display:none),樣式群已清(2026/07/10 整理債) */
         #status-page-state .u-inline-016,
         #status-page-state .u-inline-013 {
-            font-size: 14px;
+            font-size: 16px;
             margin-top: 16px;
             margin-bottom: 4px;
         }
@@ -1780,7 +1787,7 @@ background: var(--paper-bg);
             margin: 0 0 12px;
             padding-left: 10px;
             border-left: 4px solid var(--accent-neon);
-            font-size: 14px;   /* 2026/07/10:13→14,與其他小標同步 */
+            font-size: 16px;
             line-height: 1.25;
         }
 
@@ -1791,8 +1798,17 @@ background: var(--paper-bg);
             margin: 14px 0 8px;
             padding-left: 10px;
             border-left: 4px solid var(--accent-neon);
-            font-size: 14px;   /* 2026/07/10:13→14,小標存在感微調 */
+            font-size: 16px;
             line-height: 1.25;
+        }
+        #status-page-state > #ui-flags-container,
+        #status-page-state > #flags-budget-note,
+        #status-page-state > #flag-input-area,
+        #status-page-state > #ui-items-container,
+        #status-page-state > #ui-growth-container {
+            box-sizing: border-box;
+            margin-left: 14px;
+            width: calc(100% - 14px);
         }
 
         /* NPC 好感摘要：唯一生效版本，調整這段即可 */
@@ -2330,7 +2346,7 @@ background: var(--paper-bg);
             flex: 0 1 auto;
             min-width: 0;
             color: var(--text-main);
-            font-size: 16px;
+            font-size: 20px;
             font-weight: 400;
             font-synthesis: none;
             letter-spacing: 1px;
