@@ -524,6 +524,13 @@ test('status details are read-first and return to the overview after editing', a
         const actionNote = document.querySelector('.status-log-summary-actions .memory-action-note');
         const taskInput = document.getElementById('ui-new-memory-task');
         const summaryOption = document.getElementById('status-log-summary-tab');
+        const statusViewDivider = document.querySelector('.status-log-view-divider');
+        const organizerIcon = getComputedStyle(organizeButton, '::before');
+        const organizerDivider = getComputedStyle(organizeButton, '::after');
+        const journalOrganizeButton = document.getElementById('journal-organize-btn');
+        const journalOrganizerIcon = getComputedStyle(journalOrganizeButton, '::before');
+        const journalOrganizerDivider = getComputedStyle(journalOrganizeButton, '::after');
+        const statusViewDividerStyle = getComputedStyle(statusViewDivider);
         const titleTextStart = element => {
             const rect = element.getBoundingClientRect();
             const style = getComputedStyle(element);
@@ -545,8 +552,27 @@ test('status details are read-first and return to the overview after editing', a
             relationshipRadius: relationship.borderRadius,
             relationshipShadow: relationship.boxShadow,
             summaryOptionBackground: getComputedStyle(summaryOption).backgroundColor,
+            summaryTitleShadow: getComputedStyle(summaryOption.querySelector('.status-log-view-title')).textShadow,
+            journalTitleShadow: getComputedStyle(
+                document.querySelector('#status-log-journal-tab .status-log-view-title')
+            ).textShadow,
+            organizerIconWidth: organizerIcon.width,
+            organizerIconHeight: organizerIcon.height,
+            organizerIconBackgroundSize: organizerIcon.backgroundSize,
+            organizerDividerWidth: organizerDivider.width,
+            organizerDividerHeight: organizerDivider.height,
+            organizerDividerColor: organizerDivider.backgroundColor,
+            organizerDividerOpacity: organizerDivider.opacity,
+            organizerIconLeft: organizeButton.getBoundingClientRect().left
+                + parseFloat(getComputedStyle(organizeButton).paddingLeft),
+            journalOrganizerIconWidth: journalOrganizerIcon.width,
+            journalOrganizerIconHeight: journalOrganizerIcon.height,
+            journalOrganizerDividerHeight: journalOrganizerDivider.height,
+            statusViewDividerColor: statusViewDividerStyle.backgroundColor,
+            statusViewDividerOpacity: statusViewDividerStyle.opacity,
             organizeTextStart: contentTextStart(organizeButton),
             actionNoteTextStart: contentTextStart(actionNote),
+            storyTitleMarkerLeft: titles[0].getBoundingClientRect().left,
             storyTitleTextStart: titleTextStart(titles[0]),
             storyHintTextStart: contentTextStart(storyHint),
             storyTextStart: contentTextStart(storyElement),
@@ -556,6 +582,17 @@ test('status details are read-first and return to the overview after editing', a
             relationshipTitleTextStart: titleTextStart(titles[2]),
             relationshipHintCount: relationshipElement.parentElement.querySelectorAll('.memory-field-hint').length,
             relationshipTextStart: contentTextStart(relationshipElement)
+        };
+    });
+    const journalActiveTitleShadows = await page.evaluate(() => {
+        syncStatusLogViewState('journal');
+        return {
+            summary: getComputedStyle(
+                document.querySelector('#status-log-summary-tab .status-log-view-title')
+            ).textShadow,
+            journal: getComputedStyle(
+                document.querySelector('#status-log-journal-tab .status-log-view-title')
+            ).textShadow
         };
     });
     expect(memorySurface.cardBackground).toBe('rgba(0, 0, 0, 0)');
@@ -568,7 +605,22 @@ test('status details are read-first and return to the overview after editing', a
     expect(memorySurface.relationshipRadius).toBe('0px');
     expect(memorySurface.relationshipShadow).toBe('none');
     expect(memorySurface.summaryOptionBackground).toBe('rgba(0, 0, 0, 0)');
-    expect(memorySurface.actionNoteTextStart).toBeCloseTo(memorySurface.organizeTextStart, 1);
+    expect(memorySurface.summaryTitleShadow).toContain('2px 2px 0px');
+    expect(memorySurface.journalTitleShadow).toBe('none');
+    expect(journalActiveTitleShadows.summary).toBe('none');
+    expect(journalActiveTitleShadows.journal).toBe(memorySurface.summaryTitleShadow);
+    expect(memorySurface.organizerIconWidth).toBe('14px');
+    expect(memorySurface.organizerIconHeight).toBe('21px');
+    expect(memorySurface.organizerIconBackgroundSize).toContain('2px 21px');
+    expect(memorySurface.organizerDividerWidth).toBe('1px');
+    expect(memorySurface.organizerDividerHeight).toBe(memorySurface.organizerIconHeight);
+    expect(memorySurface.organizerDividerColor).toBe(memorySurface.statusViewDividerColor);
+    expect(memorySurface.organizerDividerOpacity).toBe(memorySurface.statusViewDividerOpacity);
+    expect(memorySurface.organizerIconLeft).toBeCloseTo(memorySurface.storyTitleMarkerLeft, 1);
+    expect(memorySurface.journalOrganizerIconWidth).toBe(memorySurface.organizerIconWidth);
+    expect(memorySurface.journalOrganizerIconHeight).toBe(memorySurface.organizerIconHeight);
+    expect(memorySurface.journalOrganizerDividerHeight).toBe(memorySurface.organizerIconHeight);
+    expect(memorySurface.actionNoteTextStart).toBeGreaterThan(memorySurface.organizeTextStart);
     expect(memorySurface.storyHintTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
     expect(memorySurface.storyTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
     expect(memorySurface.taskInputTextStart).toBeCloseTo(memorySurface.taskTitleTextStart, 1);

@@ -694,6 +694,9 @@ z-index: 10;
         .status-log-view-option.is-active {
             color: var(--text-main);
         }
+        .status-log-view-option.is-active .status-log-view-title {
+            text-shadow: 2px 2px 0 var(--accent-neon);
+        }
         .status-log-view-option.is-active::after {
             border-color: var(--border-dark);
             background: var(--accent-neon);
@@ -726,10 +729,21 @@ z-index: 10;
         .status-log-view-divider {
             width: 1px;
             margin: 10px 0;
+        }
+        .status-log-view-divider,
+        .journal-actions .journal-action-organize::after {
             background: var(--text-sub);
             opacity: 0.48;
         }
-        .status-log-summary-actions { margin-bottom: 12px; }
+        .status-log-summary-actions {
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .status-log-summary-actions .memory-action-note {
+            flex-basis: auto;
+            padding-left: 0;
+        }
         .memory-task-block { width: min(100%, 520px); margin-bottom: 14px; }
 .memory-task-list { display: grid; gap: 8px; }
 .memory-task-empty {
@@ -857,7 +871,36 @@ z-index: 10;
             transform: none;
         }
         .journal-actions .journal-action-organize {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding-left: 0;
             font-weight: 900;
+        }
+        .journal-actions .journal-action-organize::before {
+            content: "";
+            width: 14px;
+            height: 21px;
+            flex: 0 0 14px;
+            background:
+                linear-gradient(var(--text-main) 0 0) 0 0 / 2px 21px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 0 / 3px 3px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 5px 3px / 3px 3px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 6px / 3px 3px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 11px 9px / 3px 3px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 12px / 3px 3px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 5px 15px / 3px 3px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 18px / 3px 3px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 2px 3px / 3px 15px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 5px 6px / 3px 9px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 8px 9px / 3px 3px no-repeat;
+        }
+        .journal-actions .journal-action-organize::after {
+            content: "";
+            width: 1px;
+            height: 21px;
+            flex: 0 0 1px;
+            margin-left: 4px;
         }
         .journal-actions .journal-action-filter {
             min-width: 36px;
