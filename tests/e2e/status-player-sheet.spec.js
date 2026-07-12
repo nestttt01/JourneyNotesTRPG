@@ -20,8 +20,8 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
         currentOpenTasks = '';
         currentRelationshipSummary = '';
         currentAdventureLog = '';
-        currentFlags = [];
-        currentItems = [];
+        currentFlags = ['出遊開心'];
+        currentItems = ['調查筆記'];
         openStatusModal();
         switchStatusTab('settings');
     });
@@ -32,6 +32,11 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
         const saveIndicator = document.querySelector('.status-save-indicator');
         const readingText = document.querySelector('.status-detail-read-item > p');
         const matureToggle = document.getElementById('mature-mode-toggle');
+        const flagTag = document.querySelector('.flag-tag');
+        const itemLabel = document.querySelector('.item-tag > span');
+        const growthRank = document.querySelector('.growth-rank');
+        const flagWell = document.getElementById('ui-flags-container');
+        const itemWell = document.getElementById('ui-items-container');
         const sheetStyle = getComputedStyle(sheet);
         const buttonStyle = getComputedStyle(respecButton);
         const tabStyle = getComputedStyle(activeTab);
@@ -56,7 +61,12 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
             tabShadow: tabStyle.textShadow,
             saveIndicatorFont: getComputedStyle(saveIndicator).fontFamily,
             readingFont: getComputedStyle(readingText).fontFamily,
-            matureToggleFont: getComputedStyle(matureToggle).fontFamily
+            matureToggleFont: getComputedStyle(matureToggle).fontFamily,
+            flagFont: getComputedStyle(flagTag).fontFamily,
+            itemFont: getComputedStyle(itemLabel).fontFamily,
+            growthRankFont: getComputedStyle(growthRank).fontFamily,
+            flagWellBackground: getComputedStyle(flagWell).backgroundColor,
+            itemWellBackground: getComputedStyle(itemWell).backgroundColor
         };
     });
     const readingFontLoaded = await page.evaluate(async () => {
@@ -87,6 +97,11 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
     expect(sheetState.saveIndicatorFont).toContain('TRPG Cubic Pixel');
     expect(sheetState.readingFont).toContain('Glow Sans TC Normal Medium');
     expect(sheetState.matureToggleFont).toContain('TRPG Cubic Pixel');
+    expect(sheetState.flagFont).toContain('TRPG Cubic Pixel');
+    expect(sheetState.itemFont).toContain('TRPG Cubic Pixel');
+    expect(sheetState.growthRankFont).toContain('TRPG Cubic Pixel');
+    expect(sheetState.flagWellBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(sheetState.itemWellBackground).toBe('rgba(0, 0, 0, 0)');
     expect(readingFontLoaded).toBe(true);
 
     const respecButton = page.locator('.u-inline-065');
@@ -224,9 +239,14 @@ test('status details are read-first and return to the overview after editing', a
 
     const readingSurface = await page.evaluate(() => {
         document.documentElement.dataset.bgMode = 'image';
-        const scroller = document.querySelector('#status-modal-content > .u-inline-012').getBoundingClientRect();
-        const tabs = document.querySelector('#status-modal-content .status-tabs').getBoundingClientRect();
-        const settings = document.getElementById('status-page-settings').getBoundingClientRect();
+        const modalElement = document.getElementById('status-modal-content');
+        const scrollerElement = document.querySelector('#status-modal-content > .u-inline-012');
+        const tabsElement = document.querySelector('#status-modal-content .status-tabs');
+        const settingsElement = document.getElementById('status-page-settings');
+        const modal = modalElement.getBoundingClientRect();
+        const scroller = scrollerElement.getBoundingClientRect();
+        const tabs = tabsElement.getBoundingClientRect();
+        const modalStyle = getComputedStyle(modalElement);
         const heading = document.querySelector('#status-player-detail-section h4');
         const detailBody = document.getElementById('status-player-detail-body').getBoundingClientRect();
         const label = document.querySelector('.status-detail-read-item > span');
@@ -241,10 +261,18 @@ test('status details are read-first and return to the overview after editing', a
         mainProbe.remove();
         subProbe.remove();
         return {
-            leftGap: settings.left - scroller.left,
-            rightGap: scroller.right - settings.right,
-            topGap: settings.top - tabs.bottom,
-            background: getComputedStyle(document.getElementById('status-page-settings')).backgroundColor,
+            leftGap: scroller.left - (modal.left + parseFloat(modalStyle.borderLeftWidth)),
+            rightGap: modal.right - parseFloat(modalStyle.borderRightWidth) - scroller.right,
+            topGap: scroller.top - tabs.bottom,
+            background: getComputedStyle(scrollerElement).backgroundColor,
+            pageBackground: getComputedStyle(settingsElement).backgroundColor,
+            headerBackground: getComputedStyle(document.querySelector('.modal-header-sticky')).backgroundColor,
+            tabsBackground: getComputedStyle(tabsElement).backgroundColor,
+            panelLayer: getComputedStyle(document.documentElement).getPropertyValue('--bg-panel-glass').trim(),
+            readingLayer: getComputedStyle(document.documentElement).getPropertyValue('--status-reading-layer').trim(),
+            tabsParentId: tabsElement.parentElement.id,
+            scrollerContainsTabs: scrollerElement.contains(tabsElement),
+            scrollbarWidth: getComputedStyle(scrollerElement).scrollbarWidth,
             detailIndent: detailBody.left - heading.getBoundingClientRect().left,
             titleTextOffset: parseFloat(getComputedStyle(heading, '::before').width)
                 + parseFloat(getComputedStyle(heading).columnGap),
@@ -258,6 +286,14 @@ test('status details are read-first and return to the overview after editing', a
     expect(Math.abs(readingSurface.rightGap)).toBeLessThan(1);
     expect(Math.abs(readingSurface.topGap)).toBeLessThan(1);
     expect(readingSurface.background).not.toBe('rgba(0, 0, 0, 0)');
+    expect(readingSurface.pageBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(readingSurface.headerBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(readingSurface.tabsBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(readingSurface.panelLayer).toContain('74%');
+    expect(readingSurface.readingLayer).toContain('80%');
+    expect(readingSurface.tabsParentId).toBe('status-modal-content');
+    expect(readingSurface.scrollerContainsTabs).toBe(false);
+    expect(readingSurface.scrollbarWidth).toBe('none');
     expect(readingSurface.detailIndent).toBeCloseTo(readingSurface.titleTextOffset, 1);
     expect(readingSurface.labelColor).toBe(readingSurface.mainColor);
     expect(readingSurface.contentColor).toBe(readingSurface.subColor);
@@ -270,8 +306,25 @@ test('status details are read-first and return to the overview after editing', a
 
     await page.locator('#status-player-detail-section .status-detail-heading-toggle').click();
     await expect(page.locator('#status-player-detail-body')).toBeHidden();
+    await page.locator('.status-detail-npc-choice.active').click();
+    await expect(page.locator('#status-npc-detail-body')).toBeHidden();
+    const collapsedLayer = await page.evaluate(() => {
+        const modalElement = document.getElementById('status-modal-content');
+        const scrollerElement = document.querySelector('#status-modal-content > .u-inline-012');
+        const modal = modalElement.getBoundingClientRect();
+        const scroller = scrollerElement.getBoundingClientRect();
+        const modalStyle = getComputedStyle(modalElement);
+        return {
+            bottomGap: modal.bottom - parseFloat(modalStyle.borderBottomWidth) - scroller.bottom,
+            background: getComputedStyle(scrollerElement).backgroundColor
+        };
+    });
+    expect(Math.abs(collapsedLayer.bottomGap)).toBeLessThan(1);
+    expect(collapsedLayer.background).toBe(readingSurface.background);
     await page.locator('#status-player-detail-section .status-detail-heading-toggle').click();
+    await page.locator('.status-detail-npc-choice.active').click();
     await expect(page.locator('#status-player-detail-body')).toBeVisible();
+    await expect(page.locator('#status-npc-detail-body')).toBeVisible();
 
     const playerPrimaryAction = page.locator('#status-player-detail-section [data-status-detail-primary-action]');
     const editBox = await playerPrimaryAction.boundingBox();
@@ -286,6 +339,104 @@ test('status details are read-first and return to the overview after editing', a
     await expect(page.locator('#edit-p-age')).toHaveCount(0);
     await expect(page.locator('#status-player-detail-body')).toContainText('23歲 / 153cm');
     expect(await page.evaluate(() => currentScenario.playerDetails.age)).toBe('23歲 / 153cm');
+
+    await page.evaluate(() => switchStatusTab('log'));
+    const memorySurface = await page.evaluate(() => {
+        const card = getComputedStyle(document.querySelector('.memory-brief-card'));
+        const storyElement = document.getElementById('ui-story-summary');
+        const relationshipElement = document.getElementById('ui-relationship-summary');
+        const story = getComputedStyle(storyElement);
+        const relationship = getComputedStyle(relationshipElement);
+        const titles = document.querySelectorAll('.memory-field-title');
+        const hints = document.querySelectorAll('.memory-field-hint');
+        const organizeButton = document.getElementById('organize-summary-btn');
+        const actionNote = document.querySelector('.status-log-summary-actions .memory-action-note');
+        const titleTextStart = element => {
+            const rect = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            const marker = getComputedStyle(element, '::before');
+            return rect.left + parseFloat(marker.width) + parseFloat(style.columnGap);
+        };
+        const contentTextStart = element => {
+            const rect = element.getBoundingClientRect();
+            return rect.left + parseFloat(getComputedStyle(element).paddingLeft);
+        };
+        return {
+            cardBackground: card.backgroundColor,
+            cardBorder: card.borderTopWidth,
+            cardShadow: card.boxShadow,
+            storyBackground: story.backgroundColor,
+            storyRadius: story.borderRadius,
+            storyShadow: story.boxShadow,
+            relationshipBackground: relationship.backgroundColor,
+            relationshipRadius: relationship.borderRadius,
+            relationshipShadow: relationship.boxShadow,
+            organizeTextStart: contentTextStart(organizeButton),
+            actionNoteTextStart: contentTextStart(actionNote),
+            storyTitleTextStart: titleTextStart(titles[0]),
+            storyHintTextStart: contentTextStart(hints[0]),
+            storyTextStart: contentTextStart(storyElement),
+            taskTitleTextStart: titleTextStart(titles[1]),
+            taskHintTextStart: contentTextStart(hints[1]),
+            relationshipTitleTextStart: titleTextStart(titles[2]),
+            relationshipHintTextStart: contentTextStart(hints[2]),
+            relationshipTextStart: contentTextStart(relationshipElement)
+        };
+    });
+    expect(memorySurface.cardBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(memorySurface.cardBorder).toBe('0px');
+    expect(memorySurface.cardShadow).toBe('none');
+    expect(memorySurface.storyBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(memorySurface.storyRadius).toBe('0px');
+    expect(memorySurface.storyShadow).toBe('none');
+    expect(memorySurface.relationshipBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(memorySurface.relationshipRadius).toBe('0px');
+    expect(memorySurface.relationshipShadow).toBe('none');
+    expect(memorySurface.actionNoteTextStart).toBeCloseTo(memorySurface.organizeTextStart, 1);
+    expect(memorySurface.storyHintTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
+    expect(memorySurface.storyTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
+    expect(memorySurface.taskHintTextStart).toBeCloseTo(memorySurface.taskTitleTextStart, 1);
+    expect(memorySurface.relationshipHintTextStart).toBeCloseTo(memorySurface.relationshipTitleTextStart, 1);
+    expect(memorySurface.relationshipTextStart).toBeCloseTo(memorySurface.relationshipTitleTextStart, 1);
+});
+
+test('mobile status reading layer fills the panel without a visible scrollbar', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openStatusDetailFixture(page);
+    await page.evaluate(() => {
+        document.documentElement.dataset.bgMode = 'image';
+    });
+    await page.locator('#status-player-detail-section .status-detail-heading-toggle').click();
+    await page.locator('.status-detail-npc-choice.active').click();
+
+    const mobileSurface = await page.evaluate(() => {
+        const modalElement = document.getElementById('status-modal-content');
+        const scrollerElement = document.querySelector('#status-modal-content > .u-inline-012');
+        const tabsElement = document.querySelector('#status-modal-content .status-tabs');
+        const overlayElement = document.getElementById('status-modal');
+        const modal = modalElement.getBoundingClientRect();
+        const scroller = scrollerElement.getBoundingClientRect();
+        const tabs = tabsElement.getBoundingClientRect();
+        const modalStyle = getComputedStyle(modalElement);
+        return {
+            leftGap: scroller.left - (modal.left + parseFloat(modalStyle.borderLeftWidth)),
+            rightGap: modal.right - parseFloat(modalStyle.borderRightWidth) - scroller.right,
+            topGap: scroller.top - tabs.bottom,
+            bottomGap: modal.bottom - parseFloat(modalStyle.borderBottomWidth) - scroller.bottom,
+            background: getComputedStyle(scrollerElement).backgroundColor,
+            readingLayer: getComputedStyle(document.documentElement).getPropertyValue('--status-reading-layer').trim(),
+            overlayScrollbarWidth: getComputedStyle(overlayElement).scrollbarWidth,
+            horizontalOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth
+        };
+    });
+    expect(Math.abs(mobileSurface.leftGap)).toBeLessThan(1);
+    expect(Math.abs(mobileSurface.rightGap)).toBeLessThan(1);
+    expect(Math.abs(mobileSurface.topGap)).toBeLessThan(1);
+    expect(Math.abs(mobileSurface.bottomGap)).toBeLessThan(1);
+    expect(mobileSurface.background).not.toBe('rgba(0, 0, 0, 0)');
+    expect(mobileSurface.readingLayer).toContain('80%');
+    expect(mobileSurface.overlayScrollbarWidth).toBe('none');
+    expect(mobileSurface.horizontalOverflow).toBeLessThanOrEqual(1);
 });
 
 test('live NPC status refreshes in read mode and merges safely during editing', async ({ page }) => {
