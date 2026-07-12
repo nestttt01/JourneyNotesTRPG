@@ -4604,9 +4604,9 @@ box-shadow: -8px 7px 0 var(--bg-tab-shadow);
 box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 }
 
+/* 角色／NPC 詳細表單保持透明：外層 74% + 欄位 66%，避免再疊一層卡片至約 97%。 */
 :root[data-bg-mode="image"] .desktop-overview-card,
 :root[data-bg-mode="image"] .desktop-game-card,
-:root[data-bg-mode="image"] #desktop-config-editor .anime-sheet,
 :root[data-bg-mode="image"] #desktop-config-editor .stat-box,
 :root[data-bg-mode="image"] .anime-sheet input,
 :root[data-bg-mode="image"] .anime-sheet textarea,

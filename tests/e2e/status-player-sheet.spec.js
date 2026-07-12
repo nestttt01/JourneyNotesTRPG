@@ -148,6 +148,36 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
     expect(disabledState.iconCount).toBe(2);
 });
 
+test('character configuration keeps one glass content layer over the panel', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await openApp(page);
+    await page.evaluate(() => {
+        document.documentElement.dataset.bgMode = 'image';
+        openEditScenario();
+        openDesktopConfigEditor('player');
+    });
+
+    const surface = await page.evaluate(() => {
+        const rootStyle = getComputedStyle(document.documentElement);
+        const panel = document.getElementById('desktop-config-editor');
+        const form = document.querySelector('#preset-player-editor .anime-sheet');
+        const field = form.querySelector('input');
+        return {
+            panelLayer: rootStyle.getPropertyValue('--bg-panel-glass').trim(),
+            cardLayer: rootStyle.getPropertyValue('--bg-card-glass').trim(),
+            panelBackground: getComputedStyle(panel).backgroundColor,
+            formBackground: getComputedStyle(form).backgroundColor,
+            fieldBackground: getComputedStyle(field).backgroundColor
+        };
+    });
+
+    expect(surface.panelLayer).toContain('74%');
+    expect(surface.cardLayer).toContain('66%');
+    expect(surface.panelBackground).not.toBe('rgba(0, 0, 0, 0)');
+    expect(surface.formBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(surface.fieldBackground).not.toBe('rgba(0, 0, 0, 0)');
+});
+
 async function openStatusDetailFixture(page) {
     await openApp(page);
     await page.evaluate(() => {
@@ -351,6 +381,7 @@ test('status details are read-first and return to the overview after editing', a
         const hints = document.querySelectorAll('.memory-field-hint');
         const organizeButton = document.getElementById('organize-summary-btn');
         const actionNote = document.querySelector('.status-log-summary-actions .memory-action-note');
+        const summaryOption = document.getElementById('status-log-summary-tab');
         const titleTextStart = element => {
             const rect = element.getBoundingClientRect();
             const style = getComputedStyle(element);
@@ -371,6 +402,7 @@ test('status details are read-first and return to the overview after editing', a
             relationshipBackground: relationship.backgroundColor,
             relationshipRadius: relationship.borderRadius,
             relationshipShadow: relationship.boxShadow,
+            summaryOptionBackground: getComputedStyle(summaryOption).backgroundColor,
             organizeTextStart: contentTextStart(organizeButton),
             actionNoteTextStart: contentTextStart(actionNote),
             storyTitleTextStart: titleTextStart(titles[0]),
@@ -392,6 +424,7 @@ test('status details are read-first and return to the overview after editing', a
     expect(memorySurface.relationshipBackground).toBe('rgba(0, 0, 0, 0)');
     expect(memorySurface.relationshipRadius).toBe('0px');
     expect(memorySurface.relationshipShadow).toBe('none');
+    expect(memorySurface.summaryOptionBackground).toBe('rgba(0, 0, 0, 0)');
     expect(memorySurface.actionNoteTextStart).toBeCloseTo(memorySurface.organizeTextStart, 1);
     expect(memorySurface.storyHintTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
     expect(memorySurface.storyTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
@@ -521,13 +554,32 @@ test('status detail labels render in zh-TW, en, and ja', async ({ page }) => {
             locale,
             player: document.querySelector('#status-player-detail-section h4')?.textContent.trim(),
             dynamic: document.querySelector('.status-detail-dynamic-heading strong')?.textContent.trim(),
-            memory: document.querySelector('.status-detail-memory summary')?.childNodes[0]?.textContent.trim()
+            memory: document.querySelector('.status-detail-memory summary')?.childNodes[0]?.textContent.trim(),
+            relationshipHint: document.getElementById('ui-relationship-summary')?.previousElementSibling?.textContent.trim()
         };
     }));
 
     expect(labels).toEqual([
-        { locale: 'zh-TW', player: '玩家細節', dynamic: '角色動態', memory: '重要紀錄' },
-        { locale: 'en', player: 'Player Details', dynamic: 'Live Character Status', memory: 'Important Notes' },
-        { locale: 'ja', player: 'プレイヤー詳細', dynamic: 'キャラクターの動的状態', memory: '重要記録' }
+        {
+            locale: 'zh-TW',
+            player: '玩家細節',
+            dynamic: '角色動態',
+            memory: '重要紀錄',
+            relationshipHint: '只記角色彼此之間的全局關係、重大承諾、界線與張力；每位 NPC 此刻對玩家的態度放在「詳細 → 角色動態」。'
+        },
+        {
+            locale: 'en',
+            player: 'Player Details',
+            dynamic: 'Live Character Status',
+            memory: 'Important Notes',
+            relationshipHint: 'Record global relationships, major promises, boundaries, and tension. Each NPC’s current attitude belongs under Details → Live Character Status.'
+        },
+        {
+            locale: 'ja',
+            player: 'プレイヤー詳細',
+            dynamic: 'キャラクターの動的状態',
+            memory: '重要記録',
+            relationshipHint: '全体的な関係、重要な約束、境界線、緊張感を記録します。各NPCの現在の態度は「詳細 → キャラクターの動的状態」にあります。'
+        }
     ]);
 });

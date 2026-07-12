@@ -468,7 +468,7 @@
         '任務清單': ['Tasks', 'タスク'],
         '遇到新任務會新增空格；事件完成後會自動打勾，也可以手動修改。': ['New tasks are added automatically and checked when completed. You can also edit them manually.', '新しいタスクは自動で追加され、完了時にチェックされます。手動編集も可能です。'],
         '＋新增': ['＋ Add', '＋ 追加'], '整體角色關係圖': ['Relationships', '関係図'],
-        '只記角色彼此之間的全局關係、重大承諾、界線與張力；每位 NPC 此刻對玩家的態度放在「設定 → 動態狀態」。': ['Record global relationships, major promises, boundaries, and tension. Each NPC’s current attitude belongs under Settings → Dynamic Status.', '全体的な関係、重要な約束、境界線、緊張感を記録します。各NPCの現在の態度は「設定 → 動的状態」にあります。'],
+        '只記角色彼此之間的全局關係、重大承諾、界線與張力；每位 NPC 此刻對玩家的態度放在「詳細 → 角色動態」。': ['Record global relationships, major promises, boundaries, and tension. Each NPC’s current attitude belongs under Details → Live Character Status.', '全体的な関係、重要な約束、境界線、緊張感を記録します。各NPCの現在の態度は「詳細 → キャラクターの動的状態」にあります。'],
         'API 使用追蹤': ['API Usage', 'API使用量'],
         '只儲存在這台裝置目前使用的瀏覽器設定檔，不會隨備份匯出或匯入；清除瀏覽器或設備資料時會一併刪除。': ['Stored only in the current browser profile on this device. It is not exported or imported with backups; clearing browser or device data deletes it.', 'この端末で現在使用中のブラウザプロファイルにのみ保存されます。バックアップのエクスポート／インポートには含まれず、ブラウザまたは端末のデータを消去すると一緒に削除されます。'],
         '遊戲玩法與系統指南': ['Game Guide', 'ゲームガイド'],
