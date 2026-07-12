@@ -212,26 +212,31 @@ function openStatusModal() {
 
                         let rCount = Math.max(0, Number.parseInt(savesData[currentSaveId].respecCount, 10));
             if (!Number.isFinite(rCount)) rCount = 3;
-            // 改為單純的骷髏頭按鈕，長按或游標懸停會顯示剩餘次數
-            let respecBtnHtml = rCount > 0 
-                ? `<button onclick="modalRespecStats()" title="找守墓人洗點 (剩餘 ${rCount} 次)" class="u-inline-065">💀</button>` 
-                : `<span title="洗點次數已用盡" class="u-inline-066">💀</span>`;
+            // 像素骷髏按鈕保留洗點功能；長按或游標懸停會顯示剩餘次數。
+            const respecIconHtml = `
+                <span class="status-respec-icon-stack" aria-hidden="true">
+                    <svg class="status-respec-icon status-respec-icon-base" viewBox="0 0 16 16" focusable="false"><use href="#theme-icon-skull"></use></svg>
+                    <svg class="status-respec-icon status-respec-icon-glint" viewBox="0 0 16 16" focusable="false"><use href="#theme-icon-skull"></use></svg>
+                </span>`;
+            let respecBtnHtml = rCount > 0
+                ? `<button type="button" onclick="modalRespecStats()" aria-label="找守墓人洗點 (剩餘 ${rCount} 次)" title="找守墓人洗點 (剩餘 ${rCount} 次)" class="u-inline-065">${respecIconHtml}</button>`
+                : `<span aria-label="洗點次數已用盡" title="洗點次數已用盡" class="u-inline-066">${respecIconHtml}</span>`;
 
-                        // Player Section 完美還原圖3排版
             let statsHtml = `
             <div class="u-inline-067">
                 <div class="u-inline-068">
-                    <span class="u-inline-069">玩家：${escapeStatusHtml(currentScenario.playerName)}</span>
+                    <span class="status-player-console-label" aria-hidden="true">[ PLAYER ]</span>
+                    <span class="u-inline-069" data-no-i18n>${escapeStatusHtml(currentScenario.playerName)}</span>
                     <span class="u-inline-070">${respecBtnHtml}</span>
                 </div>
 
                 <div class="u-inline-071">
-                    <span>[力量STR: ${pStats.str}]</span>
-                    <span>[敏捷DEX: ${pStats.dex}]</span>
-                    <span>[體質CON: ${pStats.con}]</span>
-                    <span>[智力INT: ${pStats.int}]</span>
-                    <span>[感知WIS: ${pStats.wis}]</span>
-                    <span>[魅力CHA: ${pStats.cha}]</span>
+                    <span class="status-stat-item"><span>${escapeStatusHtml(uiText('STR 力量'))}</span><strong>${escapeStatusHtml(String(pStats.str).padStart(2, '0'))}</strong></span>
+                    <span class="status-stat-item"><span>${escapeStatusHtml(uiText('DEX 敏捷'))}</span><strong>${escapeStatusHtml(String(pStats.dex).padStart(2, '0'))}</strong></span>
+                    <span class="status-stat-item"><span>${escapeStatusHtml(uiText('CON 體質'))}</span><strong>${escapeStatusHtml(String(pStats.con).padStart(2, '0'))}</strong></span>
+                    <span class="status-stat-item"><span>${escapeStatusHtml(uiText('INT 智力'))}</span><strong>${escapeStatusHtml(String(pStats.int).padStart(2, '0'))}</strong></span>
+                    <span class="status-stat-item"><span>${escapeStatusHtml(uiText('WIS 感知'))}</span><strong>${escapeStatusHtml(String(pStats.wis).padStart(2, '0'))}</strong></span>
+                    <span class="status-stat-item"><span>${escapeStatusHtml(uiText('CHA 魅力'))}</span><strong>${escapeStatusHtml(String(pStats.cha).padStart(2, '0'))}</strong></span>
                 </div>
             </div>
             

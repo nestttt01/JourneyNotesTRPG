@@ -1590,13 +1590,15 @@ background: var(--paper-bg);
             color: var(--text-sub);
             box-shadow: none;
             font-size: 13px;
-            font-weight: 900;
+            font-weight: 400;
+            font-synthesis: none;
             letter-spacing: 0;
             cursor: pointer;
         }
         #status-modal-content .status-tab-btn.active {
             background: transparent;
             color: var(--text-main);
+            text-shadow: 1px 1px 0 var(--accent-neon);
             box-shadow: none;
             transform: none;
         }
@@ -2128,22 +2130,139 @@ background: var(--paper-bg);
         #npc-aff-\24 \7b index\7d  { text-align:center; padding: 14px 5px; }
         .u-inline-064 { border-bottom:1px solid #ccc; padding-bottom:5px; }
         #scen-title-\24 \7b index\7d  { margin-left:8px; flex-grow:1; text-align:left; }
-        .u-inline-065 { background: var(--border-dark); color: #fff; padding: 4px 10px; font-size: 15px; border-radius: 8px; border:none; cursor:pointer; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); transition: all 0.2s; }
-        .u-inline-066 { font-size: 18px; filter: grayscale(100%); opacity: 0.4; cursor: not-allowed; }
-        .u-inline-067 { background: var(--surface-muted); border-radius: 8px; padding: 18px; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        .u-inline-065,
+        .u-inline-066 {
+            position: relative;
+            display: inline-grid;
+            width: 44px;
+            height: 44px;
+            place-items: center;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: var(--text-main);
+            box-shadow: none;
+        }
+        .u-inline-065 { cursor: pointer; }
+        .u-inline-066 {
+            opacity: 0.38;
+            cursor: not-allowed;
+        }
+        .u-inline-065:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
+        .status-respec-icon-stack {
+            display: grid;
+            width: 27px;
+            height: 31px;
+            place-items: center;
+        }
+        .status-respec-icon {
+            grid-area: 1 / 1;
+            width: 26px;
+            height: 30px;
+            color: inherit;
+        }
+        .status-respec-icon-glint {
+            color: color-mix(in srgb, var(--accent-neon) 76%, white);
+            opacity: 0;
+            clip-path: polygon(-55% 0, -24% 0, -58% 100%, -89% 100%);
+        }
+        .u-inline-065:hover .status-respec-icon-base,
+        .u-inline-065:focus-visible .status-respec-icon-base {
+            filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent-neon) 82%, transparent));
+        }
+        .u-inline-065:hover .status-respec-icon-glint,
+        .u-inline-065:focus-visible .status-respec-icon-glint {
+            opacity: 1;
+            animation: status-respec-icon-scan 0.72s linear infinite;
+        }
+        .u-inline-067 {
+            margin-bottom: 15px;
+            padding: 4px 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
         .u-inline-068 {
             display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed var(--dash-secondary);
+            min-height: 44px;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: nowrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding: 0;
+            border: 0;
         }
-        .u-inline-069 { font-size: 16px; font-weight: 900; color: var(--text-main); letter-spacing: 1px; word-break: break-all; flex: 1; }
-        .u-inline-070 { flex-shrink: 0; }
-        .u-inline-071 { font-size:11px; font-weight: 400; color: var(--text-main); display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; letter-spacing: 0.5px; }
+        .status-player-console-label {
+            flex: 0 0 auto;
+            color: var(--text-sub);
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+        .u-inline-069 {
+            flex: 0 1 auto;
+            min-width: 0;
+            color: var(--text-main);
+            font-size: 17px;
+            font-weight: 400;
+            font-synthesis: none;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 var(--accent-neon);
+            overflow-wrap: anywhere;
+        }
+        .u-inline-070 {
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+        .u-inline-071 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 24px;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            font-synthesis: none;
+            letter-spacing: 0.5px;
+        }
+        .status-stat-item {
+            display: flex;
+            min-width: 0;
+            align-items: baseline;
+            gap: 7px;
+            white-space: nowrap;
+        }
+        .status-stat-item::before { content: "["; color: var(--text-sub); }
+        .status-stat-item::after { content: "]"; color: var(--text-sub); }
+        .status-stat-item > span,
+        .status-stat-item > strong {
+            font-family: var(--font-ui);
+            font-synthesis: none;
+        }
+        .status-stat-item > strong {
+            margin-left: auto;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 400;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 1px 1px 0 var(--accent-neon);
+        }
+        @keyframes status-respec-icon-scan {
+            from { clip-path: polygon(-55% 0, -24% 0, -58% 100%, -89% 100%); }
+            to { clip-path: polygon(189% 0, 220% 0, 186% 100%, 155% 100%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .u-inline-065 .status-respec-icon-glint {
+                animation: none !important;
+                opacity: 0 !important;
+            }
+        }
         .u-inline-072 { margin-top:10px; }
         .u-inline-073 { padding:15px; margin:0; border:none; background:transparent; }
         .u-inline-074 { text-align: right; margin-bottom: 5px; }
@@ -3384,6 +3503,10 @@ margin: 0; padding: 0; background: transparent;
 
             #status-page-settings .anime-sheet {
                 grid-template-columns: 1fr;
+            }
+            #status-page-settings .u-inline-071 {
+                grid-template-columns: 1fr;
+                gap: 7px;
             }
 
 .npc-summary-list {
