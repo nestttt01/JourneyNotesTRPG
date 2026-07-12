@@ -43,7 +43,7 @@
                 return withTech('{provider} 請求太頻繁或額度已達上限，請稍候再試或改用其他模型。', { provider });
             }
             if (/context length|maximum context|prompt.{0,12}too long|too many tokens|token limit|input tokens/.test(message)) {
-                return withTech('送給 AI 的背景資料太長，請先用狀態面板的「整理摘要／整理紀錄」壓縮後再試。');
+                return withTech('送給 AI 的背景資料太長，請先用角色面板的「整理摘要／整理冒險日誌」壓縮後再試。');
             }
             if (/json|response.?format|invalid schema/.test(message)) {
                 return withTech('AI 回覆格式異常，本次內容沒有套用，請重新發送一次。');

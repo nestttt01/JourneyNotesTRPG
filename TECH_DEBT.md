@@ -76,3 +76,24 @@
 - **只做文件與守則，暫不改架構**：classic script 共用全域是現行設計，模組化改造風險遠大於收益，不排程。
 - 動 ★★★ 變數（`currentScenario`、`scenarioPresets`）前，先用本矩陣確認影響面，並在完成報告列出「碰過哪些檔案的哪些寫入點」。
 - 新增功能時優先透過既有入口函式（`persistJson`、`saveCurrentProgress` 等）寫入，不要新增散落的直接賦值。
+
+## 五、同 context 部分屬性衝突（2026-07-12 掃描）——已清（同日）
+
+**2026-07-12 已收斂：下表 9 組僅刪除「被後繼同 selector 同屬性覆蓋」的死宣告（含 `#flag-input-area` 整條死規則），未搬移或合併任何塊，計算式保證渲染零變化；context 感知複掃確認衝突歸零。**
+
+與第一節「殭屍層」不同：這些是同 selector＋同 context 重複定義、且**部分**屬性值互相衝突（後者生效、前者該屬性成死碼），整塊仍有其他屬性生效，不能整塊刪，需逐屬性收斂。行號為 2026-07-12 掃描版，動手前先以 selector 重新定位。
+
+| selector | context | 定義行 | 衝突屬性 |
+|---|---|---|---|
+| `.setup-info-grid` | top | 79 vs 5286 | gap 12px→22px |
+| `.setup-info-view p` | top | 80 vs 5288 | line-height 1.7→1.9 |
+| `#ui-flags-container, #ui-items-container` | top | 386／1602／1680 | padding、min-height、background、border-radius |
+| `#flag-input-area` | top | 505 vs 1687 | margin-bottom 25px→16px |
+| `#status-page-api … .scenario-label` | top | 1692 vs 1801 | font-size 12→14、color sub→main |
+| `.desktop-workspace-view[data-workspace-view="characters"]` | ≥1100px | 3288 vs 3535 | justify-content center→flex-start |
+| `#desktop-config-editor` | ≥1100px | 3410／3742／3818 | min-width 430px→0、padding |
+| `#desktop-config-editor details.desktop-active-card > .foldable-content` | ≥1100px | 3516 vs 3875 | padding 0→38px 0 0 |
+| `.diary-card` | top | 4878 vs 4886 | padding 14px 16px→0 |
+
+另 16 組同 context 重複但屬性不衝突，屬純疊加，暫不列債；`#player-input` 手機 16px 為 PROJECT_MAP 白名單刻意設計，不列。
+清理準則：每批 2～3 組、收斂為單一最終生效塊；收完跑 Playwright＋桌機手機目視比對，遵守第一節事故記錄的錨點守則。
