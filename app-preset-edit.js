@@ -593,7 +593,10 @@ if (userInput === null) return;
 const newSaveName = userInput.trim() || defaultName;
 try {
 const statusModal = document.getElementById('status-modal');
-if (statusModal && getComputedStyle(statusModal).display !== 'none') syncDomToCurrentScenario();
+if (statusModal && getComputedStyle(statusModal).display !== 'none') {
+if (typeof prepareStatusDetailForPanelSave === 'function') prepareStatusDetailForPanelSave();
+syncDomToCurrentScenario();
+}
 saveCurrentProgress();
 const sourcePresetId = currentScenario?.sourcePresetId
 || (currentScenario?.id && scenarioPresets[currentScenario.id] ? currentScenario.id : '')
@@ -781,4 +784,3 @@ updateSetupCurrentPresetLabel();
                 alert("洗點成功！你的能力值已重新分配。");
             }
         }
-

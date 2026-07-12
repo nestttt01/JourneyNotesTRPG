@@ -473,7 +473,10 @@ return `sanko_input_draft_${saveId || 'none'}`;
         function syncVisibleGameEditsForSave() {
             if (!currentSaveId || !savesData[currentSaveId]) return;
             const statusModal = document.getElementById('status-modal');
-            if (statusModal?.style.display === 'block') syncDomToCurrentScenario();
+            if (statusModal?.style.display === 'block') {
+                if (typeof statusDetailEditSession !== 'undefined' && statusDetailEditSession) return;
+                syncDomToCurrentScenario();
+            }
         }
 
         function flushActiveGameSave() {
@@ -581,7 +584,10 @@ return `sanko_input_draft_${saveId || 'none'}`;
         }
 
         function addMidGameScenarioAndEdit() {
-            if (document.getElementById('status-modal')?.style.display === 'block') syncDomToCurrentScenario();
+            if (document.getElementById('status-modal')?.style.display === 'block') {
+                if (typeof prepareStatusDetailForPanelSave === 'function') prepareStatusDetailForPanelSave();
+                syncDomToCurrentScenario();
+            }
             const newIndex = addScenarioToCurrentGame(createBlankScenario());
             changeScenario(newIndex);
             openStatusScenarioEditor(newIndex);

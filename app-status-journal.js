@@ -192,6 +192,431 @@ document.addEventListener('pointerdown', event => {
         }
     });
 });
+let statusDetailSelectedNpcIndex = 0;
+let statusDetailEditSession = null;
+let statusPlayerDetailsExpanded = true;
+let statusNpcDetailsExpanded = true;
+
+function statusDetailTextHtml(value) {
+    const text = String(value ?? '').trim();
+    if (!text) return `<span class="status-detail-empty">${escapeStatusHtml(uiText('尚未設定'))}</span>`;
+    return escapeStatusHtml(text).replace(/\n/g, '<br>');
+}
+
+function renderStatusDetailReadItem(label, value, full = false) {
+    return `
+        <div class="status-detail-read-item${full ? ' full' : ''}">
+            <span>${escapeStatusHtml(uiText(label))}</span>
+            <p data-no-i18n>${statusDetailTextHtml(value)}</p>
+        </div>`;
+}
+
+function getStatusPlayerDetails() {
+    return currentScenario.playerDetails || {
+        age: '',
+        speech: '',
+        likes: '',
+        dislikes: '',
+        app: '',
+        bg: currentScenario.playerPersona || ''
+    };
+}
+
+function renderStatusPlayerDetailReadHtml() {
+    const details = getStatusPlayerDetails();
+    return `<div class="status-detail-read-grid">
+        ${renderStatusDetailReadItem('年齡 / 身高 / 體型', details.age)}
+        ${renderStatusDetailReadItem('說話習慣 / 語氣', details.speech)}
+        ${renderStatusDetailReadItem('喜歡的事物', details.likes)}
+        ${renderStatusDetailReadItem('討厭的事物', details.dislikes)}
+        ${renderStatusDetailReadItem('外貌特徵 / 常見穿搭', details.app, true)}
+        ${renderStatusDetailReadItem('核心性格 / 背景故事', details.bg, true)}
+    </div>`;
+}
+
+function renderStatusDetailHeadingActions(kind) {
+    const isEditing = statusDetailEditSession?.kind === kind;
+    if (isEditing) {
+        return `<div class="status-detail-heading-actions">
+            <button class="status-detail-tool" type="button" onclick="cancelStatusDetailEdit()">${escapeStatusHtml(uiText('取消'))}</button>
+            <button class="status-detail-tool active" type="button" data-status-detail-primary-action onclick="completeStatusDetailEdit()">${escapeStatusHtml(uiText('完成'))}</button>
+        </div>`;
+    }
+    return `<div class="status-detail-heading-actions">
+        <button class="status-detail-tool" type="button" data-status-detail-navigation data-status-detail-primary-action onclick="beginStatusDetailEdit('${kind}')">${escapeStatusHtml(uiText('編輯'))}</button>
+    </div>`;
+}
+
+function renderStatusPlayerDetailSection() {
+    const isEditing = statusDetailEditSession?.kind === 'player';
+    const expanded = statusPlayerDetailsExpanded || isEditing;
+    const content = isEditing ? renderStatusPlayerEditorHtml() : renderStatusPlayerDetailReadHtml();
+    return `
+        <section id="status-player-detail-section" class="status-detail-section${isEditing ? ' status-detail-editing' : ''}">
+            <div class="status-detail-heading">
+                <button class="status-detail-heading-toggle" type="button" aria-expanded="${expanded}" ${isEditing ? 'disabled' : ''} onclick="toggleStatusPlayerDetails()">
+                    <h4>${escapeStatusHtml(uiText('玩家細節'))}</h4>
+                </button>
+                ${expanded ? renderStatusDetailHeadingActions('player') : ''}
+            </div>
+            <div id="status-player-detail-body"${expanded ? '' : ' hidden'}>${content}</div>
+        </section>`;
+}
+
+function toggleStatusPlayerDetails() {
+    if (statusDetailEditSession) return;
+    statusPlayerDetailsExpanded = !statusPlayerDetailsExpanded;
+    const section = document.getElementById('status-player-detail-section');
+    if (section) section.outerHTML = renderStatusPlayerDetailSection();
+}
+
+function clampStatusDetailNpcIndex() {
+    const npcs = Array.isArray(currentScenario.npcs) ? currentScenario.npcs : [];
+    statusDetailSelectedNpcIndex = Math.max(0, Math.min(statusDetailSelectedNpcIndex, Math.max(0, npcs.length - 1)));
+    return statusDetailSelectedNpcIndex;
+}
+
+function getStatusDetailNpcSignature(npc) {
+    if (!npc) return '';
+    return JSON.stringify({
+        affection: clampAffectionValue(npc.affection, 0),
+        dynamic: normalizeDynamicState(npc.dynamic)
+    });
+}
+
+function getStatusDetailNpcInitial(npc) {
+    const name = String(npc?.name || uiText('未命名')).trim();
+    return Array.from(name)[0]?.toUpperCase() || '?';
+}
+
+function renderStatusDetailNpcAvatarHtml(npc) {
+    const avatar = typeof npc?.avatar === 'string' ? npc.avatar.trim() : '';
+    const hasAvatar = avatar && avatar !== emptyAvatar;
+    const image = hasAvatar
+        ? `<img src="${escapeStatusHtml(avatar)}" alt="">`
+        : '';
+    return `<span class="status-detail-npc-avatar" data-initial="${escapeStatusHtml(getStatusDetailNpcInitial(npc))}">${image}</span>`;
+}
+
+function renderStatusNpcHeroHtml(npc) {
+    const dynamic = normalizeDynamicState(npc.dynamic);
+    const affection = clampAffectionValue(npc.affection, 0);
+    const deadBadge = dynamic.isDead
+        ? `<span class="npc-dead-badge">${escapeStatusHtml(uiText(getNpcDeathBadgeText(npc)))}</span>`
+        : '';
+    return `
+        <div class="status-detail-npc-hero">
+            <div class="status-detail-npc-identity">
+                <strong class="status-detail-npc-name" data-no-i18n>${escapeStatusHtml(npc.name || uiText('未命名'))}</strong>
+                ${deadBadge}
+                <span>♥ ${escapeStatusHtml(uiText('目前好感度'))} ${affection}</span>
+            </div>
+            ${renderStatusDetailHeadingActions('npc')}
+        </div>`;
+}
+
+function renderStatusNpcReadHtml(npc, index) {
+    const details = npc.details || { age: '', speech: '', likes: '', dislikes: '', app: '', bg: npc.persona || '' };
+    const dynamic = normalizeDynamicState(npc.dynamic);
+    const dynamicNote = currentScenario.memoryNotesPaused
+        ? uiText('AI 重要紀錄追加已暫停；仍可手動修改')
+        : uiText('僅存在於遊戲中的角色面板');
+    const memoryItems = dynamic.memoryNotes.length
+        ? `<ul>${dynamic.memoryNotes.map(note => `<li data-no-i18n>${escapeStatusHtml(note)}</li>`).join('')}</ul>`
+        : `<p class="status-detail-memory-empty">${escapeStatusHtml(uiText('尚未設定'))}</p>`;
+
+    return `
+        ${renderStatusNpcHeroHtml(npc)}
+        <div class="status-detail-read-grid">
+            ${renderStatusDetailReadItem('年齡 / 身高 / 體型', details.age)}
+            ${renderStatusDetailReadItem('說話習慣 / 語氣', details.speech)}
+            ${renderStatusDetailReadItem('喜歡的事物', details.likes)}
+            ${renderStatusDetailReadItem('討厭的事物', details.dislikes)}
+            ${renderStatusDetailReadItem('外貌特徵 / 常見穿搭', details.app, true)}
+            ${renderStatusDetailReadItem('核心性格 / 背景故事', details.bg, true)}
+        </div>
+        <section class="status-detail-dynamic">
+            <div class="status-detail-dynamic-heading">
+                <strong>${escapeStatusHtml(uiText('角色動態'))}</strong>
+                <span>${escapeStatusHtml(dynamicNote)}</span>
+            </div>
+            <div class="status-detail-read-grid">
+                ${renderStatusDetailReadItem('當前情緒', dynamic.mood)}
+                ${renderStatusDetailReadItem('身體／外觀狀態', dynamic.condition)}
+                ${renderStatusDetailReadItem('此刻對玩家／隊伍的個人態度', dynamic.relationship)}
+                ${renderStatusDetailReadItem('當前目標', dynamic.goal)}
+            </div>
+            <details class="status-detail-memory">
+                <summary>${escapeStatusHtml(uiText('重要紀錄'))} <strong>${String(dynamic.memoryNotes.length).padStart(2, '0')}</strong></summary>
+                ${memoryItems}
+            </details>
+        </section>
+        <div class="status-detail-delete-row">
+            <button class="status-detail-tool danger" type="button" data-status-detail-navigation onclick="modalDeleteNpc(${index})">${escapeStatusHtml(uiText('刪除'))}</button>
+        </div>`;
+}
+
+function renderStatusNpcManager() {
+    const npcs = Array.isArray(currentScenario.npcs) ? currentScenario.npcs : [];
+    const selectedIndex = clampStatusDetailNpcIndex();
+    const isEditing = statusDetailEditSession?.kind === 'npc';
+    const expanded = statusNpcDetailsExpanded || isEditing;
+    const menu = npcs.map((npc, index) => `
+        <button class="status-detail-npc-choice${index === selectedIndex ? ' active' : ''}" type="button" data-status-detail-navigation data-no-i18n aria-pressed="${index === selectedIndex}" aria-expanded="${index === selectedIndex && expanded}" onclick="selectStatusDetailNpc(${index})">
+            ${renderStatusDetailNpcAvatarHtml(npc)}
+            <span class="status-detail-npc-choice-label">${escapeStatusHtml(npc.name || uiText('未命名'))}</span>
+        </button>`).join('');
+    const body = npcs.length
+        ? (isEditing
+            ? renderStatusNpcEditorHtml(npcs[selectedIndex], selectedIndex)
+            : renderStatusNpcReadHtml(npcs[selectedIndex], selectedIndex))
+        : `<p class="status-detail-empty-note">${escapeStatusHtml(uiText('尚未設定 NPC。'))}</p>`;
+
+    return `
+        <section id="status-npc-manager" class="status-detail-section status-detail-npc-section">
+            <div class="status-detail-heading">
+                <h4>${escapeStatusHtml(uiText('登場 NPC'))}</h4>
+                <button class="status-detail-tool" type="button" data-status-detail-navigation onclick="modalAddNpc()">${escapeStatusHtml(uiText('+ 新增 NPC'))}</button>
+            </div>
+            ${npcs.length ? `<div class="status-detail-npc-menu">${menu}</div>` : ''}
+            <div id="status-npc-detail-body"${npcs.length && !expanded ? ' hidden' : ''}>${body}</div>
+        </section>`;
+}
+
+function renderStatusPlayerEditorHtml() {
+    const details = getStatusPlayerDetails();
+    return `
+        <div class="status-detail-editor status-detail-edit-grid">
+            <div><label>${escapeStatusHtml(uiText('年齡 / 身高 / 體型'))}</label><input type="text" id="edit-p-age" value="${escapeStatusHtml(details.age)}"></div>
+            <div><label>${escapeStatusHtml(uiText('說話習慣 / 語氣'))}</label><input type="text" id="edit-p-speech" value="${escapeStatusHtml(details.speech)}"></div>
+            <div><label>${escapeStatusHtml(uiText('喜歡的事物'))}</label><input type="text" id="edit-p-likes" value="${escapeStatusHtml(details.likes)}"></div>
+            <div><label>${escapeStatusHtml(uiText('討厭的事物'))}</label><input type="text" id="edit-p-dislikes" value="${escapeStatusHtml(details.dislikes)}"></div>
+            <div class="full"><label>${escapeStatusHtml(uiText('外貌特徵 / 常見穿搭'))}</label><textarea id="edit-p-app" rows="3" oninput="autoResize(this)">${escapeStatusHtml(details.app)}</textarea></div>
+            <div class="full"><label>${escapeStatusHtml(uiText('核心性格 / 背景故事'))}</label><textarea id="edit-p-bg" rows="3" oninput="autoResize(this)">${escapeStatusHtml(details.bg)}</textarea></div>
+        </div>`;
+}
+
+function renderStatusNpcEditorHtml(npc, index) {
+    const details = npc.details || { age: '', speech: '', likes: '', dislikes: '', app: '', bg: npc.persona || '' };
+    const dynamic = normalizeDynamicState(npc.dynamic);
+    const npcDead = dynamic.isDead === true;
+    return `
+        ${renderStatusNpcHeroHtml(npc)}
+        <p class="status-detail-live-notice" hidden>${escapeStatusHtml(uiText('背景有新的角色動態，完成時將安全合併。'))}</p>
+        <div class="status-detail-editor status-detail-edit-grid">
+            <div class="full"><label>${escapeStatusHtml(uiText('角色名稱'))}</label><input type="text" id="edit-n-name-${index}" value="${escapeStatusHtml(npc.name)}"></div>
+            <div><label>${escapeStatusHtml(uiText(npcDead ? '目前好感度（死亡後停止）' : '目前好感度'))}</label><input type="number" id="edit-n-aff-${index}" min="-100" max="100" value="${clampAffectionValue(npc.affection, 0)}" ${npcDead ? 'disabled' : ''}></div>
+            <div><label>${escapeStatusHtml(uiText('年齡 / 身高 / 體型'))}</label><input type="text" id="edit-n-age-${index}" value="${escapeStatusHtml(details.age)}"></div>
+            <div><label>${escapeStatusHtml(uiText('說話習慣 / 語氣'))}</label><input type="text" id="edit-n-speech-${index}" value="${escapeStatusHtml(details.speech)}"></div>
+            <div><label>${escapeStatusHtml(uiText('喜歡的事物'))}</label><input type="text" id="edit-n-likes-${index}" value="${escapeStatusHtml(details.likes)}"></div>
+            <div><label>${escapeStatusHtml(uiText('討厭的事物'))}</label><input type="text" id="edit-n-dislikes-${index}" value="${escapeStatusHtml(details.dislikes)}"></div>
+            <div class="full"><label>${escapeStatusHtml(uiText('外貌特徵 / 常見穿搭'))}</label><textarea id="edit-n-app-${index}" rows="3" oninput="autoResize(this)">${escapeStatusHtml(details.app)}</textarea></div>
+            <div class="full"><label>${escapeStatusHtml(uiText('核心性格 / 背景故事'))}</label><textarea id="edit-n-bg-${index}" rows="3" oninput="autoResize(this)">${escapeStatusHtml(details.bg)}</textarea></div>
+            ${renderDynamicStateEditor(`edit-n-state-${index}`, dynamic, { allowDeath: true })}
+        </div>`;
+}
+
+function setStatusDetailNavigationDisabled(disabled) {
+    const selector = [
+        '[data-status-detail-navigation]',
+        '#status-page-settings .section-add-btn',
+        '#status-page-settings .delete-btn-red',
+        '#status-modal-content .status-tab-btn',
+        '#status-modal-content .status-save-as-btn'
+    ].join(', ');
+    document.querySelectorAll(selector).forEach(button => {
+        button.disabled = disabled;
+    });
+}
+
+function bindStatusDetailDirtyControls(container) {
+    container.querySelectorAll('input, textarea').forEach(control => {
+        control.addEventListener('input', () => {
+            if (statusDetailEditSession) statusDetailEditSession.dirty.add(control.id);
+        });
+    });
+    if (typeof initTextareas === 'function') initTextareas();
+}
+
+function beginStatusDetailEdit(kind) {
+    if (statusDetailEditSession) return;
+    if (kind === 'player') {
+        const section = document.getElementById('status-player-detail-section');
+        if (!section) return;
+        statusPlayerDetailsExpanded = true;
+        statusDetailEditSession = { kind: 'player', saveId: currentSaveId, dirty: new Set() };
+        section.outerHTML = renderStatusPlayerDetailSection();
+        setStatusDetailNavigationDisabled(true);
+        const body = document.getElementById('status-player-detail-body');
+        if (!body) return;
+        bindStatusDetailDirtyControls(body);
+        return;
+    }
+
+    const npcs = Array.isArray(currentScenario.npcs) ? currentScenario.npcs : [];
+    const index = clampStatusDetailNpcIndex();
+    const npc = npcs[index];
+    const body = document.getElementById('status-npc-detail-body');
+    if (!npc || !body) return;
+    const dynamicBaseline = JSON.parse(JSON.stringify(normalizeDynamicState(npc.dynamic)));
+    statusNpcDetailsExpanded = true;
+    statusDetailEditSession = {
+        kind: 'npc',
+        saveId: currentSaveId,
+        npcIndex: index,
+        dirty: new Set(),
+        dynamicBaseline,
+        sourceSignature: getStatusDetailNpcSignature(npc)
+    };
+    body.closest('.status-detail-section')?.classList.add('status-detail-editing');
+    body.innerHTML = renderStatusNpcEditorHtml(npc, index);
+    setStatusDetailNavigationDisabled(true);
+    bindStatusDetailDirtyControls(body);
+}
+
+function selectStatusDetailNpc(index) {
+    if (statusDetailEditSession) return;
+    const nextIndex = Number.isInteger(index) ? index : 0;
+    if (nextIndex === statusDetailSelectedNpcIndex) {
+        statusNpcDetailsExpanded = !statusNpcDetailsExpanded;
+    } else {
+        statusDetailSelectedNpcIndex = nextIndex;
+        statusNpcDetailsExpanded = true;
+    }
+    const manager = document.getElementById('status-npc-manager');
+    if (manager) manager.outerHTML = renderStatusNpcManager();
+}
+
+function cancelStatusDetailEdit() {
+    const session = statusDetailEditSession;
+    if (!session) return;
+    statusDetailEditSession = null;
+    if (session.kind === 'player') {
+        const section = document.getElementById('status-player-detail-section');
+        if (section) section.outerHTML = renderStatusPlayerDetailSection();
+    } else {
+        const npc = currentScenario.npcs?.[session.npcIndex];
+        const body = document.getElementById('status-npc-detail-body');
+        if (npc && body) {
+            body.innerHTML = renderStatusNpcReadHtml(npc, session.npcIndex);
+            body.closest('.status-detail-section')?.classList.remove('status-detail-editing');
+        }
+    }
+    setStatusDetailNavigationDisabled(false);
+}
+
+function applyStatusDetailDirtyText(session, id, target, key) {
+    if (!session.dirty.has(id)) return false;
+    const control = document.getElementById(id);
+    if (!control) return false;
+    if (target[key] === control.value) return false;
+    target[key] = control.value;
+    return true;
+}
+
+function completeStatusDetailEdit({ persist = true } = {}) {
+    const session = statusDetailEditSession;
+    if (!session) return;
+
+    if (session.kind === 'player') {
+        if (!currentScenario.playerDetails) currentScenario.playerDetails = {};
+        const details = currentScenario.playerDetails;
+        applyStatusDetailDirtyText(session, 'edit-p-age', details, 'age');
+        applyStatusDetailDirtyText(session, 'edit-p-speech', details, 'speech');
+        applyStatusDetailDirtyText(session, 'edit-p-likes', details, 'likes');
+        applyStatusDetailDirtyText(session, 'edit-p-dislikes', details, 'dislikes');
+        applyStatusDetailDirtyText(session, 'edit-p-app', details, 'app');
+        applyStatusDetailDirtyText(session, 'edit-p-bg', details, 'bg');
+        statusDetailEditSession = null;
+        const section = document.getElementById('status-player-detail-section');
+        if (section) section.outerHTML = renderStatusPlayerDetailSection();
+    } else {
+        const npc = currentScenario.npcs?.[session.npcIndex];
+        if (npc) {
+            if (!npc.details) npc.details = {};
+            const prefix = `edit-n-state-${session.npcIndex}`;
+            applyStatusDetailDirtyText(session, `edit-n-name-${session.npcIndex}`, npc, 'name');
+            applyStatusDetailDirtyText(session, `edit-n-age-${session.npcIndex}`, npc.details, 'age');
+            applyStatusDetailDirtyText(session, `edit-n-speech-${session.npcIndex}`, npc.details, 'speech');
+            applyStatusDetailDirtyText(session, `edit-n-likes-${session.npcIndex}`, npc.details, 'likes');
+            applyStatusDetailDirtyText(session, `edit-n-dislikes-${session.npcIndex}`, npc.details, 'dislikes');
+            applyStatusDetailDirtyText(session, `edit-n-app-${session.npcIndex}`, npc.details, 'app');
+            applyStatusDetailDirtyText(session, `edit-n-bg-${session.npcIndex}`, npc.details, 'bg');
+
+            const affectionId = `edit-n-aff-${session.npcIndex}`;
+            if (session.dirty.has(affectionId) && !isNpcDead(npc)) {
+                const affectionInput = document.getElementById(affectionId);
+                const previous = clampAffectionValue(npc.affection, 0);
+                const next = clampAffectionValue(affectionInput?.value, previous);
+                npc.affection = next;
+                if (next !== previous && typeof spawnAffectionHeartPop === 'function') {
+                    window.setTimeout(() => spawnAffectionHeartPop(npc.name, next - previous), 350);
+                }
+            }
+
+            const dynamic = normalizeDynamicState(npc.dynamic);
+            let dynamicChanged = false;
+            if (!dynamic.isDead) {
+                ['mood', 'condition', 'relationship', 'goal'].forEach(key => {
+                    const id = `${prefix}-${key}`;
+                    if (!session.dirty.has(id)) return;
+                    const value = document.getElementById(id)?.value.trim() || '';
+                    if (dynamic[key] !== value) {
+                        dynamic[key] = value;
+                        dynamicChanged = true;
+                    }
+                });
+                const memoryId = `${prefix}-memoryNotes`;
+                if (session.dirty.has(memoryId)) {
+                    const manualNotes = normalizeMemoryNotes(document.getElementById(memoryId)?.value || '');
+                    const baselineNotes = session.dynamicBaseline?.memoryNotes || [];
+                    const backgroundNotes = dynamic.memoryNotes.filter(note => !baselineNotes.includes(note));
+                    const mergedNotes = normalizeMemoryNotes([...manualNotes, ...backgroundNotes]);
+                    if (JSON.stringify(dynamic.memoryNotes) !== JSON.stringify(mergedNotes)) {
+                        dynamic.memoryNotes = mergedNotes;
+                        dynamicChanged = true;
+                    }
+                }
+            }
+            if (dynamicChanged) {
+                dynamic.lastReason = '玩家手動修改';
+                dynamic.updatedAt = new Date().toLocaleString();
+            }
+            npc.dynamic = dynamic;
+        }
+        statusDetailEditSession = null;
+    }
+
+    if (session.kind === 'npc') {
+        const npc = currentScenario.npcs?.[session.npcIndex];
+        const body = document.getElementById('status-npc-detail-body');
+        if (npc && body) {
+            body.innerHTML = renderStatusNpcReadHtml(npc, session.npcIndex);
+            body.closest('.status-detail-section')?.classList.remove('status-detail-editing');
+            const activeChoice = document.querySelector('.status-detail-npc-choice.active');
+            const label = activeChoice?.querySelector('.status-detail-npc-choice-label');
+            const avatar = activeChoice?.querySelector('.status-detail-npc-avatar');
+            if (label) label.textContent = npc.name || uiText('未命名');
+            if (avatar) avatar.dataset.initial = getStatusDetailNpcInitial(npc);
+        }
+    }
+    setStatusDetailNavigationDisabled(false);
+    if (persist && typeof saveCurrentProgress === 'function') saveCurrentProgress();
+}
+
+function prepareStatusDetailForPanelSave() {
+    if (statusDetailEditSession) completeStatusDetailEdit({ persist: false });
+}
+
+function markStatusDetailBackgroundUpdate() {
+    const session = statusDetailEditSession;
+    if (!session || session.kind !== 'npc') return;
+    const npc = currentScenario.npcs?.[session.npcIndex];
+    if (!npc || getStatusDetailNpcSignature(npc) === session.sourceSignature) return;
+    const notice = document.querySelector('.status-detail-live-notice');
+    if (notice) notice.hidden = false;
+}
+
 function openStatusModal() {
             if(!currentSaveId) return;
             ensureStatusModalDrag();
@@ -240,65 +665,8 @@ function openStatusModal() {
                 </div>
             </div>
             
-            <details class="dark-card u-inline-072">
-                <summary>
-                    <div class="summary-left">
-                        <span class="summary-name">編輯玩家細節設定</span>
-                    </div>
-                </summary>
-                <div class="dark-card-content anime-sheet u-inline-073">
-                    <div><label>年齡 / 身高 / 體型</label><input type="text" id="edit-p-age" value="${escapeStatusHtml(pDet.age)}"></div>
-                    <div><label>說話習慣 / 語氣</label><input type="text" id="edit-p-speech" value="${escapeStatusHtml(pDet.speech)}"></div>
-                    <div><label>喜歡的事物</label><input type="text" id="edit-p-likes" value="${escapeStatusHtml(pDet.likes)}"></div>
-                    <div><label>討厭的事物</label><input type="text" id="edit-p-dislikes" value="${escapeStatusHtml(pDet.dislikes)}"></div>
-                    <div class="full"><label>外貌特徵 / 常見穿搭</label><textarea id="edit-p-app" rows="1" oninput="autoResize(this)">${escapeStatusHtml(pDet.app)}</textarea></div>
-                    <div class="full"><label>核心性格 / 背景故事</label><textarea id="edit-p-bg" rows="1" oninput="autoResize(this)">${escapeStatusHtml(pDet.bg)}</textarea></div>
-                </div>
-            </details>\n`;
-            
-            // NPC Section
-            statsHtml += `
-            <div class="section-header-flex">
-                <h4>${escapeStatusHtml(uiText('登場 NPC 管理'))}</h4>
-                <button class="section-add-btn" onclick="modalAddNpc()">${escapeStatusHtml(uiText('+ 新增 NPC'))}</button>
-            </div>`;
-
-            currentScenario.npcs.forEach((n, idx) => {
-                const affectionValue = Number(n.affection);
-                const aff = Number.isFinite(affectionValue) ? affectionValue : 0;
-                let nDet = n.details || { age: '', speech: '', likes: '', dislikes: '', app: '', bg: n.persona || '' };
-                n.dynamic = normalizeDynamicState(n.dynamic);
-                const nDynamic = n.dynamic;
-                const npcDead = nDynamic.isDead === true;
-                const nDynamicPreview = npcDead ? '' : getDynamicStatePreview(nDynamic);
-                
-                statsHtml += `
-                <details class="dark-card">
-                    <summary>
-                        <div class="summary-left">
-                            <span class="summary-name"><span class="npc-summary-user-name" data-no-i18n>${escapeStatusHtml(n.name)}</span>${npcDead ? `<span class="npc-dead-badge">${getNpcDeathBadgeText(n)}</span>` : ''}</span>
-                            <span class="summary-tag">♥好感: ${aff}</span>
-                            ${nDynamicPreview ? `<span class="dynamic-state-preview" title="${escapeStatusHtml(nDynamicPreview)}">${escapeStatusHtml(nDynamicPreview)}</span>` : ''}
-                        </div>
-                    </summary>
-                    <div class="dark-card-content">
-                        <div class="u-inline-074">
-                            <button class="delete-btn-red" onclick="modalDeleteNpc(${idx}); event.stopPropagation();">刪除</button>
-                        </div>
-                        <div class="anime-sheet u-inline-075">
-                            <div class="full"><label>角色名稱</label><input type="text" id="edit-n-name-${idx}" value="${escapeStatusHtml(n.name)}" oninput="this.closest('details').querySelector('.npc-summary-user-name').innerText = this.value || '未命名';"></div>
-                            <div><label>目前好感度${npcDead ? '（死亡後停止）' : ''}</label><input type="number" id="edit-n-aff-${idx}" min="-100" max="100" value="${clampAffectionValue(n.affection, 0)}" ${npcDead ? 'disabled' : ''}></div>
-                            <div><label>年齡 / 身高 / 體型</label><input type="text" id="edit-n-age-${idx}" value="${escapeStatusHtml(nDet.age)}"></div>
-                            <div><label>說話習慣 / 語氣</label><input type="text" id="edit-n-speech-${idx}" value="${escapeStatusHtml(nDet.speech)}"></div>
-                            <div><label>喜歡的事物</label><input type="text" id="edit-n-likes-${idx}" value="${escapeStatusHtml(nDet.likes)}"></div>
-                            <div><label>討厭的事物</label><input type="text" id="edit-n-dislikes-${idx}" value="${escapeStatusHtml(nDet.dislikes)}"></div>
-                            <div class="full"><label>外貌特徵 / 常見穿搭</label><textarea id="edit-n-app-${idx}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(nDet.app)}</textarea></div>
-                            <div class="full"><label>核心性格 / 背景故事</label><textarea id="edit-n-bg-${idx}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(nDet.bg)}</textarea></div>
-                            ${renderDynamicStateEditor(`edit-n-state-${idx}`, nDynamic, { allowDeath: true })}
-                        </div>
-                    </div>
-                </details>\n`;
-            });
+            ${renderStatusPlayerDetailSection()}
+            ${renderStatusNpcManager()}\n`;
 
             // Scenario Section
             statsHtml += `
@@ -375,6 +743,7 @@ function openStatusModal() {
             const statusModal = document.getElementById('status-modal');
             if (!statusModal || statusModal.style.display !== 'block') return;
             try {
+                prepareStatusDetailForPanelSave();
                 syncDomToCurrentScenario();
                 saveCurrentProgress();
             } catch (error) {
@@ -391,6 +760,7 @@ function openStatusModal() {
 
 function saveStatusModal() {
 try {
+prepareStatusDetailForPanelSave();
 syncDomToCurrentScenario();
 let presetSyncedBeforeSave = false;
 const preSaveSourceId = currentScenario.sourcePresetId || currentScenario.id;
@@ -721,8 +1091,19 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
         function refreshOpenStatusPanel() {
             const modal = document.getElementById('status-modal');
             if (!modal || modal.style.display !== 'block') return;
-            const panelHasFocus = document.activeElement?.closest?.('#status-modal-content');
-            if (panelHasFocus) {
+            if (statusDetailEditSession) {
+                markStatusDetailBackgroundUpdate();
+                renderStatusSummary();
+                renderFlags();
+                renderItems();
+                return;
+            }
+            const activeElement = document.activeElement;
+            const panelHasFormFocus = Boolean(
+                activeElement?.closest?.('#status-modal-content')
+                && activeElement.matches?.('input, textarea, select, [contenteditable="true"]')
+            );
+            if (panelHasFormFocus) {
                 renderStatusSummary();
                 renderFlags();
                 renderItems();
