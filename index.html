@@ -130,7 +130,6 @@
                 <div id="status-page-state" class="status-page active">
                     <div id="status-summary-display"></div>
                     <p class="u-inline-013">狀態旗標 / Flags</p>
-                    <p class="u-inline-014">AI 會依據這些狀態銜接劇情、Buff/Debuff 與長期影響。</p>
                     <div id="ui-flags-container"></div>
                     <p id="flags-budget-note" class="memory-budget-note"></p>
                     <div id="flag-input-area">
@@ -172,7 +171,7 @@
                     <div id="status-log-summary-view" class="status-log-summary-view" role="tabpanel" aria-labelledby="status-log-summary-tab">
                         <div class="journal-actions status-log-summary-actions">
                             <button id="organize-summary-btn" class="btn journal-action-tool journal-action-organize" aria-label="整理摘要" title="整理摘要" onclick="organizeMemoryWithAI('summary')">整理</button>
-                            <span class="memory-action-note">每回合會自動更新重點、任務與關係；完整冒險紀錄仍保留在下方，不會自動刪除。</span>
+                            <span class="memory-action-note">使用整理鍵時AI會統合重複的紀錄。</span>
                         </div>
 
                         <div class="memory-brief-card">
@@ -184,7 +183,6 @@
                                 </div>
                                 <div class="memory-task-block">
                                     <div class="memory-field-title">任務清單</div>
-                                    <p class="memory-field-hint">遇到新任務會新增空格；事件完成後會自動打勾，也可以手動修改。</p>
                                     <div id="ui-open-tasks" class="memory-task-list"></div>
                                     <div class="memory-task-add">
                                         <input class="status-inline-input" id="ui-new-memory-task" type="text" placeholder="手動新增任務..." onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addMemoryTaskFromInput(); }">
@@ -195,7 +193,6 @@
                                 </div>
                                 <div>
                                     <div class="memory-field-title">整體角色關係圖</div>
-                                    <p class="memory-field-hint">只記角色彼此之間的全局關係、重大承諾、界線與張力；每位 NPC 此刻對玩家的態度放在「詳細 → 角色動態」。</p>
                                     <textarea id="ui-relationship-summary" placeholder="例如：&#10;• 玩家與 NPC 已建立信任&#10;• NPC 知道玩家正在承擔風險" oninput="autoResize(this)" onblur="normalizeMemoryTextarea(this)"></textarea>
                                 </div>
                             </div>

@@ -320,7 +320,7 @@ function renderStatusNpcReadHtml(npc, index) {
     const dynamic = normalizeDynamicState(npc.dynamic);
     const dynamicNote = currentScenario.memoryNotesPaused
         ? uiText('AI 重要紀錄追加已暫停；仍可手動修改')
-        : uiText('僅存在於遊戲中的角色面板');
+        : '';
     const memoryItems = dynamic.memoryNotes.length
         ? `<ul>${dynamic.memoryNotes.map(note => `<li data-no-i18n>${escapeStatusHtml(note)}</li>`).join('')}</ul>`
         : `<p class="status-detail-memory-empty">${escapeStatusHtml(uiText('尚未設定'))}</p>`;
@@ -338,7 +338,7 @@ function renderStatusNpcReadHtml(npc, index) {
         <section class="status-detail-dynamic">
             <div class="status-detail-dynamic-heading">
                 <strong>${escapeStatusHtml(uiText('角色動態'))}</strong>
-                <span>${escapeStatusHtml(dynamicNote)}</span>
+                ${dynamicNote ? `<span>${escapeStatusHtml(dynamicNote)}</span>` : ''}
             </div>
             <div class="status-detail-read-grid">
                 ${renderStatusDetailReadItem('當前情緒', dynamic.mood)}

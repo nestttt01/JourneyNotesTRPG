@@ -378,7 +378,7 @@ test('status details are read-first and return to the overview after editing', a
         const story = getComputedStyle(storyElement);
         const relationship = getComputedStyle(relationshipElement);
         const titles = document.querySelectorAll('.memory-field-title');
-        const hints = document.querySelectorAll('.memory-field-hint');
+        const storyHint = storyElement.previousElementSibling;
         const organizeButton = document.getElementById('organize-summary-btn');
         const actionNote = document.querySelector('.status-log-summary-actions .memory-action-note');
         const summaryOption = document.getElementById('status-log-summary-tab');
@@ -406,12 +406,11 @@ test('status details are read-first and return to the overview after editing', a
             organizeTextStart: contentTextStart(organizeButton),
             actionNoteTextStart: contentTextStart(actionNote),
             storyTitleTextStart: titleTextStart(titles[0]),
-            storyHintTextStart: contentTextStart(hints[0]),
+            storyHintTextStart: contentTextStart(storyHint),
             storyTextStart: contentTextStart(storyElement),
-            taskTitleTextStart: titleTextStart(titles[1]),
-            taskHintTextStart: contentTextStart(hints[1]),
+            taskHintCount: document.querySelectorAll('.memory-task-block > .memory-field-hint').length,
             relationshipTitleTextStart: titleTextStart(titles[2]),
-            relationshipHintTextStart: contentTextStart(hints[2]),
+            relationshipHintCount: relationshipElement.parentElement.querySelectorAll('.memory-field-hint').length,
             relationshipTextStart: contentTextStart(relationshipElement)
         };
     });
@@ -428,8 +427,8 @@ test('status details are read-first and return to the overview after editing', a
     expect(memorySurface.actionNoteTextStart).toBeCloseTo(memorySurface.organizeTextStart, 1);
     expect(memorySurface.storyHintTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
     expect(memorySurface.storyTextStart).toBeCloseTo(memorySurface.storyTitleTextStart, 1);
-    expect(memorySurface.taskHintTextStart).toBeCloseTo(memorySurface.taskTitleTextStart, 1);
-    expect(memorySurface.relationshipHintTextStart).toBeCloseTo(memorySurface.relationshipTitleTextStart, 1);
+    expect(memorySurface.taskHintCount).toBe(0);
+    expect(memorySurface.relationshipHintCount).toBe(0);
     expect(memorySurface.relationshipTextStart).toBeCloseTo(memorySurface.relationshipTitleTextStart, 1);
 });
 
@@ -554,8 +553,9 @@ test('status detail labels render in zh-TW, en, and ja', async ({ page }) => {
             locale,
             player: document.querySelector('#status-player-detail-section h4')?.textContent.trim(),
             dynamic: document.querySelector('.status-detail-dynamic-heading strong')?.textContent.trim(),
+            dynamicNote: document.querySelector('.status-detail-dynamic-heading > span')?.textContent.trim() || '',
             memory: document.querySelector('.status-detail-memory summary')?.childNodes[0]?.textContent.trim(),
-            relationshipHint: document.getElementById('ui-relationship-summary')?.previousElementSibling?.textContent.trim()
+            actionNote: document.querySelector('.status-log-summary-actions .memory-action-note')?.textContent.trim()
         };
     }));
 
@@ -564,22 +564,25 @@ test('status detail labels render in zh-TW, en, and ja', async ({ page }) => {
             locale: 'zh-TW',
             player: '玩家細節',
             dynamic: '角色動態',
+            dynamicNote: '',
             memory: '重要紀錄',
-            relationshipHint: '只記角色彼此之間的全局關係、重大承諾、界線與張力；每位 NPC 此刻對玩家的態度放在「詳細 → 角色動態」。'
+            actionNote: '使用整理鍵時AI會統合重複的紀錄。'
         },
         {
             locale: 'en',
             player: 'Player Details',
             dynamic: 'Live Character Status',
+            dynamicNote: '',
             memory: 'Important Notes',
-            relationshipHint: 'Record global relationships, major promises, boundaries, and tension. Each NPC’s current attitude belongs under Details → Live Character Status.'
+            actionNote: 'When you use Organize, the AI merges duplicate records.'
         },
         {
             locale: 'ja',
             player: 'プレイヤー詳細',
             dynamic: 'キャラクターの動的状態',
+            dynamicNote: '',
             memory: '重要記録',
-            relationshipHint: '全体的な関係、重要な約束、境界線、緊張感を記録します。各NPCの現在の態度は「詳細 → キャラクターの動的状態」にあります。'
+            actionNote: '「整理」ボタンを使うと、AIが重複した記録を統合します。'
         }
     ]);
 });
