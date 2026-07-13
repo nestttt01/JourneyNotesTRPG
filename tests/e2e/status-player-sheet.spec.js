@@ -38,6 +38,13 @@ test('status player sheet uses the 03 protagonist layout and K respec icon', asy
         const flagWell = document.getElementById('ui-flags-container');
         const itemWell = document.getElementById('ui-items-container');
         const stats = sheet.querySelector('.u-inline-071');
+        const firstStat = stats.querySelector('.status-stat-item');
+        const statLabel = firstStat.querySelector('span');
+        const statValue = firstStat.querySelector('strong');
+        const statsBox = stats.getBoundingClientRect();
+        const sheetBox = sheet.getBoundingClientRect();
+        const statLabelBox = statLabel.getBoundingClientRect();
+        const statValueBox = statValue.getBoundingClientRect();
         const cursor = sheet.querySelector('.status-detail-pixel-cursor');
         const sheetStyle = getComputedStyle(sheet);
         const buttonStyle = getComputedStyle(respecButton);
@@ -65,6 +72,16 @@ test('status player sheet uses the 03 protagonist layout and K respec icon', asy
                 };
             }),
             statColumns: getComputedStyle(stats).gridTemplateColumns.split(' ').length,
+            statDirection: getComputedStyle(firstStat).flexDirection,
+            statBefore: getComputedStyle(firstStat, '::before').content,
+            statAfter: getComputedStyle(firstStat, '::after').content,
+            statValueBelowLabel: statValueBox.top >= statLabelBox.bottom,
+            statCenterDelta: Math.abs(
+                statLabelBox.left + statLabelBox.width / 2
+                - statValueBox.left - statValueBox.width / 2
+            ),
+            statLeftInset: statsBox.left - sheetBox.left,
+            statRightInset: sheetBox.right - statsBox.right,
             statLabelFont: getComputedStyle(sheet.querySelector('.status-stat-item > span')).fontFamily,
             statValueFont: getComputedStyle(sheet.querySelector('.status-stat-item > strong')).fontFamily,
             cursorWidth: cursorStyle.width,
@@ -105,6 +122,13 @@ test('status player sheet uses the 03 protagonist layout and K respec icon', asy
     ]);
     expect(sheetState.statValues).toEqual(['06', '08', '10', '16', '16', '16']);
     expect(sheetState.statColumns).toBe(3);
+    expect(sheetState.statDirection).toBe('column');
+    expect(sheetState.statBefore).toBe('none');
+    expect(sheetState.statAfter).toBe('none');
+    expect(sheetState.statValueBelowLabel).toBe(true);
+    expect(sheetState.statCenterDelta).toBeLessThan(1);
+    expect(sheetState.statLeftInset).toBeCloseTo(42, 1);
+    expect(sheetState.statRightInset).toBeCloseTo(42, 1);
     expect(sheetState.statAccents).toEqual(Array.from({ length: 6 }, () => ({
         width: '16px',
         height: '4px',
@@ -475,7 +499,12 @@ test('status details are read-first and return to the overview after editing', a
         const modalStyle = getComputedStyle(modalElement);
         const heading = document.querySelector('#status-player-detail-section .status-detail-player-toggle');
         const playerCursor = heading.querySelector('.status-detail-pixel-cursor');
+        const headingBox = heading.getBoundingClientRect();
+        const headingRowBox = heading.parentElement.getBoundingClientRect();
         const detailBody = document.getElementById('status-player-detail-body').getBoundingClientRect();
+        const editAction = document.querySelector(
+            '#status-player-detail-section [data-status-detail-primary-action]'
+        ).getBoundingClientRect();
         const label = document.querySelector('.status-detail-read-item > span');
         const content = document.querySelector('.status-detail-read-item > p');
         const mainProbe = document.createElement('span');
@@ -501,7 +530,9 @@ test('status details are read-first and return to the overview after editing', a
             tabsParentId: tabsElement.parentElement.id,
             scrollerContainsTabs: scrollerElement.contains(tabsElement),
             scrollbarWidth: getComputedStyle(scrollerElement).scrollbarWidth,
-            detailIndent: detailBody.left - heading.getBoundingClientRect().left,
+            detailIndent: detailBody.left - headingBox.left,
+            detailRightInset: headingRowBox.right - detailBody.right,
+            editRightInset: headingRowBox.right - editAction.right,
             titleTextOffset: playerCursor.getBoundingClientRect().width
                 + parseFloat(getComputedStyle(heading).columnGap),
             labelColor: getComputedStyle(label).color,
@@ -524,6 +555,8 @@ test('status details are read-first and return to the overview after editing', a
     expect(readingSurface.scrollerContainsTabs).toBe(false);
     expect(readingSurface.scrollbarWidth).toBe('none');
     expect(readingSurface.detailIndent).toBeCloseTo(readingSurface.titleTextOffset, 1);
+    expect(readingSurface.detailRightInset).toBeCloseTo(42, 1);
+    expect(Math.abs(readingSurface.editRightInset)).toBeLessThan(1);
     expect(readingSurface.labelColor).toBe(readingSurface.mainColor);
     expect(readingSurface.contentColor).toBe(readingSurface.subColor);
 
@@ -532,7 +565,8 @@ test('status details are read-first and return to the overview after editing', a
     await expect(page.locator('#status-player-detail-section .u-inline-069')).toHaveText('小島秀芙');
     await expect(page.locator('#edit-p-age')).toHaveCount(0);
     await expect(page.locator('#status-player-detail-body')).toContainText('22歲 / 152cm');
-    await expect(page.locator('.status-detail-npc-choice.active .status-detail-npc-choice-label')).toHaveText('SY');
+    await expect(page.locator('.status-detail-npc-choice-label')).toHaveCount(0);
+    await expect(page.locator('.status-detail-npc-choice.active')).toHaveAttribute('aria-label', 'SY');
     await expect(page.locator('.status-detail-dynamic-grid .status-detail-read-item > span')).toHaveText([
         '情緒',
         '狀態',
@@ -784,7 +818,7 @@ test('live NPC status refreshes in read mode and merges safely during editing', 
     await expect(page.locator('.status-tab-btn').first()).toBeEnabled();
 });
 
-test('NPC dossier keeps avatar selection open and hides secondary fields outside edit mode', async ({ page }) => {
+test('NPC dossier keeps avatar-only selection above the identity row and hides secondary fields', async ({ page }) => {
     await openStatusDetailFixture(page);
 
     const npcChoices = page.locator('.status-detail-npc-choice');
@@ -795,6 +829,38 @@ test('NPC dossier keeps avatar selection open and hides secondary fields outside
         return { width: style.width, height: style.height };
     });
     expect(avatarSize).toEqual({ width: '42px', height: '42px' });
+    await expect(npcChoices.first()).toHaveAttribute('aria-label', 'SY');
+    await expect(npcChoices.nth(1)).toHaveAttribute('aria-label', '店主');
+    await expect(page.locator('.status-detail-npc-choice-label')).toHaveCount(0);
+
+    const npcLayout = await page.evaluate(() => {
+        const manager = document.getElementById('status-npc-manager').getBoundingClientRect();
+        const menu = document.querySelector('.status-detail-npc-menu').getBoundingClientRect();
+        const kicker = document.querySelector(
+            '#status-npc-manager .status-detail-dossier-kicker'
+        ).getBoundingClientRect();
+        const hero = document.querySelector('.status-detail-npc-hero').getBoundingClientRect();
+        const body = document.getElementById('status-npc-detail-body').getBoundingClientRect();
+        const actions = document.querySelector(
+            '.status-detail-npc-hero .status-detail-heading-actions'
+        ).getBoundingClientRect();
+        const firstAvatar = document.querySelector(
+            '.status-detail-npc-choice .status-detail-npc-avatar'
+        ).getBoundingClientRect();
+        const npcName = document.querySelector('.status-detail-npc-name').getBoundingClientRect();
+        return {
+            menuBeforeKicker: menu.bottom <= kicker.top,
+            kickerBeforeHero: kicker.bottom <= hero.top,
+            avatarNameLeftDelta: Math.abs(firstAvatar.left - npcName.left),
+            bodyRightInset: manager.right - body.right,
+            actionRightInset: manager.right - actions.right
+        };
+    });
+    expect(npcLayout.menuBeforeKicker).toBe(true);
+    expect(npcLayout.kickerBeforeHero).toBe(true);
+    expect(npcLayout.avatarNameLeftDelta).toBeLessThan(1);
+    expect(npcLayout.bodyRightInset).toBeCloseTo(42, 1);
+    expect(Math.abs(npcLayout.actionRightInset)).toBeLessThan(1);
 
     await expect(page.locator('.status-detail-npc-profile .status-detail-read-item > span')).toHaveText([
         'PROFILE',
@@ -889,6 +955,7 @@ test('03 dossier cursors match and scenario switches by 78px into a read-first e
     expect((cursorEnd?.x || 0) - (cursorStart?.x || 0)).toBeCloseTo(78, 1);
 
     await expect(page.locator('#status-scenario-manager .status-detail-dossier-title')).toHaveText('旅店');
+    await expect(page.locator('#status-scenario-detail-body')).toHaveCSS('margin-right', '42px');
     await expect(page.locator('.status-detail-scene-choice')).toHaveCount(2);
     await expect(page.locator('.status-detail-scene-reading .status-detail-read-item > span')).toHaveText([
         '環境法則與世界觀',
@@ -945,12 +1012,81 @@ test('03 dossier cursors match and scenario switches by 78px into a read-first e
     }))).toEqual({ calls: 1, selectedIndex: 2 });
 });
 
+test('scenario choices wrap at desktop and mobile widths and keep all entries selectable', async ({ page }) => {
+    await page.setViewportSize({ width: 680, height: 900 });
+    await openStatusDetailFixture(page);
+    const longScenarioName = '第八個有很長很長名稱的測試情境';
+    await page.evaluate(longName => {
+        currentScenario.scenarios = Array.from({ length: 8 }, (_, index) => ({
+            name: index === 7 ? longName : '情境 ' + String(index + 1).padStart(2, '0'),
+            lore: '測試世界觀',
+            npcRoles: '測試 NPC',
+            playerRole: '測試玩家',
+            objective: '完成測試',
+            transitionRule: ''
+        }));
+        statusDetailLowerView = 'scenario';
+        statusDetailSelectedScenarioIndex = 0;
+        openStatusModal();
+        switchStatusTab('settings');
+    }, longScenarioName);
+
+    const choices = page.locator('.status-detail-scene-choice');
+    await expect(choices).toHaveCount(8);
+    const readMenuMetrics = () => page.locator('.status-detail-scene-menu').evaluate(menu => {
+        const menuBox = menu.getBoundingClientRect();
+        const boxes = Array.from(menu.querySelectorAll('.status-detail-scene-choice'), choice => (
+            choice.getBoundingClientRect()
+        ));
+        return {
+            flexWrap: getComputedStyle(menu).flexWrap,
+            overflowX: getComputedStyle(menu).overflowX,
+            rowCount: new Set(boxes.map(box => Math.round(box.top))).size,
+            allInside: boxes.every(box => (
+                box.left >= menuBox.left - 1 && box.right <= menuBox.right + 1
+            )),
+            allRendered: boxes.every(box => box.width > 0 && box.height > 0),
+            horizontalOverflow: menu.scrollWidth - menu.clientWidth
+        };
+    });
+
+    for (const width of [680, 390]) {
+        await page.setViewportSize({ width, height: 900 });
+        const metrics = await readMenuMetrics();
+        expect(metrics.flexWrap).toBe('wrap');
+        expect(metrics.overflowX).toBe('visible');
+        expect(metrics.rowCount).toBeGreaterThan(1);
+        expect(metrics.allInside).toBe(true);
+        expect(metrics.allRendered).toBe(true);
+        expect(metrics.horizontalOverflow).toBeLessThanOrEqual(1);
+        const panelOverflow = await page.locator('#status-modal-content > .u-inline-012').evaluate(
+            panel => panel.scrollWidth - panel.clientWidth
+        );
+        expect(panelOverflow).toBeLessThanOrEqual(1);
+    }
+
+    const lastChoice = choices.nth(7);
+    await expect(lastChoice).toHaveAttribute('title', longScenarioName);
+    await lastChoice.click();
+    await expect(page.locator('#status-scenario-manager .status-detail-dossier-title')).toHaveText(
+        longScenarioName
+    );
+});
+
 test('NPC memory control saves without AI and keeps its body collapsible below the goal', async ({ page }) => {
     await openStatusDetailFixture(page);
 
     const goalItem = page.locator('.status-detail-dynamic-grid .status-detail-read-item').last();
     const memoryPanel = page.locator('.status-detail-memory-panel');
     const memoryDetails = memoryPanel.locator('.status-detail-memory');
+    const memoryLabel = memoryPanel.locator('.status-detail-memory-label');
+    await expect(memoryLabel).toHaveText('全部 NPC 記憶追加');
+    await page.evaluate(() => setUiLanguage('en', { persist: false }));
+    await expect(memoryLabel).toHaveText('All NPC memory updates');
+    await page.evaluate(() => setUiLanguage('ja', { persist: false }));
+    await expect(memoryLabel).toHaveText('全NPCの記憶追加');
+    await page.evaluate(() => setUiLanguage('zh-TW', { persist: false }));
+    await expect(memoryLabel).toHaveText('全部 NPC 記憶追加');
     const goalBox = await goalItem.boundingBox();
     const memoryBox = await memoryPanel.boundingBox();
     expect(memoryBox?.y || 0).toBeGreaterThan(goalBox?.y || 0);

@@ -90,3 +90,21 @@
 - [x] 修改檔案：app-status-journal.js、app-scenario-state.js、app-gameplay.js、style.css、i18n.js、index.html、app-config-ui.js、tests/e2e/status-player-sheet.spec.js。
 - [x] 未改存檔格式、資料 key、AI prompt、API key、圖片傳送規則與其他角色面板分頁。
 - [x] 驗證：瀏覽器 680／420／390px 實際渲染無水平溢位；內容軸 42px、索引 78px、五級字級與 66%／80% 背景層符合規格；Playwright 23/23、JS 語法、CSS／HTML 結構、UTF-8／LF、`git diff --check`、壓行與跨 Python／Node hash 複驗通過。
+
+### 角色詳細頁 03 版型實機回饋修正
+
+- [x] 六圍移除方括號，改為標籤在上、數字與 16×4px 重點短線置中在下，維持 3×2。
+- [x] NPC 頭像選擇列移至 FILE／名稱列上方，並移除頭像下姓名小字；按鈕保留 `aria-label`。
+- [x] 玩家、NPC、情境閱讀／編輯內文左右各留 42px；新增／編輯操作仍維持右緣。
+- [x] 情境選項自動換行；長名稱省略並保留完整 `title`，680／390px 下 8 個情境均可見可選且無水平溢位。
+- [x] 「全部 NPC 記憶追加」拆成獨立翻譯節點，切換介面語言時立即同步 zh／en／ja。
+- [x] 修改檔案：app-status-journal.js、style.css、tests/e2e/status-player-sheet.spec.js、TODO.md、COMPLETED.md。
+- [x] 未改 01／02、i18n 字典、資料 key、存檔格式、AI prompt、API key、頭像資料或其他角色面板分頁。
+- [x] 驗收：03 詳細頁專項 Playwright 11/11、完整 Playwright 24/24、全部 JS 語法、CSS 結構、UTF-8／LF、`git diff --check`、壓行與跨 Python／Node hash 複驗通過。
+
+### NPC 頭像與名稱左緣對齊微調
+
+- [x] 03 版型 NPC 選擇按鈕內容由置中改為靠左，第一個 42×42px 頭像框左緣與 NPC 名稱文字左緣對齊。
+- [x] 維持按鈕 58px、頭像尺寸、NPC 間距、名稱列位置、DOM、01／02 與其他版面不變。
+- [x] 修改檔案：style.css、tests/e2e/status-player-sheet.spec.js、TODO.md、COMPLETED.md。
+- [x] 驗證：NPC 專項 Playwright 1/1、角色詳細頁 Playwright 11/11；瀏覽器幾何左緣誤差小於 1px，JS 語法、CSS 結構、UTF-8／LF、`git diff --check`、壓行與跨 Python／Node hash 複驗通過。

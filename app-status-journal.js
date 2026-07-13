@@ -455,7 +455,9 @@ function renderStatusNpcMemoryHtml(dynamic) {
         <section class="status-detail-memory-panel">
             <div class="status-detail-memory-control">
                 <span>
-                    ${escapeStatusHtml(uiText('全部 NPC 記憶追加'))}：
+                    <span class="status-detail-memory-label">
+                        ${escapeStatusHtml(uiText('全部 NPC 記憶追加'))}
+                    </span><span aria-hidden="true">：</span>
                     <strong data-no-i18n>${paused ? 'PAUSED' : 'ON'}</strong>
                 </span>
                 <button class="status-detail-tool" type="button" data-status-detail-navigation
@@ -510,11 +512,9 @@ function renderStatusNpcManager() {
     const menu = npcs.map((npc, index) => `
         <button class="status-detail-npc-choice${index === selectedIndex ? ' active' : ''}"
             type="button" data-status-detail-navigation data-no-i18n
+            aria-label="${escapeStatusHtml(npc.name || uiText('未命名'))}"
             aria-pressed="${index === selectedIndex}" onclick="selectStatusDetailNpc(${index})">
             ${renderStatusDetailNpcAvatarHtml(npc)}
-            <span class="status-detail-npc-choice-label">
-                ${escapeStatusHtml(npc.name || uiText('未命名'))}
-            </span>
         </button>`).join('');
     const body = selectedNpc
         ? (isEditing
@@ -526,9 +526,9 @@ function renderStatusNpcManager() {
         <section id="status-npc-manager"
             class="status-detail-dossier-page${isActive ? ' active' : ''}${isEditing ? ' status-detail-editing' : ''}"
             data-status-detail-page="npc"${isActive ? '' : ' hidden'}>
+            ${npcs.length ? `<div class="status-detail-npc-menu">${menu}</div>` : ''}
             ${renderStatusDetailFileKicker('npc', selectedIndex, npcs.length)}
             ${renderStatusNpcHeroHtml(selectedNpc)}
-            ${npcs.length ? `<div class="status-detail-npc-menu">${menu}</div>` : ''}
             <div id="status-npc-detail-body">${body}</div>
         </section>`;
 }
@@ -708,6 +708,7 @@ function renderStatusScenarioManager() {
     const selector = scenarios.map((scenario, index) => `
         <button class="status-detail-scene-choice${index === selectedIndex ? ' active' : ''}"
             type="button" data-status-detail-navigation data-no-i18n
+            title="${escapeStatusHtml(scenario.name || uiText('未命名'))}"
             aria-pressed="${index === selectedIndex}" onclick="selectStatusDetailScenario(${index})">
             ${String(index + 1).padStart(2, '0')} ${escapeStatusHtml(scenario.name || uiText('未命名'))}
         </button>`).join('');

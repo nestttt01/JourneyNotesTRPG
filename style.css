@@ -2355,8 +2355,8 @@ background: var(--paper-bg);
         }
         .u-inline-071 {
             display: grid;
-            width: calc(100% - 42px);
-            margin: 0 0 18px 42px;
+            width: calc(100% - 84px);
+            margin: 0 42px 18px;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 13px 16px;
             color: var(--text-main);
@@ -2367,19 +2367,19 @@ background: var(--paper-bg);
             letter-spacing: 0.5px;
         }
         .status-stat-item {
-            display: flex;
+            display: inline-flex;
+            width: max-content;
+            max-width: 100%;
             min-width: 0;
-            align-items: flex-start;
-            gap: 5px;
+            justify-self: start;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
             white-space: nowrap;
         }
-        .status-stat-item::before {
-            content: "[";
-            color: var(--text-sub);
-        }
+        .status-stat-item::before,
         .status-stat-item::after {
-            content: "]";
-            color: var(--text-sub);
+            content: none;
         }
         .status-stat-item > span,
         .status-stat-item > strong {
@@ -2388,7 +2388,7 @@ background: var(--paper-bg);
         }
         .status-stat-item > strong {
             display: inline-flex;
-            margin-left: auto;
+            margin-left: 0;
             flex-direction: column;
             align-items: center;
             color: var(--text-main);
@@ -2563,11 +2563,14 @@ background: var(--paper-bg);
         }
         #status-page-settings .status-detail-player-collapsible {
             display: grid;
-            margin-left: 42px;
+            min-width: 0;
+            margin: 0 42px;
+            grid-template-columns: minmax(0, 1fr);
             grid-template-rows: 1fr;
             transition: grid-template-rows 180ms steps(4, end);
         }
         #status-page-settings .status-detail-player-collapsible > div {
+            min-width: 0;
             min-height: 0;
             overflow: hidden;
         }
@@ -2732,6 +2735,10 @@ background: var(--paper-bg);
             display: block;
             animation: status-detail-focus-in 160ms steps(3, end) both;
         }
+        #status-page-settings #status-npc-detail-body,
+        #status-page-settings #status-scenario-detail-body {
+            margin-right: 42px;
+        }
         @keyframes status-detail-focus-in {
             from {
                 opacity: 0;
@@ -2792,7 +2799,12 @@ background: var(--paper-bg);
             scrollbar-width: none;
         }
         #status-page-settings .status-detail-npc-menu {
-            min-height: 70px;
+            min-height: 46px;
+        }
+        #status-page-settings .status-detail-scene-menu {
+            flex-wrap: wrap;
+            row-gap: 4px;
+            overflow-x: visible;
         }
         #status-page-settings .status-detail-npc-menu::-webkit-scrollbar,
         #status-page-settings .status-detail-scene-menu::-webkit-scrollbar {
@@ -2802,11 +2814,11 @@ background: var(--paper-bg);
             display: flex;
             width: 58px;
             min-width: 58px;
-            min-height: 68px;
+            min-height: 46px;
             padding: 2px 0;
             flex-direction: column;
-            align-items: center;
-            gap: 7px;
+            align-items: flex-start;
+            gap: 0;
             border: 0;
             border-radius: 0;
             background: transparent;
@@ -2844,12 +2856,6 @@ background: var(--paper-bg);
             height: 100%;
             object-fit: cover;
         }
-        #status-page-settings .status-detail-npc-choice-label {
-            width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
         #status-page-settings .status-detail-npc-choice:hover,
         #status-page-settings .status-detail-npc-choice:focus-visible,
         #status-page-settings .status-detail-npc-choice.active {
@@ -2866,14 +2872,13 @@ background: var(--paper-bg);
         #status-page-settings .status-detail-npc-choice.active .status-detail-npc-avatar {
             box-shadow: 0 0 0 3px var(--accent-neon);
         }
-        #status-page-settings .status-detail-npc-choice.active .status-detail-npc-choice-label {
-            text-shadow: 1px 1px 0 var(--accent-neon);
-        }
         #status-page-settings .status-detail-scene-choice {
             min-width: 112px;
+            max-width: min(240px, 100%);
             min-height: 44px;
             padding: 6px 0;
-            flex: 0 0 auto;
+            flex: 0 1 auto;
+            overflow: hidden;
             border: 0;
             border-radius: 0;
             background: transparent;
@@ -2883,6 +2888,8 @@ background: var(--paper-bg);
             font-size: 12px;
             font-weight: 400;
             text-align: left;
+            text-overflow: ellipsis;
+            white-space: nowrap;
             cursor: pointer;
         }
         #status-page-settings .status-detail-scene-choice::before {
