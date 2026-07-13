@@ -417,8 +417,8 @@ function selectDesktopPreset(id) {
  </div>
  <input type="text" id="npc-speech-${index}" value="${escapeStatusHtml(npc.details?.speech || '')}">
  </div>
- <div><label>喜歡的事物</label><input type="text" id="npc-likes-${index}" value="${escapeStatusHtml(npc.details?.likes || '')}"></div>
- <div><label>討厭的事物</label><input type="text" id="npc-dislikes-${index}" value="${escapeStatusHtml(npc.details?.dislikes || '')}"></div>
+ <div><label>喜好</label><input type="text" id="npc-likes-${index}" value="${escapeStatusHtml(npc.details?.likes || '')}"></div>
+ <div><label>厭惡</label><input type="text" id="npc-dislikes-${index}" value="${escapeStatusHtml(npc.details?.dislikes || '')}"></div>
 <div class="full"><label>外貌特徵 / 常見穿搭</label><textarea id="npc-app-${index}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.app || '')}</textarea></div>
 <div class="full"><label>核心性格 / 背景故事</label><textarea id="npc-bg-${index}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.bg || npc.persona || '')}</textarea></div>
 <div class="full character-test-row">

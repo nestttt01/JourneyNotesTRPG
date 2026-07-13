@@ -1146,10 +1146,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             if (!lastCommand) return { text: valueToText(text).trim(), handled: false, paused: currentScenario.memoryNotesPaused === true };
 
             const paused = lastCommand === '暫停追加';
-            currentScenario.memoryNotesPaused = paused;
-            createSystemNote(paused
-                ? '重要紀錄：已暫停 AI 自動追加（仍可在面板手動修改）'
-                : '重要紀錄：已恢復 AI 自動追加');
+            setMemoryNotesPaused(paused);
             return { text: cleanedText, handled: true, paused };
         }
 

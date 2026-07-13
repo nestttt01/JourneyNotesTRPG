@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { openApp } = require('./test-helpers');
 
-test('status player sheet uses the flat G layout and K respec icon', async ({ page }) => {
+test('status player sheet uses the 03 protagonist layout and K respec icon', async ({ page }) => {
     await openApp(page);
     await page.evaluate(() => {
         document.documentElement.style.setProperty('--accent-neon', '#ff78b7');
@@ -37,19 +37,40 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
         const growthRank = document.querySelector('.growth-rank');
         const flagWell = document.getElementById('ui-flags-container');
         const itemWell = document.getElementById('ui-items-container');
+        const stats = sheet.querySelector('.u-inline-071');
+        const cursor = sheet.querySelector('.status-detail-pixel-cursor');
         const sheetStyle = getComputedStyle(sheet);
         const buttonStyle = getComputedStyle(respecButton);
         const tabStyle = getComputedStyle(activeTab);
+        const cursorStyle = getComputedStyle(cursor);
+        const cursorPseudo = getComputedStyle(cursor, '::before');
         return {
             background: sheetStyle.backgroundColor,
             radius: sheetStyle.borderRadius,
             shadow: sheetStyle.boxShadow,
-            playerLabel: sheet.querySelector('.status-player-console-label').textContent.trim(),
+            playerPrefixCount: sheet.querySelectorAll('.status-player-console-label').length,
             playerName: sheet.querySelector('.u-inline-069').textContent.trim(),
-            statLabels: Array.from(sheet.querySelectorAll('.status-stat-item > span'), item => item.textContent.trim()),
-            statValues: Array.from(sheet.querySelectorAll('.status-stat-item > strong'), item => item.textContent.trim()),
+            statLabels: Array.from(sheet.querySelectorAll('.status-stat-item > span'), item => (
+                item.textContent.trim()
+            )),
+            statValues: Array.from(sheet.querySelectorAll('.status-stat-item > strong'), item => (
+                item.textContent.trim()
+            )),
+            statAccents: Array.from(sheet.querySelectorAll('.status-stat-item > strong'), item => {
+                const style = getComputedStyle(item, '::after');
+                return {
+                    width: style.width,
+                    height: style.height,
+                    background: style.backgroundColor
+                };
+            }),
+            statColumns: getComputedStyle(stats).gridTemplateColumns.split(' ').length,
             statLabelFont: getComputedStyle(sheet.querySelector('.status-stat-item > span')).fontFamily,
             statValueFont: getComputedStyle(sheet.querySelector('.status-stat-item > strong')).fontFamily,
+            cursorWidth: cursorStyle.width,
+            cursorHeight: cursorStyle.height,
+            cursorAnimation: cursorPseudo.animationName,
+            cursorDuration: cursorPseudo.animationDuration,
             respecWidth: buttonStyle.width,
             respecHeight: buttonStyle.height,
             respecBackground: buttonStyle.backgroundColor,
@@ -77,14 +98,24 @@ test('status player sheet uses the flat G layout and K respec icon', async ({ pa
     expect(sheetState.background).toBe('rgba(0, 0, 0, 0)');
     expect(sheetState.radius).toBe('0px');
     expect(sheetState.shadow).toBe('none');
-    expect(sheetState.playerLabel).toBe('[ PLAYER ]');
+    expect(sheetState.playerPrefixCount).toBe(0);
     expect(sheetState.playerName).toBe('小島秀芙');
     expect(sheetState.statLabels).toEqual([
         'STR 力量', 'DEX 敏捷', 'CON 體質', 'INT 智力', 'WIS 感知', 'CHA 魅力'
     ]);
     expect(sheetState.statValues).toEqual(['06', '08', '10', '16', '16', '16']);
+    expect(sheetState.statColumns).toBe(3);
+    expect(sheetState.statAccents).toEqual(Array.from({ length: 6 }, () => ({
+        width: '16px',
+        height: '4px',
+        background: 'rgb(255, 120, 183)'
+    })));
     expect(sheetState.statLabelFont).toContain('TRPG Cubic Pixel');
     expect(sheetState.statValueFont).toContain('TRPG Cubic Pixel');
+    expect(sheetState.cursorWidth).toBe('14px');
+    expect(sheetState.cursorHeight).toBe('19px');
+    expect(sheetState.cursorAnimation).toBe('status-detail-cursor-poke');
+    expect(sheetState.cursorDuration).toBe('0.9s');
     expect(sheetState.respecWidth).toBe('44px');
     expect(sheetState.respecHeight).toBe('44px');
     expect(sheetState.respecBackground).toBe('rgba(0, 0, 0, 0)');
@@ -167,7 +198,12 @@ test('character configuration keeps one glass content layer over the panel', asy
             cardLayer: rootStyle.getPropertyValue('--bg-card-glass').trim(),
             panelBackground: getComputedStyle(panel).backgroundColor,
             formBackground: getComputedStyle(form).backgroundColor,
-            fieldBackground: getComputedStyle(field).backgroundColor
+            fieldBackground: getComputedStyle(field).backgroundColor,
+            playerLabels: Array.from(form.querySelectorAll('label'), label => label.textContent.trim()),
+            npcLikesLabel: document.getElementById('npc-likes-0')
+                ?.previousElementSibling?.textContent.trim(),
+            npcDislikesLabel: document.getElementById('npc-dislikes-0')
+                ?.previousElementSibling?.textContent.trim()
         };
     });
 
@@ -176,6 +212,10 @@ test('character configuration keeps one glass content layer over the panel', asy
     expect(surface.panelBackground).not.toBe('rgba(0, 0, 0, 0)');
     expect(surface.formBackground).toBe('rgba(0, 0, 0, 0)');
     expect(surface.fieldBackground).not.toBe('rgba(0, 0, 0, 0)');
+    expect(surface.playerLabels).toContain('喜好');
+    expect(surface.playerLabels).toContain('厭惡');
+    expect(surface.npcLikesLabel).toBe('喜好');
+    expect(surface.npcDislikesLabel).toBe('厭惡');
 });
 
 async function openStatusDetailFixture(page) {
@@ -242,11 +282,29 @@ async function openStatusDetailFixture(page) {
                     }
                 }
             ],
-            scenarios: [],
+            scenarios: [
+                {
+                    name: '旅店',
+                    lore: '安靜的老旅店',
+                    npcRoles: '店主正在準備晚餐',
+                    playerRole: '暫住的旅客',
+                    objective: '在午夜前找到房間',
+                    transitionRule: '離開大門後轉往鐘塔'
+                },
+                {
+                    name: '鐘塔',
+                    lore: '所有鐘都慢七分鐘',
+                    npcRoles: '守鐘人拒絕交談',
+                    playerRole: '持有舊鑰匙的訪客',
+                    objective: '登上塔頂',
+                    transitionRule: '敲鐘後返回旅店'
+                }
+            ],
             memoryNotesPaused: false
         };
         savesData[currentSaveId] = { respecCount: 2, scenario: currentScenario };
         currentScenarioIndex = 0;
+        chatScripts = [[], []];
         currentStorySummary = '';
         currentOpenTasks = '';
         currentRelationshipSummary = '';
@@ -254,9 +312,10 @@ async function openStatusDetailFixture(page) {
         currentFlags = [];
         currentItems = [];
         statusDetailSelectedNpcIndex = 0;
+        statusDetailSelectedScenarioIndex = -1;
+        statusDetailLowerView = 'npc';
         statusDetailEditSession = null;
         statusPlayerDetailsExpanded = true;
-        statusNpcDetailsExpanded = true;
         saveCurrentProgress = () => true;
         setUiLanguage('zh-TW', { persist: false, notify: false });
         openStatusModal();
@@ -312,20 +371,18 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
             playerName: ['.u-inline-069', '20px'],
             statLabel: ['.status-stat-item > span', '12px'],
             statValue: ['.status-stat-item > strong', '14px'],
-            detailHeading: ['.status-detail-heading h4', '16px'],
             detailLabel: ['.status-detail-read-item > span', '10px'],
             detailText: ['.status-detail-read-item > p', '14px'],
+            dossierIndex: ['.status-detail-dossier-index button', '12px'],
+            dossierKicker: ['.status-detail-dossier-kicker', '10px'],
+            dossierTitle: ['.status-detail-dossier-title', '16px'],
+            detailTool: ['.status-detail-tool', '12px'],
             npcChoice: ['.status-detail-npc-choice', '10px'],
             npcAvatar: ['.status-detail-npc-avatar', '14px'],
-            npcName: ['.status-detail-npc-name', '20px'],
-            dynamicHeading: ['.status-detail-dynamic-heading strong', '16px'],
-            memorySummary: ['.status-detail-memory summary', '12px'],
-            scenarioHeading: ['.section-header-flex h4', '14px'],
-            scenarioAdd: ['.section-add-btn', '12px'],
-            scenarioName: ['.summary-name', '16px'],
-            scenarioTag: ['.summary-tag', '12px'],
-            scenarioLabel: ['#status-page-settings .scenario-label', '14px'],
-            scenarioInput: ['#status-page-settings .scenario-input', '14px'],
+            npcName: ['.status-detail-npc-name', '16px'],
+            memoryLabel: ['.status-detail-memory summary > span', '10px'],
+            memoryCount: ['.status-detail-memory summary > strong', '12px'],
+            sceneChoice: ['.status-detail-scene-choice', '12px'],
             apiHeading: ['#status-page-api > .u-inline-013', '16px'],
             apiLabel: ['.api-stat-label', '10px'],
             apiValue: ['.api-stat-value', '16px'],
@@ -357,7 +414,8 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
         '10px', '12px', '14px', '16px', '20px'
     ]);
     expect(typography.actual.memoryTitle).toBe(typography.actual.npcSummaryHeading);
-    expect(typography.actual.playerName).toBe(typography.actual.npcName);
+    expect(typography.actual.playerName).toBe('20px');
+    expect(typography.actual.npcName).toBe('16px');
 
     const stateLayout = await page.evaluate(() => {
         switchStatusTab('state');
@@ -415,7 +473,8 @@ test('status details are read-first and return to the overview after editing', a
         const scroller = scrollerElement.getBoundingClientRect();
         const tabs = tabsElement.getBoundingClientRect();
         const modalStyle = getComputedStyle(modalElement);
-        const heading = document.querySelector('#status-player-detail-section h4');
+        const heading = document.querySelector('#status-player-detail-section .status-detail-player-toggle');
+        const playerCursor = heading.querySelector('.status-detail-pixel-cursor');
         const detailBody = document.getElementById('status-player-detail-body').getBoundingClientRect();
         const label = document.querySelector('.status-detail-read-item > span');
         const content = document.querySelector('.status-detail-read-item > p');
@@ -443,7 +502,7 @@ test('status details are read-first and return to the overview after editing', a
             scrollerContainsTabs: scrollerElement.contains(tabsElement),
             scrollbarWidth: getComputedStyle(scrollerElement).scrollbarWidth,
             detailIndent: detailBody.left - heading.getBoundingClientRect().left,
-            titleTextOffset: parseFloat(getComputedStyle(heading, '::before').width)
+            titleTextOffset: playerCursor.getBoundingClientRect().width
                 + parseFloat(getComputedStyle(heading).columnGap),
             labelColor: getComputedStyle(label).color,
             contentColor: getComputedStyle(content).color,
@@ -469,16 +528,25 @@ test('status details are read-first and return to the overview after editing', a
     expect(readingSurface.contentColor).toBe(readingSurface.subColor);
 
     await expect(page.locator('#status-page-settings > .u-inline-016')).toHaveCount(0);
-    await expect(page.locator('#status-player-detail-section h4')).toHaveText('玩家細節');
+    await expect(page.locator('#status-player-detail-section h4')).toHaveCount(0);
+    await expect(page.locator('#status-player-detail-section .u-inline-069')).toHaveText('小島秀芙');
     await expect(page.locator('#edit-p-age')).toHaveCount(0);
     await expect(page.locator('#status-player-detail-body')).toContainText('22歲 / 152cm');
     await expect(page.locator('.status-detail-npc-choice.active .status-detail-npc-choice-label')).toHaveText('SY');
-    await expect(page.locator('.status-detail-dynamic-heading strong')).toHaveText('角色動態');
+    await expect(page.locator('.status-detail-dynamic-grid .status-detail-read-item > span')).toHaveText([
+        '情緒',
+        '狀態',
+        '態度',
+        '目標'
+    ]);
 
-    await page.locator('#status-player-detail-section .status-detail-heading-toggle').click();
+    await page.locator('#status-player-detail-section .status-detail-player-toggle').click();
     await expect(page.locator('#status-player-detail-body')).toBeHidden();
+    await expect(page.locator('#status-player-detail-section .u-inline-069')).toBeVisible();
+    await expect(page.locator('#status-player-detail-section .u-inline-071')).toBeVisible();
     await page.locator('.status-detail-npc-choice.active').click();
-    await expect(page.locator('#status-npc-detail-body')).toBeHidden();
+    await expect(page.locator('#status-npc-detail-body')).toBeVisible();
+    await expect(page.locator('.status-detail-npc-hero')).toBeVisible();
     const collapsedLayer = await page.evaluate(() => {
         const modalElement = document.getElementById('status-modal-content');
         const scrollerElement = document.querySelector('#status-modal-content > .u-inline-012');
@@ -492,8 +560,7 @@ test('status details are read-first and return to the overview after editing', a
     });
     expect(Math.abs(collapsedLayer.bottomGap)).toBeLessThan(1);
     expect(collapsedLayer.background).toBe(readingSurface.background);
-    await page.locator('#status-player-detail-section .status-detail-heading-toggle').click();
-    await page.locator('.status-detail-npc-choice.active').click();
+    await page.locator('#status-player-detail-section .status-detail-player-toggle').click();
     await expect(page.locator('#status-player-detail-body')).toBeVisible();
     await expect(page.locator('#status-npc-detail-body')).toBeVisible();
 
@@ -635,8 +702,7 @@ test('mobile status reading layer fills the panel without a visible scrollbar', 
     await page.evaluate(() => {
         document.documentElement.dataset.bgMode = 'image';
     });
-    await page.locator('#status-player-detail-section .status-detail-heading-toggle').click();
-    await page.locator('.status-detail-npc-choice.active').click();
+    await page.locator('#status-player-detail-section .status-detail-player-toggle').click();
 
     const mobileSurface = await page.evaluate(() => {
         const modalElement = document.getElementById('status-modal-content');
@@ -704,7 +770,7 @@ test('live NPC status refreshes in read mode and merges safely during editing', 
 
     await expect(page.locator('.status-detail-live-notice')).toBeVisible();
     await expect(page.locator('#edit-n-state-0-mood')).toHaveValue('玩家指定的平靜');
-    await page.locator('#status-npc-detail-body [data-status-detail-primary-action]').click();
+    await page.locator('.status-detail-npc-hero [data-status-detail-primary-action]').click();
 
     const merged = await page.evaluate(() => ({
         mood: currentScenario.npcs[0].dynamic.mood,
@@ -718,35 +784,257 @@ test('live NPC status refreshes in read mode and merges safely during editing', 
     await expect(page.locator('.status-tab-btn').first()).toBeEnabled();
 });
 
-test('NPC avatars select and collapse the entire detail body without exposing delete under Done', async ({ page }) => {
+test('NPC dossier keeps avatar selection open and hides secondary fields outside edit mode', async ({ page }) => {
     await openStatusDetailFixture(page);
 
     const npcChoices = page.locator('.status-detail-npc-choice');
     await expect(npcChoices).toHaveCount(2);
     await expect(npcChoices.first().locator('.status-detail-npc-avatar')).toHaveAttribute('data-initial', 'S');
+    const avatarSize = await npcChoices.first().locator('.status-detail-npc-avatar').evaluate(avatar => {
+        const style = getComputedStyle(avatar);
+        return { width: style.width, height: style.height };
+    });
+    expect(avatarSize).toEqual({ width: '42px', height: '42px' });
+
+    await expect(page.locator('.status-detail-npc-profile .status-detail-read-item > span')).toHaveText([
+        'PROFILE',
+        'SPEECH'
+    ]);
+    await expect(page.locator('.status-detail-dynamic-grid .status-detail-read-item > span')).toHaveText([
+        '情緒',
+        '狀態',
+        '態度',
+        '目標'
+    ]);
+    await expect(page.getByText('安靜的夜晚', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('失去聯絡', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('左手纏著繃帶', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('店內認識的朋友', { exact: true })).toHaveCount(0);
 
     await npcChoices.first().click();
-    await expect(page.locator('#status-npc-detail-body')).toBeHidden();
-    await expect(page.locator('.status-detail-npc-hero')).toBeHidden();
-
+    await expect(page.locator('#status-npc-detail-body')).toBeVisible();
+    await expect(page.locator('.status-detail-npc-hero')).toBeVisible();
     await npcChoices.nth(1).click();
     await expect(page.locator('#status-npc-detail-body')).toBeVisible();
     await expect(page.locator('.status-detail-npc-name')).toHaveText('店主');
+    await npcChoices.first().click();
 
-    const primaryAction = page.locator('.status-detail-npc-hero [data-status-detail-primary-action]');
-    await primaryAction.scrollIntoViewIfNeeded();
-    const editBox = await primaryAction.boundingBox();
-    await primaryAction.click();
-    const doneBox = await primaryAction.boundingBox();
-    expect(doneBox?.x).toBeCloseTo(editBox?.x || 0, 1);
-    expect(doneBox?.y).toBeCloseTo(editBox?.y || 0, 1);
-    await primaryAction.click();
+    const actions = page.locator('.status-detail-npc-hero .status-detail-heading-actions');
+    await expect(actions.locator('.status-detail-add-tool')).toHaveText('＋ 新增 NPC');
+    const addBox = await actions.locator('.status-detail-add-tool').boundingBox();
+    const editBox = await actions.locator('[data-status-detail-primary-action]').boundingBox();
+    expect(addBox?.x || 0).toBeLessThan(editBox?.x || 0);
+    expect((editBox?.x || 0) - ((addBox?.x || 0) + (addBox?.width || 0))).toBeLessThanOrEqual(8);
 
-    const returnedEditBox = await primaryAction.boundingBox();
-    expect(returnedEditBox?.x).toBeCloseTo(doneBox?.x || 0, 1);
-    expect(returnedEditBox?.y).toBeCloseTo(doneBox?.y || 0, 1);
-    const deleteBox = await page.locator('.status-detail-delete-row .danger').boundingBox();
-    expect(Math.abs((deleteBox?.y || 0) - (returnedEditBox?.y || 0))).toBeGreaterThan(100);
+    const primaryAction = actions.locator('[data-status-detail-primary-action]');
+    await primaryAction.click();
+    await expect(page.locator('#edit-n-likes-0')).toBeVisible();
+    await expect(page.locator('#edit-n-dislikes-0')).toBeVisible();
+    await expect(page.locator('#edit-n-app-0')).toBeVisible();
+    await expect(page.locator('#edit-n-bg-0')).toBeVisible();
+    await expect(page.locator('#edit-n-state-0-memoryNotes')).toBeVisible();
+    await expect(page.locator('.status-detail-delete-row .danger')).toBeVisible();
+    await primaryAction.click();
+    await expect(page.locator('#edit-n-likes-0')).toHaveCount(0);
+    await expect(page.locator('.status-detail-delete-row .danger')).toHaveCount(0);
+
+    await page.evaluate(() => {
+        window.__addNpcCalls = 0;
+        modalAddNpc = () => {
+            window.__addNpcCalls += 1;
+        };
+    });
+    await page.locator('.status-detail-npc-hero .status-detail-add-tool').click();
+    expect(await page.evaluate(() => ({
+        calls: window.__addNpcCalls,
+        selectedIndex: statusDetailSelectedNpcIndex
+    }))).toEqual({ calls: 1, selectedIndex: 2 });
+});
+
+test('03 dossier cursors match and scenario switches by 78px into a read-first editor', async ({ page }) => {
+    await openStatusDetailFixture(page);
+
+    const cursorMetrics = await page.evaluate(() => {
+        const measure = element => {
+            const style = getComputedStyle(element);
+            const pseudo = getComputedStyle(element, '::before');
+            return {
+                width: style.width,
+                height: style.height,
+                background: pseudo.backgroundImage,
+                animation: pseudo.animationName,
+                duration: pseudo.animationDuration,
+                timing: pseudo.animationTimingFunction
+            };
+        };
+        return {
+            player: measure(document.querySelector('.status-detail-player-toggle .status-detail-pixel-cursor')),
+            dossier: measure(document.querySelector('.status-detail-dossier-cursor'))
+        };
+    });
+    expect(cursorMetrics.player).toEqual(cursorMetrics.dossier);
+    expect(cursorMetrics.player.width).toBe('14px');
+    expect(cursorMetrics.player.height).toBe('19px');
+    expect(cursorMetrics.player.animation).toBe('status-detail-cursor-poke');
+    expect(cursorMetrics.player.duration).toBe('0.9s');
+    expect(cursorMetrics.player.timing).toContain('steps(1');
+
+    const dossierCursor = page.locator('.status-detail-dossier-cursor');
+    const cursorStart = await dossierCursor.boundingBox();
+    await page.locator('[data-status-detail-view="scenario"]').click();
+    await expect(page.locator('#status-scenario-manager')).toBeVisible();
+    await expect(page.locator('#status-npc-manager')).toBeHidden();
+    await page.waitForTimeout(220);
+    const cursorEnd = await dossierCursor.boundingBox();
+    expect((cursorEnd?.x || 0) - (cursorStart?.x || 0)).toBeCloseTo(78, 1);
+
+    await expect(page.locator('#status-scenario-manager .status-detail-dossier-title')).toHaveText('旅店');
+    await expect(page.locator('.status-detail-scene-choice')).toHaveCount(2);
+    await expect(page.locator('.status-detail-scene-reading .status-detail-read-item > span')).toHaveText([
+        '環境法則與世界觀',
+        'NPC 身分／狀態',
+        '玩家身分／狀態',
+        '本場目標',
+        '轉場規則'
+    ]);
+    await expect(page.locator('#status-scenario-manager input, #status-scenario-manager textarea')).toHaveCount(0);
+    await expect(page.locator('#status-scenario-manager details.dark-card')).toHaveCount(0);
+
+    await page.locator('.status-detail-scene-choice').nth(1).click();
+    await expect(page.locator('#status-scenario-manager .status-detail-dossier-title')).toHaveText('鐘塔');
+    await page.locator('.status-detail-scene-choice').first().click();
+
+    const scenarioActions = page.locator(
+        '#status-scenario-manager .status-detail-scenario-hero .status-detail-heading-actions'
+    );
+    await expect(scenarioActions.locator('.status-detail-add-tool')).toHaveText('＋ 新增情境');
+    const addBox = await scenarioActions.locator('.status-detail-add-tool').boundingBox();
+    const editBox = await scenarioActions.locator('[data-status-detail-primary-action]').boundingBox();
+    expect(addBox?.x || 0).toBeLessThan(editBox?.x || 0);
+    expect((editBox?.x || 0) - ((addBox?.x || 0) + (addBox?.width || 0))).toBeLessThanOrEqual(8);
+
+    const primaryAction = scenarioActions.locator('[data-status-detail-primary-action]');
+    await primaryAction.click();
+    for (const id of [
+        '#edit-scen-name-0',
+        '#edit-scen-lore-0',
+        '#edit-scen-npcs-0',
+        '#edit-scen-player-0',
+        '#edit-scen-objective-0',
+        '#edit-scen-transition-0'
+    ]) {
+        await expect(page.locator(id)).toBeVisible();
+    }
+    await expect(page.locator('.status-detail-delete-row .danger')).toBeVisible();
+    await page.locator('#edit-scen-objective-0').fill('在鐘響前找到房間');
+    await primaryAction.click();
+    await expect(page.locator('#edit-scen-name-0')).toHaveCount(0);
+    await expect(page.locator('.status-detail-delete-row .danger')).toHaveCount(0);
+    expect(await page.evaluate(() => currentScenario.scenarios[0].objective)).toBe('在鐘響前找到房間');
+
+    await page.evaluate(() => {
+        window.__addScenarioCalls = 0;
+        modalAddScenario = () => {
+            window.__addScenarioCalls += 1;
+        };
+    });
+    await page.locator('#status-scenario-manager .status-detail-add-tool').click();
+    expect(await page.evaluate(() => ({
+        calls: window.__addScenarioCalls,
+        selectedIndex: statusDetailSelectedScenarioIndex
+    }))).toEqual({ calls: 1, selectedIndex: 2 });
+});
+
+test('NPC memory control saves without AI and keeps its body collapsible below the goal', async ({ page }) => {
+    await openStatusDetailFixture(page);
+
+    const goalItem = page.locator('.status-detail-dynamic-grid .status-detail-read-item').last();
+    const memoryPanel = page.locator('.status-detail-memory-panel');
+    const memoryDetails = memoryPanel.locator('.status-detail-memory');
+    const goalBox = await goalItem.boundingBox();
+    const memoryBox = await memoryPanel.boundingBox();
+    expect(memoryBox?.y || 0).toBeGreaterThan(goalBox?.y || 0);
+    await expect(memoryDetails.locator('summary > strong')).toHaveText('01');
+    await expect(memoryDetails).not.toHaveAttribute('open', '');
+    await expect(memoryDetails.locator('li')).toBeHidden();
+    await memoryDetails.locator('summary').click();
+    await expect(memoryDetails.locator('li')).toHaveText('答應在旅店會合');
+    await expect(memoryDetails.locator('li')).toBeVisible();
+
+    await page.evaluate(() => {
+        window.__statusSaveCalls = 0;
+        window.__statusAiCalls = 0;
+        window.__statusSystemNotes = [];
+        saveCurrentProgress = () => {
+            window.__statusSaveCalls += 1;
+            return true;
+        };
+        requestAIText = () => {
+            window.__statusAiCalls += 1;
+        };
+        createSystemNote = note => {
+            window.__statusSystemNotes.push(note);
+        };
+    });
+
+    const pauseButton = page.locator('.status-detail-memory-control .status-detail-tool');
+    await expect(pauseButton).toHaveText('暫停追加');
+    await pauseButton.click();
+    await expect(page.locator('.status-detail-memory-control > span strong')).toHaveText('PAUSED');
+    await expect(pauseButton).toHaveText('恢復追加');
+    expect(await page.evaluate(() => ({
+        paused: currentScenario.memoryNotesPaused,
+        saves: window.__statusSaveCalls,
+        ai: window.__statusAiCalls,
+        notes: window.__statusSystemNotes
+    }))).toEqual({
+        paused: true,
+        saves: 1,
+        ai: 0,
+        notes: ['重要紀錄：已暫停 AI 自動追加（仍可在面板手動修改）']
+    });
+
+    const pausedPatch = await page.evaluate(() => {
+        const npc = currentScenario.npcs[0];
+        const result = applyDynamicStatePatch(npc.dynamic, {
+            persistent: true,
+            changes: {
+                mood: '緊張',
+                condition: '手臂受傷',
+                relationship: '提高警戒',
+                goal: '離開旅店',
+                memoryNotes: ['這筆不應追加']
+            }
+        }, currentScenario.memoryNotesPaused !== true);
+        npc.dynamic = result.state;
+        return npc.dynamic;
+    });
+    expect(pausedPatch.mood).toBe('緊張');
+    expect(pausedPatch.condition).toBe('手臂受傷');
+    expect(pausedPatch.relationship).toBe('提高警戒');
+    expect(pausedPatch.goal).toBe('離開旅店');
+    expect(pausedPatch.memoryNotes).toEqual(['答應在旅店會合']);
+
+    await pauseButton.click();
+    await expect(page.locator('.status-detail-memory-control > span strong')).toHaveText('ON');
+    expect(await page.evaluate(() => ({
+        paused: currentScenario.memoryNotesPaused,
+        saves: window.__statusSaveCalls,
+        ai: window.__statusAiCalls,
+        notes: window.__statusSystemNotes
+    }))).toEqual({
+        paused: false,
+        saves: 2,
+        ai: 0,
+        notes: [
+            '重要紀錄：已暫停 AI 自動追加（仍可在面板手動修改）',
+            '重要紀錄：已恢復 AI 自動追加'
+        ]
+    });
+
+    await page.locator('.status-detail-memory-row > .status-detail-tool').click();
+    await expect(page.locator('#edit-n-state-0-memoryNotes')).toBeVisible();
+    await expect(page.locator('#edit-n-state-0-memoryNotes')).toHaveValue('• 答應在旅店會合');
 });
 
 test('status detail labels render in zh-TW, en, and ja', async ({ page }) => {
@@ -754,42 +1042,58 @@ test('status detail labels render in zh-TW, en, and ja', async ({ page }) => {
 
     const labels = await page.evaluate(() => ['zh-TW', 'en', 'ja'].map(locale => {
         setUiLanguage(locale, { persist: false, notify: false });
+        statusDetailLowerView = 'npc';
         openStatusModal();
         switchStatusTab('settings');
+        const memoryLabel = document.querySelector('.status-detail-memory-control > span').cloneNode(true);
+        memoryLabel.querySelector('strong')?.remove();
         return {
             locale,
-            player: document.querySelector('#status-player-detail-section h4')?.textContent.trim(),
-            dynamic: document.querySelector('.status-detail-dynamic-heading strong')?.textContent.trim(),
-            dynamicNote: document.querySelector('.status-detail-dynamic-heading > span')?.textContent.trim() || '',
-            memory: document.querySelector('.status-detail-memory summary')?.childNodes[0]?.textContent.trim(),
-            actionNote: document.querySelector('.status-log-summary-actions .memory-action-note')?.textContent.trim()
+            player: Array.from(
+                document.querySelectorAll('.status-detail-player-facts .status-detail-read-item > span'),
+                label => label.textContent.trim()
+            ),
+            dynamic: Array.from(
+                document.querySelectorAll('.status-detail-dynamic-grid .status-detail-read-item > span'),
+                label => label.textContent.trim()
+            ),
+            memory: memoryLabel.textContent.replace(/[：:\s]+/g, ' ').trim(),
+            pause: document.querySelector('.status-detail-memory-control .status-detail-tool')
+                ?.textContent.trim(),
+            addNpc: document.querySelector('.status-detail-npc-hero .status-detail-add-tool')
+                ?.textContent.trim(),
+            scenarioTab: document.querySelector('[data-status-detail-view="scenario"]')
+                ?.textContent.trim()
         };
     }));
 
     expect(labels).toEqual([
         {
             locale: 'zh-TW',
-            player: '玩家細節',
-            dynamic: '角色動態',
-            dynamicNote: '',
-            memory: '重要紀錄',
-            actionNote: '使用整理鍵時AI會統合重複的紀錄。'
+            player: ['體格', '語氣', '喜好', '厭惡'],
+            dynamic: ['情緒', '狀態', '態度', '目標'],
+            memory: '全部 NPC 記憶追加',
+            pause: '暫停追加',
+            addNpc: '＋ 新增 NPC',
+            scenarioTab: '情境'
         },
         {
             locale: 'en',
-            player: 'Player Details',
-            dynamic: 'Live Character Status',
-            dynamicNote: '',
-            memory: 'Important Notes',
-            actionNote: 'When you use Organize, the AI merges duplicate records.'
+            player: ['Build', 'Tone', 'Likes', 'Dislikes'],
+            dynamic: ['Mood', 'Status', 'Attitude', 'Goal'],
+            memory: 'All NPC memory updates',
+            pause: 'Pause updates',
+            addNpc: '+ Add NPC',
+            scenarioTab: 'Scenario'
         },
         {
             locale: 'ja',
-            player: 'プレイヤー詳細',
-            dynamic: 'キャラクターの動的状態',
-            dynamicNote: '',
-            memory: '重要記録',
-            actionNote: '「整理」ボタンを使うと、AIが重複した記録を統合します。'
+            player: ['体格', '口調', '好きなもの', '嫌いなもの'],
+            dynamic: ['気分', 'ステータス', '態度', '目標'],
+            memory: '全NPCの記憶追加',
+            pause: '追加を一時停止',
+            addNpc: '＋ NPCを追加',
+            scenarioTab: 'シナリオ'
         }
     ]);
 });

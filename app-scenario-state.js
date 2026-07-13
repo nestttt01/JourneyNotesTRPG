@@ -1014,3 +1014,16 @@ function normalizeMemoryNotes(value) {
             if (activeStatusTab === "settings") initTextareas();
         }
 
+        function setMemoryNotesPaused(paused, { persist = false, notify = true } = {}) {
+            if (!currentScenario || typeof currentScenario !== 'object') return false;
+            const nextPaused = paused === true;
+            if (currentScenario.memoryNotesPaused === nextPaused) return false;
+            currentScenario.memoryNotesPaused = nextPaused;
+            if (notify && typeof createSystemNote === 'function') {
+                createSystemNote(nextPaused
+                    ? '重要紀錄：已暫停 AI 自動追加（仍可在面板手動修改）'
+                    : '重要紀錄：已恢復 AI 自動追加');
+            }
+            if (persist && typeof saveCurrentProgress === 'function') saveCurrentProgress();
+            return true;
+        }

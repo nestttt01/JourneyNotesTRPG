@@ -76,3 +76,17 @@
 - [x] style.css 將 #growth-prof-input 從背景圖模式的卡片底色群組移除，保留 status-inline-input 的透明背景；其他輸入欄不受影響。
 - [x] 修改檔案：AGENTS.md、TODO.md、COMPLETED.md、style.css；未改存檔格式、資料欄位、AI prompt、API key、翻譯鍵或輸入行為。
 - [x] 驗證：Playwright 21/21、CSS 括號與檔尾、UTF-8／LF、無錯誤工具名稱殘留及跨 Python／Node hash 複驗通過。
+
+## 2026-07-13
+
+### 角色面板「詳細」頁 03 檔案索引重作
+
+- [x] 玩家主區採唯一核准的 03：像素三角形只收合詳細內容；姓名、洗點、編輯與 3×2 六圍固定顯示，六個數值皆有 16×4px 重點短線。
+- [x] 玩家閱讀層統一「體格／語氣／喜好／厭惡」，外貌與背景各自收放；外部玩家／NPC 配置同步可見欄名，不改 likes/dislikes key。
+- [x] 下層以第二顆同尺寸三角形切換 NPC／情境，索引移動 78px；NPC 頭像只選角色，情境改為扁平 read-first 六欄。
+- [x] NPC 閱讀顯示 PROFILE／SPEECH 與「情緒／狀態／態度／目標」；次要靜態欄只在編輯顯示。
+- [x] 記憶控制置於目標下方：全 NPC ON／PAUSED、暫停／恢復、MEMORY 計數與可收放內文、管理入口；面板與聊天指令共用 setter，暫停不呼叫 AI。
+- [x] `＋ 新增 NPC`、`＋ 新增情境` 各自位於編輯左側；新增／刪除／洗點與 dirty-field 安全合併保留。
+- [x] 修改檔案：app-status-journal.js、app-scenario-state.js、app-gameplay.js、style.css、i18n.js、index.html、app-config-ui.js、tests/e2e/status-player-sheet.spec.js。
+- [x] 未改存檔格式、資料 key、AI prompt、API key、圖片傳送規則與其他角色面板分頁。
+- [x] 驗證：瀏覽器 680／420／390px 實際渲染無水平溢位；內容軸 42px、索引 78px、五級字級與 66%／80% 背景層符合規格；Playwright 23/23、JS 語法、CSS／HTML 結構、UTF-8／LF、`git diff --check`、壓行與跨 Python／Node hash 複驗通過。
