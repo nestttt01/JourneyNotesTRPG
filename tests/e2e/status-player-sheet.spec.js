@@ -300,6 +300,171 @@ test('character configuration uses the approved typography scale', async ({ page
     });
 });
 
+test('mobile character configuration reuses the overview and section editor flow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openApp(page);
+    await page.evaluate(() => openEditScenario());
+
+    const overview = await page.evaluate(() => {
+        const screen = document.getElementById('edit-scenario-screen');
+        const panel = document.getElementById('desktop-config-overview');
+        const editor = document.getElementById('desktop-config-editor');
+        const panelBox = panel.getBoundingClientRect();
+        const tabs = Array.from(document.querySelectorAll('.desktop-config-tab'));
+        const internalCoreRules = panel.querySelector(':scope > .core-rules-widget');
+        const externalCoreRules = document.querySelector('.core-rules-config-mobile');
+        return {
+            screenWidth: screen.clientWidth,
+            screenScrollWidth: screen.scrollWidth,
+            screenScrollbar: getComputedStyle(screen).scrollbarWidth,
+            panelDisplay: getComputedStyle(panel).display,
+            panelLeft: panelBox.left,
+            panelRight: panelBox.right,
+            editorDisplay: getComputedStyle(editor).display,
+            tabHeights: tabs.map(tab => tab.getBoundingClientRect().height),
+            tabWritingModes: tabs.map(tab => getComputedStyle(tab).writingMode),
+            playerNameSize: getComputedStyle(document.getElementById('desktop-player-name')).fontSize,
+            npcHeadingSize: getComputedStyle(document.querySelector('.desktop-overview-heading strong')).fontSize,
+            internalCoreRulesDisplay: getComputedStyle(internalCoreRules).display,
+            externalCoreRulesDisplay: getComputedStyle(externalCoreRules).display,
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+
+    expect(overview.panelDisplay).toBe('flex');
+    expect(overview.editorDisplay).toBe('none');
+    expect(overview.screenScrollWidth).toBeLessThanOrEqual(overview.screenWidth);
+    expect(overview.screenScrollbar).toBe('none');
+    expect(overview.panelLeft).toBeGreaterThanOrEqual(0);
+    expect(overview.panelRight).toBeLessThanOrEqual(390);
+    expect(overview.tabHeights.every(height => height >= 44)).toBe(true);
+    expect(overview.tabWritingModes.every(mode => mode === 'horizontal-tb')).toBe(true);
+    expect(overview.playerNameSize).toBe('20px');
+    expect(overview.npcHeadingSize).toBe('16px');
+    expect(overview.internalCoreRulesDisplay).toBe('none');
+    expect(overview.externalCoreRulesDisplay).toBe('block');
+    expect(overview.horizontalOverflow).toBeLessThanOrEqual(0);
+
+    await page.locator('.desktop-player-card').click();
+    await page.locator('#input-player-name').fill('手機保留測試');
+    const player = await page.evaluate(() => {
+        const screen = document.getElementById('edit-scenario-screen');
+        const editor = document.getElementById('desktop-config-editor');
+        const back = document.querySelector('.mobile-config-editor-back');
+        return {
+            section: screen.dataset.editorSection,
+            overviewDisplay: getComputedStyle(document.getElementById('desktop-config-overview')).display,
+            editorDisplay: getComputedStyle(editor).display,
+            backWidth: back.getBoundingClientRect().width,
+            backHeight: back.getBoundingClientRect().height,
+            fieldFont: getComputedStyle(document.getElementById('p-age')).fontSize,
+            animeColumns: getComputedStyle(document.querySelector('#preset-player-editor .anime-sheet'))
+                .gridTemplateColumns.split(' ').length,
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+
+    expect(player).toEqual({
+        section: 'player',
+        overviewDisplay: 'none',
+        editorDisplay: 'flex',
+        backWidth: 44,
+        backHeight: 44,
+        fieldFont: '14px',
+        animeColumns: 2,
+        horizontalOverflow: 0
+    });
+
+    await page.setViewportSize({ width: 390, height: 500 });
+    const scrollRange = await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight);
+    expect(scrollRange).toBeGreaterThan(0);
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
+    await page.locator('.mobile-config-editor-back').focus();
+    await page.keyboard.press('PageDown');
+    await expect.poll(() => page.evaluate(() => document.scrollingElement.scrollTop)).toBeGreaterThan(0);
+
+    await page.locator('.mobile-config-editor-back').click();
+    await page.locator('.desktop-player-card').click();
+    await expect(page.locator('#input-player-name')).toHaveValue('手機保留測試');
+    await page.locator('.mobile-config-editor-back').click();
+
+    const npcButtons = page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)');
+    expect(await npcButtons.count()).toBeGreaterThan(0);
+    await npcButtons.nth(0).click();
+    const npc = await page.evaluate(() => ({
+        section: document.getElementById('edit-scenario-screen').dataset.editorSection,
+        activeCards: document.querySelectorAll('#npc-list-container details.desktop-active-card').length,
+        visibleCards: Array.from(document.querySelectorAll('#npc-list-container details'))
+            .filter(card => getComputedStyle(card).display !== 'none').length,
+        fieldFont: getComputedStyle(document.getElementById('npc-age-0')).fontSize,
+        deleteHeight: document.querySelector('#npc-list-container .desktop-active-card .delete-scen-btn')
+            .getBoundingClientRect().height
+    }));
+    expect(npc).toEqual({
+        section: 'npc',
+        activeCards: 1,
+        visibleCards: 1,
+        fieldFont: '14px',
+        deleteHeight: 44
+    });
+    await page.locator('.mobile-config-editor-back').click();
+
+    await page.locator('.desktop-config-tab[data-config-section="scenarios"]').click();
+    const scenarioCards = page.locator('.desktop-scenario-card');
+    expect(await scenarioCards.count()).toBeGreaterThan(0);
+    await scenarioCards.nth(0).click();
+    const scenario = await page.evaluate(() => ({
+        section: document.getElementById('edit-scenario-screen').dataset.editorSection,
+        activeCards: document.querySelectorAll('#scenario-list-container details.desktop-active-card').length,
+        visibleCards: Array.from(document.querySelectorAll('#scenario-list-container details'))
+            .filter(card => getComputedStyle(card).display !== 'none').length,
+        horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+    }));
+    expect(scenario).toEqual({
+        section: 'scenario',
+        activeCards: 1,
+        visibleCards: 1,
+        horizontalOverflow: 0
+    });
+    await page.locator('.mobile-config-editor-back').click();
+
+    await page.locator('.desktop-config-tab[data-config-section="game"]').click();
+    const game = await page.evaluate(() => ({
+        workspace: document.getElementById('edit-scenario-screen').dataset.workspace,
+        editorDisplay: getComputedStyle(document.getElementById('desktop-config-editor')).display,
+        activeView: document.querySelector('.desktop-workspace-view.active')?.dataset.workspaceView,
+        selectorHeight: document.getElementById('desktop-preset-selector').getBoundingClientRect().height,
+        actionHeights: Array.from(document.querySelectorAll('.desktop-game-management-actions button'))
+            .map(button => button.getBoundingClientRect().height),
+        horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+    }));
+    expect(game.workspace).toBe('game');
+    expect(game.editorDisplay).toBe('none');
+    expect(game.activeView).toBe('game');
+    expect(game.selectorHeight).toBeGreaterThanOrEqual(44);
+    expect(game.actionHeights.every(height => height >= 44)).toBe(true);
+    expect(game.horizontalOverflow).toBeLessThanOrEqual(0);
+
+    for (const width of [600, 1099]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.evaluate(() => switchDesktopConfigWorkspace('characters'));
+        const layout = await page.evaluate(() => {
+            const screenBox = document.getElementById('edit-scenario-screen').getBoundingClientRect();
+            const panelBox = document.getElementById('desktop-config-overview').getBoundingClientRect();
+            return {
+                screenWidth: screenBox.width,
+                panelWidth: panelBox.width,
+                panelLeft: panelBox.left,
+                horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+            };
+        });
+        expect(layout.screenWidth).toBeLessThanOrEqual(550);
+        expect(layout.panelWidth).toBeLessThanOrEqual(layout.screenWidth);
+        expect(layout.panelLeft).toBeGreaterThanOrEqual(0);
+        expect(layout.horizontalOverflow).toBeLessThanOrEqual(0);
+    }
+});
+
 async function openStatusDetailFixture(page) {
     await openApp(page);
     await page.evaluate(() => {

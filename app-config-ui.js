@@ -34,7 +34,7 @@ switchDesktopConfigWorkspace('characters');
             const screen = document.getElementById('edit-scenario-screen');
             if (!screen) return;
             if (screen.classList.contains('random-generator-inline-open')) closeRandomGenerator();
-            if (isDesktopConfigLayout() && screen.style.display === 'flex') syncEditingDataFromDOM();
+            if (screen.style.display === 'flex') syncEditingDataFromDOM();
             desktopConfigWorkspace = ['characters', 'scenarios', 'game'].includes(section) ? section : 'characters';
             screen.dataset.workspace = desktopConfigWorkspace;
             screen.classList.remove('desktop-editor-open');
@@ -45,10 +45,14 @@ switchDesktopConfigWorkspace('characters');
                 view.classList.toggle('active', view.dataset.workspaceView === desktopConfigWorkspace);
             });
             renderDesktopPresetOverview();
+            if (!isDesktopConfigLayout()) {
+                requestAnimationFrame(() => {
+                    window.scrollTo(0, 0);
+                });
+            }
         }
 
         function openDesktopConfigEditor(section = 'player', itemIndex = -1) {
-            if (!isDesktopConfigLayout()) return;
             const screen = document.getElementById('edit-scenario-screen');
             if (!screen) return;
             const workspace = section === 'scenario' ? 'scenarios' : (section === 'game' ? 'game' : 'characters');
@@ -87,7 +91,13 @@ switchDesktopConfigWorkspace('characters');
             }
             requestAnimationFrame(() => {
                 const editor = document.getElementById('desktop-config-editor');
-                if (editor) editor.scrollTop = 0;
+                if (isDesktopConfigLayout()) {
+                    if (editor) {
+                        editor.scrollTop = 0;
+                    }
+                } else {
+                    window.scrollTo(0, 0);
+                }
             });
         }
 

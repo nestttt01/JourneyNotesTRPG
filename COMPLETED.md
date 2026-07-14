@@ -130,3 +130,14 @@
 - [x] 修改檔案：`style.css`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
 - [x] 未改正式外框與面板尺寸、手機版結構、DOM、NPC 互動流程、資料 key、存檔格式、`sanko_*` key、AI prompt、API、圖片規則或其他頁面。
 - [x] 驗證：新增桌機玩家／NPC computed style 回歸通過，完整 Playwright 25/25、14 個 JS 語法、CSS／HTML 結構、UTF-8／LF、`git diff --check`、壓行與跨 Python／Node hash 複驗通過。
+
+### 手機角色配置沿用桌機總覽／分區編輯
+
+- [x] 低於 1100px 的角色配置頁改為共用桌機版「總覽 → 分區編輯」資訊架構；手機／平板維持最大 550px 單欄，不把桌機雙欄外框縮小塞入。
+- [x] 角色、情境、遊戲設定改用水平分類籤；玩家、NPC 與情境從總覽進入單項編輯，新增 44×44px 返回控制，切換前同步表單，返回再開啟時輸入不遺失。
+- [x] 玩家與 NPC 編輯沿用已核准字級、頭像、六圍與兩欄詳細欄位；NPC／情境只顯示目前編輯項目，遊戲設定的主要操作與刪除控制至少 44px。
+- [x] 內容採自然頁面高度，不以固定高度裁切；隱藏原生捲軸但保留滑鼠滾輪、觸控與 PageDown 鍵盤捲動，切換總覽／編輯時回到頁首。
+- [x] 依 `emil-design-eng` 逐項判斷後，本批未新增進場、切頁或欄位動畫；高頻編輯保持即時切換，沿用既有按壓與 reduced-motion 行為。
+- [x] 手機輸入文字未新增全域 16px 規則；桌機 1580px 外框、首頁、NPC 互動式認識流程、資料 key、存檔格式、`sanko_*` key、AI prompt、API key 與圖片規則均未修改。
+- [x] 修改檔案：`style.css`、`app-config-ui.js`、`index.html`、`tests/e2e/status-player-sheet.spec.js`、`COMPLETED.md`。
+- [x] 驗證：瀏覽器 390／600／1099px、zh-TW／en／ja、純色／背景圖模式實際渲染均無水平溢位；輸入保留、單項顯示、44px 操作與隱藏捲軸均通過；角色配置／角色面板 13/13、完整 Playwright 26/26 通過。
