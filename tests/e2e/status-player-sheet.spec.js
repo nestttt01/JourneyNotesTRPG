@@ -224,10 +224,10 @@ test('character configuration keeps one glass content layer over the panel', asy
             formBackground: getComputedStyle(form).backgroundColor,
             fieldBackground: getComputedStyle(field).backgroundColor,
             playerLabels: Array.from(form.querySelectorAll('label'), label => label.textContent.trim()),
-            npcLikesLabel: document.getElementById('npc-likes-0')
-                ?.previousElementSibling?.textContent.trim(),
-            npcDislikesLabel: document.getElementById('npc-dislikes-0')
-                ?.previousElementSibling?.textContent.trim()
+            npcLabels: Array.from(
+                document.querySelectorAll('#npc-list-container details:first-child .anime-sheet label'),
+                label => label.textContent.trim()
+            )
         };
     });
 
@@ -236,10 +236,60 @@ test('character configuration keeps one glass content layer over the panel', asy
     expect(surface.panelBackground).not.toBe('rgba(0, 0, 0, 0)');
     expect(surface.formBackground).toBe('rgba(0, 0, 0, 0)');
     expect(surface.fieldBackground).not.toBe('rgba(0, 0, 0, 0)');
-    expect(surface.playerLabels).toContain('喜好');
-    expect(surface.playerLabels).toContain('厭惡');
-    expect(surface.npcLikesLabel).toBe('喜好');
-    expect(surface.npcDislikesLabel).toBe('厭惡');
+    expect(surface.playerLabels).toEqual([
+        '年齡／身高／體型',
+        '說話習慣／語氣',
+        '喜好',
+        '厭惡',
+        '外貌特徵／常見穿搭',
+        '核心性格／背景故事 (專長等)'
+    ]);
+    expect(surface.npcLabels).toEqual([
+        '年齡／身高／體型',
+        '說話習慣／語氣',
+        '喜好',
+        '厭惡',
+        '外貌特徵／常見穿搭',
+        '核心性格／背景故事'
+    ]);
+
+    const playerLabels = page.locator('#preset-player-editor .anime-sheet label');
+    const npcLabels = page.locator('#npc-list-container details:first-child .anime-sheet label');
+    await page.evaluate(() => setUiLanguage('en'));
+    await expect(playerLabels).toHaveText([
+        'Age / Height / Build',
+        'Speech Style / Tone',
+        'Likes',
+        'Dislikes',
+        'Appearance / Usual Outfit',
+        'Core Personality / Background'
+    ]);
+    await expect(npcLabels).toHaveText([
+        'Age / Height / Build',
+        'Speech Style / Tone',
+        'Likes',
+        'Dislikes',
+        'Appearance / Usual Outfit',
+        'Core Personality / Background'
+    ]);
+    await page.evaluate(() => setUiLanguage('ja'));
+    await expect(playerLabels).toHaveText([
+        '年齢／身長／体格',
+        '話し方／口調',
+        '好きなもの',
+        '嫌いなもの',
+        '外見／普段の服装',
+        '性格／背景（特技など）'
+    ]);
+    await expect(npcLabels).toHaveText([
+        '年齢／身長／体格',
+        '話し方／口調',
+        '好きなもの',
+        '嫌いなもの',
+        '外見／普段の服装',
+        '性格／背景'
+    ]);
+    await page.evaluate(() => setUiLanguage('zh-TW'));
 });
 
 test('character configuration uses the approved typography scale', async ({ page }) => {
@@ -1085,10 +1135,13 @@ test('NPC dossier keeps avatar-only selection above the identity row and hides s
     expect(npcLayout.bodyRightInset).toBeCloseTo(42, 1);
     expect(Math.abs(npcLayout.actionRightInset)).toBeLessThan(1);
 
-    await expect(page.locator('.status-detail-npc-profile .status-detail-read-item > span')).toHaveText([
-        'PROFILE',
-        'SPEECH'
-    ]);
+    const npcProfileLabels = page.locator('.status-detail-npc-profile .status-detail-read-item > span');
+    await expect(npcProfileLabels).toHaveText(['體格', '語氣']);
+    await page.evaluate(() => setUiLanguage('en'));
+    await expect(npcProfileLabels).toHaveText(['Build', 'Tone']);
+    await page.evaluate(() => setUiLanguage('ja'));
+    await expect(npcProfileLabels).toHaveText(['体格', '口調']);
+    await page.evaluate(() => setUiLanguage('zh-TW'));
     await expect(page.locator('.status-detail-dynamic-grid .status-detail-read-item > span')).toHaveText([
         '情緒',
         '狀態',

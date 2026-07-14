@@ -141,3 +141,13 @@
 - [x] 手機輸入文字未新增全域 16px 規則；桌機 1580px 外框、首頁、NPC 互動式認識流程、資料 key、存檔格式、`sanko_*` key、AI prompt、API key 與圖片規則均未修改。
 - [x] 修改檔案：`style.css`、`app-config-ui.js`、`index.html`、`tests/e2e/status-player-sheet.spec.js`、`COMPLETED.md`。
 - [x] 驗證：瀏覽器 390／600／1099px、zh-TW／en／ja、純色／背景圖模式實際渲染均無水平溢位；輸入保留、單項顯示、44px 操作與隱藏捲軸均通過；角色配置／角色面板 13/13、完整 Playwright 26/26 通過。
+
+### 角色欄位標籤與中文斜線統一
+
+- [x] 角色面板 NPC 閱讀模式的固定 `PROFILE`／`SPEECH` 改為既有的「體格／語氣」翻譯來源；zh-TW 顯示「體格／語氣」、en 顯示 `Build / Tone`、ja 顯示「体格／口調」。
+- [x] 角色配置與角色面板編輯模式的中文欄位分隔符統一為全形 `／`；英文保留自然的半形 ` / `，日文維持全形 `／`。
+- [x] 保留「閱讀模式精簡、編輯模式完整」層級；未把閱讀欄改成會在英文／日文多行換行的完整長標籤。
+- [x] 確認顯示小標不進入 AI 資料：主遊戲 prompt 讀取 `playerDetails`／`npc.details`，語氣測試只序列化六個 details 值；本批未修改任何 AI prompt。
+- [x] 修改檔案：`app-status-journal.js`、`app-config-ui.js`、`index.html`、`i18n.js`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未改 CSS、03 版型、`details.*` key、存檔格式、`sanko_*` key、API key、圖片規則或遊戲主流程。
+- [x] 驗證：專項 2/2、角色配置／角色面板 13/13、完整 Playwright 26/26 通過；JS 語法、HTML 結構、UTF-8／LF、`git diff --check` 與跨 Python／Node hash 複驗通過。

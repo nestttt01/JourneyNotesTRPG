@@ -489,8 +489,8 @@ function renderStatusNpcReadHtml(npc) {
     const dynamic = normalizeDynamicState(npc.dynamic);
     return `
         <div class="status-detail-read-grid status-detail-npc-profile">
-            ${renderStatusDetailReadItem('PROFILE', details.age)}
-            ${renderStatusDetailReadItem('SPEECH', details.speech)}
+            ${renderStatusDetailReadItem('體格', details.age)}
+            ${renderStatusDetailReadItem('語氣', details.speech)}
         </div>
         <section class="status-detail-dynamic">
             <div class="status-detail-read-grid status-detail-dynamic-grid">
@@ -541,11 +541,11 @@ function renderStatusPlayerEditorHtml() {
                 ${escapeStatusHtml(uiText('與外部角色配置逐項對應，保存時仍維持六個獨立欄位。'))}
             </p>
             <div>
-                <label>${escapeStatusHtml(uiText('年齡 / 身高 / 體型'))}</label>
+                <label>${escapeStatusHtml(uiText('年齡／身高／體型'))}</label>
                 <input type="text" id="edit-p-age" value="${escapeStatusHtml(details.age)}">
             </div>
             <div>
-                <label>${escapeStatusHtml(uiText('說話習慣 / 語氣'))}</label>
+                <label>${escapeStatusHtml(uiText('說話習慣／語氣'))}</label>
                 <input type="text" id="edit-p-speech" value="${escapeStatusHtml(details.speech)}">
             </div>
             <div>
@@ -557,12 +557,12 @@ function renderStatusPlayerEditorHtml() {
                 <input type="text" id="edit-p-dislikes" value="${escapeStatusHtml(details.dislikes)}">
             </div>
             <div class="full">
-                <label>${escapeStatusHtml(uiText('外貌特徵 / 常見穿搭'))}</label>
+                <label>${escapeStatusHtml(uiText('外貌特徵／常見穿搭'))}</label>
                 <textarea id="edit-p-app" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.app)}</textarea>
             </div>
             <div class="full">
-                <label>${escapeStatusHtml(uiText('核心性格 / 背景故事'))}</label>
+                <label>${escapeStatusHtml(uiText('核心性格／背景故事'))}</label>
                 <textarea id="edit-p-bg" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.bg)}</textarea>
             </div>
@@ -600,11 +600,11 @@ function renderStatusNpcEditorHtml(npc, index) {
                     value="${clampAffectionValue(npc.affection, 0)}" ${npcDead ? 'disabled' : ''}>
             </div>
             <div>
-                <label>${escapeStatusHtml(uiText('年齡 / 身高 / 體型'))}</label>
+                <label>${escapeStatusHtml(uiText('年齡／身高／體型'))}</label>
                 <input type="text" id="edit-n-age-${index}" value="${escapeStatusHtml(details.age)}">
             </div>
             <div>
-                <label>${escapeStatusHtml(uiText('說話習慣 / 語氣'))}</label>
+                <label>${escapeStatusHtml(uiText('說話習慣／語氣'))}</label>
                 <input type="text" id="edit-n-speech-${index}" value="${escapeStatusHtml(details.speech)}">
             </div>
             <div>
@@ -616,12 +616,12 @@ function renderStatusNpcEditorHtml(npc, index) {
                 <input type="text" id="edit-n-dislikes-${index}" value="${escapeStatusHtml(details.dislikes)}">
             </div>
             <div class="full">
-                <label>${escapeStatusHtml(uiText('外貌特徵 / 常見穿搭'))}</label>
+                <label>${escapeStatusHtml(uiText('外貌特徵／常見穿搭'))}</label>
                 <textarea id="edit-n-app-${index}" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.app)}</textarea>
             </div>
             <div class="full">
-                <label>${escapeStatusHtml(uiText('核心性格 / 背景故事'))}</label>
+                <label>${escapeStatusHtml(uiText('核心性格／背景故事'))}</label>
                 <textarea id="edit-n-bg-${index}" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.bg)}</textarea>
             </div>

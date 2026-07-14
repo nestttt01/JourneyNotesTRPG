@@ -419,18 +419,18 @@ function selectDesktopPreset(id) {
 
 <div class="scenario-label u-inline-064">詳細設定</div>
  <div class="anime-sheet">
- <div><label>年齡 / 身高 / 體型</label><input type="text" id="npc-age-${index}" value="${escapeStatusHtml(npc.details?.age || '')}"></div>
+ <div><label>年齡／身高／體型</label><input type="text" id="npc-age-${index}" value="${escapeStatusHtml(npc.details?.age || '')}"></div>
  <div class="character-voice-field">
  <div class="character-test-inline">
- <label>說話習慣 / 語氣</label>
+ <label>說話習慣／語氣</label>
  <button type="button" class="btn character-test-mini-btn" onclick="testCharacterVoice('npc', ${index})">測試語氣</button>
  </div>
  <input type="text" id="npc-speech-${index}" value="${escapeStatusHtml(npc.details?.speech || '')}">
  </div>
  <div><label>喜好</label><input type="text" id="npc-likes-${index}" value="${escapeStatusHtml(npc.details?.likes || '')}"></div>
  <div><label>厭惡</label><input type="text" id="npc-dislikes-${index}" value="${escapeStatusHtml(npc.details?.dislikes || '')}"></div>
-<div class="full"><label>外貌特徵 / 常見穿搭</label><textarea id="npc-app-${index}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.app || '')}</textarea></div>
-<div class="full"><label>核心性格 / 背景故事</label><textarea id="npc-bg-${index}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.bg || npc.persona || '')}</textarea></div>
+<div class="full"><label>外貌特徵／常見穿搭</label><textarea id="npc-app-${index}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.app || '')}</textarea></div>
+<div class="full"><label>核心性格／背景故事</label><textarea id="npc-bg-${index}" rows="1" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.bg || npc.persona || '')}</textarea></div>
 <div class="full character-test-row">
 <p id="voice-test-npc-${index}" class="character-test-output"></p>
 </div>
@@ -644,7 +644,7 @@ widget.classList.toggle('open', willOpen);
                 likes = document.getElementById('p-likes')?.value.trim() || '';
             }
             if (!bg) {
-                alert((typeof uiText === 'function') ? uiText('請先在「核心性格 / 背景故事」填寫角色設定，再生成擅長。') : '請先填寫角色的性格 / 背景，再生成擅長。');
+                alert((typeof uiText === 'function') ? uiText('請先在「核心性格／背景故事」填寫角色設定，再生成擅長。') : '請先填寫角色的性格／背景，再生成擅長。');
                 return;
             }
             const buttons = Array.from(document.querySelectorAll('.proficiency-gen-btn'));
