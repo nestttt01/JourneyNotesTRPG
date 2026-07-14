@@ -242,6 +242,64 @@ test('character configuration keeps one glass content layer over the panel', asy
     expect(surface.npcDislikesLabel).toBe('厭惡');
 });
 
+test('character configuration uses the approved typography scale', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await openApp(page);
+
+    const workspaceTitle = await page.evaluate(() => {
+        openEditScenario();
+        switchDesktopConfigWorkspace('scenarios');
+        const heading = document.querySelector(
+            '.desktop-workspace-view.active .desktop-workspace-heading h2'
+        );
+        return getComputedStyle(heading).fontSize;
+    });
+    expect(workspaceTitle).toBe('20px');
+
+    await page.evaluate(() => {
+        switchDesktopConfigWorkspace('characters');
+        openDesktopConfigEditor('player');
+    });
+    const playerTypography = await page.evaluate(() => {
+        const fontSize = selector => getComputedStyle(document.querySelector(selector)).fontSize;
+        return {
+            overviewName: fontSize('.desktop-player-card strong'),
+            npcSectionTitle: fontSize('.desktop-overview-heading strong'),
+            editName: fontSize('#input-player-name'),
+            fieldLabel: fontSize('#preset-player-editor .anime-sheet label'),
+            fieldContent: fontSize('#p-age'),
+            statLabel: fontSize('#preset-player-editor .stat-label'),
+            statValue: fontSize('#preset-player-editor .stat-input'),
+            secondaryAction: fontSize('#btn-roll-stats')
+        };
+    });
+    expect(playerTypography).toEqual({
+        overviewName: '20px',
+        npcSectionTitle: '16px',
+        editName: '16px',
+        fieldLabel: '10px',
+        fieldContent: '14px',
+        statLabel: '12px',
+        statValue: '14px',
+        secondaryAction: '12px'
+    });
+
+    await page.evaluate(() => openDesktopConfigEditor('npc', 0));
+    const npcTypography = await page.evaluate(() => {
+        const fontSize = selector => getComputedStyle(document.querySelector(selector)).fontSize;
+        return {
+            editName: fontSize('#npc-name-0'),
+            fieldLabel: fontSize('#npc-list-container .anime-sheet label'),
+            fieldContent: fontSize('#npc-age-0')
+        };
+    });
+    expect(npcTypography).toEqual({
+        editName: '16px',
+        fieldLabel: '10px',
+        fieldContent: '14px'
+    });
+});
+
 async function openStatusDetailFixture(page) {
     await openApp(page);
     await page.evaluate(() => {

@@ -108,3 +108,25 @@
 - [x] 維持按鈕 58px、頭像尺寸、NPC 間距、名稱列位置、DOM、01／02 與其他版面不變。
 - [x] 修改檔案：style.css、tests/e2e/status-player-sheet.spec.js、TODO.md、COMPLETED.md。
 - [x] 驗證：NPC 專項 Playwright 1/1、角色詳細頁 Playwright 11/11；瀏覽器幾何左緣誤差小於 1px，JS 語法、CSS 結構、UTF-8／LF、`git diff --check`、壓行與跨 Python／Node hash 複驗通過。
+
+## 2026-07-14
+
+### NPC 互動式認識流程工作區外預覽
+
+- [x] 完成「新增 NPC → 右頁接管 → 逐題認識角色」的實際 HTML／CSS／JS 瀏覽器預覽；維持日記閱讀感，以選擇節奏而非雷射線或制式卡片建立遊戲感。
+- [x] 一般選項先停在待確認狀態；缺少合適答案時可走「都不像他 → 短回答 → 原句回聲 → 就是這樣」，玩家輸入不由 AI 改寫。
+- [x] 目前以「說話習慣／語氣」欄示範：只有最終確認才寫入該欄，其他五個欄位保持未知；返回、修改與取消不會誤寫正式資料。
+- [x] 03 像素三角形只在 pointerdown／click 後以 150ms `steps(3, end)` 切換；hover／focus 不搶先移動，鍵盤仍可操作，並提供 `prefers-reduced-motion`。
+- [x] 預覽頁隱藏所有可見的瀏覽器原生滾輪，但保留滾輪、觸控與鍵盤捲動；未以裁切內容代替捲動。
+- [x] 預覽檔：`D:\_codex_preview\journey-notes-npc-state-flow\index.html`；只位於工作區外，正式專案程式未修改。
+- [x] 驗證：瀏覽器 1440×900、891×1006、390×844 實際渲染；無水平溢位，手機操作目標至少 44px；嚴格 UTF-8、HTML 結尾與檔案雜湊通過。最終 SHA-256：`35acee3a1eb9ecc8051a69b3c5fc8b6645cded8e6ece9fb7c74b04472e8c5c21`。
+- [x] 核准邊界：專案主回饋「效果不錯」只視為流程方向正面確認；預覽外框不是正式專案尺寸，完整欄位題目與正式程式整合仍未授權，已留在 `TODO.md`。
+
+### 角色配置 computed style 對照與第一批字級收斂
+
+- [x] 以瀏覽器 computed style 完成角色配置與角色面板的玩家／NPC、閱讀／編輯、桌機／手機及純色／背景圖模式對照；確認兩者的字型、字重、行高與顏色承擔不同閱讀層級，不採全面相同。
+- [x] 角色配置總覽玩家姓名與工作區主標題收斂為 20px；NPC 區標題及玩家／NPC 編輯姓名為 16px；欄位內容與桌機六圍數值為 14px；次級操作與六圍標籤為 12px；欄位標籤為 10px。
+- [x] 手機輸入文字是否全面保留 16px 仍待後續版面整合決定；本批未新增 16px 手機覆蓋，手機六圍數值維持原有 16px。
+- [x] 修改檔案：`style.css`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未改正式外框與面板尺寸、手機版結構、DOM、NPC 互動流程、資料 key、存檔格式、`sanko_*` key、AI prompt、API、圖片規則或其他頁面。
+- [x] 驗證：新增桌機玩家／NPC computed style 回歸通過，完整 Playwright 25/25、14 個 JS 語法、CSS／HTML 結構、UTF-8／LF、`git diff --check`、壓行與跨 Python／Node hash 複驗通過。
