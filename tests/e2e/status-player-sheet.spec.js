@@ -225,7 +225,7 @@ test('character configuration keeps one glass content layer over the panel', asy
             fieldBackground: getComputedStyle(field).backgroundColor,
             playerLabels: Array.from(form.querySelectorAll('label'), label => label.textContent.trim()),
             npcLabels: Array.from(
-                document.querySelectorAll('#npc-list-container details:first-child .anime-sheet label'),
+                document.querySelectorAll('#npc-list-container details:first-child .desktop-npc-editor-field > span'),
                 label => label.textContent.trim()
             )
         };
@@ -254,7 +254,7 @@ test('character configuration keeps one glass content layer over the panel', asy
     ]);
 
     const playerLabels = page.locator('#preset-player-editor .anime-sheet label');
-    const npcLabels = page.locator('#npc-list-container details:first-child .anime-sheet label');
+    const npcLabels = page.locator('#npc-list-container details:first-child .desktop-npc-editor-field > span');
     await page.evaluate(() => setUiLanguage('en'));
     await expect(playerLabels).toHaveText([
         'Age / Height / Build',
@@ -344,14 +344,19 @@ test('character configuration uses the approved typography scale', async ({ page
         };
     });
     expect(npcTypography).toEqual({
-        editName: '16px',
+        editName: '18px',
         fieldLabel: '10px',
         fieldContent: '14px'
     });
 });
 
-test('mobile character configuration reuses the overview and section editor flow', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
+test('mobile character configuration reuses the overview and section editor flow', async ({ browser }) => {
+    const context = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+        hasTouch: true,
+        isMobile: true
+    });
+    const page = await context.newPage();
     await openApp(page);
     await page.evaluate(() => openEditScenario());
 
@@ -441,25 +446,43 @@ test('mobile character configuration reuses the overview and section editor flow
     const npcButtons = page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)');
     expect(await npcButtons.count()).toBeGreaterThan(0);
     await npcButtons.nth(0).click();
-    const npc = await page.evaluate(() => ({
+    const npcPreview = await page.evaluate(() => ({
+        previewOpen: document.getElementById('edit-scenario-screen').classList.contains('npc-preview-open'),
+        editorDisplay: getComputedStyle(document.getElementById('desktop-config-editor')).display,
+        editableFields: document.querySelectorAll(
+            '#desktop-npc-readonly-preview input, #desktop-npc-readonly-preview textarea, '
+            + '#desktop-npc-readonly-preview [contenteditable="true"]'
+        ).length,
+        horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+    }));
+    expect(npcPreview).toEqual({
+        previewOpen: true,
+        editorDisplay: 'flex',
+        editableFields: 0,
+        horizontalOverflow: 0
+    });
+
+    await page.locator('#desktop-npc-readonly-preview .desktop-npc-preview-tool').click();
+    const npcEditor = await page.evaluate(() => ({
         section: document.getElementById('edit-scenario-screen').dataset.editorSection,
         activeCards: document.querySelectorAll('#npc-list-container details.desktop-active-card').length,
         visibleCards: Array.from(document.querySelectorAll('#npc-list-container details'))
             .filter(card => getComputedStyle(card).display !== 'none').length,
         fieldFont: getComputedStyle(document.getElementById('npc-age-0')).fontSize,
-        deleteHeight: document.querySelector('#npc-list-container .desktop-active-card .delete-scen-btn')
+        deleteHeight: document.querySelector('#npc-list-container .desktop-active-card .desktop-npc-editor-delete')
             .getBoundingClientRect().height
     }));
-    expect(npc).toEqual({
+    expect(npcEditor).toEqual({
         section: 'npc',
         activeCards: 1,
         visibleCards: 1,
         fieldFont: '14px',
         deleteHeight: 44
     });
-    await page.locator('.mobile-config-editor-back').click();
+    await page.locator('#npc-list-container details.desktop-active-card .npc-flow-return-action').click();
+    await expect(page.locator('#desktop-npc-readonly-preview')).toBeVisible();
 
-    await page.locator('.desktop-config-tab[data-config-section="scenarios"]').click();
+    await page.evaluate(() => switchDesktopConfigWorkspace('scenarios'));
     const scenarioCards = page.locator('.desktop-scenario-card');
     expect(await scenarioCards.count()).toBeGreaterThan(0);
     await scenarioCards.nth(0).click();
@@ -513,6 +536,8 @@ test('mobile character configuration reuses the overview and section editor flow
         expect(layout.panelLeft).toBeGreaterThanOrEqual(0);
         expect(layout.horizontalOverflow).toBeLessThanOrEqual(0);
     }
+
+    await context.close();
 });
 
 async function openStatusDetailFixture(page) {

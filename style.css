@@ -3528,6 +3528,9 @@ scrollbar-width: none;
                 line-height: 1.75;
             }
 
+}
+
+@media screen and (min-width: 1100px), screen and (hover: hover) and (pointer: fine) {
             #edit-scenario-screen {
                 width: 100%; max-width: 1580px; min-height: 100dvh;
                 padding: 30px clamp(56px, 6vw, 96px);
@@ -3581,7 +3584,7 @@ background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius
 
             .desktop-overview-heading {
                 display: flex; justify-content: space-between; align-items: baseline;
-                padding-bottom: 10px; border-bottom: 2px solid var(--accent-gray); margin-inline: 40px;
+                padding-bottom: 10px; border-bottom: 0; margin-inline: 40px;
             }
             .desktop-overview-heading strong { font-size: 16px; }
             .desktop-npc-avatar-list {
@@ -4161,6 +4164,9 @@ margin: 0; padding: 0; background: transparent;
                 min-height: 132px !important;
             }
 
+}
+
+@media screen and (min-width: 1100px) {
             body.status-panel-open {
                 --status-drawer-width: clamp(420px, 38vw, 680px);
                 --status-panel-gutter: 18px;
@@ -4213,7 +4219,9 @@ margin: 0; padding: 0; background: transparent;
 }
 
 /* 手機／平板角色配置：沿用桌機總覽與分區編輯，版面維持單欄。 */
-@media screen and (max-width: 1099px) {
+@media screen and (max-width: 600px),
+    screen and (max-width: 1099px) and (hover: none),
+    screen and (max-width: 1099px) and (pointer: coarse) {
     html:has(body > #edit-scenario-screen[style*="display: flex"]),
     body:has(> #edit-scenario-screen[style*="display: flex"]) {
         scrollbar-width: none;
@@ -4234,6 +4242,13 @@ margin: 0; padding: 0; background: transparent;
         scrollbar-width: none;
         -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
+    }
+
+    #edit-scenario-screen.desktop-editor-open {
+        display: flex !important;
+        grid-template-columns: none;
+        flex-direction: column;
+        gap: 0;
     }
 
     #edit-scenario-screen::-webkit-scrollbar,
@@ -4378,7 +4393,7 @@ margin: 0; padding: 0; background: transparent;
         justify-content: space-between;
         margin: 0 8px;
         padding-bottom: 9px;
-        border-bottom: 2px solid var(--accent-gray);
+        border-bottom: 0;
     }
 
     .desktop-overview-heading strong { font-size: 16px; }
@@ -6707,4 +6722,1315 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 @keyframes scene-page-in { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) {
     #dialogue-box.scene-page-out, #dialogue-box.scene-page-in { animation: none; opacity: 1; }
+}
+
+/* ---- NPC 認識夥伴流程（v18 核准版） ---- */
+#edit-scenario-screen.npc-acquaintance-open
+    #desktop-config-editor > :not(#npc-acquaintance-flow):not(.mobile-config-editor-back) {
+    display: none !important;
+}
+
+#npc-acquaintance-flow[hidden] {
+    display: none;
+}
+
+.npc-acquaintance-flow {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    flex: 1 0 auto;
+    flex-direction: column;
+    padding: 2px 0 75px;
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+.npc-flow-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 34px;
+    padding-bottom: 16px;
+    border-bottom: 0;
+}
+
+.npc-flow-header,
+.npc-flow-intro-identity {
+    flex: 0 0 auto;
+}
+
+.npc-flow-progress {
+    justify-self: end;
+    color: var(--text-sub);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+}
+
+.npc-flow-intro-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.npc-flow-intro-identity {
+    display: grid;
+    justify-items: center;
+    gap: 9px;
+    margin: 14px 0 34px;
+    text-align: center;
+}
+
+.npc-flow-intro-avatar {
+    position: relative;
+    display: grid;
+    width: 104px;
+    height: 104px;
+    place-items: center;
+    overflow: hidden;
+    border: 0;
+    border-radius: 50%;
+    outline: 2px solid var(--border-dark);
+    outline-offset: -2px;
+    background: var(--card-bg);
+    box-shadow: 3px 3px 0 var(--accent-neon);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 20px;
+}
+
+.npc-flow-intro-avatar::before {
+    content: attr(data-initial);
+}
+
+.npc-flow-intro-avatar img {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.npc-flow-intro-nameplate {
+    padding: 7px 14px 6px;
+    background: var(--accent-neon);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.npc-flow-view {
+    width: 100%;
+    min-width: 0;
+    padding-bottom: 24px;
+}
+
+.npc-flow-title {
+    margin: 0 0 12px;
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 21px;
+    font-synthesis: none;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    line-height: 1.45;
+    text-align: left;
+    text-shadow: none;
+}
+
+.npc-flow-title:focus {
+    outline: none;
+}
+
+.npc-flow-view[data-flow-view="intro"] .npc-flow-title {
+    margin-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: normal;
+    line-height: 1.3;
+}
+
+.npc-flow-view[data-flow-view="intro"] {
+    min-height: 0;
+    flex: 1 1 auto;
+    padding-right: 14px;
+    padding-left: 14px;
+    overflow-y: auto;
+}
+
+.npc-flow-lead {
+    max-width: 620px;
+    margin: 0 0 28px;
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.8;
+}
+
+.npc-flow-basis-list {
+    display: grid;
+    width: 100%;
+    max-width: 560px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 28px;
+    margin: 0 auto 28px;
+}
+
+.npc-flow-basis-row {
+    position: relative;
+    min-width: 0;
+    padding-left: 17px;
+}
+
+.npc-flow-basis-row::before {
+    position: absolute;
+    top: 3px;
+    bottom: 2px;
+    left: 0;
+    width: 3px;
+    background: var(--accent-neon);
+    content: "";
+}
+
+.npc-flow-basis-row span {
+    display: block;
+    color: var(--text-sub);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+}
+
+.npc-flow-basis-row strong {
+    display: block;
+    min-width: 0;
+    margin-top: 7px;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.65;
+}
+
+.npc-flow-empty-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 18px 12px;
+    border-left: 4px solid var(--accent-neon);
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.7;
+}
+
+.npc-flow-foundation-note {
+    position: relative;
+    margin: 0 0 28px;
+    padding-left: 17px;
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.75;
+}
+
+.npc-flow-foundation-note::before {
+    position: absolute;
+    top: 3px;
+    bottom: 2px;
+    left: 0;
+    width: 3px;
+    background: var(--accent-neon);
+    content: "";
+}
+
+.npc-flow-view[data-flow-view="intro"] .npc-flow-action-row {
+    justify-content: flex-end;
+}
+
+.npc-flow-option-list {
+    position: relative;
+    display: grid;
+    gap: 4px;
+    margin: 0 0 28px;
+    padding: 2px 0;
+}
+
+.npc-flow-option {
+    appearance: none;
+    position: relative;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px 12px 38px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-main);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.55;
+    text-align: left;
+    touch-action: manipulation;
+}
+
+.npc-flow-option[aria-pressed="true"] {
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--accent-neon) 46%, transparent),
+        transparent 82%
+    );
+    color: #000000;
+}
+
+.npc-flow-option:focus-visible {
+    outline: 1px solid var(--accent-neon);
+    outline-offset: -2px;
+}
+
+.npc-flow-option:active {
+    transform: scale(0.99);
+}
+
+.npc-flow-cursor {
+    position: absolute;
+    top: 0;
+    left: 2px;
+    z-index: 2;
+    width: 14px;
+    height: 19px;
+    pointer-events: none;
+    transform: translateY(0);
+    transition: transform 150ms steps(3, end);
+}
+
+.npc-flow-cursor.instant {
+    transition-duration: 0ms;
+}
+
+.npc-flow-cursor.empty {
+    opacity: 0;
+}
+
+.npc-flow-cursor::before {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(var(--text-main) 0 0) 0 -1px / 2px 21px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 2px -1px / 3px 3px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 5px 2px / 3px 3px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 8px 5px / 3px 3px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 11px 8px / 3px 3px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 8px 11px / 3px 3px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 5px 14px / 3px 3px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 2px 17px / 3px 3px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 2px 2px / 3px 15px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 5px 5px / 3px 9px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 8px 8px / 3px 3px no-repeat;
+    content: "";
+    animation: npc-flow-cursor-idle 900ms steps(1, end) infinite;
+}
+
+@keyframes npc-flow-cursor-idle {
+    0%, 42%, 72%, 100% {
+        transform: translateX(0);
+    }
+
+    43%, 71% {
+        transform: translateX(2px);
+    }
+}
+
+.npc-flow-custom-field {
+    display: grid;
+    gap: 8px;
+    margin: -8px 0 28px 38px;
+}
+
+.npc-flow-custom-field.is-hidden {
+    display: none;
+}
+
+.npc-flow-custom-field span,
+.npc-flow-section-title {
+    color: var(--text-sub);
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.npc-flow-custom-field textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.7;
+    resize: vertical;
+}
+
+.npc-flow-custom-field textarea:focus-visible {
+    border-color: var(--border-dark);
+    outline: 1px solid var(--accent-neon);
+    outline-offset: 2px;
+    box-shadow: none;
+    transform: none;
+}
+
+.npc-flow-dialogue {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 4px 0 30px;
+}
+
+.npc-flow-note-preview {
+    margin: 0 0 26px;
+    padding: 14px 16px;
+    border: 0;
+    border-left: 4px solid var(--accent-neon);
+    background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.7;
+}
+
+.npc-flow-section-title {
+    margin: 22px 0 8px;
+}
+
+.npc-flow-write-preview {
+    display: grid;
+    gap: 12px;
+    margin: 28px 0;
+    padding: 16px 0;
+    border-top: 1px solid var(--accent-gray);
+    border-bottom: 1px solid var(--accent-gray);
+}
+
+.npc-flow-write-preview > div {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 14px;
+}
+
+.npc-flow-write-preview span {
+    color: var(--text-sub);
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.npc-flow-write-preview p {
+    min-width: 0;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.npc-flow-pixel-stamp,
+.npc-flow-saved-note {
+    width: fit-content;
+    margin: 0 0 14px;
+    padding: 5px 8px;
+    background: var(--border-dark);
+    color: var(--accent-neon);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+.npc-flow-saved-note {
+    background: var(--accent-neon);
+    color: var(--text-main);
+}
+
+.npc-flow-error {
+    margin: 0 0 26px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--accent-neon);
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.75;
+}
+
+.npc-flow-wait-view {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.npc-flow-wait-mark {
+    display: flex;
+    gap: 7px;
+    margin: 6px 0 24px;
+}
+
+.npc-flow-wait-mark span {
+    width: 9px;
+    height: 9px;
+    background: var(--text-main);
+    animation: npc-flow-wait 720ms steps(1, end) infinite;
+}
+
+.npc-flow-wait-mark span:nth-child(2) {
+    animation-delay: 120ms;
+}
+
+.npc-flow-wait-mark span:nth-child(3) {
+    animation-delay: 240ms;
+}
+
+@keyframes npc-flow-wait {
+    0%, 45%, 100% {
+        background: var(--text-main);
+        transform: translateY(0);
+    }
+
+    46%, 70% {
+        background: var(--accent-neon);
+        transform: translateY(-4px);
+    }
+}
+
+.npc-flow-action-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin-top: 12px;
+}
+
+.npc-flow-bracket-action,
+.npc-flow-return-action {
+    appearance: none;
+    width: fit-content;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    touch-action: manipulation;
+    transition: transform 100ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.npc-flow-bracket-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 2px;
+    color: var(--text-main);
+}
+
+.npc-flow-bracket-action::before,
+.npc-flow-bracket-action::after {
+    color: var(--accent-neon);
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.npc-flow-bracket-action::before {
+    content: "［";
+}
+
+.npc-flow-bracket-action::after {
+    content: "］";
+}
+
+.npc-flow-bracket-label {
+    position: relative;
+    display: inline-block;
+    padding: 0 13px;
+    color: var(--text-main);
+    font-weight: 800;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+.npc-flow-bracket-label::after,
+.npc-flow-return-label::after {
+    position: absolute;
+    color: #ffffff;
+    clip-path: inset(0 100% 0 0);
+    content: attr(data-label);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.npc-flow-bracket-label::after {
+    inset: 0 13px;
+}
+
+.npc-flow-bracket-action:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
+
+.npc-flow-return-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 4px;
+    color: var(--text-sub);
+}
+
+.npc-flow-return-action img {
+    width: 18px;
+    height: 14px;
+    flex: 0 0 auto;
+    display: block;
+    object-fit: contain;
+    opacity: 0.65;
+    image-rendering: pixelated;
+}
+
+.npc-flow-return-label {
+    position: relative;
+    display: inline-block;
+    color: inherit;
+    white-space: nowrap;
+}
+
+.npc-flow-return-label::after {
+    inset: 0;
+}
+
+.npc-flow-bracket-action:focus-visible,
+.npc-flow-return-action:focus-visible {
+    outline: 1px solid var(--accent-neon);
+    outline-offset: 3px;
+}
+
+.npc-flow-bracket-action:active,
+.npc-flow-return-action:active {
+    transform: scale(0.98);
+}
+
+.npc-acquaintance-entry {
+    margin-left: auto;
+    font-size: 11px;
+}
+
+.npc-editor-acquaintance-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 22px;
+}
+
+@keyframes npc-flow-label-scan {
+    0% {
+        clip-path: inset(0 100% 0 0);
+        opacity: 0;
+    }
+
+    12.5% {
+        clip-path: inset(0 75% 0 0);
+        opacity: 1;
+    }
+
+    25% {
+        clip-path: inset(0 62.5% 0 12.5%);
+        opacity: 1;
+    }
+
+    37.5% {
+        clip-path: inset(0 50% 0 25%);
+        opacity: 1;
+    }
+
+    50% {
+        clip-path: inset(0 37.5% 0 37.5%);
+        opacity: 1;
+    }
+
+    62.5% {
+        clip-path: inset(0 25% 0 50%);
+        opacity: 1;
+    }
+
+    75% {
+        clip-path: inset(0 12.5% 0 62.5%);
+        opacity: 1;
+    }
+
+    87.5% {
+        clip-path: inset(0 0 0 75%);
+        opacity: 1;
+    }
+
+    100% {
+        clip-path: inset(0 0 0 100%);
+        opacity: 0;
+    }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .npc-flow-bracket-action:hover,
+    .npc-flow-return-action:hover {
+        background: transparent;
+        box-shadow: none;
+        color: inherit;
+        transform: none;
+    }
+
+    .npc-flow-bracket-action:hover .npc-flow-bracket-label::after,
+    .npc-flow-return-action:hover .npc-flow-return-label::after {
+        animation: npc-flow-label-scan 280ms steps(1, end) 1;
+    }
+}
+
+@media (max-width: 600px),
+    (max-width: 1099px) and (hover: none),
+    (max-width: 1099px) and (pointer: coarse) {
+    .npc-acquaintance-flow {
+        padding: 0 0 22px;
+    }
+
+    .npc-flow-header {
+        grid-template-columns: minmax(0, 1fr) auto;
+        margin-bottom: 28px;
+    }
+
+    .npc-flow-header > .npc-flow-return-action {
+        justify-self: start;
+    }
+
+    .npc-flow-progress {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .npc-flow-basis-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .npc-flow-view[data-flow-view="intro"] {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .npc-flow-basis-row,
+    .npc-flow-write-preview > div {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .npc-flow-custom-field {
+        margin-left: 0;
+    }
+
+    .npc-flow-action-row {
+        justify-content: center;
+    }
+
+    .npc-flow-option {
+        min-height: 52px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .npc-flow-cursor,
+    .npc-flow-bracket-action,
+    .npc-flow-return-action {
+        transition-duration: 0ms;
+    }
+
+    .npc-flow-cursor::before,
+    .npc-flow-wait-mark span,
+    .npc-flow-bracket-action:hover .npc-flow-bracket-label::after,
+    .npc-flow-return-action:hover .npc-flow-return-label::after {
+        animation: none;
+    }
+
+    .npc-flow-bracket-label::after,
+    .npc-flow-return-label::after {
+        opacity: 0;
+    }
+}
+
+/* ---- 角色配置：NPC 新增／編輯（核准 v9） ---- */
+#edit-scenario-screen[data-editor-section="npc"]:not(.npc-preview-open):not(.npc-acquaintance-open)
+    .mobile-config-editor-back {
+    display: none;
+}
+
+#edit-scenario-screen[data-editor-section="npc"]
+    #desktop-config-editor #edit-scenario-container {
+    width: 100%;
+    margin-inline: 0;
+}
+
+#edit-scenario-screen[data-editor-section="npc"]
+    #desktop-config-editor details.desktop-active-card > .foldable-content {
+    position: relative;
+    padding: 0;
+    background: transparent;
+}
+
+#edit-scenario-screen[data-editor-section="npc"]
+    #desktop-config-editor details.desktop-active-card > .foldable-content > :not(.desktop-npc-editor-header) {
+    width: min(82%, 750px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.desktop-npc-editor-header {
+    position: absolute;
+    top: -12px;
+    right: 0;
+    left: 0;
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    margin: 0;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] #npc-list-container .avatar-setup-area {
+    margin: 45px auto 10px;
+    padding: 0;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] #npc-list-container .avatar-preview {
+    width: 104px;
+    height: 104px;
+    border: 0;
+    border-radius: 50%;
+    outline: 2px solid var(--border-dark);
+    outline-offset: -2px;
+    box-shadow: 3px 3px 0 var(--accent-neon);
+}
+
+.desktop-npc-editor-identity {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin: 0 0 28px;
+}
+
+.desktop-npc-editor-name,
+.desktop-npc-editor-affection {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+}
+
+.desktop-npc-editor-affection > span,
+.desktop-npc-editor-field > span {
+    display: block;
+    color: var(--text-sub);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-name .scenario-input {
+    width: min(260px, 70%);
+    max-width: 260px;
+    margin: 0;
+    padding: 7px 10px 6px;
+    border: 0;
+    border-bottom: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-affection .scenario-input {
+    width: 92px;
+    margin: 0;
+    padding: 6px 4px;
+    border: 0;
+    border-bottom: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+    color: var(--text-main);
+    text-align: center;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] #npc-list-container .desktop-npc-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 26px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.desktop-npc-editor-field {
+    display: block;
+    min-width: 0;
+}
+
+.desktop-npc-editor-field.full {
+    grid-column: 1 / -1;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field input,
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field textarea {
+    width: 100%;
+    min-width: 0;
+    margin-top: 6px;
+    padding: 10px 3px 9px;
+    border: 0;
+    border-bottom: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.65;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field textarea {
+    min-height: 86px !important;
+    resize: vertical;
+}
+
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-name input:focus,
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-affection input:focus,
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field input:focus,
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field textarea:focus {
+    border-bottom-color: var(--border-dark);
+    outline: 1px solid var(--accent-neon);
+    outline-offset: 2px;
+    box-shadow: none;
+    transform: none;
+}
+
+.desktop-npc-editor-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    margin-top: 30px;
+}
+
+.desktop-new-npc-card .desktop-npc-editor-actions {
+    justify-content: flex-end;
+}
+
+.desktop-npc-editor-actions-primary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+}
+
+.desktop-npc-editor-delete {
+    min-height: 44px;
+    padding: 8px 4px;
+    border: 0;
+    border-bottom: 1px solid var(--accent-gray);
+    background: transparent;
+    color: var(--text-sub);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 10px;
+}
+
+.desktop-npc-editor-delete:hover,
+.desktop-npc-editor-delete:focus-visible {
+    color: var(--text-main);
+}
+
+/* ---- 角色配置：NPC 唯讀預覽（沿用角色面板「詳細」語彙） ---- */
+#edit-scenario-screen.npc-preview-open
+    #desktop-config-editor > :not(#desktop-npc-readonly-preview):not(.mobile-config-editor-back) {
+    display: none !important;
+}
+
+#desktop-npc-readonly-preview[hidden] {
+    display: none;
+}
+
+.desktop-npc-readonly-preview {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    flex: 1 0 auto;
+    flex-direction: column;
+    padding: 2px 14px 75px;
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+.desktop-npc-preview-topbar {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 22px;
+}
+
+.desktop-npc-preview-menu {
+    display: flex;
+    min-height: 46px;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 0 0 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.desktop-npc-preview-menu::-webkit-scrollbar {
+    display: none;
+}
+
+.desktop-npc-preview-choice {
+    appearance: none;
+    display: flex;
+    width: 58px;
+    min-width: 58px;
+    min-height: 46px;
+    padding: 2px 0;
+    flex-direction: column;
+    align-items: flex-start;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-sub);
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.desktop-npc-preview-choice:hover,
+.desktop-npc-preview-choice:focus-visible,
+.desktop-npc-preview-choice.active {
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+.desktop-npc-preview-avatar {
+    position: relative;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    place-items: center;
+    overflow: hidden;
+    border: 2px solid var(--border-dark);
+    border-radius: 50%;
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 14px;
+}
+
+.desktop-npc-preview-avatar::before {
+    content: attr(data-initial);
+}
+
+.desktop-npc-preview-avatar img {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.desktop-npc-preview-choice:hover .desktop-npc-preview-avatar,
+.desktop-npc-preview-choice:focus-visible .desktop-npc-preview-avatar {
+    box-shadow: 0 0 0 2px var(--accent-neon);
+}
+
+.desktop-npc-preview-choice.active .desktop-npc-preview-avatar {
+    box-shadow: 0 0 0 3px var(--accent-neon);
+}
+
+.desktop-npc-preview-kicker {
+    margin: 0 0 5px;
+    color: var(--text-sub);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    line-height: 1;
+}
+
+.desktop-npc-preview-hero {
+    display: grid;
+    flex: 0 0 auto;
+    justify-items: center;
+    gap: 9px;
+    margin: 57px 0 38px;
+    text-align: center;
+}
+
+.desktop-npc-preview-hero-avatar {
+    position: relative;
+    display: grid;
+    width: 104px;
+    height: 104px;
+    place-items: center;
+    overflow: hidden;
+    border: 0;
+    border-radius: 50%;
+    outline: 2px solid var(--border-dark);
+    outline-offset: -2px;
+    background: var(--card-bg);
+    box-shadow: 3px 3px 0 var(--accent-neon);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 20px;
+}
+
+.desktop-npc-preview-hero-avatar::before {
+    content: attr(data-initial);
+}
+
+.desktop-npc-preview-hero-avatar img {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.desktop-npc-preview-hero h2 {
+    margin: 0;
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+}
+
+.desktop-npc-preview-affection {
+    color: var(--text-sub);
+    font-family: var(--font-ui);
+    font-size: 11px;
+}
+
+.desktop-npc-preview-tool {
+    appearance: none;
+    min-height: 44px;
+    padding: 6px 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-sub);
+    box-shadow: none;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.desktop-npc-preview-tool:hover,
+.desktop-npc-preview-tool:focus-visible {
+    background: transparent;
+    color: var(--text-main);
+    box-shadow: none;
+    text-shadow: 1px 1px 0 var(--accent-neon);
+    transform: none;
+}
+
+.desktop-npc-preview-read-grid {
+    display: grid;
+    width: 100%;
+    flex: 0 0 auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 560px;
+    margin: 0 auto;
+    gap: 26px 42px;
+    text-align: left;
+}
+
+.desktop-npc-preview-read-item {
+    min-width: 0;
+}
+
+.desktop-npc-preview-read-item > span {
+    display: flex;
+    align-items: center;
+    color: var(--text-sub);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.07em;
+}
+
+.desktop-npc-preview-read-item > span::before {
+    width: 3px;
+    height: 1em;
+    flex: 0 0 3px;
+    margin-right: 9px;
+    background: var(--accent-neon);
+    content: "";
+}
+
+.desktop-npc-preview-read-item > p {
+    min-width: 0;
+    margin: 7px 0 0 12px;
+    color: var(--text-main);
+    font-family: var(--font-reading);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.desktop-npc-preview-empty {
+    color: var(--text-sub);
+}
+
+.desktop-npc-preview-chapters {
+    display: grid;
+    min-height: 0;
+    flex: 1 1 auto;
+    gap: 22px;
+    margin-top: 36px;
+    overflow-y: auto;
+}
+
+.desktop-npc-preview-chapters section {
+    min-width: 0;
+}
+
+.desktop-npc-preview-chapters h3 {
+    display: flex;
+    align-items: center;
+    margin: 0 0 8px;
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+.desktop-npc-preview-chapters h3::before {
+    width: 3px;
+    height: 1em;
+    flex: 0 0 3px;
+    margin-right: 9px;
+    background: var(--accent-neon);
+    content: "";
+}
+
+.desktop-npc-preview-chapters p {
+    margin: 0;
+    padding-left: 12px;
+    color: var(--text-sub);
+    font-family: var(--font-reading);
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.desktop-npc-preview-actions {
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+@media screen and (max-width: 600px),
+    screen and (max-width: 1099px) and (hover: none),
+    screen and (max-width: 1099px) and (pointer: coarse) {
+    .desktop-npc-readonly-preview {
+        padding-inline: 0;
+    }
+
+    .desktop-npc-preview-actions {
+        justify-content: center;
+    }
+
+    #edit-scenario-screen[data-editor-section="npc"]
+        #npc-list-container .desktop-npc-editor-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .desktop-npc-editor-actions,
+    .desktop-new-npc-card .desktop-npc-editor-actions {
+        justify-content: center;
+    }
+}
+
+#edit-scenario-screen.npc-preview-open #desktop-config-editor,
+#edit-scenario-screen.npc-acquaintance-open #desktop-config-editor {
+    position: relative;
+}
+
+.desktop-npc-preview-actions,
+.npc-flow-view[data-flow-view="intro"] .npc-flow-action-row {
+    position: absolute;
+    right: 42px;
+    bottom: 29px;
+    z-index: 2;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    #desktop-config-editor {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+
+    #edit-scenario-screen.npc-preview-open #desktop-config-editor,
+    #edit-scenario-screen.npc-acquaintance-open #desktop-config-editor {
+        position: static;
+    }
+
+    .desktop-npc-preview-actions,
+    .npc-flow-view[data-flow-view="intro"] .npc-flow-action-row {
+        position: static;
+        margin-top: 30px;
+    }
+
+    .desktop-npc-readonly-preview,
+    .npc-acquaintance-flow {
+        display: block;
+        height: auto;
+        min-height: 100%;
+        overflow: visible;
+    }
+
+    .desktop-npc-readonly-preview {
+        padding-bottom: 26px;
+    }
+
+    .npc-acquaintance-flow {
+        padding-bottom: 24px;
+    }
+
+    .desktop-npc-preview-chapters,
+    .npc-flow-view[data-flow-view="intro"] {
+        overflow: visible;
+    }
 }

@@ -151,3 +151,39 @@
 - [x] 修改檔案：`app-status-journal.js`、`app-config-ui.js`、`index.html`、`i18n.js`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
 - [x] 未改 CSS、03 版型、`details.*` key、存檔格式、`sanko_*` key、API key、圖片規則或遊戲主流程。
 - [x] 驗證：專項 2/2、角色配置／角色面板 13/13、完整 Playwright 26/26 通過；JS 語法、HTML 結構、UTF-8／LF、`git diff --check` 與跨 Python／Node hash 複驗通過。
+
+## 2026-07-15
+
+### NPC 認識夥伴功能骨架與資料安全整合（視覺未核准）
+
+- [x] 既有 NPC 已具備「總覽 → 唯讀資料頁 → 編輯／認識夥伴」路徑；新增 NPC 維持直接進入編輯頁，編輯表單底部可接續「認識夥伴」。
+- [x] 「認識夥伴」功能已整合人物基底、預設／自訂提問、玩家原句回聲、AI 回覆、像／不像判斷、補充後重試、明確選欄與追加／取代、情境草稿與返回狀態。
+- [x] AI 請求沿用既有供應商、模型、金鑰與 `requestAIText()`；只傳文字人物設定與玩家明確選定的情境，不傳圖片、不修改遊戲主流程 prompt。回傳若含 JSON，只抽取 NPC 的自然台詞，不在畫面顯示 narrative／options／原始 JSON。
+- [x] AI 回覆、玩家提問與未確認補充都不會自動寫入六欄；只有玩家進入明確保存步驟並選定欄位與寫入方式後才修改目前 NPC，錯誤重試會保留同一句補充。
+- [x] 桌機滑鼠／觸控板即使因縮放讓 CSS viewport 低於 1100px，角色配置仍維持等比例雙欄與 850px 面板；只有實際觸控／粗指標裝置切換最大 550px 單欄。此規則只作用於角色配置，不影響角色面板手機閱讀層。
+- [x] 修改檔案：`app-config-ui.js`、`app-preset-edit.js`、`style.css`、`i18n.js`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未改存檔格式、`sanko_*` key、API key 保存、圖片傳送／匯出規則、遊戲主流程 prompt、玩家唯讀預覽、首頁或角色面板其他分頁。
+- [x] 功能驗證：曾完成瀏覽器 1440×1000、900×900 與 390×844 真觸控環境實際渲染；完整 Playwright 30/30、全部 JS 語法、CSS 結構、UTF-8／LF 與 `git diff --check` 通過。
+- [x] 視覺核准更正：專案主於 2026-07-15 明確否決目前 NPC 唯讀頁、編輯頁及認識夥伴首屏排版；本項只代表功能與資料安全完成，視覺修正已重新列入 `TODO.md`，不得視為正式 UI 完成。
+
+### 配置頁流程與新對話交接文件
+
+- [x] 核對 `TODO.md`、`COMPLETED.md` 與目前程式 diff；沒有發現完全漏記的已完成功能，但修正了 NPC 正式整合條目過度宣稱視覺完成的狀態。
+- [x] `TODO.md` 新增 NPC 唯讀預覽／新增與編輯／認識夥伴三畫面修正規格、已確認與未核准邊界、預覽優先順序、不碰區域及驗收方式；移除已被正式功能整合取代的舊預覽整合待辦。
+- [x] 新增 `CONFIG_PAGE_FLOW.md`，記錄角色配置入口、畫面狀態、NPC 三畫面責任、欄位映射、認識夥伴狀態機、資料安全、響應式契約、檔案位置與下一步。
+- [x] 新增 `_handoff/2026-07-15-config-page-npc-flow/CODEX_HANDOFF.md`，提供新對話可直接貼上的開工指示、必讀順序、Git 現況、被否決內容、已確認規格、視覺參考與下一個任務。
+- [x] 修改檔案：`TODO.md`、`COMPLETED.md`；新增但被 `.gitignore` 忽略：`CONFIG_PAGE_FLOW.md`、`_handoff/2026-07-15-config-page-npc-flow/CODEX_HANDOFF.md`。
+- [x] 未修改任何 JS、CSS、HTML、翻譯或測試程式，未執行 Git 寫入。
+- [x] 工作區外交易副本：`D:\_codex_transaction_backup\JourneyNotesTRPG-20260715-config-flow\`；配置流程 SHA-256 `4fa4774963295cb657b18f556a9a27a94273cfe7434ae17015cac923952f4c01`，交接文件 SHA-256 `a7ff5fb6617fe57a90d3f4be9940e8b9515e4a37124b6eaabcdc26ecbe7e03d4`。
+- [x] 驗證：四份文件皆為嚴格 UTF-8、LF、無 BOM／U+FFFD／NUL；兩份未追蹤 MD 與工作區外副本 bytes 全等，Python／Node hash、檔尾、Markdown fence、`git diff --check` 與延遲複驗通過。
+
+### NPC 配置三畫面正式版與手機版修正
+
+- [x] 依核准範例完成 NPC 唯讀、編輯與認識夥伴三畫面；移除 NPC 名稱、玩家角色、NPC 資料、編輯 NPC 與認識夥伴等重複小標，唯讀小標改用重點色直線。
+- [x] 唯讀頁採精簡的體格／語氣／喜好／厭惡；編輯頁保留完整欄名，NPC 頭像尺寸與玩家對齊，桌機外框尺寸不隨內容或畫面切換改變。
+- [x] 認識夥伴與和他說一句維持固定操作位置；長文改在保留操作區的內容層捲動，不再與按鈕重疊；對話改用遊戲頁既有玩家／NPC 訊息泡泡。
+- [x] 600px 以下不再被舊的桌機 `display: grid !important` 攔截：唯讀維持雙欄、編輯與人物基底為單欄，文字保持橫排，長內容讓外框自然延伸且沒有水平溢位。
+- [x] 手機唯讀與認識夥伴頁恢復既有返回控制；實際點擊可離開內頁並回到角色選擇總覽，不再卡死在 NPC 內容頁。
+- [x] 修改檔案：`app-config-ui.js`、`app-preset-edit.js`、`style.css`、`i18n.js`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未改存檔格式、`sanko_*` key、API key、圖片傳送／匯出規則、遊戲主流程 prompt、玩家唯讀預覽、首頁或角色面板其他分頁。
+- [x] 驗證：桌機、553px 細指標手機、長短 NPC 內容、zh-TW／en／ja、返回操作與長文保護均經實際瀏覽器渲染；完整 Playwright 32/32 通過。

@@ -40,6 +40,114 @@ if (button) button.disabled = false;
 }
 }
 
+function extractNpcAcquaintanceDialogue(rawText) {
+    const raw = valueToText(rawText).trim();
+    if (!raw) return '';
+    const unfenced = raw
+        .replace(/^```(?:json)?\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+    const candidates = [unfenced];
+    const firstBrace = unfenced.indexOf('{');
+    const lastBrace = unfenced.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+        candidates.push(unfenced.slice(firstBrace, lastBrace + 1));
+    }
+
+    let lookedLikeJson = /^[\[{]/.test(unfenced);
+    for (const candidate of candidates) {
+        try {
+            const parsed = JSON.parse(candidate);
+            lookedLikeJson = true;
+            const direct = valueToText(parsed?.dialogue).trim();
+            if (direct) return direct;
+            const firstDialogue = Array.isArray(parsed?.dialogues) ? parsed.dialogues[0] : null;
+            const nested = valueToText(firstDialogue?.text || firstDialogue?.dialogue).trim();
+            if (nested) return nested;
+            return '';
+        } catch (error) {
+            continue;
+        }
+    }
+    return lookedLikeJson ? '' : unfenced;
+}
+
+async function requestNpcAcquaintanceResponse(index, playerLine, options = {}) {
+    refreshApiCredentials();
+    if (!apiKey || !selectedModel) {
+        throw new Error(`請先驗證 ${getApiProviderLabel()} 金鑰並選擇模型。`);
+    }
+
+    syncEditingDataFromDOM();
+    const character = editingNpcs[index];
+    if (!character) {
+        throw new Error(uiText('找不到目前的 NPC。'));
+    }
+
+    const details = character.details && typeof character.details === 'object'
+        ? character.details
+        : {};
+    const explicitScenarioIndex = Number.isInteger(options.scenarioIndex)
+        ? options.scenarioIndex
+        : -1;
+    const scenario = explicitScenarioIndex >= 0
+        ? editingScenarios[explicitScenarioIndex] || null
+        : null;
+    const languageMode = document.getElementById('input-language-mode')?.value
+        || scenarioPresets[activePresetId]?.languageMode
+        || 'zh-tw';
+    const characterPrompt = {
+        name: truncatePromptText(character.name, 80),
+        affection: Math.max(-100, Math.min(100, Math.round(Number(character.affection)) || 0)),
+        details: {
+            age: truncatePromptText(details.age, 120),
+            speech: truncatePromptText(details.speech, 240),
+            likes: truncatePromptText(details.likes, 220),
+            dislikes: truncatePromptText(details.dislikes, 220),
+            app: truncatePromptText(details.app, 420),
+            bg: truncatePromptText(details.bg, 620)
+        }
+    };
+    const selectedScenario = scenario
+        ? {
+            name: truncatePromptText(scenario.name, 120),
+            lore: truncatePromptText(scenario.lore, 700),
+            npcRoles: truncatePromptText(scenario.npcRoles, 420),
+            playerRole: truncatePromptText(scenario.playerRole, 420)
+        }
+        : null;
+    const adjustment = truncatePromptText(options.adjustment, 500);
+    const prompt = `${getLanguageInstruction(languageMode)}
+你是 TRPG 角色對話驗證器。玩家正在和自己建立的 NPC 對話，確認「這是不是他」。
+
+角色設定（只能依照已明確填寫的內容）：
+${JSON.stringify(characterPrompt)}
+
+玩家原句：
+${truncatePromptText(playerLine, 600)}
+
+${selectedScenario
+        ? `玩家明確選定的情境：\n${JSON.stringify(selectedScenario)}`
+        : '玩家沒有選擇任何情境。不得自行補上地點、年代、親屬、世界規則、角色經歷或其他背景。'}
+${adjustment
+        ? `玩家確認的調整提醒（保持原意並確實遵守）：\n${adjustment}`
+        : ''}
+
+規則：
+- 直接輸出這名 NPC 對玩家的回應，可包含一小段符合設定的動作描寫。
+- 不替玩家說話，不改寫玩家原句，不總結或重述整份人物設定。
+- 設定沒有寫明的資訊維持未知；不得自行補完世界觀或關係。
+- 不提及 AI、prompt、設定資料或驗證流程。
+- 不使用 Markdown、標題、條列或 JSON；只輸出可直接顯示的對話內容。
+- 保持精簡，原則上 180 字內。`;
+    const text = await requestAIText(prompt, { kind: 'normal', maxTokens: 650 });
+    const response = extractNpcAcquaintanceDialogue(text).replace(/\r\n/g, '\n').trim();
+    if (!response) {
+        throw new Error(uiText('沒有取得回應。'));
+    }
+    return response;
+}
+
 function openRandomGenerator(mode = 'world') {
             randomGeneratorMode = mode === 'all' ? 'all' : 'world';
             pendingGeneratedPreset = null;
@@ -265,10 +373,17 @@ function openRandomGenerator(mode = 'world') {
 
         function addNpcBlock() {
             syncEditingDataFromDOM();
-editingNpcs.push({ id: 'npc_' + Date.now(), name: '新角色', avatar: emptyAvatar, affection: 0, details: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: '' } });
-forceOpenNpcIndex = editingNpcs.length - 1;
-markEditScenarioDirty();
-renderNpcList();
+            editingNpcs.push({
+                id: 'npc_' + Date.now(),
+                name: '',
+                avatar: emptyAvatar,
+                affection: 0,
+                details: { age: '', speech: '', likes: '', dislikes: '', app: '', bg: '' }
+            });
+            desktopNewNpcIndex = editingNpcs.length - 1;
+            forceOpenNpcIndex = desktopNewNpcIndex;
+            markEditScenarioDirty();
+            renderNpcList();
         }
 
         function removeNpcBlock(index) {
