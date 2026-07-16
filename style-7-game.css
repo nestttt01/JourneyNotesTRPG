@@ -203,6 +203,17 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     object-fit: cover;
 }
 
+/* 黑圈補畫層:照片是 z-index:1 的絕對定位子元素,會蓋掉父層內縮 outline(Chrome 繪製順序),改用 ::after 疊在照片上方 */
+.npc-flow-intro-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px var(--border-dark);
+    pointer-events: none;
+}
+
 .npc-flow-intro-nameplate {
     padding: 7px 14px 6px;
     background: var(--accent-neon);
@@ -1609,6 +1620,17 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* 黑圈補畫層:同 .npc-flow-intro-avatar::after,照片會蓋掉內縮 outline */
+.desktop-npc-preview-hero-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px var(--border-dark);
+    pointer-events: none;
 }
 
 .desktop-npc-preview-hero h2 {
