@@ -7676,6 +7676,242 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     display: none;
 }
 
+/* ---- 角色配置：玩家唯讀預覽（2026-07-16 批次A，鏡射 NPC 唯讀預覽） ---- */
+#edit-scenario-screen.player-preview-open
+    #desktop-config-editor
+    > :not(#desktop-player-readonly-preview):not(.mobile-config-editor-back):not(.desktop-player-new-preset-btn) {
+    display: none !important;
+}
+
+#desktop-player-readonly-preview[hidden] {
+    display: none;
+}
+
+#desktop-player-readonly-preview {
+    position: relative;
+}
+
+.desktop-player-preview-stats {
+    justify-items: center;
+}
+
+.desktop-player-preview-stats .status-stat-item {
+    justify-self: center;
+}
+
+/* 返回與 + 一律錨定面板本身:編輯頁與預覽頁共用同一顆、同一組座標 */
+#edit-scenario-screen[data-editor-section="player"] #desktop-config-editor {
+    position: relative;
+}
+
+#desktop-config-editor > .desktop-player-new-preset-btn,
+#desktop-config-editor > .desktop-player-editor-return {
+    display: none;
+}
+
+#edit-scenario-screen[data-editor-section="player"] #desktop-config-editor > .desktop-player-new-preset-btn {
+    display: grid;
+    top: 20px;
+    right: 28px;
+}
+
+#edit-scenario-screen[data-editor-section="player"]:not(.player-preview-open)
+    #desktop-config-editor > .desktop-player-editor-return {
+    position: absolute;
+    top: 20px;
+    left: 28px;
+    display: inline-flex;
+    height: 34px;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    #edit-scenario-screen[data-editor-section="player"] #desktop-config-editor > .desktop-player-new-preset-btn {
+        top: 14px;
+        right: 14px;
+    }
+
+    #edit-scenario-screen[data-editor-section="player"]:not(.player-preview-open)
+        #desktop-config-editor > .desktop-player-editor-return {
+        display: none;
+    }
+}
+
+/* ---- 角色配置：玩家編輯頁沿用 NPC 詳細表單語彙（輕量欄位、無重框）。
+        置於背景圖玻璃卡片規則之後，與 NPC 配方同層蓋回透明。 ---- */
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 26px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet label {
+    display: block;
+    color: var(--text-sub);
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+}
+
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input,
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea {
+    width: 100%;
+    min-width: 0;
+    margin-top: 6px;
+    padding: 10px 3px 9px;
+    border: 0;
+    border-bottom: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.65;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="player"] #input-player-name {
+    border: 0;
+    border-bottom: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+    font-size: 18px;
+    font-weight: 400;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .stat-box {
+    border: 0;
+    border-bottom: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+}
+
+#edit-scenario-screen[data-editor-section="player"] #input-player-name:focus,
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input:focus,
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea:focus {
+    border-bottom-color: var(--border-dark);
+    outline: 1px solid var(--accent-neon);
+    outline-offset: 2px;
+    box-shadow: none;
+    transform: none;
+}
+
+/* 預覽內文欄寬對齊編輯頁（僅桌機；手機維持全寬不變） */
+@media (min-width: 601px) {
+    .desktop-npc-readonly-preview .desktop-npc-preview-read-grid,
+    .desktop-npc-readonly-preview .desktop-npc-preview-chapters,
+    .desktop-npc-readonly-preview .desktop-player-preview-stats {
+        /* 82% 相對預覽內容盒(比編輯面板少 28px 內距),+23px 補償後與編輯頁欄寬相等 */
+        width: min(calc(82% + 23px), 750px);
+        max-width: none;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ---- 角色配置:情境頁輕量化(2026-07-16 專案主核准;各按鈕維持現狀暫不動) ---- */
+#edit-scenario-screen[data-editor-section="scenario"] #desktop-config-editor .scenario-label {
+    margin: 20px 0 0;
+    color: var(--text-sub);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+}
+
+#edit-scenario-screen[data-editor-section="scenario"] #desktop-config-editor .scenario-input {
+    padding: 10px 3px 9px;
+    border: 0;
+    border-bottom: 1px solid var(--text-sub);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.65;
+    box-shadow: none;
+}
+
+#edit-scenario-screen[data-editor-section="scenario"] #desktop-config-editor .scenario-input:focus {
+    border-bottom-color: var(--border-dark);
+    outline: 1px solid var(--accent-neon);
+    outline-offset: 2px;
+    box-shadow: none;
+    transform: none;
+}
+
+/* 左欄情境列表:大框卡片改輕量列(含「シナリオ追加」列) */
+.desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card {
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px dashed color-mix(in srgb, var(--text-sub) 45%, transparent);
+    background: transparent;
+    box-shadow: none;
+}
+
+.desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card:hover,
+.desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card:focus-visible {
+    background: color-mix(in srgb, var(--card-bg) 40%, transparent);
+}
+
+/* AI 生成面板:去外框、標題小標化(兩顆按鈕本身維持現狀) */
+.desktop-scenario-random-panel {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.desktop-scenario-random-panel > strong {
+    color: var(--text-sub);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.07em;
+}
+
+/* 手機編輯欄位一律 ≥16px:低於 16px 聚焦會觸發瀏覽器自動放大且不會縮回
+   (比照 #player-input 白名單)。唯讀預覽為純文字不受影響,維持原字級。 */
+@media (max-width: 600px) {
+    #status-page-settings .anime-sheet input,
+    #status-page-settings .anime-sheet textarea,
+    #status-page-settings .scenario-input,
+    #status-page-settings .status-detail-editor input,
+    #status-page-settings .status-detail-editor textarea,
+    #edit-scenario-screen .scenario-input,
+    #edit-scenario-screen .anime-sheet input,
+    #edit-scenario-screen .anime-sheet textarea,
+    #edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field input,
+    #edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field textarea,
+    #edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-affection .scenario-input,
+    #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input,
+    #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea,
+    #edit-scenario-screen[data-editor-section="scenario"] #desktop-config-editor .scenario-input {
+        font-size: 16px;
+    }
+}
+
 .desktop-npc-readonly-preview {
     display: flex;
     width: 100%;
@@ -7982,6 +8218,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 #edit-scenario-screen.npc-preview-open #desktop-config-editor,
+#edit-scenario-screen.player-preview-open #desktop-config-editor,
 #edit-scenario-screen.npc-acquaintance-open #desktop-config-editor {
     position: relative;
 }
@@ -8000,11 +8237,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
         height: auto;
         max-height: none;
         overflow: visible;
-    }
-
-    #edit-scenario-screen.npc-preview-open #desktop-config-editor,
-    #edit-scenario-screen.npc-acquaintance-open #desktop-config-editor {
-        position: static;
     }
 
     .desktop-npc-preview-actions,

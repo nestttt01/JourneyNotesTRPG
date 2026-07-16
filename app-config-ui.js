@@ -39,6 +39,9 @@ switchDesktopConfigWorkspace('characters');
             if (screen.classList.contains('npc-preview-open')) {
                 closeDesktopNpcPreview({ restoreOverview: false });
             }
+            if (screen.classList.contains('player-preview-open')) {
+                closeDesktopPlayerPreview({ restoreOverview: false });
+            }
             if (screen.classList.contains('random-generator-inline-open')) closeRandomGenerator();
             if (screen.style.display === 'flex') syncEditingDataFromDOM();
             desktopConfigWorkspace = ['characters', 'scenarios', 'game'].includes(section) ? section : 'characters';
@@ -67,6 +70,9 @@ switchDesktopConfigWorkspace('characters');
             if (screen.classList.contains('npc-preview-open')) {
                 closeDesktopNpcPreview({ restoreOverview: false });
             }
+            if (screen.classList.contains('player-preview-open')) {
+                closeDesktopPlayerPreview({ restoreOverview: false });
+            }
             const workspace = section === 'scenario' ? 'scenarios' : (section === 'game' ? 'game' : 'characters');
             desktopConfigWorkspace = workspace;
             screen.dataset.workspace = workspace;
@@ -85,6 +91,7 @@ switchDesktopConfigWorkspace('characters');
             if (section === 'player') {
                 document.querySelector('#preset-player-editor > details')?.setAttribute('open', '');
                 syncDesktopCharacterNameWidth(document.getElementById('input-player-name'));
+                ensureDesktopPlayerEditorReturn();
             }
             if (section === 'npc') {
                 const card = document.getElementById('npc-list-container')?.querySelectorAll('details')[itemIndex];
@@ -546,6 +553,9 @@ function selectDesktopPreset(id) {
             if (screen.classList.contains('npc-acquaintance-open')) {
                 closeNpcAcquaintanceFlow({ restoreEditor: false });
             }
+            if (screen.classList.contains('player-preview-open')) {
+                closeDesktopPlayerPreview({ restoreOverview: false });
+            }
             desktopNpcPreviewIndex = npcIndex;
             desktopConfigWorkspace = 'characters';
             screen.dataset.workspace = 'characters';
@@ -642,6 +652,158 @@ function selectDesktopPreset(id) {
                     </button>
                 </div>
             `;
+        }
+
+        /* ==== 玩家唯讀預覽(2026-07-16 批次A):沿用 NPC 唯讀預覽與角色面板「詳細」語彙 ==== */
+        function ensureDesktopPlayerPreview() {
+            const editor = document.getElementById('desktop-config-editor');
+            if (!editor) return null;
+            let preview = document.getElementById('desktop-player-readonly-preview');
+            if (preview) return preview;
+            preview = document.createElement('section');
+            preview.id = 'desktop-player-readonly-preview';
+            preview.className = 'desktop-npc-readonly-preview';
+            preview.hidden = true;
+            editor.appendChild(preview);
+            return preview;
+        }
+
+        function openDesktopPlayerPreview() {
+            const screen = document.getElementById('edit-scenario-screen');
+            const preview = ensureDesktopPlayerPreview();
+            if (!screen || !preview) return;
+            if (screen.classList.contains('npc-acquaintance-open')) {
+                closeNpcAcquaintanceFlow({ restoreEditor: false });
+            }
+            if (screen.classList.contains('npc-preview-open')) {
+                closeDesktopNpcPreview({ restoreOverview: false });
+            }
+            if (screen.classList.contains('random-generator-inline-open')) closeRandomGenerator();
+            desktopConfigWorkspace = 'characters';
+            screen.dataset.workspace = 'characters';
+            screen.dataset.editorSection = 'player';
+            screen.classList.remove('game-workspace-active');
+            screen.classList.add('desktop-editor-open', 'player-preview-open');
+            setDesktopConfigTab('characters');
+            document.querySelectorAll('.desktop-workspace-view').forEach(view => {
+                view.classList.toggle('active', view.dataset.workspaceView === 'characters');
+            });
+            preview.hidden = false;
+            renderDesktopPlayerPreview();
+            document.getElementById('desktop-config-editor')?.scrollTo({ top: 0, behavior: 'auto' });
+            if (!isDesktopConfigLayout()) {
+                requestAnimationFrame(() => {
+                    window.scrollTo(0, 0);
+                });
+            }
+        }
+
+        function closeDesktopPlayerPreview(options = {}) {
+            const restoreOverview = options.restoreOverview !== false;
+            const screen = document.getElementById('edit-scenario-screen');
+            const preview = document.getElementById('desktop-player-readonly-preview');
+            screen?.classList.remove('player-preview-open');
+            if (preview) preview.hidden = true;
+            if (restoreOverview) switchDesktopConfigWorkspace('characters');
+        }
+
+        function editDesktopPlayerFromPreview() {
+            closeDesktopPlayerPreview({ restoreOverview: false });
+            openDesktopConfigEditor('player');
+        }
+
+        function desktopPlayerPreviewStatHtml(label, value) {
+            const clamped = Math.max(1, Math.min(20, Number.parseInt(value, 10) || 10));
+            const number = String(clamped).padStart(2, '0');
+            return `
+                <span class="status-stat-item">
+                    <span>${escapeStatusHtml(uiText(label))}</span>
+                    <strong data-no-i18n>${escapeStatusHtml(number)}</strong>
+                </span>
+            `;
+        }
+
+        function renderDesktopPlayerPreview() {
+            const preview = document.getElementById('desktop-player-readonly-preview');
+            if (!preview) return;
+            const name = uiCharacterName(document.getElementById('input-player-name')?.value, uiText('玩家'));
+            const avatar = document.getElementById('preview-player')?.src || '';
+            const avatarImage = avatar && avatar !== emptyAvatar
+                ? `<img src="${escapeStatusHtml(avatar)}" alt="">`
+                : '';
+            const initial = Array.from(name)[0] || 'P';
+            const readField = id => document.getElementById(id)?.value || '';
+            const stats = typeof readPlayerStatsFromInputs === 'function' ? readPlayerStatsFromInputs() : {};
+            const editLabel = uiText('編輯');
+            preview.innerHTML = `
+                <div class="desktop-npc-preview-hero">
+                    <span class="desktop-npc-preview-hero-avatar" data-initial="${escapeStatusHtml(initial)}">
+                        ${avatarImage}
+                    </span>
+                    <h2 data-no-i18n>${escapeStatusHtml(name)}</h2>
+                    <button type="button" class="desktop-npc-preview-tool" onclick="editDesktopPlayerFromPreview()">
+                        ${escapeStatusHtml(editLabel)}
+                    </button>
+                </div>
+                <div class="u-inline-071 desktop-player-preview-stats" aria-label="${escapeStatusHtml(uiText('玩家六圍屬性'))}">
+                    ${desktopPlayerPreviewStatHtml('STR 力量', stats.str)}
+                    ${desktopPlayerPreviewStatHtml('DEX 敏捷', stats.dex)}
+                    ${desktopPlayerPreviewStatHtml('CON 體質', stats.con)}
+                    ${desktopPlayerPreviewStatHtml('INT 智力', stats.int)}
+                    ${desktopPlayerPreviewStatHtml('WIS 感知', stats.wis)}
+                    ${desktopPlayerPreviewStatHtml('CHA 魅力', stats.cha)}
+                </div>
+                <div class="desktop-npc-preview-read-grid">
+                    ${renderDesktopNpcPreviewItem('體格', readField('p-age'))}
+                    ${renderDesktopNpcPreviewItem('語氣', readField('p-speech'))}
+                    ${renderDesktopNpcPreviewItem('喜好', readField('p-likes'))}
+                    ${renderDesktopNpcPreviewItem('厭惡', readField('p-dislikes'))}
+                </div>
+                <div class="desktop-npc-preview-chapters">
+                    <section>
+                        <h3>${escapeStatusHtml(uiText('外貌與穿搭'))}</h3>
+                        <p data-no-i18n>${desktopNpcPreviewTextHtml(readField('p-app'))}</p>
+                    </section>
+                    <section>
+                        <h3>${escapeStatusHtml(uiText('核心性格與背景'))}</h3>
+                        <p data-no-i18n>${desktopNpcPreviewTextHtml(readField('p-bg'))}</p>
+                    </section>
+                </div>
+            `;
+        }
+
+        function completeDesktopPlayerEdit() {
+            openDesktopPlayerPreview();
+        }
+
+        function ensureDesktopPlayerEditorReturn() {
+            const editor = document.getElementById('desktop-config-editor');
+            if (!editor) return;
+            let button = document.getElementById('desktop-player-editor-return');
+            if (!button) {
+                button = document.createElement('button');
+                button.type = 'button';
+                button.id = 'desktop-player-editor-return';
+                button.className = 'npc-flow-return-action desktop-player-editor-return';
+                button.onclick = completeDesktopPlayerEdit;
+                editor.prepend(button);
+            }
+            const label = uiText('返回玩家預覽');
+            button.innerHTML = `
+                <img src="assets/icons/back.svg" alt="" aria-hidden="true">
+                <span class="npc-flow-return-label" data-label="${escapeStatusHtml(label)}">${escapeStatusHtml(label)}</span>
+            `;
+        }
+
+        function handleMobileConfigEditorBack() {
+            const screen = document.getElementById('edit-scenario-screen');
+            const inPlayerEditor = screen?.dataset.editorSection === 'player'
+                && !screen.classList.contains('player-preview-open');
+            if (inPlayerEditor) {
+                openDesktopPlayerPreview();
+                return;
+            }
+            switchDesktopConfigWorkspace(desktopConfigWorkspace);
         }
 
         const NPC_ACQUAINTANCE_FIELDS = [
@@ -1492,6 +1654,9 @@ function selectDesktopPreset(id) {
         });
         window.addEventListener('ui-language-change', () => {
             if (npcAcquaintanceSession) renderNpcAcquaintanceFlow();
+            const screen = document.getElementById('edit-scenario-screen');
+            if (screen?.classList.contains('player-preview-open')) renderDesktopPlayerPreview();
+            if (document.getElementById('desktop-player-editor-return')) ensureDesktopPlayerEditorReturn();
         });
 
         let forceOpenScenIndex = -1;

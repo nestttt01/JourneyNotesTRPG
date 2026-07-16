@@ -737,7 +737,7 @@
             </div>
             <div class="desktop-config-overview-inner">
                 <section class="desktop-workspace-view active" data-workspace-view="characters" aria-label="角色設定總覽">
-                    <button type="button" class="desktop-player-card" onclick="openDesktopConfigEditor('player')" aria-label="編輯玩家角色">
+                    <button type="button" class="desktop-player-card" onclick="openDesktopPlayerPreview()" aria-label="查看玩家資料">
                         <img id="desktop-player-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="玩家頭像">
                         <strong id="desktop-player-name">玩家</strong>
                     </button>
@@ -837,7 +837,8 @@
         </aside>
 
         <div id="desktop-config-editor">
-        <button type="button" class="mobile-config-editor-back" onclick="switchDesktopConfigWorkspace(desktopConfigWorkspace)" aria-label="返回" title="返回">←</button>
+        <button type="button" class="mobile-config-editor-back" onclick="handleMobileConfigEditorBack()" aria-label="返回" title="返回">←</button>
+        <button type="button" class="desktop-player-new-preset-btn" onclick="saveAsNewPreset()" aria-label="另存配置" title="另存配置">＋</button>
         <div class="u-inline-033">
             <select id="preset-selector" class="model-select" onchange="loadPresetToForm(this.value)"></select>
             <button class="btn u-inline-034" onclick="createNewPreset()">新增</button>
@@ -851,7 +852,6 @@
             <input type="text" id="input-preset-name" class="scenario-input" oninput="renderDesktopPresetOverview()">
 
             <div id="preset-player-editor" class="u-inline-036">
-                <button type="button" class="desktop-player-new-preset-btn" onclick="saveAsNewPreset()" aria-label="另存配置" title="另存配置">＋</button>
                 <h4 class="u-inline-037">玩家自己設定</h4>
                 <div class="avatar-setup-area u-inline-038">
                     <div class="avatar-box" onclick="document.getElementById('upload-player').click();">
