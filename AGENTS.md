@@ -72,7 +72,7 @@
 - **精準修補**：邏輯與 diff 只改必要的小區塊；禁止順手重構、全檔格式化、minify、壓行或手工重建大檔。
 - **完整落盤**：已知有局部落盤或舊快取風險的通道，實際寫入時仍須把「原始完整內容經精準替換後」的預期完整 bytes 寫回。
 - **原生 patch 例外**：若工具依下節明確列為原生直寫例外，仍須在寫前計算預期完整 bytes，並在寫後斷言實際 bytes 與預期 bytes 完全一致。
-- 修改區塊以外的 bytes 必須保持一致。尤其禁止整檔手打 `style.css`、`app-gameplay.js`、`i18n.js` 等大檔。
+- 修改區塊以外的 bytes 必須保持一致。尤其禁止整檔手打 `style-*.css`、`app-gameplay.js`、`i18n.js` 等大檔。
 
 ### 寫入工具依實際通道判定
 
@@ -82,6 +82,9 @@
 - Codex 桌面版或 CLI 若直接操作使用者本機 workspace、不經上述 sandbox／同步掛載層，其原生 `apply_patch` 可作為允許例外。
 - 使用 Codex 原生 `apply_patch` 前，仍須完成寫前 bytes／SHA-256 確認、第二讀取通道比對（可取得時）；修改未追蹤／私有 MD 前另須建立工作區外交易備份，已納入 Git 的四份核心文件則依「私有 MD 的交易備份與持久歸檔」節的追蹤檔規則處理。只可精準修改必要區塊。
 - 此例外不豁免單一寫入者、UTF-8／換行、預期 bytes 全等、錨點／檔尾、語法、可讀 diff、立即驗證、延遲複驗與跨通道複驗。
+- Claude（Cowork）經 Windows 路徑直接讀寫本機 workspace 的 Read／Write／Edit 檔案工具，自 2026-07-16 起列為允許例外（專案主核准）。實測依據：2026-07-16 bash 掛載層回傳 Codex 寫入中的截斷舊快照時，Windows 直讀內容仍與 HEAD 完全一致。
+- Claude 的 bash 掛載層（`/sessions/…`）維持禁止寫入，只可唯讀驗證與交叉比對；複驗遇到與 Windows 直讀不一致時，先等待後重讀並以 `git show HEAD:<路徑>` 比對判定，不得單方選一份覆蓋。
+- Claude 使用此例外時仍須：寫前確認基準（已追蹤且乾淨的檔案以 `git show HEAD` 比對）、只精準修改必要區塊、寫後檢查修改區域與檔尾完整、對改到的 JS 跑 `node --check`；不豁免單一寫入者、UTF-8／換行、可讀 diff、立即驗證與延遲複驗。
 - 若無法確認工具是否直接操作本機 workspace，或任何讀取通道的 bytes／SHA-256 不一致，立即停止寫入，不得自行選一份覆蓋。
 - 禁止用 PowerShell 的 `Get-Content | Set-Content`、`Out-File`、`Add-Content`、`>`、`>>` 或其他文字管線改寫原始碼。
 - PowerShell 只可用來啟動 Python／Node、執行驗證與唯讀 Git 指令；終端機顯示的文字不得作為寫回來源。
@@ -168,7 +171,7 @@
 
 # 專案修改規則
 
-本專案是單頁式前端遊戲，功能集中在 `index.html`、`style.css`、`i18n.js`，以及 13 個 `app-*.js` 模組。這些模組以 classic `<script>` 標籤共用同一全域範圍，依 `index.html` 現有順序載入；**不得任意重排載入順序**。模組職責與函式對照見 `PROJECT_MAP.md`；拆分前的舊 `app.js` 已移除，如需對照只能使用唯讀 Git 歷史。
+本專案是單頁式前端遊戲，功能集中在 `index.html`、`i18n.js`、7 個 `style-*.css`（2026-07-16 由原 `style.css` 純搬移拆分，依 `<link>` 順序載入，不得重排），以及 13 個 `app-*.js` 模組。這些模組以 classic `<script>` 標籤共用同一全域範圍，依 `index.html` 現有順序載入；**不得任意重排載入順序**。模組職責與函式對照見 `PROJECT_MAP.md`；拆分前的舊 `app.js` 已移除，如需對照只能使用唯讀 Git 歷史。
 
 修改前先定位現有函式、CSS selector、翻譯鍵與資料流；只改相關區域，不用 hotfix 疊補丁，不順手重構或改風格。
 

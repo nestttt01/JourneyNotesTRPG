@@ -1,9 +1,9 @@
 # 專案地圖
 
-本專案是純前端單頁遊戲。`index.html`、`style.css`、`i18n.js` 維持單檔，原本的 `app.js` 已依功能拆成 13 個 `app-*.js` 模組（純搬移、無邏輯改動），全部以 classic `<script>` 標籤共用同一個全域範圍，依 `index.html` 既有順序載入（等同原 `app.js` 由上而下）。**載入順序不可任意重排。**
+本專案是純前端單頁遊戲。`index.html`、`i18n.js` 維持單檔；原本的 `app.js` 已依功能拆成 13 個 `app-*.js` 模組（純搬移、無邏輯改動），全部以 classic `<script>` 標籤共用同一個全域範圍，依 `index.html` 既有順序載入（等同原 `app.js` 由上而下）。原本的 `style.css` 已於 2026-07-16 依原檔順序純搬移拆成 7 個 `style-*.css`（bytes 級切片、內容零改動），依 `index.html` 的 `<link>` 順序載入（等同原檔由上而下）。**`<script>` 與 `<link>` 載入順序都不可任意重排。**
 
 - `index.html`：畫面結構、主要 modal、各頁 DOM 節點、按鈕事件入口。
-- `style.css`：全站樣式、桌機/手機響應式、首頁/角色配置/存檔/冒險日誌/狀態面板樣式。
+- `style-1-base.css` ～ `style-7-game.css`：全站樣式（原單檔 `style.css` 依序切成 7 檔），分工見下方「CSS 區域地圖」。
 - `i18n.js`：UI 多語言字典、動態訊息翻譯、語言切換。
 - `package.json`／`package-lock.json`：鎖定 Playwright 測試依賴與 `npm test` 指令。
 - `playwright.config.js`：以本機 HTTP server 啟動真頁面，單一 Chromium worker 執行 E2E。
@@ -272,17 +272,17 @@
 
 ## CSS 區域地圖
 
-`style.css`
+原 `style.css` 已依原檔順序切成 7 檔（2026-07-16，bytes 級純搬移、內容零改動）。切點是位置切片、不是嚴格語意分類；找 selector 時先 `rg <selector> style-*.css` 定位，不要憑檔名猜。
 
-- 全域變數與基礎版面：檔案前段，包含 `:root`、`body`、主要畫面容器。
-- 手機首頁與通用輸入：`#setup-screen`、`.key-input`、`.model-select`、`.scenario-input`。
-- 狀態面板：`.memory-*`、`#status-modal-content`、`.status-tab-btn`、`.quick-status-*`。
-- 冒險日誌：`.journal-*`、`#journal-screen`、`.journal-pagination`。
-- 遊戲主畫面：`#game-container`、`#dialogue-box`、`.msg-*`、`#options-area`、`#input-area`。
-- 桌機首頁嵌入：`#setup-screen .setup-embedded-screen`、`journal-screen-home-embedded`。
-- 桌機角色配置：`#edit-scenario-screen.desktop-editor-open`、`.desktop-*`、`#desktop-config-*`。
-- 手機版覆蓋：`@media (max-width: 600px)` 附近。
-- 材質（Liquid Glass）：檔案最末段，`.surface-style-*` 切換控制項與 `:root[data-surface-style="glass"]` 規則；全部以屬性選擇器提高特異性，未使用 `!important`。
+- `style-1-base.css`（原 1–1075 行）：`:root` 變數、字型（Cubic 11）、基礎版面、首頁、遊戲內深色卡片 UI 前段。
+- `style-2-status.css`（原 1076–1939 行）：狀態列、狀態面板、API 統計頁。
+- `style-3-panels.css`（原 1940–3192 行）：consolidated inline styles、角色面板詳細頁、開機畫面。
+- `style-4-desktop-config.css`（原 3193–4178 行）：桌機角色面板右側抽屜、創角桌機版。
+- `style-5-mobile-config.css`（原 4179–5735 行）：`min-width:1100px` 版面、手機／平板角色配置、手機日記。
+- `style-6-surfaces.css`（原 5736–6623 行）：大面板／視窗、背景圖模式、材質（Liquid Glass，`:root[data-surface-style="glass"]`，以屬性選擇器提高特異性、未使用 `!important`）、Diary 收藏。（修正舊描述：材質規則實際在此檔，不在檔案最末段。）
+- `style-7-game.css`（原 6624–8447 行）：存檔印記、遊戲玩法可讀性、面板拖動、NPC 流程等後期新增區。
+- 手機版 `@media (max-width: 600px)` 覆蓋與「基礎＋手機成對」規則散佈於各檔對應區域，成對關係不變。
+- 注意：`TECH_DEBT.md` 的舊行號以單檔 `style.css` 為基準；拆檔後一律改用 selector 重新定位。
 
 ## 疑似重複或需整理 CSS
 

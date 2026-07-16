@@ -1,0 +1,888 @@
+/* 大面板 / 視窗 */
+:root[data-bg-mode="image"] .setup-home-panel,
+:root[data-bg-mode="image"] #status-modal-content,
+:root[data-bg-mode="image"] #tutorial-modal-content,
+:root[data-bg-mode="image"] #api-guide-modal-content,
+:root[data-bg-mode="image"] #mid-modal-content,
+:root[data-bg-mode="image"] #edit-scenario-screen[data-editor-section="game"] #desktop-config-editor {
+    background: var(--paper-bg);
+    background: var(--bg-panel-glass);
+}
+
+/* 卡片 / 輸入框 */
+:root[data-bg-mode="image"] details.foldable-card,
+:root[data-bg-mode="image"] details.dark-card,
+:root[data-bg-mode="image"] .dark-card-content,
+:root[data-bg-mode="image"] .storage-health-card,
+:root[data-bg-mode="image"] .stat-box,
+:root[data-bg-mode="image"] .save-slot,
+:root[data-bg-mode="image"] .key-input,
+:root[data-bg-mode="image"] .model-select,
+:root[data-bg-mode="image"] .scenario-input,
+:root[data-bg-mode="image"] #status-page-settings .status-detail-editor input,
+:root[data-bg-mode="image"] #status-page-settings .status-detail-editor textarea,
+:root[data-bg-mode="image"] #input-area {
+    background: var(--card-bg);
+    background: var(--bg-card-glass);
+}
+
+
+/* ---- 背景圖模式：補齊其餘大面板（角色/情境/遊戲設定、遊戲區、其他 modal）與
+        桌機設定頁卡片/輸入框，讓所有側標籤頁一致透出背景。
+        用 [data-editor-section] 通配 + 前綴一次蓋過所有 section 的特異性。 ---- */
+:root[data-bg-mode="image"] .modal-box,
+:root[data-bg-mode="image"] #desktop-config-overview,
+:root[data-bg-mode="image"] #edit-scenario-screen[data-editor-section] #desktop-config-editor,
+:root[data-bg-mode="image"] #game-container {
+background: var(--paper-bg);
+background: var(--bg-panel-glass);
+}
+/* 行內隨機生成面板：外層 editor 已上玻璃，盒子保持透明，避免雙層疊白 */
+:root[data-bg-mode="image"] .modal-box.random-generator-inline-panel {
+background: transparent;
+}
+/* 背景圖模式：所有側邊標籤同步版本更新標籤的透明感；一般模式維持實心。 */
+:root[data-bg-mode="image"] .home-update-tab {
+background: var(--text-sub);
+background-color: var(--text-sub);
+background: var(--bg-tab-glass);
+background-color: var(--bg-tab-glass);
+box-shadow: 4px 4px 0 var(--bg-tab-shadow);
+}
+
+:root[data-bg-mode="image"] .home-diary-tab {
+background: var(--border-dark);
+background-color: var(--border-dark);
+background: var(--bg-dark-tab-glass);
+background-color: var(--bg-dark-tab-glass);
+box-shadow: 5px 5px 0 var(--bg-tab-shadow);
+}
+
+:root[data-bg-mode="image"] .setup-side-tab,
+:root[data-bg-mode="image"] .desktop-config-tab,
+:root[data-bg-mode="image"] #floating-menu-btn {
+background: var(--border-dark);
+background-color: var(--border-dark);
+background: var(--bg-dark-tab-glass);
+background-color: var(--bg-dark-tab-glass);
+box-shadow: -5px 5px 0 var(--bg-tab-shadow);
+}
+
+/* 選中(active)標籤在背景圖模式也要保持透明陰影。#setup-screen .setup-side-tab.active 帶 id 特異性較高、會壓過上面的一般 bg 規則，這裡用同等 bg-mode 特異性覆蓋回透明；純色模式不含 data-bg-mode，維持原本實色。 */
+:root[data-bg-mode="image"] #setup-screen .setup-side-tab.active,
+:root[data-bg-mode="image"] .desktop-config-tab.active {
+box-shadow: -5px 5px 0 var(--bg-tab-shadow);
+}
+
+:root[data-bg-mode="image"] .setup-side-tab.setup-home-tab,
+:root[data-bg-mode="image"] .desktop-config-tab.desktop-config-home-tab,
+:root[data-bg-mode="image"] #game-home-tab,
+:root[data-bg-mode="image"] .core-rules-tab {
+background: var(--accent-neon);
+background-color: var(--accent-neon);
+background: var(--bg-accent-tab-glass);
+background-color: var(--bg-accent-tab-glass);
+box-shadow: -5px 5px 0 var(--bg-tab-shadow);
+}
+
+:root[data-bg-mode="image"] .home-update-tab:hover,
+:root[data-bg-mode="image"] .home-update-tab:focus-visible,
+:root[data-bg-mode="image"] .home-update-widget.open .home-update-tab {
+background: var(--bg-tab-glass);
+background-color: var(--bg-tab-glass);
+box-shadow: 5px 5px 0 var(--bg-tab-shadow);
+}
+
+:root[data-bg-mode="image"] #floating-menu-btn:hover,
+:root[data-bg-mode="image"] .setup-side-tab.setup-home-tab:hover,
+:root[data-bg-mode="image"] #game-home-tab:hover,
+:root[data-bg-mode="image"] .desktop-config-tab.desktop-config-home-tab:hover,
+:root[data-bg-mode="image"] .core-rules-tab:hover,
+:root[data-bg-mode="image"] .core-rules-tab:focus-visible,
+:root[data-bg-mode="image"] .core-rules-widget.open .core-rules-tab {
+background: var(--bg-accent-tab-glass);
+background-color: var(--bg-accent-tab-glass);
+box-shadow: -8px 7px 0 var(--bg-tab-shadow);
+}
+
+:root[data-bg-mode="image"] #game-container .core-rules-tab,
+:root[data-bg-mode="image"] #game-container .core-rules-tab:hover,
+:root[data-bg-mode="image"] #game-container .core-rules-tab:focus-visible,
+:root[data-bg-mode="image"] #game-container .core-rules-widget.open .core-rules-tab {
+box-shadow: -2px 2px 0 var(--bg-tab-shadow);
+}
+
+/* 角色／NPC 詳細表單保持透明：外層 74% + 欄位 66%，避免再疊一層卡片至約 97%。 */
+:root[data-bg-mode="image"] .desktop-overview-card,
+:root[data-bg-mode="image"] .desktop-game-card,
+:root[data-bg-mode="image"] #desktop-config-editor .stat-box,
+:root[data-bg-mode="image"] .anime-sheet input,
+:root[data-bg-mode="image"] .anime-sheet textarea,
+:root[data-bg-mode="image"] .dynamic-state-field input,
+:root[data-bg-mode="image"] .dynamic-state-field textarea {
+    background: var(--card-bg);
+    background: var(--bg-card-glass);
+}
+:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn {
+    position: relative;
+    border-color: transparent;
+    background: var(--card-bg);
+    background: var(--bg-card-glass);
+}
+:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn::before {
+    /* 可見框改由覆蓋層繪製：畫在半透明背景「上方」，根治框緣透光毛邊 */
+    content: '';
+    position: absolute;
+    inset: -2px -2px -2px -6px;
+    border: 2px solid var(--border-dark);
+    border-left: 6px solid var(--accent-neon);
+    border-radius: 10px;
+    pointer-events: none;
+}
+:root[data-bg-mode="image"] body:not(.survival-fx-san) #options-area .opt-btn:hover {
+    background: var(--accent-neon);
+    background: var(--bg-accent-tab-glass);
+}
+:root[data-bg-mode="image"] .random-preview,
+:root[data-bg-mode="image"] .journal-toolbar select,
+:root[data-bg-mode="image"] .journal-toolbar input,
+:root[data-bg-mode="image"] .memory-task-text,
+:root[data-bg-mode="image"] .api-stat-box {
+    background: var(--card-bg);
+    background: var(--bg-card-glass);
+}
+
+
+/* ---- 背景圖模式：這些區塊不要任何底色，直接透出背景（按鈕本身維持原樣）。
+        放在最後，靠 source order 蓋過前面把它們設成半透明的規則。 ---- */
+:root[data-bg-mode="image"] #model-selection-area,
+:root[data-bg-mode="image"] .desktop-overview-add-card,
+:root[data-bg-mode="image"] .setup-info-view h2,
+:root[data-bg-mode="image"] .setup-info-lead,
+:root[data-bg-mode="image"] .modal-header-sticky,
+:root[data-bg-mode="image"] #status-modal-content .status-tabs {
+    background: transparent;
+}
+
+:root[data-bg-mode="image"] #status-modal-content > .u-inline-012 {
+    background: var(--paper-bg);
+    background: var(--status-reading-layer);
+}
+
+:root[data-bg-mode="image"] #status-page-settings .status-detail-read-item > span,
+:root[data-bg-mode="image"] #status-page-settings .status-detail-editor label {
+    color: var(--text-main);
+}
+
+:root[data-bg-mode="image"] #status-page-settings .status-detail-read-item > p {
+    color: var(--text-sub);
+    font-weight: 400;
+    text-shadow: none;
+}
+
+/* ---- 背景圖模式：補上首頁「更新內容」抽屜 ---- */
+:root[data-bg-mode="image"] .home-update-drawer {
+    /* 閱讀面統一：透明度對齊遊戲面板（--bg-panel-glass 74%），加模糊保留可讀性 */
+    background: var(--paper-bg);
+    background: var(--bg-panel-glass);
+    backdrop-filter: blur(8px);
+}
+
+/* === 核心準則側邊標籤：尺寸同更新內容、配色同首頁鍵；只在角色設定頁與遊戲頁出現 === */
+.core-rules-widget { position: absolute; left: 0; bottom: 74px; width: 0; height: 46px; z-index: 40; display: none; }
+#game-container .core-rules-widget,
+#desktop-config-overview .core-rules-widget { display: block; }
+#edit-scenario-screen[data-workspace="scenarios"] #desktop-config-overview .core-rules-widget,
+#edit-scenario-screen[data-workspace="game"] #desktop-config-overview .core-rules-widget { display: none; }
+.core-rules-tab { position: absolute; left: 0; bottom: 0; width: 34px; max-width: none; height: 46px; padding: 0; border: 2px solid var(--border-dark); border-right: 0; border-radius: 12px 0 0 12px; background: var(--accent-neon); background-color: var(--accent-neon); box-shadow: -5px 5px 0 var(--accent-gray); cursor: pointer; transform: translateX(-100%); transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease; }
+.core-rules-tab:hover, .core-rules-tab:focus-visible, .core-rules-widget.open .core-rules-tab { background: var(--accent-neon); box-shadow: -8px 7px 0 var(--accent-gray); outline: none; transform: translate(calc(-100% - 2px), 0); }
+.core-rules-drawer { position: absolute; left: 8px; bottom: 0; width: min(var(--core-rules-drawer-width, 320px), calc(100vw - 64px)); max-height: min(60vh, calc(100dvh - 120px)); padding: 16px 16px 18px; border: 3px solid var(--accent-neon); border-radius: 16px; background: var(--paper-bg); box-shadow: 6px 6px 0 rgba(40,40,40,0.12); color: var(--text-main); opacity: 0; pointer-events: none; transform: translateY(8px) scale(0.98); transition: opacity 0.16s ease, transform 0.16s ease; overflow-y: auto; overscroll-behavior: contain; }
+.core-rules-widget.open-inside .core-rules-drawer { left: 8px; right: auto; }
+.core-rules-widget.open-outside .core-rules-drawer { left: auto; right: 42px; }
+.core-rules-widget.open .core-rules-drawer { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+.core-rules-close { position: absolute; top: 6px; right: 10px; width: 24px; height: 24px; border: 0; background: transparent; color: var(--text-sub); font-size: 24px; font-weight: 900; line-height: 1; cursor: pointer; }
+.core-rules-kicker { margin: 0 28px 6px 0; color: var(--text-sub); font-size: 12px; font-weight: 900; letter-spacing: 1px; }
+.core-rules-kicker::before { content: "\2726"; margin-right: 5px; color: var(--border-dark); }
+.core-rules-editor { width: 100%; box-sizing: border-box; min-height: 130px; max-height: 38vh; resize: vertical; background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; padding: 10px; color: var(--text-main); font-size: 14px; font-weight: 600; }
+
+/* === 擅長領域(熟練)：核心準則抽屜內的小區塊 === */
+.proficiency-block { margin: 14px 0 0; padding: 12px 0 0; border-top: 1px dashed var(--dash-primary); }
+.proficiency-kicker { margin: 0 0 6px; color: var(--text-sub); font-size: 12px; font-weight: 900; letter-spacing: 1px; }
+.proficiency-kicker::before { content: "\2726"; margin-right: 5px; color: var(--border-dark); }
+.proficiency-hint { font-size: 11px; color: var(--text-sub); line-height: 1.5; margin: 0 0 9px; }
+.proficiency-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.proficiency-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 11px; border: 2px solid var(--border-dark); border-radius: 999px; background: color-mix(in srgb, var(--accent-neon) 60%, var(--card-bg)); color: var(--border-dark); font-size: 12px; font-weight: 800; box-shadow: 2px 2px 0 rgba(40,40,40,0.12); }
+.proficiency-tag-remove { cursor: pointer; font-size: 10px; line-height: 1; color: var(--text-sub); transition: color 0.15s ease, transform 0.15s ease; }
+.proficiency-tag-remove:hover, .proficiency-tag-remove:focus-visible { color: var(--border-dark); transform: scale(1.15); outline: none; }
+.proficiency-empty { font-size: 12px; color: var(--text-sub); font-weight: 700; opacity: 0.85; }
+.proficiency-gen-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--border-dark); font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 2px 2px 0 var(--border-dark); transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
+.proficiency-gen-btn::before { content: "\2726"; }
+.proficiency-gen-btn:hover:not(:disabled), .proficiency-gen-btn:focus-visible:not(:disabled) { background: var(--accent-neon); transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--border-dark); outline: none; }
+.proficiency-gen-btn:disabled { opacity: 0.55; cursor: default; box-shadow: 1px 1px 0 var(--border-dark); }
+@media (max-width: 699px) {
+#game-container .core-rules-widget {
+position: absolute;
+left: auto;
+right: -5px;
+top: calc(50% + 56px);
+bottom: auto;
+width: 24px;
+height: 34px;
+z-index: 55;
+}
+#desktop-config-overview .core-rules-widget {
+left: 12px;
+bottom: 12px;
+width: 34px;
+height: 46px;
+}
+#desktop-config-overview .core-rules-tab {
+width: 34px;
+height: 46px;
+border-radius: 12px;
+border-right: 2px solid var(--border-dark);
+}
+.core-rules-tab,
+.core-rules-tab:hover,
+.core-rules-tab:focus-visible,
+.core-rules-widget.open .core-rules-tab {
+left: 0;
+width: 24px;
+height: 34px;
+border: 2px solid var(--border-dark);
+border-radius: 8px 0 0 8px;
+border-right: 0;
+box-shadow: -2px 2px 0 var(--accent-gray);
+transform: none;
+}
+#game-container .core-rules-widget.open .core-rules-tab {
+box-shadow: -2px 2px 0 var(--accent-gray);
+transform: none;
+}
+  .core-rules-drawer,
+  .core-rules-widget.open-inside .core-rules-drawer,
+  .core-rules-widget.open-outside .core-rules-drawer {
+    position: fixed;
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(140px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: min(56vh, calc(100dvh - 180px));
+  }
+  .core-rules-editor { font-size: 16px; }
+}
+:root[data-bg-mode="image"] .core-rules-drawer {
+background: var(--paper-bg);
+background: var(--bg-panel-glass);
+backdrop-filter: blur(8px);
+}
+
+/* 手機版角色配置頁專用核心準則入口（桌機隱藏；只在手機 + 角色設定 workspace 顯示） */
+.core-rules-config-mobile { display: none; }
+@media (max-width: 699px) {
+  #edit-scenario-screen .core-rules-config-mobile { position: fixed; left: 12px; bottom: 12px; width: 34px; height: 46px; z-index: 45; display: block; }
+  #edit-scenario-screen[data-workspace="scenarios"] .core-rules-config-mobile,
+  #edit-scenario-screen[data-workspace="game"] .core-rules-config-mobile { display: none; }
+  .core-rules-config-mobile .core-rules-tab { left: 0; width: 34px; height: 46px; border: 2px solid var(--border-dark); border-radius: 12px; box-shadow: -2px 2px 0 var(--accent-gray); transform: none; }
+}
+
+/* 更新內容抽屜：更早的更新紀錄（可展開） */
+.home-update-history { margin-top: 10px; border-top: 1px dashed var(--dash-secondary); padding-top: 8px; }
+.home-update-history > summary { cursor: pointer; color: var(--text-sub); font-size: 12px; font-weight: 800; }
+.home-update-history[open] > summary { margin-bottom: 4px; }
+.home-update-history .home-update-kicker { margin-top: 4px; }
+
+
+/* === 對話長按/右鍵選單 + 內文編輯 + 複製提示（Phase 1） === */
+.msg-context-menu { position: fixed; z-index: 99999; background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; box-shadow: 3px 3px 0 var(--accent-neon); padding: 4px; display: flex; flex-direction: column; min-width: 92px; }
+.msg-menu-item { background: transparent; border: none; text-align: left; padding: 9px 14px; font-size: 13px; font-weight: 800; color: var(--text-main); cursor: pointer; border-radius: 6px; white-space: nowrap; }
+.msg-menu-item:hover, .msg-menu-item:active { background: var(--surface-muted); }
+.msg-edit-area { width: 100%; box-sizing: border-box; align-self: stretch; border: 2px solid var(--accent-neon); border-radius: 6px; padding: 8px 10px; font-size: 14px; font-family: inherit; line-height: 1.6; resize: vertical; }
+/* 編輯中的角色訊息泡泡放寬到約兩倍(明確寬度,蓋掉平常 80%/88% 上限)*/
+.msg-content:has(.msg-edit-area) { width: min(600px, 84vw); max-width: min(600px, 84vw); flex: 0 0 auto; }
+.msg-edit-bar { display: flex; gap: 8px; margin-top: 6px; }
+.msg-edit-save, .msg-edit-cancel { padding: 5px 14px; border: 2px solid var(--border-dark); border-radius: 6px; font-weight: 900; font-size: 12px; cursor: pointer; color: var(--text-main); }
+.msg-edit-save { background: var(--accent-neon); }
+.msg-edit-cancel { background: var(--card-bg); }
+.tiny-toast { position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%) translateY(8px); background: var(--border-dark); color: var(--accent-neon); font-size: 13px; font-weight: 900; padding: 8px 16px; border-radius: 999px; z-index: 100000; opacity: 0; transition: opacity .18s, transform .18s; pointer-events: none; }
+.tiny-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+
+/* === Diary 收藏（入口小直條 + 頁面）Phase 2a === */
+/* 舊版 .home-diary-tab 基礎塊已被後方新版逐屬性完全覆蓋,已清(2026/07/10 整理債) */
+.home-diary-tab:hover, .home-diary-tab:focus-visible { background: var(--border-dark); }
+#diary-screen { display: none; position: fixed; inset: 0; z-index: 600; background: var(--paper-bg); flex-direction: column; padding: 18px 16px; overflow-y: auto; }
+.diary-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; max-width: 760px; width: 100%; margin-left: auto; margin-right: auto; }
+.diary-title { font-weight: 900; color: var(--text-main); font-size: 26px; margin: 0; }
+.diary-list { display: flex; flex-direction: column; gap: 14px; max-width: 760px; width: 100%; margin: 0 auto; }
+.diary-empty { color: var(--text-sub); font-size: 14px; text-align: center; padding: 40px 12px; line-height: 1.7; }
+.diary-card { background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 10px; box-shadow: 3px 3px 0 var(--accent-neon); position: relative; }
+.diary-card-meta { font-size: 11px; color: var(--text-sub); font-weight: 800; letter-spacing: .5px; margin-bottom: 8px; padding-right: 44px; }
+.diary-card-text { font-size: 14px; color: var(--text-main); line-height: 1.7; white-space: pre-line; }
+.diary-del { position: absolute; top: 10px; right: 12px; background: transparent; border: none; color: var(--text-sub); font-size: 12px; font-weight: 800; cursor: pointer; }
+.diary-del:hover { color: #e03131; }
+
+
+/* === Diary 收藏範圍：選取模式 + 卡片用遊戲泡泡呈現（Phase 2a-range） === */
+.diary-card { padding: 0; overflow: hidden; }
+.diary-card-content { padding: 16px 16px 10px; background: var(--paper-bg); display: flex; flex-direction: column; gap: 14px; }
+.diary-card-content .msg-wrapper, .diary-card-content .msg-narrative { animation: none; }
+.diary-card-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--border-dark); color: #fff; padding: 8px 14px; font-size: 12px; font-weight: 800; }
+.diary-card-cap { color: var(--accent-neon); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.diary-card-date { color: #d0d0d0; flex-shrink: 0; }
+.diary-del { z-index: 2; }
+.diary-selecting .msg-wrapper, .diary-selecting .msg-narrative { cursor: pointer; }
+.diary-sel-start { outline: 3px solid var(--accent-neon); outline-offset: 3px; border-radius: 8px; }
+.diary-collect-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 100001; background: var(--border-dark); color: var(--accent-neon); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; font-size: 13px; font-weight: 800; }
+.diary-collect-banner button { background: var(--accent-neon); color: var(--text-main); border: none; border-radius: 6px; padding: 5px 16px; font-weight: 900; cursor: pointer; }
+
+
+/* === Diary Stage 2：右側標籤 + 內嵌頁（黃翻頁條 / 固定滾動內容 / 黑底條） === */
+.home-diary-tab { display: none; position: absolute; right: 0; top: auto; bottom: 112px; transform: translateX(100%); width: 36px; min-height: 104px; max-width: none; height: auto; padding: 13px 5px; border: 2px solid var(--accent-neon); border-left: 0; border-radius: 0 12px 12px 0; background: var(--border-dark); color: var(--accent-neon); box-shadow: 5px 5px 0 var(--accent-gray); cursor: pointer; writing-mode: vertical-rl; text-orientation: upright; font-size: 12px; font-weight: 900; letter-spacing: 2px; z-index: 1; }
+html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: mixed; white-space: nowrap; letter-spacing: 1px; }
+#setup-screen.home-has-model .home-diary-tab { display: block; }
+.diary-view.active { display: flex !important; align-items: stretch; height: 100%; min-height: 0; }
+.diary-inner { display: flex; flex-direction: column; align-items: center; height: 100%; max-height: 680px; width: 100%; box-sizing: border-box; gap: 10px; padding: 4px 2px 0; min-height: 0; overflow: hidden; transform: translateY(52px); }
+.diary-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; width: min(76%, 680px); }
+#setup-screen .diary-view h2.diary-title, #setup-screen .diary-title { font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif; font-synthesis: none; font-weight: 400; font-size: 30px; margin: 0; text-align: left; letter-spacing: 1px; }
+.diary-top-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.diary-toolbar { display: flex; align-items: center; width: min(76%, 680px); }
+.diary-save-select { background: var(--accent-neon); border: 2px solid transparent; border-radius: 0; padding: 5px 14px; min-height: 30px; font-size: 12px; font-weight: 900; color: var(--text-main); width: auto; min-width: 120px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; text-align-last: left; cursor: pointer; appearance: none; -webkit-appearance: none; transition: all 0.2s; }
+.diary-save-select:focus { border-color: var(--border-dark); outline: none; box-shadow: 4px 4px 0px var(--accent-neon); transform: translate(-2px, -2px); }
+.diary-body { display: flex; flex-direction: column; flex: 0 1 calc(100% - 96px); min-height: 0; max-height: 560px; width: min(76%, 680px); background: var(--paper-bg); border: 2px solid var(--border-dark); border-radius: 10px; overflow: hidden; box-shadow: 3px 3px 0 var(--accent-gray); }
+.diary-pager { flex: 0 0 auto; background: var(--accent-neon); border: none; border-bottom: 2px solid var(--border-dark); border-radius: 0; padding: 9px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; font-weight: 900; }
+.diary-pg-list { min-width: 0; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; display: flex; align-items: center; gap: 8px; scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior-x: contain; touch-action: pan-x; }
+.diary-pg-list > * { flex: 0 0 auto; }
+.diary-pg-list::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.diary-pg-actions { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 10px; height: 22px; }
+.diary-pg { background: transparent; border: none; color: var(--text-main); font-weight: 900; font-size: 16px; cursor: pointer; padding: 6px 9px; min-width: 30px; }
+.diary-pg.active { color: #fff; }
+.diary-pg-sep { color: var(--text-main); opacity: .55; font-size: 15px; }
+.diary-pg-del { width: 16px; height: 16px; padding: 0; display: grid; place-items: center; align-self: center; background: var(--border-dark); color: var(--accent-neon); border: none; border-radius: 0; font-family: Arial, "Microsoft JhengHei", sans-serif; font-size: 11px; font-weight: 900; line-height: 16px; cursor: pointer; box-shadow: none; transition: transform 0.15s ease; }
+.diary-pg-del:hover, .diary-pg-del:focus-visible { transform: rotate(-8deg) scale(1.12); outline: none; }
+.diary-pg-next { width: 22px; height: 22px; padding: 0; display: inline-flex; align-items: center; justify-content: center; align-self: center; background: transparent; border: none; color: var(--text-main); font-size: 20px; font-weight: 900; cursor: pointer; line-height: 1; transform: translateY(1px); }
+.diary-content { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; background: var(--paper-bg); border: none; border-radius: 0; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.diary-content .msg-wrapper, .diary-content .msg-narrative { animation: none; }
+.diary-foot { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--border-dark); color: #fff; padding: 9px 14px; border-radius: 0; font-size: 12px; font-weight: 800; }
+.diary-foot-cap { color: var(--accent-neon); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.diary-foot-date { color: #d0d0d0; flex-shrink: 0; }
+.diary-shot-foot { margin-top: 16px; padding: 12px 14px; background: var(--border-dark); color: #fff; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; font-weight: 800; font-size: 13px; }
+.diary-shot-cap { color: var(--accent-neon); white-space: pre-wrap; word-break: break-word; }
+.diary-shot-date { color: #d0d0d0; font-size: 12px; }
+.diary-fullscreen { position: fixed !important; inset: 0; z-index: 600; background: var(--paper-bg); display: flex !important; padding: 12px; box-sizing: border-box; }
+@media (min-width: 601px) { .diary-back-btn { display: none; } }
+@media (max-width: 600px) { .diary-top, .diary-toolbar, .diary-body { width: 100%; } }
+/* 手機版:日記標籤拉回畫面內、縮小約 2/3、沿用電腦版深色+螢光重點底色 */
+@media screen and (max-width: 600px) {
+  #setup-screen.home-has-model .home-diary-tab {
+    transform: none;
+    right: 0; left: auto;
+    bottom: 88px;
+    width: 24px; min-height: 68px; height: auto;
+    padding: 8px 3px;
+    border: 2px solid var(--accent-neon); border-right: 0;
+    border-radius: 12px 0 0 12px;
+    background: var(--border-dark); color: var(--accent-neon);
+    font-size: 11px; letter-spacing: 1px;
+    box-shadow: -2px 2px 0 var(--accent-gray);
+  }
+}
+
+/* 手機版:供應商/模型 BAR + 密碼欄改為電腦版緊湊螢光風格(尺寸自然縮到約 2/3) */
+@media screen and (max-width: 600px) {
+  #setup-screen #api-provider,
+  #setup-screen #model-choice {
+    padding: 5px 14px;
+    border-color: transparent;
+    border-radius: 0;
+    background: var(--accent-neon);
+    font-size: 12px;
+    font-weight: 900;
+    min-height: 30px;
+    height: auto;
+  }
+  #setup-screen #api-key {
+    padding: 8px 12px;
+    border-width: 0 0 1px;
+    border-style: solid;
+    border-color: var(--input-line);
+    border-radius: 0;
+    background: transparent;
+    font-size: 13px;
+  }
+}
+
+/* 手機版封面重排:英雄開始鈕 + 一排乾淨文字選項(斜線分隔、無底色) */
+.home-diary-chip { display: none; }
+.home-chip-bar { display: contents; }
+@media screen and (max-width: 600px) {
+  .setup-mobile-actions {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0; max-width: 300px; margin: 8px auto 0;
+  }
+  #setup-screen #start-btn {
+    width: 100%; max-width: none; margin: 0 0 10px;
+    background: var(--accent-neon); color: var(--border-dark);
+    border: 3px solid var(--border-dark); border-radius: 13px;
+    box-shadow: 4px 4px 0 var(--border-dark);
+    padding: 15px; font-size: 19px; font-weight: 900; letter-spacing: 4px;
+  }
+  .home-chip-bar {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; margin: 2px auto 0;
+  }
+  .home-chip-bar > button {
+    display: block;
+    background: transparent; border: 0; border-radius: 0; box-shadow: none;
+    color: var(--text-main); font-size: 14px; font-weight: 800;
+    padding: 6px 8px; cursor: pointer;
+  }
+  .home-chip-bar > button + button::before {
+    content: "/"; color: var(--text-sub); font-weight: 400; margin-right: 10px;
+  }
+  #setup-screen.home-has-model .home-diary-tab { display: none !important; }
+}
+
+/* 手機版底部工具列(純圖示),並隱藏被取代的散落控制項 */
+.setup-mobile-utils { display: none; }
+@media screen and (max-width: 600px) {
+  .setup-mobile-utils { display: flex; justify-content: center; align-items: center; gap: 30px; margin: 16px auto 4px; }
+  .setup-mobile-utils > button { background: transparent; border: 0; box-shadow: none; color: var(--text-sub); padding: 8px; cursor: pointer; line-height: 0; }
+  .setup-mobile-utils > button svg { width: 25px; height: 25px; display: block; }
+  .setup-mobile-help { display: none; }
+  .ui-language-picker { display: none; }
+  .theme-customizer > summary { display: none; }
+  #home-update-tab { display: none; }
+}
+
+/* 手機版:更新內容彈窗改為畫面正中央(原本貼在頁面最上方,離底部鈴鐺很遠) */
+@media screen and (max-width: 600px) {
+  .home-update-drawer {
+    position: fixed;
+    left: 50%; top: 50%; right: auto; bottom: auto;
+    width: min(340px, calc(100vw - 32px));
+    max-height: min(72vh, calc(100dvh - 90px));
+    transform: translate(-50%, -50%) scale(0.98);
+    z-index: 100000;
+  }
+  .home-update-widget.open .home-update-drawer {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* 首頁:API 廠商 BAR 選中值文字置中(select 需要 text-align-last 才會生效) */
+#setup-screen #api-provider {
+  text-align: center;
+  text-align-last: center;
+  -moz-text-align-last: center;
+}
+
+/* 對話「載入更早的對話」按鈕:純文字 + 字底螢光重點色落影(無底色/無框) */
+.chat-load-earlier {
+  align-self: center; margin: 8px auto 12px; padding: 4px 8px;
+  font-size: 12px; font-weight: 800; letter-spacing: 1px;
+  background: transparent; color: var(--text-main);
+  border: 0; box-shadow: none; cursor: pointer;
+  text-shadow: 1px 2px 0 var(--accent-neon);
+  transition: transform 0.12s ease, text-shadow 0.12s ease;
+}
+.chat-load-earlier:hover { transform: translateY(-1px); text-shadow: 1px 3px 0 var(--accent-neon); }
+.chat-load-earlier:active { transform: translateY(1px); text-shadow: 1px 1px 0 var(--accent-neon); }
+
+/* Low HP/SAN visual interference layer. Colors intentionally follow the active UI theme. */
+#survival-effects-layer {
+ --survival-fx-severity: 0;
+ --survival-fx-dark: 0;
+ --survival-fx-grain: 0;
+ --survival-fx-scan: 0;
+ --survival-fx-vignette: 0;
+ /* 全螢幕瀕死視野(2026/07/09 定案):暗角壓整個畫面。
+    先前誤判暗角造成黑色方塊,實為關閉抽屜的 backdrop-filter 幽靈濾鏡(已另修)。 */
+ position: fixed;
+ inset: 0;
+ z-index: 70;
+ pointer-events: none;
+ opacity: 0;
+ transition: opacity 0.08s steps(1, end);
+ isolation: isolate;
+}
+body.survival-fx-active #survival-effects-layer { opacity: 1; }
+#survival-effects-layer .survival-fx-darkness,
+#survival-effects-layer .survival-fx-scan,
+#survival-effects-layer .survival-fx-vignette,
+#survival-grain-canvas,
+.survival-fx-backtexts,
+.survival-fx-signals,
+.survival-fx-shards { position: absolute; inset: 0; }
+#survival-effects-layer .survival-fx-darkness {
+ inset: -8%;
+ background: radial-gradient(circle at 48% 44%, rgba(0,0,0,0) 0 36%, rgba(0,0,0,.16) 56%, rgba(0,0,0,.76) 100%);
+ opacity: var(--survival-fx-dark);
+ mix-blend-mode: multiply;
+}
+#survival-grain-canvas {
+ width: 100%;
+ height: 100%;
+ opacity: 0;
+ image-rendering: pixelated;
+}
+#survival-effects-layer .survival-fx-scan {
+ opacity: var(--survival-fx-scan);
+ background: repeating-linear-gradient(to bottom, color-mix(in srgb, var(--text-main) 12%, transparent) 0 1px, transparent 1px 4px);
+ mix-blend-mode: multiply;
+}
+#survival-effects-layer .survival-fx-vignette {
+ inset: -10%;
+ opacity: var(--survival-fx-vignette);
+ background: radial-gradient(circle at 48% 44%, transparent 0 46%, rgba(0,0,0,.22) 72%, rgba(0,0,0,.82) 100%);
+}
+.survival-fx-backtexts {
+ overflow: hidden;
+ z-index: 1;
+}
+.survival-fx-backtext {
+ position: absolute;
+ max-height: 132vh;
+ color: var(--accent-neon);
+ font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+ font-size: var(--backtext-size, 154px);
+ font-weight: 900;
+ line-height: .82;
+ letter-spacing: 0;
+ writing-mode: vertical-rl;
+ text-orientation: upright;
+ white-space: nowrap;
+ opacity: .96;
+ text-shadow: 3px 0 0 color-mix(in srgb, var(--border-dark) 34%, transparent), -2px 0 0 color-mix(in srgb, var(--card-bg) 28%, transparent);
+ filter: none;
+ mix-blend-mode: normal;
+ animation: survivalBackText var(--backtext-life, 4200ms) steps(1, end) both;
+}
+.survival-fx-backtext.is-long {
+ font-size: calc(var(--backtext-size, 154px) * .56);
+ line-height: .88;
+}
+.survival-fx-backtext.is-corrupt {
+ color: color-mix(in srgb, var(--text-main) 64%, var(--accent-neon) 36%);
+ text-shadow: 2px 0 0 color-mix(in srgb, var(--border-dark) 36%, transparent), -2px 0 0 color-mix(in srgb, var(--accent-neon) 30%, transparent);
+}
+.survival-fx-backtext[data-phase="erase"] {
+ transform: translate3d(-3px, 1px, 0);
+}
+.survival-fx-backtext[data-phase="type"] {
+ transform: translate3d(4px, -1px, 0);
+}
+.survival-fx-backtext[data-phase="break"] {
+ transform: translate3d(-5px, 2px, 0);
+ color: color-mix(in srgb, var(--card-bg) 54%, var(--accent-neon) 46%);
+}
+.survival-fx-signals { display: none; }
+.survival-fx-shards { z-index: 4; }
+.survival-fx-shard {
+ position: absolute;
+ width: min(380px, calc(100vw - 44px));
+ max-width: 380px;
+ min-height: 52px;
+ padding: 9px 12px 10px 14px;
+ border: 2px solid var(--border-dark);
+ border-left: 8px solid var(--accent-neon);
+ border-radius: 10px;
+ background: color-mix(in srgb, var(--card-bg) 94%, var(--accent-neon) 6%);
+ color: var(--text-main);
+ box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-neon) 78%, var(--border-dark) 22%);
+ font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+ font-synthesis: none;
+ font-size: 13px;
+ font-weight: 400;
+ line-height: 1.45;
+ letter-spacing: 0;
+ image-rendering: pixelated;
+ overflow: hidden;
+ animation: survivalShard var(--survival-shard-life, 2600ms) steps(1, end) both;
+}
+.survival-fx-shard::after {
+ content: attr(data-glitch);
+ position: absolute;
+ left: 14px;
+ right: 10px;
+ top: 8px;
+ color: color-mix(in srgb, var(--accent-gray) 60%, transparent);
+ font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
+ font-synthesis: none;
+ font-size: 12px;
+ font-weight: 400;
+ line-height: 1.2;
+ white-space: nowrap;
+ overflow: hidden;
+ opacity: .18;
+ transform: translate(3px, -1px);
+ pointer-events: none;
+ animation: survivalShardGhost 420ms steps(2, end) infinite;
+}
+.survival-fx-memory,
+.survival-fx-question {
+ position: relative;
+ z-index: 1;
+ color: var(--text-main);
+ font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+ font-synthesis: none;
+ font-weight: 400;
+ text-shadow: 1px 1px 0 color-mix(in srgb, var(--accent-neon) 64%, transparent);
+ overflow-wrap: anywhere;
+}
+.survival-fx-question {
+ margin-top: 6px;
+ color: color-mix(in srgb, var(--text-main) 78%, var(--accent-gray) 22%);
+}
+.survival-fx-shard.survival-fx-doubt {
+ background: color-mix(in srgb, var(--card-bg) 92%, var(--accent-neon) 8%);
+ color: var(--text-main);
+}
+.survival-corrupting {
+ font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
+ color: color-mix(in srgb, var(--text-main) 82%, var(--accent-gray) 18%);
+ text-shadow: 1px 1px 0 color-mix(in srgb, var(--accent-neon) 56%, transparent), -1px 0 0 color-mix(in srgb, var(--accent-gray) 38%, transparent);
+ animation: survivalTextJump 120ms steps(1, end) infinite;
+}
+.opt-btn.survival-option-drifting {
+ position: relative;
+ z-index: 2;
+ will-change: transform;
+ transition: box-shadow 90ms steps(1, end), filter 90ms steps(1, end);
+ filter: contrast(1.02);
+}
+.opt-btn.survival-option-mutated,
+.opt-btn.survival-option-mutated:hover {
+ background: color-mix(in srgb, var(--border-dark) 78%, var(--card-bg) 22%);
+ color: var(--card-bg);
+ border-color: var(--border-dark);
+ border-left-color: var(--accent-neon);
+ box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-neon) 62%, var(--border-dark) 38%);
+ filter: contrast(1.05);
+ animation: survivalOptionMutated 220ms steps(2, end) 2;
+}
+.opt-btn.survival-option-drifting:hover {
+ box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-neon) 54%, transparent);
+}
+.opt-btn.survival-option-corrupt { position: relative; }
+.opt-btn.survival-option-corrupt::after {
+ content: attr(data-survival-ghost);
+ position: absolute;
+ right: 10px;
+ top: 50%;
+ max-width: 38%;
+ transform: translateY(-50%);
+ overflow: hidden;
+ text-overflow: ellipsis;
+ white-space: nowrap;
+ color: color-mix(in srgb, var(--accent-gray) 58%, transparent);
+ font-family: "TRPG Cubic Pixel", Consolas, "Microsoft JhengHei", monospace;
+ font-size: 11px;
+ font-weight: 400;
+ text-decoration: line-through;
+ pointer-events: none;
+}
+@keyframes survivalBackText {
+ 0%, 16% { opacity: .96; transform: translate3d(0, 0, 0); }
+ 18% { opacity: .76; transform: translate3d(4px, -2px, 0); }
+ 22%, 58% { opacity: .98; transform: translate3d(0, 0, 0); }
+ 62% { opacity: .82; transform: translate3d(-3px, 1px, 0); }
+ 66%, 94% { opacity: .96; transform: translate3d(0, 0, 0); }
+ 100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
+@keyframes survivalShard {
+ 0%, 6% { opacity: 1; transform: translate(0, 0); filter: contrast(1.08); }
+ 9% { opacity: .55; transform: translate(4px, -2px); filter: contrast(1.45); }
+ 12%, 60% { opacity: 1; transform: translate(0, 0); filter: contrast(1.12); }
+ 64% { opacity: .72; transform: translate(-3px, 1px); }
+ 68%, 88% { opacity: 1; transform: translate(0, 0); }
+ 92% { opacity: .38; transform: translate(2px, 0); }
+ 100% { opacity: 0; transform: translate(var(--exit, 10px), 0); }
+}
+@keyframes survivalShardGhost {
+ 0%, 100% { opacity: .18; transform: translate(3px, -1px); }
+ 35% { opacity: .42; transform: translate(-2px, 1px); }
+ 70% { opacity: .12; transform: translate(5px, 0); }
+}
+@keyframes survivalOptionMutated {
+ 0%, 100% { filter: contrast(1.08); }
+ 50% { filter: contrast(1.28) brightness(1.08); }
+}
+@keyframes survivalTextJump {
+ 0%, 100% { transform: translate(0, 0); }
+ 35% { transform: translate(-1px, 1px); }
+ 70% { transform: translate(2px, -1px); }
+}
+
+/* 遊戲玩法可讀性 v2.4 */
+.setup-info-view h3,
+#tutorial-modal-content .u-inline-019 {
+    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif;
+    font-weight: 900;
+    color: var(--text-main);
+    text-shadow: 2px 2px 0 var(--accent-neon);
+    letter-spacing: 0.5px;
+}
+.setup-info-view h3 { font-size: 16px; margin: 6px 0 10px; line-height: 1.5; }
+.setup-info-grid { gap: 22px; }
+.setup-info-grid article { padding: 2px 0 18px; }
+.setup-info-view p { line-height: 1.9; margin-bottom: 4px; }
+#tutorial-modal-content .u-inline-019 { display: block; font-size: 16px; margin: 24px 0 10px; line-height: 1.5; }
+#tutorial-modal-content .u-inline-018 > .u-inline-019:first-of-type { margin-top: 4px; }
+#tutorial-modal-content .u-inline-020 { line-height: 1.9; margin-bottom: 12px; }
+
+
+/* ============================================================
+   拖曳排序(存檔/NPC/情境/日記)與狀態面板拖動(v2.5)
+   ============================================================ */
+.reorder-handle {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; padding: 0 4px; margin-right: 6px;
+    color: var(--text-sub); font-weight: 900; font-size: 14px;
+    cursor: grab; user-select: none; touch-action: none;
+}
+.reorder-handle:active { cursor: grabbing; }
+.reorder-dragging { opacity: 0.6; }
+/* 存檔列表:有把手時多一欄(不影響其他 save-slot 樣式) */
+.save-slot:has(.reorder-handle) { grid-template-columns: auto minmax(0, 1fr) 20px; }
+.save-slot > .reorder-handle { margin-right: 0; }
+/* 狀態面板標題列:桌機顯示可拖動游標(手機不啟用拖動) */
+@media (min-width: 601px) {
+    #status-modal-content .modal-header-sticky { cursor: move; }
+}
+/* 拖動中停用過渡(跟手);放開吸回原位時用短過渡 */
+#status-modal-content.status-drag-active, #floating-menu-btn.status-drag-active, #game-container.status-drag-active { transition: none; }
+#status-modal-content.status-drag-snap, #floating-menu-btn.status-drag-snap { transition: transform 0.18s ease; }
+/* 對話框拖動走 left/top(不用 transform,避免破壞內部 fixed 暈影層的螢幕基準) */
+#game-container.status-drag-snap { transition: left 0.18s ease, top 0.18s ease; }
+/* 遊戲對話介面:桌機抓頂部狀態列拖動 */
+@media (min-width: 601px) {
+    #status-bar { cursor: move; }
+}
+
+
+/* ============================================================
+   像素折射玻璃(v2.5 實驗):JS(app-core.js applyPixelGlass)在
+   背景圖模式+Chromium 掛 .px-glass-refract 與 inline backdrop-filter;
+   純色模式/不支援時 class 會被清掉,以下規則完全不生效。
+   設計:保留硬框與陰影,填色改玻璃,高光用螢光黃細線(不用蘋果白)。
+   ============================================================ */
+/* 側邊標籤:實測後維持原樣(2026/07/09 使用者定案),不套玻璃 */
+/* 更新抽屜/核心準則抽屜:閱讀面不套玻璃,維持原樣(2026/07/09 定案) */
+/* HP/SAN:維持原樣(2026/07/09 使用者定案),不套玻璃 */
+/* AI 選項按鈕:亮玻璃,維持深色文字可讀 */
+:root[data-bg-mode="image"] #options-area .opt-btn.px-glass-refract {
+    background:
+        linear-gradient(180deg, rgba(237, 255, 102, 0.24) 0, rgba(237, 255, 102, 0) 3px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.06) 45%),
+        color-mix(in srgb, var(--card-bg) 42%, transparent);
+    background-color: transparent;
+}
+/* 質疑小視窗:玻璃主角級,配色仍走反轉樣式的變數 */
+:root[data-bg-mode="image"] .survival-fx-shard.px-glass-refract {
+    background:
+        linear-gradient(180deg, rgba(237, 255, 102, 0.20) 0, rgba(237, 255, 102, 0) 3px),
+        color-mix(in srgb, var(--text-main) 92%, transparent);
+    background-color: transparent;
+}
+
+
+/* ============================================================
+   高光演出四件套(2026/07/10 定案):骰點大成功/大失敗、道具獲得、
+   成就揭幕線(F 案)、章節收束落幕分隔線(常駐)。
+   全部 steps() 分格、只用主題色票、一個時刻一個動作。
+   ============================================================ */
+/* 骰點大成功:反白一閃 + 一道光掃過 */
+/* position:relative 必加:否則 ::after 掃光的定位基準會逃到 #dialogue-box,
+   變成整欄高、且 forwards 停格後永久殘留在右側(2026/07/10 修) */
+.alert-msg.dice-crit { position: relative; overflow: hidden; animation: dice-crit-invert 0.28s steps(2, end); }
+@keyframes dice-crit-invert {
+    0% { background-color: var(--accent-neon); color: var(--border-dark); }
+    100% { background-color: var(--border-dark); color: var(--accent-neon); }
+}
+.alert-msg.dice-crit::after {
+    content: ""; position: absolute; top: -30%; bottom: -30%; left: -30%; width: 30px;
+    background: linear-gradient(to right, transparent 0 4px, color-mix(in srgb, var(--accent-neon) 85%, transparent) 4px 15px, transparent 15px 20px, rgba(255,255,255,0.5) 20px 24px, transparent 24px);
+    transform: skewX(-18deg);
+    animation: dice-crit-sweep 0.5s steps(8, end) 0.24s forwards;
+}
+@keyframes dice-crit-sweep { from { left: -30%; } to { left: 116%; } }
+/* 骰點大失敗:半格下沉 + 整行訊號閃爍 */
+.alert-msg.dice-fumble { animation: dice-fumble-sink 0.9s steps(6, end); }
+@keyframes dice-fumble-sink {
+    0% { transform: translateY(0); }
+    18% { transform: translateY(2px); opacity: 0.35; }
+    34% { opacity: 0.9; }
+    48% { transform: translateY(2px); opacity: 0.45; }
+    62% { opacity: 1; }
+    100% { transform: translateY(0); }
+}
+/* 道具獲得:訊息不加特效,只有角色面板標籤點頭(2026/07/10 定案) */
+/* 角色面板標籤點頭(收到道具) */
+#floating-menu-btn.tab-nod { animation: panel-tab-nod 0.5s steps(4, end) 0.45s; }
+@keyframes panel-tab-nod {
+    0% { transform: translateY(-50%) translateX(0); }
+    30%, 60% { transform: translateY(-50%) translateX(-6px); background: var(--accent-neon); color: var(--border-dark); border-color: var(--border-dark); }
+    100% { transform: translateY(-50%) translateX(0); }
+}
+/* 成就達成:F 揭幕線(身分樣式,歷史重繪也套;lit 才播進場) */
+.ach-banner { text-align: center; padding: 8px 0 4px; margin: 10px 10px; }
+.ach-banner .ach-banner-title {
+    display: inline-block; position: relative;
+    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+    font-size: 14.5px; letter-spacing: 2px; color: var(--text-main);
+    padding-bottom: 5px; line-height: 1.7;
+}
+.ach-banner .ach-banner-title::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    background: var(--accent-neon); box-shadow: 1px 1px 0 var(--border-dark); transform-origin: left;
+}
+.ach-banner.lit .ach-banner-title { animation: ach-title-in 0.4s steps(3, end) backwards; }
+@keyframes ach-title-in { 0% { opacity: 0; transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
+.ach-banner.lit .ach-banner-title::after { animation: ach-rule-in 0.5s steps(8, end) 0.25s backwards; }
+@keyframes ach-rule-in { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+/* 成長點數字閃一下(成就的資源回饋) */
+.growth-points.growth-flash { animation: growth-flash 0.4s steps(3, end); }
+@keyframes growth-flash {
+    0% { background: var(--border-dark); color: var(--accent-neon); }
+    100% { background: transparent; color: inherit; }
+}
+/* 章節收束:落幕分隔線(常駐身分;enter 才播四拍進場) */
+.chapter-divider { text-align: center; padding: 12px 0 8px; margin: 12px 10px; }
+.chapter-divider .chapter-rule { display: block; height: 3px; background: var(--accent-neon);
+    box-shadow: 1px 1px 0 var(--border-dark); margin: 0 10%; transform-origin: center; }
+.chapter-divider .chapter-heading {
+    display: block; margin: 9px 0 3px;
+    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+    font-size: 17px; letter-spacing: 4px; color: var(--text-main);
+    text-shadow: 2px 2px 0 var(--accent-neon);
+}
+.chapter-divider .chapter-objective { display: block; font-size: 12px; color: var(--text-main); font-weight: 800; margin-bottom: 2px; }
+.chapter-divider .chapter-grant { display: block; font-size: 11px; color: var(--text-sub); font-weight: 800; margin-bottom: 9px; }
+.chapter-divider.enter .chapter-rule.top { animation: chapter-rule-unfold 0.6s steps(9, end) 0.35s backwards; }
+.chapter-divider.enter .chapter-rule.bottom { animation: chapter-rule-unfold 0.6s steps(9, end) 0.55s backwards; }
+@keyframes chapter-rule-unfold { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+.chapter-divider.enter .chapter-heading { animation: chapter-heading-stamp 0.55s steps(5, end) 0.85s backwards; }
+@keyframes chapter-heading-stamp {
+    0% { transform: scale(1.3); opacity: 0; text-shadow: 4px 4px 0 var(--accent-neon); }
+    45% { transform: scale(1); opacity: 1; text-shadow: 2px 2px 0 var(--accent-neon); }
+    65% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+.chapter-divider.enter .chapter-objective { animation: chapter-soft-in 0.4s steps(4, end) 1.25s backwards; }
+.chapter-divider.enter .chapter-grant { animation: chapter-soft-in 0.4s steps(4, end) 1.45s backwards; }
+@keyframes chapter-soft-in { 0% { opacity: 0; transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
+/* 章節落幕的燈暗(對話區整體降一階) */
+#dialogue-box.chapter-dim > * { filter: brightness(0.72) saturate(0.8); }
+#dialogue-box.chapter-dim > .chapter-divider { filter: none; }
+@media (prefers-reduced-motion: reduce) {
+    .alert-msg.dice-crit, .alert-msg.dice-crit::after, .alert-msg.dice-fumble,
+    #floating-menu-btn.tab-nod,
+    .ach-banner.lit .ach-banner-title, .ach-banner.lit .ach-banner-title::after,
+    .growth-points.growth-flash,
+    .chapter-divider.enter .chapter-rule.top, .chapter-divider.enter .chapter-rule.bottom,
+    .chapter-divider.enter .chapter-heading, .chapter-divider.enter .chapter-objective,
+    .chapter-divider.enter .chapter-grant { animation: none; opacity: 1; }
+}
+
+

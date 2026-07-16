@@ -1,0 +1,1253 @@
+        /* ===== Consolidated former inline styles ===== */
+        .u-inline-001 { display:flex; flex-direction:column; align-items:center; width:100%; margin:auto; }
+        .u-inline-002 { color: #fff; margin-bottom: 15px; font-weight:800; letter-spacing:1px; border: none; }
+        #crop-scale { width: 100%; }
+        .u-inline-003 { background: var(--accent-neon); width: 100%; }
+        .u-inline-004 { background: var(--border-dark); color: #fff; width: 100%; }
+        #mid-modal-content { max-width: 400px; margin-top: 10vh; }
+        .u-inline-005 { border:none; margin:0; padding:0; }
+        .u-inline-006 { margin-top:30px; }
+        .u-inline-007 { background:var(--accent-neon); width:100%; margin-top:10px; }
+        .u-inline-008 { width:100%; margin-top:10px; background:var(--border-dark); color:#fff; }
+        .u-inline-009 { display:flex; gap: 10px; }
+        .u-inline-010 { background: var(--card-bg); color: var(--border-dark); padding: 6px 12px; font-size: 13px; border-width: 2px; }
+        .u-inline-011 { background: var(--accent-neon); padding: 6px 12px; font-size: 14px; border-width: 2px; }
+        .u-inline-012 { flex: 1; overflow-y: auto; padding-right: 5px; min-height: 0; }
+        .u-inline-013 { font-size:12px; color:var(--text-main); font-weight:900; margin-bottom:4px; margin-top:5px; }
+        .u-inline-014 { font-size:11px; color:var(--text-sub); margin-bottom:8px; font-weight:800; }
+        .u-inline-015 { padding:6px 12px; font-size:12px; }
+        .u-inline-016 { font-size:12px; color:var(--text-main); font-weight:900; margin-bottom:4px; }
+        #ui-stats-display { margin-top: 10px; }
+        #tutorial-modal, #api-guide-modal { display: none; align-items: center; justify-content: center; }
+        #tutorial-modal-content, #api-guide-modal-content { max-width: 500px; width: 90%; max-height: 85vh; margin: auto; padding: 20px 20px 15px 20px; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px; }
+        .u-inline-017 { margin-bottom: 10px; }
+        .u-inline-018 { flex: 1; overflow-y: auto; padding-right: 5px; margin-bottom: 15px; min-height: 0; }
+        .u-inline-019 { font-size:13px; color:var(--text-main); font-weight:900; margin-bottom:4px; }
+        .u-inline-020 { font-size:12px; color:var(--text-sub); margin-bottom:12px; font-weight:600; line-height:1.5; }
+.u-inline-021 { background: var(--card-bg); border: 1px dashed var(--dash-secondary); border-radius: 8px; padding: 12px; margin-bottom: 5px; }
+        .u-inline-022 { font-size:12px; color:var(--text-sub); margin-bottom:10px; font-weight:600; line-height:1.5; }
+        .u-inline-024 { flex-shrink: 0; border-top: 1px solid #ddd; padding-top: 12px; }
+        .u-inline-025 { background: var(--border-dark); color: #fff; width: 100%; font-size: 14px; padding: 12px; font-weight: 900; letter-spacing: 1px; }
+        #setup-screen { display: flex; position: relative; }
+        #pic-input { display:none; }
+        #setup-screen > .model-select,
+        #setup-screen > .key-input { margin-bottom: 10px; }
+        .u-inline-026 { color: var(--text-sub); text-align: center; font-size: 11px; margin-bottom: 18px; letter-spacing: 2px; font-weight: 800; }
+        .ui-language-picker {
+            width: 100%; max-width: 400px; margin: 30px auto 0;
+            display: grid; grid-template-columns: auto minmax(0, 240px); justify-content: space-between; align-items: center; gap: 10px;
+            color: var(--text-main); text-align: left;
+        }
+        .ui-language-picker span { font-size: 11px; font-weight: 900; white-space: nowrap; }
+        .ui-language-picker select {
+            width: 100%; min-width: 0; padding: 9px 10px;
+            border: 2px solid var(--border-dark); border-radius: 7px;
+            background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 800;
+        }
+        .api-key-retention { width: 100%; max-width: 400px; margin: -1px auto 10px; display: flex; align-items: flex-start; gap: 9px; text-align: left; cursor: pointer; }
+        .api-key-retention input { position: absolute; opacity: 0; pointer-events: none; }
+        .api-key-switch { position: relative; flex: 0 0 34px; width: 34px; height: 20px; margin-top: 1px; border: 2px solid var(--border-dark); border-radius: 10px; background: #c8c3c5; transition: background 0.18s ease; }
+        .api-key-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--card-bg); transition: transform 0.18s ease; }
+        .api-key-retention input:checked + .api-key-switch { background: var(--accent-neon); }
+        .api-key-retention input:checked + .api-key-switch::after { transform: translateX(14px); background: var(--border-dark); }
+        .api-key-retention input:focus-visible + .api-key-switch { outline: 3px solid rgba(232, 255, 68, 0.5); outline-offset: 2px; }
+        .api-key-retention-copy { min-width: 0; color: var(--text-main); line-height: 1.35; }
+        .api-key-retention-copy strong { display: block; font-size: 12px; }
+        .api-key-retention-copy small { display: block; margin-top: 2px; color: var(--text-sub); font-size: 10px; font-weight: 700; }
+        .u-inline-027 { display: flex; gap: 10px; justify-content: center; width: 100%; max-width: 400px; margin: 0 auto 10px auto; }
+        #verify-btn { flex: 1; background: var(--border-dark); color: #fff; padding: 8px 20px; max-width: 100px; border-radius: 15px; }
+        /* ============================================================
+           8-bit 動態元件(v2.5):共用金屬光澤 .px-shine、HP/SAN 傷害跳字、
+           AI 選項逐顆入場、Loading 像素方塊。全部用 steps() 分格,刻意不平滑。
+           ============================================================ */
+        .px-shine { position: relative; overflow: hidden; }
+        .px-shine::after {
+            content: "";
+            position: absolute;
+            top: -30%;
+            bottom: -30%;
+            left: -34%;
+            width: 34px;
+            background: linear-gradient(to right,
+                transparent 0 4px,
+                rgba(255, 255, 255, 0.92) 4px 16px,
+                transparent 16px 22px,
+                color-mix(in srgb, var(--accent-neon) 75%, #ffffff) 22px 27px,
+                transparent 27px);
+            transform: skewX(-18deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* hover/focus 期間連續掃光（2026/07/10）：一掃 0.5s + 歇 0.6s 循環，游標放著就一直閃 */
+        .px-shine:hover::after,
+        .px-shine:focus-visible::after {
+            opacity: 1;
+            animation: key-btn-shine 1.1s steps(8, end) infinite;
+        }
+        @keyframes key-btn-shine {
+            0% { left: -34%; }
+            45% { left: 118%; }
+            100% { left: 118%; }
+        }
+        /* HP/SAN 細格血條(概念版 C 改良,2026/07/09 定案):
+           圖示+10 細格+數字,無外框盒、無文字標籤,走輕量路線。
+           格子熄滅前閃三下、回復一格格亮回;受擊/回復時格條短促反白/閃綠。
+           格子渲染與動畫由 wireSurvivalStatPopups(app-ui-helpers.js)驅動。 */
+        .stat-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 900; color: var(--text-main); }
+        .stat-chip .stat-chip-icon { font-size: 13px; line-height: 1; }
+        .stat-chip.hp { --cell-color: #ff4444; }
+        .stat-chip.san { --cell-color: #9b59b6; }
+        .stat-chip.hp .stat-chip-icon { color: #ff4444; }
+        .stat-chip.san .stat-chip-icon { color: #9b59b6; }
+        .stat-chip b { min-width: 22px; text-align: center; }
+        .stat-cells {
+            display: inline-flex; gap: 2px; padding: 2px;
+            border: 2px solid var(--border-dark); border-radius: 4px;
+            background: var(--card-bg);
+        }
+        .stat-cells i { width: 5px; height: 9px; background: #d9d9d9; }
+        .stat-cells i.on { background: var(--cell-color); }
+        .stat-cells i.dying { animation: stat-cell-blink 0.45s steps(3, end) forwards; }
+        @keyframes stat-cell-blink {
+            0% { background: #fff; }
+            40% { background: var(--cell-color); }
+            70% { background: #fff; }
+            100% { background: #d9d9d9; }
+        }
+        .stat-cells i.filling { animation: stat-cell-fill 0.3s steps(2, end); }
+        @keyframes stat-cell-fill { from { background: #fff; } }
+        .stat-chip.hit .stat-cells { animation: stat-cells-hit 0.3s steps(2, end); }
+        @keyframes stat-cells-hit {
+            0% { background: var(--border-dark); transform: translate(1px, 1px); }
+            100% { background: var(--card-bg); transform: translate(0, 0); }
+        }
+        .stat-chip.healed .stat-cells { animation: stat-cells-heal 0.36s steps(3, end); }
+        @keyframes stat-cells-heal {
+            0% { background: #b9f5cb; }
+            100% { background: var(--card-bg); }
+        }
+        /* HP/SAN 傷害跳字(JS spawnStatDeltaPopup 產生):
+           可愛小徽章路線——白字圓角小章,配色跟 HP 紅章/SAN 紫章一致,
+           出現時先「啵」地彈大再一格格上飄。 */
+        /* 跳字統一風格(2026/07/09 定案):像素字+重點色偏移陰影,比照專案標題,不用膠囊底 */
+        .stat-delta-pop {
+            position: fixed;
+            z-index: 12000;
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-main);
+            pointer-events: none;
+            text-shadow: 2px 2px 0 var(--pop-accent, var(--accent-neon));
+            animation: stat-pop-rise 0.85s steps(8, end) forwards;
+        }
+        .stat-delta-pop.hp-loss { --pop-accent: #ff4444; }
+        .stat-delta-pop.san-loss { --pop-accent: #9b59b6; }
+        .stat-delta-pop.gain { --pop-accent: #3ecf6a; }
+        @keyframes stat-pop-rise {
+            0% { transform: translate(-50%, 2px) scale(0.4); opacity: 0; }
+            18% { transform: translate(-50%, -4px) scale(1.2); opacity: 1; }
+            32% { transform: translate(-50%, -7px) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -32px) scale(1); opacity: 0; }
+        }
+        /* ===== 好感變動彈心(D 爆米花 + E 心跳迸星 合體;負向為「可愛的難過」)=====
+           出現在 NPC 對話泡泡右上角;心沿用 renderNpcAffectionHeart 的像素心。 */
+        .affection-heart-pop {
+            position: fixed; z-index: 12000; pointer-events: none;
+            display: inline-flex; align-items: flex-start; gap: 6px;
+        }
+        .affection-pop-heart { position: relative; display: inline-block; --u: 2px; }
+        .affection-heart-pop .affection-pop-heart .npc-affection,
+        .affection-heart-pop .affection-pop-heart .npc-affection:not(.affection-full),
+        .affection-heart-pop .affection-pop-heart .npc-affection.affection-full { --u: 2px; animation: none; }
+        /* 好感上升:輕盈上飄(2026/07/10 實測定案)——單顆小糰子「啵」地浮現、
+           直直往上飄淡出,貼圖 reaction 感、最耐看。 */
+        .affection-pop-heart:not(.sad) { animation: aff-pop-rise 1.1s steps(8, end) forwards; }
+        @keyframes aff-pop-rise {
+            0% { transform: translateY(3px) scale(0.5); opacity: 0; }
+            18% { transform: translateY(0) scale(1); opacity: 1; }
+            70% { transform: translateY(-8px) scale(1); opacity: 1; }
+            100% { transform: translateY(-18px) scale(0.9); opacity: 0; }
+        }
+        /* 難過版:輕輕垂頭+往下沉,搭一滴像素淚 */
+        .affection-pop-heart.sad { animation: aff-pop-sad 1.5s steps(12, end) forwards; transform-origin: 50% 90%; }
+        @keyframes aff-pop-sad {
+            0% { transform: scale(0.4) rotate(0deg); opacity: 0; }
+            12% { transform: scale(1.05) rotate(0deg); opacity: 1; }
+            30% { transform: scale(1) rotate(-8deg); }
+            55% { transform: scale(1) rotate(-8deg) translateY(2px); }
+            82% { transform: rotate(-8deg) translateY(4px); opacity: 1; }
+            100% { transform: rotate(-8deg) translateY(12px); opacity: 0; }
+        }
+        .affection-pop-tear {
+            position: absolute; right: -4px; top: 40%; width: 3px; height: 3px;
+            background: #7fb7e8; opacity: 0;
+            animation: aff-tear-fall 0.9s steps(6, end) 0.45s forwards;
+        }
+        @keyframes aff-tear-fall {
+            0% { transform: translateY(0); opacity: 1; }
+            60% { transform: translateY(8px) scaleY(1.6); opacity: 1; }
+            100% { transform: translateY(14px); opacity: 0; }
+        }
+        .affection-pop-amount {
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+            font-size: 15px; font-weight: 900; color: var(--text-main);
+            text-shadow: 2px 2px 0 var(--heart-base, #ff6b9d);   /* 跟著「愛心顏色」色票走 */
+            animation: stat-pop-rise 1.2s steps(9, end) forwards;
+        }
+        .affection-pop-amount.down { text-shadow: 2px 2px 0 #8fa3bd; }
+        .stat-hit { animation: stat-hit-shake 0.3s steps(4, end); }
+        @keyframes stat-hit-shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            50% { transform: translateX(2px); }
+            75% { transform: translateX(-2px); }
+            100% { transform: translateX(0); }
+        }
+        /* 訊息輕彈入(2026/07/10,fx-lab A 案):僅 live 新訊息(appendMessage/appendNarrative 加 .msg-enter),
+           歷史重繪不套;覆蓋基底的平滑 fadeIn,改兩幀分格。 */
+        #dialogue-box .msg-enter { animation: bubble-enter-pop 0.16s steps(2, end) backwards; /* backwards:錯相延遲期間保持隱形 */ }
+        @keyframes bubble-enter-pop {
+            0% { opacity: 0; transform: translateY(6px); }
+            50% { opacity: 1; transform: translateY(-2px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        /* The D20 icon rotates while the button keeps the existing 0.7-second shake. */
+        #dice-btn.dice-rolling { animation: dice-roll-shake 0.7s steps(7, end); }
+        #dice-btn.dice-rolling .input-action-icon-base.theme-svg-d20 {
+            animation: dice-icon-turn 0.7s steps(7, end);
+        }
+        @keyframes dice-icon-turn {
+            0% {
+                transform: rotate(0deg);
+                filter: drop-shadow(1px 0 0 var(--accent-neon))
+                    drop-shadow(-1px 0 0 var(--accent-neon));
+            }
+            50% {
+                filter: drop-shadow(2px 0 0 var(--accent-neon))
+                    drop-shadow(-2px 0 0 var(--accent-neon))
+                    drop-shadow(0 2px 0 var(--accent-neon));
+            }
+            100% {
+                transform: rotate(360deg);
+                filter: drop-shadow(1px 0 0 var(--accent-neon))
+                    drop-shadow(-1px 0 0 var(--accent-neon));
+            }
+        }
+        @keyframes dice-roll-shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            14% { transform: translate(-2px, 1px) rotate(-8deg); }
+            28% { transform: translate(2px, -1px) rotate(7deg); }
+            42% { transform: translate(-1px, -1px) rotate(-5deg); }
+            56% { transform: translate(2px, 1px) rotate(6deg); }
+            70% { transform: translate(-1px, 0) rotate(-4deg); }
+            84% { transform: translate(1px, 0) rotate(2deg); }
+        }
+        /* AI 選項逐顆入場(app-ai.js 加 opt-enter + animation-delay) */
+        .opt-btn.opt-enter { animation: opt-pop-in 0.3s steps(4, end) backwards; }
+        @keyframes opt-pop-in {
+            0% { opacity: 0; transform: translateY(14px) scale(0.94); }
+            60% { opacity: 1; transform: translateY(-3px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        /* 開機簾幕(2026/07/10):首繪即以主題紙色蓋全場,就緒後 steps 掀開;色票由 head 預塗腳本先行套用 */
+        #boot-curtain { position: fixed; inset: 0; z-index: 100000; background: var(--border-dark); display: grid; place-items: center; /* 深色開機風:墨色底+螢光方塊,老遊戲機開機畫面(2026/07/10) */ }
+        #boot-curtain .px-loader { display: inline-flex; gap: 5px; }
+        #boot-curtain .px-loader i { width: 9px; height: 9px; background: var(--accent-neon); animation: px-loader-blink 0.75s infinite; }
+        #boot-curtain .px-loader i:nth-child(2) { animation-delay: 0.25s; }
+        #boot-curtain .px-loader i:nth-child(3) { animation-delay: 0.5s; }
+        #boot-curtain.lift { animation: boot-curtain-lift 0.24s steps(4, end) forwards; pointer-events: none; }
+        @keyframes boot-curtain-lift { to { opacity: 0; visibility: hidden; } }
+        @media (prefers-reduced-motion: reduce) {
+            #boot-curtain.lift { animation: none; opacity: 0; visibility: hidden; }
+            #boot-curtain .px-loader i { animation: none; }
+        }
+        /* Loading 三顆像素方塊輪流閃 */
+        #loading .px-loader { display: inline-flex; gap: 4px; margin-right: 9px; vertical-align: middle; }
+        #loading .px-loader i {
+            width: 7px; height: 7px; background: var(--accent-neon);
+            animation: px-loader-blink 0.75s infinite;
+        }
+        #loading .px-loader i:nth-child(2) { animation-delay: 0.25s; }
+        #loading .px-loader i:nth-child(3) { animation-delay: 0.5s; }
+        @keyframes px-loader-blink {
+            0%, 32% { opacity: 1; }
+            33%, 100% { opacity: 0.18; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .px-shine:hover::after, .px-shine:focus-visible::after { animation: none; opacity: 0; }
+            .status-save-dot { animation: none; opacity: 1; box-shadow: none; }
+            .stat-delta-pop, .opt-btn.opt-enter, .stat-hit, .stat-chip.hit .stat-cells, .stat-chip.healed .stat-cells, .stat-cells i.dying, .stat-cells i.filling, #loading .px-loader i, .affection-heart-pop, .affection-pop-heart, .affection-pop-heart.sad, .affection-pop-tear, .affection-pop-amount { animation: none; opacity: 1; }
+            .npc-affection { animation: none; }   /* 量表心情緒動態全停;mood-dead 的靜態傾倒 transform 保留 */
+            #dialogue-box .msg-enter, #dice-btn.dice-rolling,
+            #dice-btn.dice-rolling .input-action-icon-base.theme-svg-d20,
+            #send-btn.input-action-commit .input-action-icon-base { animation: none; }
+            .input-action-icon-glint { animation: none; opacity: 0; }
+            .npc-affection-spark { animation: none; opacity: 1; }   /* 星塵改常亮,避免 animation 停用後永遠隱形 */
+        }
+        .api-home-guide {
+            width: 100%; box-sizing: border-box; margin-bottom: 8px; padding: 10px 12px;
+            color: var(--text-main); text-align: left; background: var(--card-bg);
+            border-left: 4px solid var(--accent-neon); border-radius: 8px;
+        }
+        .api-home-guide strong { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 900; }
+        .api-home-guide p { margin: 0; color: var(--text-sub); font-size: 11px; font-weight: 700; line-height: 1.65; }
+        .api-guide-open-btn {
+            display: block; width: 100%; margin-top: 8px; padding: 8px 11px;
+            border: 2px solid var(--border-dark); border-radius: 7px;
+            background: var(--card-bg); color: var(--text-main); cursor: pointer;
+            font-size: 11px; font-weight: 900;
+        }
+        .api-guide-open-btn:hover { background: var(--accent-neon); }
+        .u-inline-029 { color: var(--text-main); font-weight: 900; font-size: 13px; margin-bottom: 12px; }
+        #start-btn { background: var(--border-dark); color: #fff; }
+        .u-inline-030 { text-align: center; margin-top: 25px; }
+        .u-inline-031 { background: transparent; border: none; color: var(--text-main); font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: underline; }
+        .u-inline-032 { text-align: center; margin-top: 120px; }
+        #delete-key-btn { background: transparent; border: none; color: #ff4444; font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: underline; display: none; }
+        .u-inline-033 { width: 100%; display: flex; gap: 10px; margin-bottom: 15px; max-width: 550px; }
+        #preset-selector { margin-bottom: 0; flex-grow: 1; text-align: left; padding-left: 10px; max-width: 100%; }
+        .u-inline-034 { padding: 10px 15px; flex-shrink: 0; background: var(--border-dark); color: #fff; }
+        .u-inline-035 { color: #c5a059; display: flex; justify-content: space-between; align-items: center; }
+        #preset-lock-toggle { cursor:pointer; font-size: 16px; transition: transform 0.2s; }
+        .u-inline-036 { border: 2px solid var(--border-dark); border-radius: 8px; padding: 15px; background: var(--card-bg); margin-bottom: 10px; }
+        .u-inline-037 { margin-bottom: 10px; font-size: 14px; color: #fff; background: var(--border-dark); padding: 4px 8px; border-radius: 4px; display: inline-block; }
+        .u-inline-038 { justify-content: center; }
+        #upload-player { display:none; }
+        .u-inline-039 { display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+        .u-inline-040 { margin:0; }
+        #btn-roll-stats { padding:4px 8px; font-size:12px; background:var(--accent-neon); color:var(--border-dark); }
+        #btn-respec-stats { display:none; padding:4px 8px; font-size:12px; background:var(--border-dark); color:#fff; box-shadow: 2px 2px 0px rgba(0,0,0,0.2); }
+        .u-inline-041 { margin-top:15px; border:none; box-shadow:none; margin-bottom:0; }
+        .u-inline-042 { border-radius:8px; }
+        .u-inline-043 { padding: 10px 0 0 0; }
+        .u-inline-044 { margin: 0; background:transparent; padding: 0; border: none; }
+        .u-inline-045 { display:flex; justify-content:space-between; align-items:center; margin-top:10px; border-bottom: 2px solid var(--border-dark); padding-bottom: 10px; }
+        .u-inline-046 { font-size:16px; }
+        .u-inline-047 { padding:6px 12px; font-size:12px; background:var(--accent-neon); color:var(--border-dark); }
+        #npc-list-container { margin-bottom: 15px; }
+        .u-inline-048 { padding:6px 12px; font-size:12px; background:var(--border-dark); color:#fff; }
+        .u-inline-049 { width: 100%; margin-top: 15px; }
+        .u-inline-050 { border-color: #ff4444; color: #ff4444; }
+        .u-inline-051 { width: 100%; margin-top: 10px; }
+        .u-inline-052 { background: var(--accent-neon); }
+        .u-inline-053 { width: 100%; margin-top: 10px; margin-bottom: 40px; }
+        .u-inline-054 { flex-grow: 1; background: var(--border-dark); color: #fff; }
+        .u-inline-055 { margin-bottom: 40px; }
+        #import-input { display:none; }
+        .u-inline-056 { width: 100%; background: var(--border-dark); color: #fff; }
+        .u-inline-057 { padding: 6px 12px; font-size: 12px; }
+        .u-inline-058 { font-size: 13px; font-weight: 900; color: var(--text-main); display:flex; gap:10px; align-items:center; }
+        .u-inline-059 { color:var(--text-sub); font-size:11px; margin-right:5px; }
+        #ui-tokens { display: none; }
+        #npc-title-\24 \7b index\7d  { margin-left:8px; flex-grow:1; text-align:left; }
+        .u-inline-060 { margin-bottom:10px; justify-content:center; border:none; background:transparent; }
+        #upload-npc-\24 \7b index\7d  { display:none; }
+        .u-inline-061 { display:flex; gap:10px; }
+        .u-inline-062 { flex:1; }
+        .u-inline-063 { width:100px; }
+        #npc-aff-\24 \7b index\7d  { text-align:center; padding: 14px 5px; }
+        .u-inline-064 { border-bottom:1px solid #ccc; padding-bottom:5px; }
+        #scen-title-\24 \7b index\7d  { margin-left:8px; flex-grow:1; text-align:left; }
+        .u-inline-065,
+        .u-inline-066 {
+            position: relative;
+            display: inline-grid;
+            width: 44px;
+            height: 44px;
+            place-items: center;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: var(--text-main);
+            box-shadow: none;
+        }
+        .u-inline-065 { cursor: pointer; }
+        .u-inline-066 {
+            opacity: 0.38;
+            cursor: not-allowed;
+        }
+        .u-inline-065:focus-visible {
+            outline: none;
+            box-shadow: none;
+        }
+        .status-respec-icon-stack {
+            display: grid;
+            width: 27px;
+            height: 31px;
+            place-items: center;
+        }
+        .status-respec-icon {
+            grid-area: 1 / 1;
+            width: 26px;
+            height: 30px;
+            color: inherit;
+        }
+        .status-respec-icon-glint {
+            color: color-mix(in srgb, var(--accent-neon) 76%, white);
+            opacity: 0;
+            clip-path: polygon(-55% 0, -24% 0, -58% 100%, -89% 100%);
+        }
+        .u-inline-065:hover .status-respec-icon-base,
+        .u-inline-065:focus-visible .status-respec-icon-base {
+            filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent-neon) 82%, transparent));
+        }
+        .u-inline-065:hover .status-respec-icon-glint,
+        .u-inline-065:focus-visible .status-respec-icon-glint {
+            opacity: 1;
+            animation: status-respec-icon-scan 0.72s linear infinite;
+        }
+        .u-inline-067 {
+            margin: 4px 0 24px;
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+        .u-inline-069 {
+            min-width: 0;
+            color: var(--text-main);
+            font-size: 20px;
+            font-weight: 400;
+            font-synthesis: none;
+            line-height: 1.3;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 var(--accent-neon);
+            overflow-wrap: anywhere;
+        }
+        .u-inline-070 {
+            flex: 0 0 auto;
+        }
+        .u-inline-071 {
+            display: grid;
+            width: calc(100% - 84px);
+            margin: 0 42px 18px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 13px 16px;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            font-synthesis: none;
+            letter-spacing: 0.5px;
+        }
+        .status-stat-item {
+            display: inline-flex;
+            width: max-content;
+            max-width: 100%;
+            min-width: 0;
+            justify-self: start;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .status-stat-item::before,
+        .status-stat-item::after {
+            content: none;
+        }
+        .status-stat-item > span,
+        .status-stat-item > strong {
+            font-family: var(--font-ui);
+            font-synthesis: none;
+        }
+        .status-stat-item > strong {
+            display: inline-flex;
+            margin-left: 0;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 400;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            text-shadow: 1px 1px 0 var(--accent-neon);
+        }
+        .status-stat-item > strong::after {
+            content: "";
+            display: block;
+            width: 16px;
+            height: 4px;
+            margin-top: 4px;
+            background: var(--accent-neon);
+        }
+        @keyframes status-respec-icon-scan {
+            from {
+                clip-path: polygon(-55% 0, -24% 0, -58% 100%, -89% 100%);
+            }
+            to {
+                clip-path: polygon(189% 0, 220% 0, 186% 100%, 155% 100%);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .u-inline-065 .status-respec-icon-glint {
+                animation: none !important;
+                opacity: 0 !important;
+            }
+        }
+        .u-inline-072 { margin-top:10px; }
+        .u-inline-073 { padding:15px; margin:0; border:none; background:transparent; }
+        .u-inline-074 { text-align: right; margin-bottom: 5px; }
+        .u-inline-075 { padding:0; margin:0; border:none; background:transparent; }
+        #edit-scen-name-\24 \7b idx\7d  { margin-bottom:10px; }
+        #edit-scen-lore-\24 \7b idx\7d  { margin-bottom:10px; }
+        #edit-scen-npcs-\24 \7b idx\7d  { margin-bottom:10px; }
+        .u-inline-076 { font-size:12px; color:var(--text-sub); }
+        .u-inline-077 { text-align:center; color:var(--text-sub); font-size:14px; font-weight:bold; }
+        /* ===== End consolidated inline styles ===== */
+
+        /* 角色動態狀態：核心設定不受 AI 覆寫 */
+        /* 角色面板詳細頁：閱讀優先，只有編輯狀態顯示正式輸入框。 */
+        #status-page-settings .status-detail-section {
+            margin: 4px 0 24px;
+        }
+        #status-page-settings .status-detail-protagonist-heading {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        #status-page-settings .status-detail-player-toggle {
+            display: inline-flex;
+            min-width: 0;
+            min-height: 44px;
+            padding: 0;
+            flex: 1 1 auto;
+            align-items: center;
+            gap: 28px;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: inherit;
+            box-shadow: none;
+            text-align: left;
+            cursor: pointer;
+        }
+        #status-page-settings .status-detail-player-toggle:hover,
+        #status-page-settings .status-detail-player-toggle:focus-visible {
+            background: transparent;
+            box-shadow: none;
+            transform: none;
+        }
+        #status-page-settings .status-detail-player-toggle:disabled {
+            cursor: default;
+        }
+        #status-page-settings .status-detail-player-actions,
+        #status-page-settings .status-detail-heading-actions {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 4px;
+            margin-left: auto;
+        }
+        #status-page-settings .status-detail-heading-actions .status-detail-tool {
+            margin-left: 0;
+        }
+        #status-page-settings .status-detail-tool {
+            display: inline-flex;
+            min-width: 44px;
+            min-height: 44px;
+            margin-left: auto;
+            padding: 6px 4px;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: var(--text-sub);
+            box-shadow: none;
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1;
+            cursor: pointer;
+        }
+        #status-page-settings .status-detail-tool::before {
+            content: "[ ";
+            color: var(--accent-neon);
+        }
+        #status-page-settings .status-detail-tool::after {
+            content: " ]";
+            color: var(--accent-neon);
+        }
+        #status-page-settings .status-detail-tool:hover,
+        #status-page-settings .status-detail-tool:focus-visible,
+        #status-page-settings .status-detail-tool.active {
+            background: transparent;
+            color: var(--text-main);
+            text-shadow: 1px 1px 0 var(--accent-neon);
+            box-shadow: none;
+            transform: none;
+        }
+        #status-page-settings .status-detail-tool.danger {
+            color: #a84350;
+        }
+        #status-page-settings [data-status-detail-navigation]:disabled,
+        #status-page-settings .section-add-btn:disabled,
+        #status-page-settings .delete-btn-red:disabled,
+        #status-modal-content .status-tab-btn:disabled,
+        #status-modal-content .status-save-as-btn:disabled {
+            opacity: 0.35;
+            cursor: default;
+            text-shadow: none;
+        }
+        #status-page-settings .status-detail-pixel-cursor {
+            /* 2026-07-16 專案主核准:三角形統一新版(1px 左線+2px 磚格) */
+            position: relative;
+            display: inline-block;
+            width: 12px;
+            height: 18px;
+            flex: 0 0 12px;
+            pointer-events: none;
+        }
+        #status-page-settings .status-detail-pixel-cursor::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(var(--text-main) 0 0) 0 0 / 2px 18px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 0 / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 4px 2px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 6px 4px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 6px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 10px 8px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 10px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 6px 12px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 4px 14px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 16px / 2px 2px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 2px 2px / 2px 14px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 4px 4px / 2px 10px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 6px 6px / 2px 6px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 8px 8px / 2px 2px no-repeat;
+            animation: status-detail-cursor-poke 900ms steps(1, end) infinite;
+        }
+        @keyframes status-detail-cursor-poke {
+            0%, 42%, 72%, 100% {
+                transform: translateX(0);
+            }
+            43%, 71% {
+                transform: translateX(2px);
+            }
+        }
+        #status-page-settings .status-detail-player-collapsible {
+            display: grid;
+            min-width: 0;
+            margin: 0 42px;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: 1fr;
+            transition: grid-template-rows 180ms steps(4, end);
+        }
+        #status-page-settings .status-detail-player-collapsible > div {
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+        }
+        #status-page-settings .status-detail-protagonist.is-collapsed .status-detail-player-collapsible {
+            grid-template-rows: 0fr;
+        }
+        #status-page-settings .status-detail-read-grid,
+        #status-page-settings .status-detail-edit-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 17px 22px;
+        }
+        #status-page-settings .status-detail-player-facts {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 14px;
+        }
+        #status-page-settings .status-detail-player-facts .status-detail-read-item,
+        #status-page-settings .status-detail-npc-profile .status-detail-read-item,
+        #status-page-settings .status-detail-dynamic-grid .status-detail-read-item {
+            display: grid;
+            grid-template-columns: 76px minmax(0, 1fr);
+            align-items: baseline;
+            gap: 14px;
+        }
+        #status-page-settings .status-detail-read-item.full,
+        #status-page-settings .status-detail-edit-grid > .full {
+            grid-column: 1 / -1;
+        }
+        #status-page-settings .status-detail-read-item > span,
+        #status-page-settings .status-detail-editor label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+        #status-page-settings .status-detail-player-facts .status-detail-read-item > span,
+        #status-page-settings .status-detail-npc-profile .status-detail-read-item > span,
+        #status-page-settings .status-detail-dynamic-grid .status-detail-read-item > span {
+            margin-bottom: 0;
+        }
+        #status-page-settings .status-detail-read-item > p {
+            margin: 0;
+            color: var(--text-sub);
+            font-family: var(--font-reading);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+        #status-page-settings .status-detail-empty,
+        #status-page-settings .status-detail-empty-note,
+        #status-page-settings .status-detail-memory-empty {
+            color: var(--text-sub);
+        }
+        #status-page-settings .status-detail-empty-note {
+            margin: 0;
+            font-family: var(--font-reading);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        #status-page-settings .status-detail-chapter-list {
+            margin-top: 16px;
+        }
+        #status-page-settings .status-detail-chapter {
+            margin: 0;
+        }
+        #status-page-settings .status-detail-chapter summary {
+            display: flex;
+            min-height: 44px;
+            padding: 6px 0;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.3;
+            list-style: none;
+            cursor: pointer;
+        }
+        #status-page-settings .status-detail-chapter summary::-webkit-details-marker,
+        #status-page-settings .status-detail-memory summary::-webkit-details-marker {
+            display: none;
+        }
+        #status-page-settings .status-detail-chapter summary::before {
+            content: "□";
+            color: var(--text-sub);
+        }
+        #status-page-settings .status-detail-chapter[open] summary::before {
+            content: "■";
+            color: var(--accent-neon);
+        }
+        #status-page-settings .status-detail-chapter > p {
+            margin: 0 0 10px;
+            color: var(--text-sub);
+            font-family: var(--font-reading);
+            font-size: 14px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+        #status-page-settings .status-detail-dossier-shell {
+            display: block;
+            min-width: 0;
+            margin-top: 26px;
+        }
+        #status-page-settings .status-detail-dossier-index {
+            position: relative;
+            display: flex;
+            min-width: 0;
+            gap: 0;
+            margin-bottom: 18px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        #status-page-settings .status-detail-dossier-index::-webkit-scrollbar {
+            display: none;
+        }
+        #status-page-settings .status-detail-dossier-index button {
+            display: block;
+            width: 78px;
+            height: 36px;
+            padding: 0 0 0 42px;
+            flex: 0 0 78px;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: var(--text-sub);
+            box-shadow: none;
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1;
+            text-align: left;
+            cursor: pointer;
+        }
+        #status-page-settings .status-detail-dossier-index button:hover,
+        #status-page-settings .status-detail-dossier-index button:focus-visible,
+        #status-page-settings .status-detail-dossier-index button.active {
+            background: transparent;
+            color: var(--text-main);
+            text-shadow: 1px 1px 0 var(--accent-neon);
+            box-shadow: none;
+            transform: none;
+        }
+        #status-page-settings .status-detail-dossier-cursor {
+            position: absolute;
+            top: 8px;
+            left: 0;
+            transform: translateX(calc(var(--status-detail-cursor-index) * 78px));
+            transition: transform 180ms steps(3, end);
+        }
+        #status-page-settings .status-detail-dossier-page {
+            display: none;
+            width: calc(100% - 42px);
+            min-width: 0;
+            margin-left: 42px;
+        }
+        #status-page-settings .status-detail-dossier-page.active {
+            display: block;
+            animation: status-detail-focus-in 160ms steps(3, end) both;
+        }
+        #status-page-settings #status-npc-detail-body,
+        #status-page-settings #status-scenario-detail-body {
+            margin-right: 42px;
+        }
+        @keyframes status-detail-focus-in {
+            from {
+                opacity: 0;
+                transform: translateX(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        #status-page-settings .status-detail-dossier-kicker {
+            margin: 0 0 5px;
+            color: var(--text-sub);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            line-height: 1;
+        }
+        #status-page-settings .status-detail-npc-hero,
+        #status-page-settings .status-detail-scenario-hero {
+            display: flex;
+            min-width: 0;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        #status-page-settings .status-detail-dossier-title,
+        #status-page-settings .status-detail-npc-name {
+            min-width: 0;
+            margin: 0;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+        }
+        #status-page-settings .status-detail-npc-identity {
+            display: flex;
+            min-width: 0;
+            min-height: 44px;
+            flex: 1 1 auto;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+        #status-page-settings .status-detail-npc-affection {
+            color: var(--text-sub);
+            font-family: var(--font-ui);
+            font-size: 12px;
+        }
+        #status-page-settings .status-detail-npc-menu,
+        #status-page-settings .status-detail-scene-menu {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin: -4px 0 18px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        #status-page-settings .status-detail-npc-menu {
+            min-height: 46px;
+        }
+        #status-page-settings .status-detail-scene-menu {
+            flex-wrap: wrap;
+            row-gap: 4px;
+            overflow-x: visible;
+        }
+        #status-page-settings .status-detail-npc-menu::-webkit-scrollbar,
+        #status-page-settings .status-detail-scene-menu::-webkit-scrollbar {
+            display: none;
+        }
+        #status-page-settings .status-detail-npc-choice {
+            display: flex;
+            width: 58px;
+            min-width: 58px;
+            min-height: 46px;
+            padding: 2px 0;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: var(--text-sub);
+            box-shadow: none;
+            font-family: var(--font-ui);
+            font-size: 10px;
+            font-weight: 400;
+            cursor: pointer;
+        }
+        #status-page-settings .status-detail-npc-avatar {
+            position: relative;
+            display: grid;
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            place-items: center;
+            overflow: hidden;
+            border: 2px solid var(--border-dark);
+            border-radius: 50%;
+            background: var(--card-bg);
+            color: var(--text-main);
+            box-shadow: none;
+            font-family: var(--font-ui);
+            font-size: 14px;
+        }
+        #status-page-settings .status-detail-npc-avatar::before {
+            content: attr(data-initial);
+        }
+        #status-page-settings .status-detail-npc-avatar img {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #status-page-settings .status-detail-npc-choice:hover,
+        #status-page-settings .status-detail-npc-choice:focus-visible,
+        #status-page-settings .status-detail-npc-choice.active {
+            background: transparent;
+            color: var(--text-main);
+            text-shadow: none;
+            box-shadow: none;
+            transform: none;
+        }
+        #status-page-settings .status-detail-npc-choice:hover .status-detail-npc-avatar,
+        #status-page-settings .status-detail-npc-choice:focus-visible .status-detail-npc-avatar {
+            box-shadow: 0 0 0 2px var(--accent-neon);
+        }
+        #status-page-settings .status-detail-npc-choice.active .status-detail-npc-avatar {
+            box-shadow: 0 0 0 3px var(--accent-neon);
+        }
+        #status-page-settings .status-detail-scene-choice {
+            min-width: 112px;
+            max-width: min(240px, 100%);
+            min-height: 44px;
+            padding: 6px 0;
+            flex: 0 1 auto;
+            overflow: hidden;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: var(--text-sub);
+            box-shadow: none;
+            font-family: var(--font-ui);
+            font-size: 12px;
+            font-weight: 400;
+            text-align: left;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        #status-page-settings .status-detail-scene-choice::before {
+            content: "□ ";
+            color: var(--text-sub);
+        }
+        #status-page-settings .status-detail-scene-choice:hover,
+        #status-page-settings .status-detail-scene-choice:focus-visible,
+        #status-page-settings .status-detail-scene-choice.active {
+            background: transparent;
+            color: var(--text-main);
+            box-shadow: none;
+            transform: none;
+        }
+        #status-page-settings .status-detail-scene-choice.active::before {
+            content: "■ ";
+            color: var(--accent-neon);
+        }
+        #status-page-settings .status-detail-npc-profile,
+        #status-page-settings .status-detail-dynamic-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 10px;
+        }
+        #status-page-settings .status-detail-dynamic {
+            margin-top: 10px;
+        }
+        #status-page-settings .status-detail-memory-panel {
+            margin-top: 18px;
+        }
+        #status-page-settings .status-detail-memory-control,
+        #status-page-settings .status-detail-memory-row {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 10px;
+        }
+        #status-page-settings .status-detail-memory-control {
+            margin-bottom: 4px;
+        }
+        #status-page-settings .status-detail-memory-control > span {
+            min-width: 0;
+            color: var(--text-sub);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+        #status-page-settings .status-detail-memory-control > span strong {
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 400;
+            text-shadow: 1px 1px 0 var(--accent-neon);
+        }
+        #status-page-settings .status-detail-memory {
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+        #status-page-settings .status-detail-memory summary {
+            display: inline-flex;
+            min-height: 44px;
+            padding: 4px 0;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            font-weight: 400;
+            line-height: 1;
+            list-style: none;
+            cursor: pointer;
+        }
+        #status-page-settings .status-detail-memory summary::after {
+            content: "＋";
+            color: var(--text-sub);
+        }
+        #status-page-settings .status-detail-memory[open] summary::after {
+            content: "－";
+        }
+        #status-page-settings .status-detail-memory summary strong {
+            color: var(--accent-neon);
+            font-size: 12px;
+            font-weight: 400;
+            text-shadow: 1px 1px 0 var(--border-dark);
+        }
+        #status-page-settings .status-detail-memory ul {
+            margin: 0 0 8px;
+            padding-left: 20px;
+            color: var(--text-sub);
+            font-family: var(--font-reading);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        #status-page-settings .status-detail-memory-empty {
+            margin: 0 0 8px;
+            font-family: var(--font-reading);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        #status-page-settings .status-detail-scene-reading {
+            display: grid;
+            gap: 18px;
+        }
+        #status-page-settings .status-detail-scene-roles {
+            gap: 18px 26px;
+        }
+        #status-page-settings .status-detail-scene-goal {
+            padding-left: 12px;
+            border-left: 5px solid var(--accent-neon);
+        }
+        #status-page-settings .status-detail-delete-row {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 26px;
+        }
+        #status-page-settings .status-detail-delete-row .status-detail-tool {
+            margin-left: 0;
+        }
+        #status-page-settings .status-detail-field-map-note {
+            margin: 0;
+            color: var(--text-sub);
+            font-family: var(--font-reading);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+        #status-page-settings .status-detail-editor input,
+        #status-page-settings .status-detail-editor textarea {
+            width: 100%;
+            min-width: 0;
+            min-height: var(--control-height);
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: var(--control-border);
+            border-radius: var(--control-radius);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-family: var(--font-reading);
+            font-size: 14px;
+            line-height: 1.55;
+            box-shadow: none;
+        }
+        #status-page-settings .status-detail-editor textarea {
+            min-height: 86px;
+            resize: vertical;
+        }
+        #status-page-settings .status-detail-editor input:focus,
+        #status-page-settings .status-detail-editor textarea:focus {
+            border-color: var(--border-dark);
+            outline: none;
+            box-shadow: var(--control-focus-shadow);
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-panel {
+            grid-column: 1 / -1;
+            margin: 18px 0 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-heading {
+            margin-bottom: 12px;
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-heading strong {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 16px;
+            font-weight: 400;
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-heading strong::before {
+            content: "";
+            width: 5px;
+            height: 18px;
+            flex: 0 0 5px;
+            background: var(--accent-neon);
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-heading span,
+        #status-page-settings .status-detail-editing .dynamic-state-reason {
+            color: var(--text-sub);
+            font-size: 10px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-grid {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 10px 12px;
+        }
+        #status-page-settings .status-detail-editing .dynamic-state-field label,
+        #status-page-settings .status-detail-editing .dynamic-memory-details summary {
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            font-weight: 400;
+        }
+        #status-page-settings .status-detail-editing .dynamic-memory-details {
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+        }
+        #status-page-settings .status-detail-live-notice {
+            margin: 0 0 12px;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 10px;
+            text-shadow: 1px 1px 0 var(--accent-neon);
+        }
+        @media screen and (max-width: 600px) {
+            #status-page-settings .status-detail-edit-grid,
+            #status-page-settings .status-detail-scene-roles,
+            #status-page-settings .status-detail-editing .dynamic-state-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            #status-page-settings .status-detail-edit-grid > .full {
+                grid-column: auto;
+            }
+            #status-page-settings .status-detail-npc-hero,
+            #status-page-settings .status-detail-scenario-hero {
+                align-items: flex-start;
+            }
+            #status-page-settings .status-detail-memory-control {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #status-page-settings .status-detail-pixel-cursor::before,
+            #status-page-settings .status-detail-dossier-page.active {
+                animation: none !important;
+            }
+            #status-page-settings .status-detail-player-collapsible,
+            #status-page-settings .status-detail-dossier-cursor {
+                transition: none !important;
+            }
+        }
+
+
+        .dynamic-state-panel { grid-column: 1 / -1; margin-top: 6px; padding: 12px 12px 10px; background: var(--surface-muted); border-left: 4px solid var(--accent-neon); border-radius: 0 6px 6px 0; }
+        .dynamic-state-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+        .dynamic-state-heading strong { color: var(--text-main); font-size: 13px; }
+        .dynamic-state-heading span { color: var(--text-sub); font-size: 10px; font-weight: 700; text-align: right; }
+        .dynamic-state-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+        .dynamic-state-field.full { grid-column: 1 / -1; }
+        .dynamic-state-field label { display: block; margin-bottom: 3px; color: #555; font-size: 11px; font-weight: 900; }
+        .dynamic-state-field input, .dynamic-state-field textarea { width: 100%; min-height: 38px; box-sizing: border-box; background: var(--card-bg); border: 1px solid #bbb; border-radius: 5px; padding: 8px 10px; color: var(--text-main); font: inherit; font-size: 12px; resize: vertical; }
+        .dynamic-state-field input:focus, .dynamic-state-field textarea:focus { outline: 2px solid var(--accent-neon); border-color: var(--border-dark); }
+        .dynamic-memory-details { border: 1px solid #bbb; border-radius: 5px; background: var(--card-bg); overflow: hidden; }
+        .dynamic-memory-details summary { padding: 9px 10px; cursor: pointer; color: var(--text-main); font-size: 11px; font-weight: 900; }
+        .dynamic-memory-details[open] summary { border-bottom: 1px solid #ddd; }
+        .dynamic-memory-details textarea { border: 0; border-radius: 0; min-height: 130px; }
+        .npc-dead-badge { display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: #8f3030; color: #fff; font-size: 10px; font-weight: 900; }
+        .dynamic-state-reason { margin: 8px 0 0; color: #777; font-size: 10px; font-weight: 700; line-height: 1.5; }
+
+        .random-generator-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 18px; }
+        .random-generator-actions .btn { width: 100%; margin: 0; }
+        .random-preview { margin-top: 12px; padding: 12px; max-height: 45vh; overflow: auto; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); white-space: pre-wrap; font-size: 12px; line-height: 1.65; }
+
+        .dynamic-state-preview { flex: 1 1 0; min-width: 0; margin-left: auto; color: #c9bdc2; font-size: 10px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .player-dynamic-preview { margin: -2px 0 10px; color: #756a6e; font-size: 11px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .setup-version { margin: 24px 0 0; color: var(--text-sub); font-size: 9px; font-weight: 600; line-height: 1; }
+
+.theme-customizer { width: 100%; max-width: 440px; margin: 10px auto 0; padding-top: 9px; border-top: 1px solid var(--border-dark); }
+        .theme-customizer summary { display: flex; justify-content: space-between; align-items: center; color: var(--text-sub); font-size: 11px; font-weight: 800; cursor: pointer; list-style: none; user-select: none; }
+        .theme-customizer summary::-webkit-details-marker { display: none; }
+        .theme-customizer summary::after { content: "＋"; color: var(--text-main); font-size: 15px; line-height: 1; }
+        .theme-customizer[open] summary::after { content: "－"; }
+.theme-palette { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+        .theme-color-field { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-sub); font-size: 9px; font-weight: 800; white-space: nowrap; }
+        .theme-color-field input[type="color"] { width: 34px; height: 34px; padding: 2px; border: 2px solid var(--border-dark); border-radius: 50%; background: var(--card-bg); cursor: pointer; }
+        .theme-color-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .theme-color-field input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 50%; }
+        .theme-color-field input[type="color"]::-moz-color-swatch { border: 0; border-radius: 50%; }
+        .theme-reset-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .theme-reset-btn { padding: 5px 9px; border: 1px solid var(--border-dark); border-radius: 5px; background: transparent; color: var(--text-main); font-size: 10px; font-weight: 800; cursor: pointer; }
+        .theme-reset-btn:hover { background: var(--accent-neon); }
+
+        .opt-check-label { display: inline-block; margin-left: 8px; color: #756a6e; font-size: 9px; font-weight: 800; white-space: nowrap; }
+        .game-difficulty-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: center; margin: 4px 0 6px; }
+        .game-difficulty-row .scenario-label { margin: 0; }
+        .game-difficulty-note { margin: 0 0 14px; color: var(--text-sub); font-size: 10px; font-weight: 700; line-height: 1.5; }
+
+        .stat-total-display { display: inline-block; margin-right: 8px; color: var(--text-sub); font-size: 11px; font-weight: 900; white-space: nowrap; }
+        .stat-total-display.at-cap { color: #9b596f; }
+
+        button, input, textarea, select { touch-action: manipulation; }
+
+/* =========================================================
+   Responsive styles grouped by breakpoint
+   Smaller breakpoints follow larger ones so they can override safely.
+   ========================================================= */
+

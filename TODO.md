@@ -58,6 +58,24 @@
   - 例：API 指南留有「2. Google Gemini 與 OpenRouter」等兩家供應商時代的舊句（去重後各留一份，現行頁面已不引用）。
   - 原則：逐鍵確認 HTML／JS 均無引用才可刪，比照廢碼處理，不可只看目前 UI。
 
+### 維護性拆檔與流程減稅（2026-07-16 排程）
+
+- [ ] style.css 純搬移拆檔（P1，方向已核准）。
+  - 目標：解除 327KB／8,446 行單檔造成的 AI 工具讀取上限與 context 成本；規則內容零改動。
+  - 範圍：沿檔案現有順序切成約 6～8 檔，切點必須落在完整規則塊邊界（禁止切在逗號群組中段，見 TECH_DEBT 2026-07-11 事故）；`index.html` 以多個 `<link>` 依原順序取代單一引用。
+  - 不碰區域：不重排規則、不清債、不改 selector 與屬性、不動 JS 與其他檔案。
+  - 驗收：全部新檔依序 concat 後與原檔 bytes 完全相等；各檔 `{`／`}` 平衡；全部 E2E 通過；桌機＋手機目視無異狀；`PROJECT_MAP.md` CSS 區域地圖同步更新檔名。
+  - 核准狀態：切點清單已核准；2026-07-16 完成切檔（`split_style.py` bytes 驗證全過）與 `index.html`／CI／`PROJECT_MAP.md`／`AGENTS.md` 同步。2026-07-17 E2E A/B 驗證完成：拆檔前後失敗清單完全相同（8 敗 32 過），拆檔零新增失敗。桌機＋手機目視後移入 COMPLETED，屆時刪除舊 `style.css`、`split_style.py`、`跑測試.bat`、`test-result.log`。
+- [ ] 修復 8 個既有 E2E 失敗（與 CSS 拆檔無關，A/B 已證明；HEAD d915fb1 原生單檔 CSS 即失敗）。
+  - 範圍：`npc-acquaintance-flow.spec.js`（:140、:465）、`player-readonly-preview.spec.js`（:30）、`status-player-sheet.spec.js`（:4、:295、:353、:785、:1221）。
+  - 症狀：UI 度量斷言（returnTop 對齊、cursor 14px/19px、字型、typography scale）不符與一次 ERR_NO_BUFFER_SPACE。
+  - 建議交 Codex 處理（其最後一輪 NPC／玩家預覽工作的斷言與實作不一致）。
+
+- [ ] app-gameplay.js（2,704 行）與 app-status-journal.js（2,464 行）再拆一輪（P2）。
+  - 比照 app.js→13 模組的純搬移前例：不改邏輯、不改全域行為、載入順序接原位。
+  - 驗收：`node --check` 全過、全部 E2E 通過、`PROJECT_MAP.md` 同步。
+  - 核准狀態：方向同意，切法未核准；style.css 拆完再排。
+
 ### 帳本維護
 
 - [ ] 每隔一個大版本（如 v3.0）把 `COMPLETED.md` 的舊條目剪去 `PROJECT_HISTORY.md` 歸檔，`COMPLETED.md` 只留最近一個版本週期。

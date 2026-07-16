@@ -43,7 +43,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
 
-          source_files = [Path("index.html"), Path("style.css"), Path("i18n.js"), *Path(".").glob("app-*.js")]
+          source_files = [Path("index.html"), Path("i18n.js"), *sorted(Path(".").glob("style-*.css")), *Path(".").glob("app-*.js")]
           for source_file in source_files:
               raw = source_file.read_bytes()
               assert not raw.startswith(b"\xef\xbb\xbf"), f"BOM found: {source_file}"
@@ -51,10 +51,13 @@ jobs:
               assert "\r" not in text, f"CR/CRLF found: {source_file}"
               assert "\ufffd" not in text, f"replacement character found: {source_file}"
           html = Path("index.html").read_text(encoding="utf-8")
-          css = Path("style.css").read_text(encoding="utf-8")
           assert html.rstrip().endswith("</html>"), "index.html is truncated"
-          assert css.count("{") == css.count("}"), "style.css braces are unbalanced"
-          assert css.rstrip().endswith("}"), "style.css is truncated"
+          css_files = sorted(Path(".").glob("style-*.css"))
+          assert len(css_files) == 7, f"expected 7 style-*.css files, found {len(css_files)}"
+          for css_file in css_files:
+              css = css_file.read_text(encoding="utf-8")
+              assert css.count("{") == css.count("}"), f"{css_file} braces are unbalanced"
+              assert css.rstrip().endswith(("}", "*/")), f"{css_file} is truncated"
           PY
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

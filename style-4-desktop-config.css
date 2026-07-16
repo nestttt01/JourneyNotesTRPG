@@ -1,0 +1,986 @@
+/* 桌機：角色面板改為右側抽屜；用流動寬度適配常見筆電、桌機與大螢幕。 */
+@media screen and (min-width: 1100px) {
+            #setup-screen {
+                height: 100dvh;
+                min-height: 0;
+                padding: 30px clamp(56px, 6vw, 96px);
+                overflow: auto;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .setup-home-frame {
+                width: min(680px, calc(100vw - 220px));
+                max-width: none;
+                height: 850px;
+                max-height: calc(100dvh - 24px);
+                flex-shrink: 0;
+                min-height: 0;
+            }
+
+            .setup-home-panel {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                min-height: 0;
+                padding: 34px 38px 30px;
+                justify-content: flex-start;
+background: var(--paper-bg);
+border: 3px solid var(--border-dark);
+border-radius: 16px;
+                box-shadow: 5px 5px 0 rgba(40,40,40,0.09);
+                overflow: hidden;
+                z-index: 1;
+            }
+
+.setup-side-tabs,
+.desktop-config-tabs {
+position: absolute;
+top: 82px;
+bottom: 32px;
+left: 0;
+margin-left: 0;
+transform: translateX(-100%);
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+                gap: 6px;
+                z-index: 0;
+            }
+
+.desktop-config-tabs {
+left: -3px;
+}
+
+            .setup-side-unlocked {
+                display: none;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 6px;
+                margin-top: 18px;
+            }
+
+            #setup-screen.home-has-model .setup-side-unlocked {
+                display: flex;
+            }
+
+.setup-side-tab,
+.desktop-config-tab {
+width: 36px;
+min-height: 104px;
+padding: 13px 5px;
+border: 2px solid var(--accent-neon);
+border-right: 0;
+border-radius: 12px 0 0 12px;
+background: var(--border-dark);
+color: var(--accent-neon);
+box-shadow: -5px 5px 0 var(--accent-gray);
+cursor: pointer;
+writing-mode: vertical-rl;
+text-orientation: upright;
+font-size: 12px;
+font-weight: 900;
+letter-spacing: 1px;
+line-height: 1;
+transition: background 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.setup-side-language {
+margin-top: auto;
+}
+
+            #setup-screen h2 {
+                margin: 8px 0 3px;
+                font-size: clamp(30px, 3vw, 40px);
+                letter-spacing: 0;
+                text-shadow: 1px 1px 0 var(--accent-neon);
+            }
+
+            #setup-screen .u-inline-026 {
+                margin-bottom: clamp(40px, 5vh, 58px);
+                letter-spacing: 5px;
+                font-size: 10px;
+            }
+
+            #setup-pic {
+                width: 104px;
+                height: 104px;
+                margin: clamp(42px, 7vh, 78px) 0 18px;
+                box-shadow: none;
+            }
+
+            #setup-screen #api-provider,
+            #setup-screen #model-choice,
+            #setup-screen #api-key {
+                max-width: 250px;
+                margin-bottom: 8px;
+            }
+
+#setup-screen #api-provider,
+#setup-screen #model-choice {
+                padding: 5px 14px;
+                border-color: transparent;
+                border-radius: 0;
+                background: var(--accent-neon);
+                font-size: 12px;
+                font-weight: 900;
+                min-height: 30px;
+            }
+
+            #setup-screen #api-key {
+                padding: 8px 12px;
+                border-width: 0 0 1px;
+                border-style: solid;
+                border-color: var(--input-line);
+                border-radius: 0;
+                background: transparent;
+            }
+
+            #setup-screen .api-key-retention {
+                max-width: 260px;
+                margin: -2px auto 12px;
+            }
+
+            #setup-screen .u-inline-027 {
+                max-width: 260px;
+            }
+
+            #setup-screen .api-home-guide,
+            #setup-screen .setup-mobile-actions,
+            #setup-screen .setup-mobile-help,
+            #setup-screen .ui-language-picker {
+                display: none;
+            }
+
+            #model-selection-area {
+                max-width: 260px;
+            }
+
+            #model-selection-area .u-inline-029 {
+                display: none;
+            }
+
+            .setup-home-footer {
+                margin-top: auto;
+                padding-top: clamp(28px, 5vh, 52px);
+            }
+
+#setup-screen .theme-customizer {
+width: 100%;
+max-width: 380px;
+margin-top: 0;
+border-top-color: var(--accent-gray);
+}
+
+            #setup-screen .setup-version {
+                margin-top: 16px;
+                text-align: center;
+            }
+
+            .setup-home-view {
+                height: 100%;
+            }
+
+.setup-home-view[data-home-view="main"] {
+justify-content: flex-start;
+overflow-y: auto;
+scrollbar-width: none;
+-ms-overflow-style: none;
+padding-bottom: 12px;
+}
+
+.setup-home-view[data-home-view="main"]::-webkit-scrollbar {
+display: none;
+width: 0;
+height: 0;
+}
+
+.setup-info-view {
+justify-content: stretch;
+padding: clamp(36px, 6vh, 62px) clamp(34px, 5vw, 58px);
+align-items: center;
+overflow: hidden;
+}
+
+.setup-info-grid::-webkit-scrollbar {
+display: none;
+width: 0;
+height: 0;
+}
+
+.setup-info-grid::-webkit-scrollbar-track {
+background: transparent;
+}
+
+.setup-info-grid::-webkit-scrollbar-thumb {
+background: var(--accent-gray);
+border-radius: 0;
+}
+
+.setup-embedded-view {
+justify-content: stretch;
+padding: clamp(28px, 5vh, 48px) clamp(26px, 4vw, 46px);
+overflow: hidden;
+}
+
+.setup-embedded-host {
+height: 100%;
+min-height: 0;
+overflow: hidden;
+}
+
+#setup-screen .setup-embedded-screen,
+#setup-screen #journal-screen.journal-screen-home-embedded {
+width: 100%;
+height: 100%;
+max-width: none;
+min-height: 0;
+margin: 0;
+padding: 0;
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+scrollbar-width: none;
+-ms-overflow-style: none;
+}
+
+#setup-screen .setup-embedded-screen::-webkit-scrollbar,
+#setup-screen #journal-screen.journal-screen-home-embedded::-webkit-scrollbar {
+display: none;
+width: 0;
+height: 0;
+}
+
+#setup-screen #save-menu-screen h2,
+#setup-screen #journal-screen.journal-screen-home-embedded .journal-header h2 {
+font-size: 28px;
+margin: 0 0 18px;
+text-align: left;
+}
+
+#setup-screen #save-list {
+gap: 12px;
+margin-bottom: 16px;
+}
+
+#setup-screen #save-menu-screen .save-slot,
+#setup-screen #journal-screen.journal-screen-home-embedded .journal-entry {
+box-shadow: none;
+}
+
+#setup-screen #storage-health-card {
+margin-top: 4px;
+}
+
+#setup-screen #save-menu-screen .u-inline-056,
+#setup-screen #journal-screen.journal-screen-home-embedded #journal-close-btn {
+display: none;
+}
+
+#setup-screen #journal-screen.journal-screen-home-embedded .journal-toolbar {
+grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+#setup-screen #journal-screen.journal-screen-home-embedded .journal-entry-list {
+min-height: 0;
+}
+
+.setup-info-scroll {
+width: 100%;
+max-width: 540px;
+height: 100%;
+max-height: 680px;
+min-height: 0;
+display: grid;
+grid-template-rows: auto auto minmax(0, 1fr);
+overflow: hidden;
+}
+
+.setup-info-view h2 {
+margin: 0 0 12px;
+padding: 0 0 8px;
+background: var(--paper-bg);
+text-align: left;
+                font-size: 28px;
+            }
+
+            .setup-info-lead {
+                max-width: 520px;
+                margin: 0 0 22px;
+                padding-bottom: 12px;
+background: var(--paper-bg);
+color: var(--text-sub);
+                font-size: 14px;
+                line-height: 1.8;
+            }
+
+.setup-info-grid {
+gap: 14px;
+max-width: 520px;
+min-height: 0;
+overflow-y: auto;
+padding-right: 10px;
+overscroll-behavior: contain;
+-webkit-overflow-scrolling: touch;
+scrollbar-width: none;
+-ms-overflow-style: none;
+}
+
+            .setup-info-grid article {
+                padding: 0 0 14px;
+                border-bottom: 2px solid var(--accent-gray);
+            }
+
+            .setup-info-grid article:last-child {
+                border-bottom: 0;
+            }
+
+            .setup-info-view h3 {
+                font-size: 15px;
+            }
+
+            .setup-info-view p {
+                font-size: 13px;
+                line-height: 1.75;
+            }
+
+}
+
+@media screen and (min-width: 1100px), screen and (hover: hover) and (pointer: fine) {
+            #edit-scenario-screen {
+                width: 100%; max-width: 1580px; min-height: 100dvh;
+                padding: 30px clamp(56px, 6vw, 96px);
+                flex-direction: row; align-items: center; justify-content: center;
+                gap: 0; overflow: visible;
+            }
+
+            #desktop-config-overview {
+                position: relative;
+                display: flex; flex: 0 1 680px; width: min(680px, 48vw);
+                min-width: 520px; height: 850px; max-height: calc(100dvh - 24px); min-height: 660px;
+                flex-direction: column; justify-content: space-between;
+                padding: 34px 38px 30px;
+background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius: 16px;
+                box-shadow: 5px 5px 0 rgba(40,40,40,0.09);
+                transition: flex-basis 0.24s ease, width 0.24s ease;
+            }
+
+            #edit-scenario-screen.desktop-editor-open { gap: clamp(24px, 3vw, 48px); }
+            #edit-scenario-screen.desktop-editor-open #desktop-config-overview {
+                flex-basis: 570px; width: min(570px, 42vw); min-width: 430px;
+            }
+
+            .desktop-config-overview-inner {
+                flex: 1; min-height: 0; display: block;
+            }
+            .desktop-workspace-view { display: none; width: 100%; height: 100%; min-height: 0; }
+            .desktop-workspace-view.active { display: flex; flex-direction: column; }
+            .desktop-workspace-view[data-workspace-view="characters"] { gap: clamp(42px, 6vh, 72px); }
+            .desktop-player-card {
+                appearance: none; border: 0; background: transparent; color: var(--text-main);
+                display: flex; flex-direction: column; align-items: center; align-self: center;
+                gap: 10px; cursor: pointer; min-width: 220px;
+            }
+            .desktop-player-card:focus,
+            .desktop-npc-avatar-button:focus,
+            .desktop-overview-card:focus,
+            .desktop-game-card:focus { outline: none; }
+            #desktop-player-avatar {
+                width: clamp(150px, 14vw, 210px); height: clamp(150px, 14vw, 210px);
+                object-fit: cover; border-radius: 50%; border: none; outline: 3px solid var(--border-dark); outline-offset: -3px;
+                background: var(--card-bg); box-shadow: 5px 5px 0 var(--accent-neon);
+                transition: transform 0.18s ease, box-shadow 0.18s ease;
+            }
+            .desktop-player-card:hover #desktop-player-avatar,
+            .desktop-player-card:focus-visible #desktop-player-avatar {
+                transform: translate(-3px, -3px); box-shadow: 8px 8px 0 var(--accent-neon);
+            }
+            .desktop-player-card strong { font-size: 20px; font-weight: 900; }
+            #desktop-player-name { margin-top: 10px; }
+
+            .desktop-overview-heading {
+                display: flex; justify-content: space-between; align-items: baseline;
+                padding-bottom: 10px; border-bottom: 0; margin-inline: 40px;
+            }
+            .desktop-overview-heading strong { font-size: 16px; }
+            .desktop-npc-avatar-list {
+                display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+                width: min(76%, 700px); margin: 0 auto; box-sizing: border-box;
+                gap: 16px 12px; max-height: 230px; overflow-y: auto; padding: 18px 4px 4px;
+            }
+            .desktop-npc-avatar-button {
+                appearance: none; border: 0; background: transparent; color: var(--text-main);
+                min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px;
+                cursor: pointer; font-size: 11px; font-weight: 900;
+            }
+            .desktop-npc-avatar-button img,
+            .desktop-npc-add-icon {
+                width: 62px; height: 62px; border-radius: 50%; object-fit: cover;
+                border: none; outline: 3px solid var(--border-dark); outline-offset: -3px; background: var(--card-bg);
+                display: grid; place-items: center; font-size: 32px; line-height: 1;
+                transition: transform 0.18s ease, box-shadow 0.18s ease;
+            }
+            .desktop-npc-avatar-button:hover img,
+            .desktop-npc-avatar-button:focus-visible img,
+            .desktop-npc-add-button:hover .desktop-npc-add-icon,
+            .desktop-npc-add-button:focus-visible .desktop-npc-add-icon {
+                transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--accent-neon);
+            }
+            .desktop-npc-avatar-button > span:last-child {
+                width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            }
+            .desktop-npc-add-icon {
+                outline: 1px dashed var(--dash-secondary);
+                color: var(--text-sub);
+                background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+            }
+
+            .desktop-workspace-heading {
+                display: block;
+                margin: 22px 0 20px; padding: 0 0 12px;
+                border-bottom: 1px dashed var(--dash-primary);
+            }
+            .desktop-workspace-heading h2 {
+                margin: 0; text-align: left; color: #282828; text-shadow: none; font-size: 20px;
+            }
+            .desktop-overview-card-list {
+                display: flex; flex-direction: column; gap: 14px; overflow-y: auto; padding: 3px 6px 8px 2px;
+            }
+            .desktop-overview-card,
+            .desktop-game-card {
+                appearance: none; width: 100%; border: 2px solid var(--border-dark); border-radius: 16px;
+                background: var(--card-bg); color: var(--text-main); cursor: pointer; text-align: left;
+                transition: transform 0.16s ease, box-shadow 0.16s ease;
+            }
+            .desktop-overview-card {
+                display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; gap: 14px;
+                padding: 15px 18px;
+            }
+            .desktop-overview-card:hover,
+            .desktop-overview-card:focus-visible,
+            .desktop-game-card:hover,
+            .desktop-game-card:focus-visible {
+                transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--accent-neon); outline: none;
+            }
+            .desktop-overview-card strong,
+            .desktop-overview-card small { display: block; min-width: 0; }
+            .desktop-overview-card strong { font-size: 16px; }
+            .desktop-overview-card small {
+                margin-top: 4px; color: var(--text-sub); font-size: 11px; font-weight: 700;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            .desktop-scenario-number {
+                width: 44px; height: 44px; display: grid; place-items: center;
+                border-radius: 0; background: transparent; color: #808080; font-size: 14px; font-weight: 900;
+            }
+.desktop-overview-add-card { border: 1px dashed var(--dash-secondary); background: var(--card-bg); }
+.desktop-overview-add-card .desktop-scenario-number { background: transparent; color: #282828; font-size: 22px; }
+.desktop-scenario-random-panel {
+display: grid;
+gap: 12px;
+margin-top: auto;
+padding-top: 18px;
+border-top: 1px solid var(--accent-gray);
+}
+.desktop-scenario-random-panel strong {
+color: var(--text-main);
+font-size: 12px;
+font-weight: 900;
+}
+.desktop-scenario-random-actions {
+    align-items: center;
+    justify-items: center;
+    margin: 0;
+}
+.desktop-game-card {
+                margin: 18px 0 auto; padding: 26px; min-height: 160px;
+                display: flex; flex-direction: column; justify-content: center; gap: 8px;
+                background: var(--card-bg); box-shadow: 4px 4px 0 var(--accent-neon);
+            }
+.desktop-game-card strong { font-size: 28px; }
+
+#desktop-config-editor {
+                display: none; flex: 0 1 680px; width: min(680px, 48vw);
+                height: 850px; max-height: calc(100dvh - 24px);
+                overflow-y: auto; overscroll-behavior: contain;
+background: var(--paper-bg); border: 3px solid var(--border-dark); border-radius: 16px;
+                box-shadow: 5px 5px 0 rgba(40,40,40,0.09);
+            }
+            #edit-scenario-screen[data-editor-section="npc"] #desktop-config-editor,
+            #edit-scenario-screen[data-editor-section="scenario"] #desktop-config-editor,
+#edit-scenario-screen[data-editor-section="game"] #desktop-config-editor { background: var(--paper-bg); }
+            #edit-scenario-screen.desktop-editor-open #desktop-config-editor { display: flex; flex-direction: column; }
+            .desktop-editor-title-row {
+                display: flex; justify-content: flex-end; align-items: center;
+                min-height: 42px; margin-bottom: 2px;
+            }
+            .desktop-editor-close {
+                display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px;
+                border: 2px solid #282828; border-radius: 8px; background: var(--card-bg);
+                color: #282828; cursor: pointer; font-size: 22px; line-height: 1;
+            }
+            .desktop-editor-close:hover { background: var(--accent-neon); }
+            #desktop-config-editor > .u-inline-033 { display: none; max-width: none; }
+            #edit-scenario-screen[data-editor-section="game"] #desktop-config-editor > .u-inline-033 { display: flex; }
+            #desktop-config-editor #edit-scenario-container {
+                padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; gap: 8px;
+            }
+            #desktop-config-editor #edit-scenario-container > * { display: none; }
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container,
+            #edit-scenario-screen[data-editor-section="scenario"] #scenario-list-container,
+            #edit-scenario-screen[data-editor-section="game"] #edit-scenario-container > .u-inline-035,
+            #edit-scenario-screen[data-editor-section="game"] #input-preset-name,
+            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor { display: block; }
+
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .language-setting-row,
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .game-difficulty-row,
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .game-difficulty-note { display: none; }
+            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor > * { display: none; }
+            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .language-setting-row,
+            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .game-difficulty-row { display: grid; }
+            #edit-scenario-screen[data-editor-section="game"] #preset-player-editor .game-difficulty-note { display: block; }
+
+#desktop-config-editor #preset-player-editor {
+position: relative;
+padding: 0; margin: 0; border: 0; background: transparent;
+}
+#desktop-config-editor .desktop-player-new-preset-btn {
+position: absolute;
+top: 0;
+right: 0;
+width: 34px;
+height: 34px;
+display: grid;
+place-items: center;
+padding: 0;
+border: 0;
+background: transparent;
+color: var(--accent-neon);
+font-size: 34px;
+font-weight: 400;
+line-height: 1;
+cursor: pointer;
+}
+#desktop-config-editor .desktop-player-new-preset-btn:hover,
+#desktop-config-editor .desktop-player-new-preset-btn:focus-visible {
+color: var(--text-main);
+outline: none;
+}
+            #desktop-config-editor #preset-player-editor > .u-inline-037 { display: none; }
+            #desktop-config-editor .avatar-setup-area {
+                border: 0; background: transparent; padding: 4px; margin-bottom: 12px;
+            }
+            #desktop-config-editor .avatar-label { display: none; }
+            #desktop-config-editor .avatar-preview { width: 82px; height: 82px; }
+#desktop-config-editor .scenario-input,
+#desktop-config-editor .language-mode-select,
+#desktop-config-editor .anime-sheet input,
+#desktop-config-editor .anime-sheet textarea {
+border: 1px solid #808080; box-shadow: none; background: var(--card-bg);
+}
+            #desktop-config-editor .scenario-input:focus,
+            #desktop-config-editor .language-mode-select:focus,
+            #desktop-config-editor .anime-sheet input:focus,
+            #desktop-config-editor .anime-sheet textarea:focus {
+                border-color: var(--border-dark); box-shadow: 3px 3px 0 var(--accent-neon); transform: none;
+            }
+            #desktop-config-editor .anime-sheet {
+                border: 0; border-radius: 10px; padding: 14px; background: var(--card-bg); box-shadow: none;
+            }
+            #desktop-config-editor details.foldable-card {
+                border: 0; border-radius: 10px; background: var(--card-bg); box-shadow: none; transform: none;
+            }
+            #desktop-config-editor details.foldable-card summary {
+                border-radius: 14px; background: rgba(40,40,40,0.88); padding: 10px 14px;
+            }
+            #desktop-config-editor details.foldable-card[open] { box-shadow: none; transform: none; }
+            #desktop-config-editor .stat-box { border: 0; border-radius: 8px; background: var(--card-bg); }
+            #desktop-config-editor .stat-input,
+            #desktop-config-editor .stat-input:disabled { background: #BFB3B8; color: #282828; }
+
+            #desktop-config-editor #npc-list-container details,
+            #desktop-config-editor #scenario-list-container details { display: none; }
+            #desktop-config-editor #npc-list-container details.desktop-active-card,
+            #desktop-config-editor #scenario-list-container details.desktop-active-card {
+                display: block; border: 0; background: transparent; box-shadow: none; transform: none;
+            }
+            #desktop-config-editor details.desktop-active-card > summary { display: none; }
+            #desktop-config-editor details.desktop-active-card > .foldable-content { background: transparent; }
+
+            #desktop-config-editor > .u-inline-049 { display: none; }
+            #edit-scenario-screen[data-editor-section="game"] #desktop-config-editor > .u-inline-049 { display: flex; }
+            #desktop-config-editor > .u-inline-051 { margin-top: auto; padding-top: 18px; }
+            #desktop-config-editor > .u-inline-053 { display: none; }
+
+            /* 創角桌機版：與遊戲角色面板共用同一套標籤、比例與配色。 */
+            #edit-scenario-screen.desktop-editor-open #desktop-config-overview,
+            #edit-scenario-screen.desktop-editor-open #desktop-config-editor {
+                flex: none; width: 100%; max-width: none; min-width: 0;
+            }
+            #edit-scenario-screen.desktop-editor-open {
+                display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                align-items: center; align-content: center;
+            }
+            #edit-scenario-screen.game-workspace-active #desktop-config-overview {
+                flex: 0 1 680px; width: min(680px, calc(100vw - 130px)); min-width: 0;
+            }
+            .desktop-workspace-view[data-workspace-view="characters"] {
+                justify-content: flex-start; padding-top: clamp(26px, 5vh, 48px);
+            }
+
+.desktop-game-settings-card {
+flex: 1; min-height: 0; overflow-y: auto;
+max-width: 720px;
+padding: 14px 0 0; background: transparent;
+border: 0; border-radius: 0; box-shadow: none;
+}
+            .desktop-game-setting-row { margin-bottom: 17px; }
+            .desktop-game-setting-row > label,
+            .desktop-game-label-line label,
+            .desktop-game-setting-grid label {
+                display: block; color: var(--text-main); font-size: 12px; font-weight: 900;
+            }
+            .desktop-game-setting-row > label,
+            .desktop-game-label-line { margin-bottom: 7px; }
+            .desktop-game-label-line { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
+            #desktop-preset-lock-btn {
+                width: 20px; height: 20px; padding: 0; border: 0; background: transparent;
+                color: var(--text-main); cursor: pointer; font-size: 12px; line-height: 1;
+            }
+.desktop-game-inline-control { display: grid; grid-template-columns: auto auto; gap: 8px; justify-content: start; }
+.desktop-game-preset-control { display: block; }
+.desktop-game-inline-control select,
+#desktop-preset-name-input {
+width: min(260px, 100%); min-width: 0; min-height: 34px; padding: 7px 10px;
+border: 2px solid var(--border-dark); border-radius: 8px;
+background: var(--card-bg); color: var(--text-main); font-size: 13px; font-weight: 800;
+}
+.desktop-game-setting-grid select {
+width: min(260px, 100%);
+min-width: 0;
+min-height: 30px;
+padding: 5px 10px;
+border: 0;
+border-radius: 0;
+background: var(--accent-neon);
+color: var(--text-main);
+font-size: 13px;
+font-weight: 800;
+box-shadow: none;
+}
+.desktop-game-preset-control #desktop-preset-selector {
+width: min(260px, 100%);
+min-height: 30px;
+padding: 5px 10px;
+border: 0;
+border-radius: 0;
+background: var(--accent-neon);
+box-shadow: none;
+}
+#desktop-preset-name-input {
+display: block;
+width: min(260px, 100%);
+min-height: 30px;
+padding: 5px 2px 7px;
+border: 0;
+border-bottom: 1px solid var(--input-line);
+border-radius: 0;
+background: transparent;
+}
+.desktop-game-preset-control #desktop-preset-selector:focus,
+#desktop-preset-name-input:focus,
+.desktop-game-setting-grid select:focus {
+outline: none;
+box-shadow: 3px 3px 0 var(--accent-neon);
+}
+.desktop-preset-binding-note {
+min-height: 1.35em;
+margin: 6px 0 0;
+color: var(--text-sub);
+font-size: 10px;
+font-weight: 800;
+line-height: 1.35;
+}
+.desktop-game-add-btn,
+.desktop-game-two-buttons button,
+.desktop-game-management-actions button {
+padding: 10px 13px; border: 2px solid var(--border-dark); border-radius: 8px;
+background: var(--card-bg); color: var(--text-main); cursor: pointer; font-size: 12px; font-weight: 900;
+box-shadow: none;
+transition: background 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
+}
+            .desktop-game-add-btn { background: var(--card-bg); color: var(--text-main); white-space: nowrap; }
+.desktop-game-two-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.desktop-game-two-buttons button:hover,
+.desktop-game-two-buttons button:focus-visible,
+.desktop-game-management-actions button:hover,
+.desktop-game-management-actions button:focus-visible {
+background: var(--accent-neon);
+box-shadow: 4px 4px 0 var(--border-dark);
+transform: translate(-2px, -2px);
+outline: none;
+}
+.desktop-preset-bulk-panel {
+display: grid;
+gap: 8px;
+margin: 0 0 16px;
+}
+.desktop-preset-bulk-toolbar {
+display: flex;
+align-items: center;
+gap: 12px;
+flex-wrap: wrap;
+margin-left: auto;
+}
+.desktop-preset-bulk-toolbar label,
+.desktop-preset-delete-row {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+font-size: 12px;
+font-weight: 900;
+color: var(--text-main);
+}
+.desktop-preset-bulk-toolbar button {
+width: auto;
+padding: 6px 10px;
+border: 2px solid var(--border-dark);
+border-radius: 8px;
+background: var(--card-bg);
+color: #ff4444;
+font-size: 12px;
+font-weight: 900;
+cursor: pointer;
+box-shadow: none;
+transition: background 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
+}
+.desktop-preset-bulk-toolbar button:hover,
+.desktop-preset-bulk-toolbar button:focus-visible {
+background: var(--accent-neon);
+box-shadow: 4px 4px 0 var(--border-dark);
+transform: translate(-2px, -2px);
+outline: none;
+}
+.desktop-preset-delete-list {
+display: grid;
+grid-template-columns: repeat(2, minmax(180px, 320px));
+gap: 6px 10px;
+justify-content: start;
+}
+.desktop-preset-delete-row {
+min-width: 0;
+padding: 5px 7px;
+border: 1px solid #cfcfcf;
+border-radius: 6px;
+background: var(--card-bg);
+}
+.desktop-preset-delete-row.disabled {
+opacity: 0.55;
+}
+.desktop-preset-delete-name {
+min-width: 0;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.desktop-game-setting-grid {
+display: flex;
+flex-wrap: wrap;
+align-items: end;
+gap: 12px 14px;
+margin-bottom: 9px;
+}
+ .desktop-game-setting-grid label { display: grid; gap: 7px; }
+            .desktop-game-difficulty-note {
+                margin: 0 0 18px; color: var(--text-sub); font-size: 10px; font-weight: 700; line-height: 1.55;
+            }
+            .desktop-game-management-actions {
+display: flex;
+align-items: center;
+flex-wrap: wrap;
+gap: 8px 10px;
+padding-bottom: 8px;
+margin-bottom: 10px;
+border-bottom: 0;
+}
+            .desktop-game-management-actions .danger { color: #d33; border-color: #d33; }
+.desktop-game-autosave-note {
+margin-top: 16px; padding-top: 10px; border-top: 1px dashed var(--dash-secondary);
+color: #808080; font-size: 11px; font-weight: 800;
+}
+
+            #edit-scenario-screen.random-generator-inline-open #desktop-config-overview {
+                flex: none; width: 100%; max-width: none; min-width: 0;
+            }
+            #edit-scenario-screen.random-generator-inline-open #desktop-config-editor > :not(.random-generator-inline-panel) {
+                display: none !important;
+            }
+            .random-generator-inline-panel {
+                width: 100%; max-height: none; margin: 0; padding: 8px 4px;
+                overflow: visible; border: 0; border-radius: 0;
+                background: transparent; box-shadow: none;
+            }
+            .random-generator-inline-panel h3 {
+                margin: 0 0 8px; padding-bottom: 12px;
+                border-bottom: 1px dashed var(--dash-primary);
+                color: var(--text-main); font-size: 22px;
+            }
+            .random-generator-inline-panel .scenario-input,
+            .random-generator-inline-panel .random-preview { width: 100%; box-sizing: border-box; }
+            .random-generator-inline-panel .random-preview {
+                max-height: 42vh; background: var(--card-bg); border-color: var(--border-dark);
+            }
+
+            #desktop-config-editor { min-width: 0; }
+            #desktop-config-editor > .u-inline-051 { display: none !important; }
+            #edit-scenario-screen[data-editor-section="game"] #desktop-config-editor { display: none !important; }
+
+#edit-scenario-screen[data-editor-section="player"] #desktop-config-editor,
+#edit-scenario-screen[data-editor-section="npc"] #desktop-config-editor {
+padding: 20px 28px 24px;
+}
+            #edit-scenario-screen[data-editor-section="player"] .desktop-editor-title-row {
+                min-height: 38px; margin-bottom: 0;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor {
+                display: flex; flex-direction: column; padding-top: 45px;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > .avatar-setup-area {
+                order: 0; margin: 0 auto 8px; padding: 0;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > .scenario-label:not(.u-inline-040) { display: none; }
+            #edit-scenario-screen[data-editor-section="player"] #input-player-name {
+                order: 1; width: min(240px, 70%); margin: 0 auto 14px; padding: 7px 10px;
+                border: 0; border-bottom: 2px solid #282828; border-radius: 0;
+                background: var(--accent-neon); text-align: center; font-size: 16px; font-weight: 900;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > .u-inline-039 { order: 2; margin-top: 4px; }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > .stat-grid { order: 3; }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details { order: 4; }
+            #edit-scenario-screen[data-editor-section="player"] .stat-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px 12px; margin-bottom: 12px;
+            }
+            #edit-scenario-screen[data-editor-section="player"] .stat-box {
+                min-height: 34px; display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+                padding: 4px 7px; border: 0; border-bottom: 1px solid #BFB3B8; border-radius: 0; background: transparent;
+            }
+            #edit-scenario-screen[data-editor-section="player"] .stat-label {
+                padding: 0; background: transparent; color: #282828; text-align: left; font-size: 12px; letter-spacing: 0;
+            }
+            #edit-scenario-screen[data-editor-section="player"] .stat-input,
+            #edit-scenario-screen[data-editor-section="player"] .stat-input:disabled {
+                width: 42px; padding: 3px 0; background: transparent; color: #282828; font-size: 14px;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #stat-controls {
+                display: flex; align-items: center; gap: 6px;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #btn-roll-stats,
+            #edit-scenario-screen[data-editor-section="player"] #btn-respec-stats {
+                padding: 5px 8px; font-size: 12px;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card {
+                display: block; margin: 6px 0 0; padding: 0; background: transparent; border: 0;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card > summary { display: none; }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card > .foldable-content { padding: 0; }
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input,
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea {
+                border: 1px solid #808080; border-radius: 5px; background: var(--card-bg);
+            }
+
+            /* 角色／情境編輯細修：使用可自訂主題色，縮窄標籤與內容範圍。 */
+.desktop-config-tab,
+.setup-side-tab { min-height: 104px; }
+.desktop-config-tab.active,
+#setup-screen .setup-side-tab.active {
+box-shadow: -5px 5px 0 var(--accent-gray);
+transform: translate(-3px, -2px);
+}
+
+/* 英文側標籤：保留橫向單字形狀，再將整個單字側轉。 */
+html[lang="en"] .desktop-config-tab,
+html[lang="en"] .setup-side-tab,
+html[lang="en"] #floating-menu-btn {
+writing-mode: sideways-lr;
+text-orientation: mixed;
+white-space: nowrap;
+ letter-spacing: 1px;
+ }
+
+#desktop-config-editor { padding: 24px 20px 28px; }
+            #desktop-config-editor #edit-scenario-container {
+                width: min(82%, 560px); margin: 14px auto 0;
+            }
+            #desktop-config-editor #npc-list-container,
+            #desktop-config-editor #scenario-list-container,
+            #desktop-config-editor #preset-player-editor { width: 100%; min-width: 0; }
+            #desktop-config-editor .scenario-input,
+            #desktop-config-editor .anime-sheet input,
+            #desktop-config-editor .anime-sheet textarea { width: 100%; min-width: 0; }
+
+            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .avatar-preview,
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .avatar-preview {
+                width: 104px; height: 104px; border-radius: 50%;
+                border: none; outline: 2px solid var(--border-dark); outline-offset: -2px; box-shadow: 3px 3px 0 var(--accent-neon);
+            }
+            #edit-scenario-screen[data-editor-section="player"] #input-player-name,
+            #edit-scenario-screen[data-editor-section="npc"] [id^="npc-name-"] {
+                display: block; max-width: 78%; margin: 0 auto 14px; padding: 7px 12px;
+                border: 0; border-radius: 4px; background: var(--accent-neon);
+                color: var(--text-main); text-align: center; font-size: 16px; font-weight: 900;
+                box-shadow: none;
+            }
+            #edit-scenario-screen[data-editor-section="player"] #input-player-name:focus,
+            #edit-scenario-screen[data-editor-section="npc"] [id^="npc-name-"]:focus {
+                border: 0; outline: 2px solid var(--border-dark); box-shadow: none; transform: none;
+            }
+
+#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet,
+#edit-scenario-screen[data-editor-section="npc"] #npc-list-container .anime-sheet {
+width: 100%;
+grid-template-columns: 1fr 1fr; gap: 10px 12px;
+margin: 0; padding: 0; background: transparent;
+}
+            #desktop-config-editor .anime-sheet .full { grid-column: 1 / -1; }
+            #desktop-config-editor #p-app,
+            #desktop-config-editor #p-bg,
+            #desktop-config-editor [id^="npc-app-"],
+            #desktop-config-editor [id^="npc-bg-"] {
+                min-height: 96px !important; overflow-y: auto !important; resize: vertical !important;
+            }
+
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .u-inline-061 {
+                display: flex; flex-direction: column; align-items: center; gap: 2px;
+            }
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .u-inline-062 { width: 100%; }
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .u-inline-062 > .scenario-label { display: none; }
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .u-inline-063 {
+                width: 120px; text-align: center;
+            }
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .u-inline-063 .scenario-input {
+                padding: 7px; text-align: center;
+            }
+            #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .u-inline-064 {
+                margin-top: 10px; border: 0; text-align: left;
+            }
+
+            #desktop-config-editor details.desktop-active-card > .foldable-content {
+                position: relative; padding: 38px 0 0;
+            }
+            #desktop-config-editor details.desktop-active-card .delete-scen-btn {
+                top: 0; right: 0; padding: 5px 10px;
+            }
+
+            #edit-scenario-screen[data-editor-section="scenario"] #scenario-list-container .scenario-input {
+                width: 100%; padding: 10px 12px;
+            }
+            #edit-scenario-screen[data-editor-section="scenario"] #scenario-list-container textarea {
+                min-height: 82px !important; overflow-y: auto !important; resize: vertical !important;
+                line-height: 1.55;
+            }
+            #edit-scenario-screen[data-editor-section="scenario"] [id^="scen-lore-"] {
+                min-height: 132px !important;
+            }
+
+}
+
