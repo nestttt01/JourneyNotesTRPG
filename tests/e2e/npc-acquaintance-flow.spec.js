@@ -37,6 +37,106 @@ async function waitForEqualPanels(page) {
     })).toBeLessThan(1);
 }
 
+test('approved A bracket buttons pop open without card styling', async ({ page }) => {
+    await openCharacterConfig(page);
+    await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
+
+    const bracketButton = page.locator('#desktop-npc-readonly-preview .npc-flow-bracket-action');
+    await expect(bracketButton).toBeVisible();
+    const rest = await bracketButton.evaluate(button => ({
+        backgroundColor: getComputedStyle(button).backgroundColor,
+        borderTopWidth: getComputedStyle(button).borderTopWidth,
+        boxShadow: getComputedStyle(button).boxShadow,
+        beforeContent: getComputedStyle(button, '::before').content,
+        afterContent: getComputedStyle(button, '::after').content
+    }));
+    expect(rest).toEqual({
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        borderTopWidth: '0px',
+        boxShadow: 'none',
+        beforeContent: '"\uFF3B"',
+        afterContent: '"\uFF3D"'
+    });
+
+    await bracketButton.hover();
+    await page.waitForTimeout(300);
+    const hover = await bracketButton.evaluate(button => ({
+        beforeTransform: getComputedStyle(button, '::before').transform,
+        afterTransform: getComputedStyle(button, '::after').transform,
+        labelClipPath: getComputedStyle(button.querySelector('.npc-flow-bracket-label'), '::after').clipPath
+    }));
+    expect(hover.beforeTransform).toBe('matrix(1, 0, 0, 1, -4, 0)');
+    expect(hover.afterTransform).toBe('matrix(1, 0, 0, 1, 4, 0)');
+    expect(['inset(0px)', 'inset(0px 0px 0px 0px)']).toContain(hover.labelClipPath);
+
+    await page.mouse.down();
+    await page.waitForTimeout(180);
+    expect(await bracketButton.evaluate(button => getComputedStyle(button).transform))
+        .toBe('matrix(0.97, 0, 0, 0.97, 0, 0)');
+    await page.mouse.up();
+
+    const staticBracketStyles = await page.evaluate(() => {
+        const root = document.documentElement;
+        const originalMode = root.dataset.bgMode;
+        const selector = [
+            '.desktop-game-two-buttons button.npc-flow-bracket-action',
+            '.desktop-game-management-actions button.npc-flow-bracket-action'
+        ].join(',');
+        const read = () => Array.from(document.querySelectorAll(selector)).map(button => ({
+            backgroundColor: getComputedStyle(button).backgroundColor,
+            borderTopWidth: getComputedStyle(button).borderTopWidth,
+            boxShadow: getComputedStyle(button).boxShadow
+        }));
+        const light = read();
+        root.dataset.bgMode = 'image';
+        const image = read();
+        if (originalMode === undefined) delete root.dataset.bgMode;
+        else root.dataset.bgMode = originalMode;
+        return { light, image };
+    });
+    expect(staticBracketStyles.light.length).toBe(3);
+    expect(staticBracketStyles.light).toEqual(staticBracketStyles.image);
+    expect(staticBracketStyles.light.every(style => (
+        style.backgroundColor === 'rgba(0, 0, 0, 0)'
+        && style.borderTopWidth === '0px'
+        && style.boxShadow === 'none'
+    ))).toBe(true);
+
+    await page.evaluate(() => {
+        setUiLanguage('ja', { persist: false, notify: false });
+        switchDesktopConfigWorkspace('scenarios');
+    });
+    const randomActions = page.locator('.desktop-scenario-random-actions');
+    await expect(randomActions).toBeVisible();
+    const randomActionLayout = await randomActions.evaluate(container => {
+        const buttons = Array.from(container.querySelectorAll('button'));
+        const containerBox = container.getBoundingClientRect();
+        const firstBox = buttons[0].getBoundingClientRect();
+        const secondBox = buttons[1].getBoundingClientRect();
+        const style = getComputedStyle(container);
+        const gap = parseFloat(style.columnGap);
+        const columnWidth = (containerBox.width - gap) / 2;
+        return {
+            buttonCount: buttons.length,
+            columnCount: style.gridTemplateColumns.split(' ').filter(Boolean).length,
+            justifyItems: style.justifyItems,
+            firstCenter: firstBox.left - containerBox.left + firstBox.width / 2,
+            firstTarget: columnWidth / 2,
+            secondCenter: secondBox.left - containerBox.left + secondBox.width / 2,
+            secondTarget: columnWidth + gap + columnWidth / 2,
+            verticalCenterDelta: Math.abs(
+                firstBox.top + firstBox.height / 2 - secondBox.top - secondBox.height / 2
+            )
+        };
+    });
+    expect(randomActionLayout.buttonCount).toBe(2);
+    expect(randomActionLayout.columnCount).toBe(2);
+    expect(randomActionLayout.justifyItems).toBe('center');
+    expect(Math.abs(randomActionLayout.firstCenter - randomActionLayout.firstTarget)).toBeLessThan(1);
+    expect(Math.abs(randomActionLayout.secondCenter - randomActionLayout.secondTarget)).toBeLessThan(1);
+    expect(randomActionLayout.verticalCenterDelta).toBeLessThan(1);
+});
+
 test('existing NPC opens a read-only detail sheet before acquaintance', async ({ page }) => {
     await openCharacterConfig(page);
     const playerMetrics = await page.evaluate(() => {
@@ -66,19 +166,21 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
     await expect(preview.locator('.desktop-npc-preview-topbar')).toHaveCount(0);
     await expect(preview.locator('.desktop-npc-preview-menu')).toHaveCount(0);
     await expect(preview.locator('.desktop-npc-preview-kicker')).toHaveCount(0);
-    await expect(preview.locator('.desktop-npc-preview-read-item')).toHaveCount(4);
-    await expect(preview.locator('.desktop-npc-preview-read-item > span')).toHaveText([
+    await expect(preview.locator('.desktop-character-preview-basis .npc-flow-basis-row')).toHaveCount(6);
+    await expect(preview.locator('.desktop-character-preview-basis .npc-flow-basis-row > span')).toHaveText([
         '體格',
         '語氣',
         '喜好',
-        '厭惡'
+        '厭惡',
+        '外貌與穿搭',
+        '核心性格與背景'
     ]);
-    await expect(preview.locator('.desktop-npc-preview-chapters section')).toHaveCount(2);
+    await expect(preview.locator('.desktop-npc-preview-read-grid, .desktop-npc-preview-chapters')).toHaveCount(0);
     await expect(preview.locator('input, textarea, [contenteditable="true"]')).toHaveCount(0);
 
     const approvedPreviewStyle = await preview.evaluate(root => {
-        const grid = root.querySelector('.desktop-npc-preview-read-grid');
-        const label = root.querySelector('.desktop-npc-preview-read-item > span');
+        const grid = root.querySelector('.desktop-character-preview-basis');
+        const row = root.querySelector('.desktop-character-preview-basis .npc-flow-basis-row');
         const actions = root.querySelector('.desktop-npc-preview-actions');
         const heroAvatar = root.querySelector('.desktop-npc-preview-hero-avatar');
         const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
@@ -89,7 +191,7 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
             columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
             gridLeft: gridBox.left - panel.left,
             gridWidth: gridBox.width,
-            labelAccentWidth: getComputedStyle(label, '::before').width,
+            labelAccentWidth: getComputedStyle(row, '::before').width,
             actionsBorderTop: getComputedStyle(actions).borderTopWidth,
             heroAvatarSize: avatarBox.width,
             heroAvatarTop: avatarBox.top - panel.top,
@@ -97,10 +199,10 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
             actionBottomGap: panel.bottom - actionBox.bottom
         };
     });
-    expect(approvedPreviewStyle).toEqual({
+    expect(approvedPreviewStyle.gridLeft).toBeGreaterThan(0);
+    expect(approvedPreviewStyle.gridWidth).toBeGreaterThan(0);
+    expect(approvedPreviewStyle).toMatchObject({
         columns: 2,
-        gridLeft: 45,
-        gridWidth: approvedPreviewStyle.gridWidth,
         labelAccentWidth: '3px',
         actionsBorderTop: '0px',
         heroAvatarSize: 104,
@@ -141,11 +243,13 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
         setUiLanguage('ja', { persist: false, notify: false });
         renderDesktopNpcPreview();
     });
-    await expect(preview.locator('.desktop-npc-preview-read-item > span')).toHaveText([
+    await expect(preview.locator('.desktop-character-preview-basis .npc-flow-basis-row > span')).toHaveText([
         '体格',
         '口調',
         '好きなもの',
-        '嫌いなもの'
+        '嫌いなもの',
+        '外見と服装',
+        '性格と背景'
     ]);
 
     const longProfileText = 'Long profile text. '.repeat(120);
@@ -156,7 +260,7 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
         renderDesktopNpcPreview();
     }, longProfileText);
     const previewOverflowProtection = await page.evaluate(() => {
-        const content = document.querySelector('.desktop-npc-preview-chapters');
+        const content = document.querySelector('.desktop-character-preview-basis');
         const action = document.querySelector('.desktop-npc-preview-actions button');
         const contentBox = content.getBoundingClientRect();
         const actionBox = action.getBoundingClientRect();
@@ -177,8 +281,8 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
     const approvedIntroStyle = await page.evaluate(() => {
         const subtitle = document.querySelector('[data-flow-view="intro"] .npc-flow-title');
         const avatar = document.querySelector('.npc-flow-intro-avatar');
-        const basis = document.querySelector('.npc-flow-basis-list');
-        const row = document.querySelector('.npc-flow-basis-row');
+        const basis = document.querySelector('#npc-acquaintance-flow .npc-flow-basis-list');
+        const row = document.querySelector('#npc-acquaintance-flow .npc-flow-basis-row');
         const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
         const returnAction = document.querySelector(
             '#npc-acquaintance-flow > .npc-flow-header .npc-flow-return-action'
@@ -250,9 +354,74 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
     await expect(editorActions).toHaveCount(2);
     await expect(editorActions.first()).toBeVisible();
     await expect(page.locator('.desktop-npc-editor-name > span')).toHaveCount(0);
-    await expect(page.locator(
+    const deleteButton = page.locator(
         '#npc-list-container details.desktop-active-card .desktop-npc-editor-delete'
-    )).toBeVisible();
+    );
+    await expect(deleteButton).toBeVisible();
+    const deleteButtonStyle = await deleteButton.evaluate(button => ({
+        borderBottomWidth: getComputedStyle(button).borderBottomWidth,
+        fontSize: getComputedStyle(button).fontSize,
+        textDecorationLine: getComputedStyle(button.querySelector('.hold-delete-base')).textDecorationLine
+    }));
+    expect(deleteButtonStyle).toEqual({
+        borderBottomWidth: '0px',
+        fontSize: '12px',
+        textDecorationLine: 'underline'
+    });
+
+    const approvedBracketButton = editorActions.first();
+    const bracketStyleAtRest = await approvedBracketButton.evaluate(button => ({
+        backgroundColor: getComputedStyle(button).backgroundColor,
+        borderTopWidth: getComputedStyle(button).borderTopWidth,
+        boxShadow: getComputedStyle(button).boxShadow,
+        beforeContent: getComputedStyle(button, '::before').content,
+        afterContent: getComputedStyle(button, '::after').content
+    }));
+    expect(bracketStyleAtRest).toEqual({
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        borderTopWidth: '0px',
+        boxShadow: 'none',
+        beforeContent: '"［"',
+        afterContent: '"］"'
+    });
+    await approvedBracketButton.hover();
+    await page.waitForTimeout(300);
+    const bracketStyleOnHover = await approvedBracketButton.evaluate(button => ({
+        beforeTransform: getComputedStyle(button, '::before').transform,
+        afterTransform: getComputedStyle(button, '::after').transform,
+        labelClipPath: getComputedStyle(button.querySelector('.npc-flow-bracket-label'), '::after').clipPath
+    }));
+    expect(bracketStyleOnHover.beforeTransform).toBe('matrix(1, 0, 0, 1, -4, 0)');
+    expect(bracketStyleOnHover.afterTransform).toBe('matrix(1, 0, 0, 1, 4, 0)');
+    expect(['inset(0px)', 'inset(0px 0px 0px 0px)']).toContain(bracketStyleOnHover.labelClipPath);
+
+    const staticBracketStyles = await page.evaluate(() => {
+        const root = document.documentElement;
+        const originalMode = root.dataset.bgMode;
+        const selectors = [
+            '.desktop-game-two-buttons button.npc-flow-bracket-action',
+            '.desktop-game-management-actions button.npc-flow-bracket-action'
+        ];
+        const readStyles = () => Array.from(document.querySelectorAll(selectors.join(','))).map(button => ({
+            backgroundColor: getComputedStyle(button).backgroundColor,
+            borderTopWidth: getComputedStyle(button).borderTopWidth,
+            boxShadow: getComputedStyle(button).boxShadow
+        }));
+        const light = readStyles();
+        root.dataset.bgMode = 'image';
+        const image = readStyles();
+        if (originalMode === undefined) delete root.dataset.bgMode;
+        else root.dataset.bgMode = originalMode;
+        return { light, image };
+    });
+    expect(staticBracketStyles.light.length).toBe(3);
+    expect(staticBracketStyles.light).toEqual(staticBracketStyles.image);
+    expect(staticBracketStyles.light.every(style => (
+        style.backgroundColor === 'rgba(0, 0, 0, 0)'
+        && style.borderTopWidth === '0px'
+        && style.boxShadow === 'none'
+    ))).toBe(true);
+
     const editorLayout = await page.evaluate(() => {
         const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
         const header = document.querySelector('.desktop-npc-editor-header').getBoundingClientRect();
@@ -281,7 +450,7 @@ test('read-only geometry stays fixed when switching between NPC text lengths', a
         await npcButtons.nth(index).click();
         layouts.push(await page.evaluate(() => {
             const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
-            const grid = document.querySelector('.desktop-npc-preview-read-grid').getBoundingClientRect();
+            const grid = document.querySelector('.desktop-character-preview-basis').getBoundingClientRect();
             return {
                 left: grid.left - panel.left,
                 top: grid.top - panel.top,
@@ -305,8 +474,8 @@ test('fine pointer at phone width still uses the full-width mobile NPC layouts',
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
     const previewLayout = await page.evaluate(() => {
         const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
-        const grid = document.querySelector('.desktop-npc-preview-read-grid');
-        const chapters = document.querySelector('.desktop-npc-preview-chapters').getBoundingClientRect();
+        const grid = document.querySelector('.desktop-character-preview-basis');
+        const gridBox = grid.getBoundingClientRect();
         const action = document.querySelector('.desktop-npc-preview-actions button').getBoundingClientRect();
         const back = document.querySelector('.mobile-config-editor-back');
         return {
@@ -314,8 +483,8 @@ test('fine pointer at phone width still uses the full-width mobile NPC layouts',
             overviewDisplay: getComputedStyle(document.getElementById('desktop-config-overview')).display,
             panelWidth: panel.width,
             columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
-            writingMode: getComputedStyle(grid.querySelector('p')).writingMode,
-            contentGap: action.top - chapters.bottom,
+            writingMode: getComputedStyle(grid.querySelector('strong')).writingMode,
+            contentGap: action.top - gridBox.bottom,
             actionInside: action.bottom < panel.bottom,
             backDisplay: getComputedStyle(back).display,
             horizontalOverflow: document.documentElement.scrollWidth - innerWidth
@@ -325,7 +494,7 @@ test('fine pointer at phone width still uses the full-width mobile NPC layouts',
         screenDisplay: 'flex',
         overviewDisplay: 'none',
         panelWidth: 526,
-        columns: 2,
+        columns: 1,
         writingMode: 'horizontal-tb',
         contentGap: 30,
         actionInside: true,
@@ -349,9 +518,11 @@ test('fine pointer at phone width still uses the full-width mobile NPC layouts',
     await page.locator('details.desktop-active-card .desktop-npc-editor-header .npc-flow-return-action').click();
     await page.locator('.desktop-npc-preview-actions button').click();
     const flowLayout = await page.evaluate(() => ({
-        columns: getComputedStyle(document.querySelector('.npc-flow-basis-list'))
+        columns: getComputedStyle(document.querySelector('#npc-acquaintance-flow .npc-flow-basis-list'))
             .gridTemplateColumns.split(' ').length,
-        writingMode: getComputedStyle(document.querySelector('.npc-flow-basis-row strong')).writingMode,
+        writingMode: getComputedStyle(
+            document.querySelector('#npc-acquaintance-flow .npc-flow-basis-row strong')
+        ).writingMode,
         backDisplay: getComputedStyle(document.querySelector('.mobile-config-editor-back')).display,
         horizontalOverflow: document.documentElement.scrollWidth - innerWidth
     }));
@@ -449,7 +620,22 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
     await page.locator('#desktop-npc-readonly-preview .npc-flow-bracket-action').click();
     await page.locator('#npc-acquaintance-flow [data-flow-action="question"]').click();
-    await page.locator('#npc-acquaintance-flow [data-flow-action="send-question"]').click();
+    await expect(page.locator(
+        '#npc-acquaintance-flow [data-flow-view="question"] [data-flow-action="intro"]'
+    )).toHaveCount(0);
+    await expect(page.locator(
+        '#npc-acquaintance-flow > .npc-flow-header [data-flow-action="close"]'
+    )).toBeVisible();
+    const questionOptions = page.locator('[data-option-group="question"] .npc-flow-option');
+    const sendQuestionButton = page.locator('#npc-acquaintance-flow [data-flow-action="send-question"]');
+    await expect(page.locator('[data-option-group="question"] .npc-flow-option[aria-pressed="true"]')).toHaveCount(0);
+    await expect(sendQuestionButton).toBeDisabled();
+    await questionOptions.first().click();
+    await questionOptions.nth(1).hover();
+    await expect(questionOptions.first()).toHaveAttribute('aria-pressed', 'true');
+    expect(await questionOptions.first().evaluate(element => getComputedStyle(element, '::before').opacity)).toBe('1');
+    expect(await questionOptions.nth(1).evaluate(element => getComputedStyle(element, '::before').opacity)).toBe('0');
+    await sendQuestionButton.click();
 
     await expect(page.locator('.npc-flow-dialogue .msg-wrapper')).toHaveCount(2);
     await expect(page.locator('.npc-flow-dialogue .chat-avatar')).toHaveCount(2);
@@ -468,6 +654,10 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     await expect(page.locator('.npc-flow-error')).toBeVisible();
     await page.locator('#npc-acquaintance-flow [data-flow-action="send-question"]').click();
     await expect(page.locator('.npc-flow-dialogue .msg-wrapper.npc .msg-text')).toHaveText('second reply');
+    const confirmJudgementButton = page.locator('#npc-acquaintance-flow [data-flow-action="confirm-judgement"]');
+    await expect(page.locator('[data-option-group="judgement"] .npc-flow-option[aria-pressed="true"]')).toHaveCount(0);
+    await expect(confirmJudgementButton).toBeDisabled();
+    await page.locator('[data-option-group="judgement"] [data-option-value="accept"]').click();
 
     const calls = await page.evaluate(() => window.__npcAcquaintanceCalls);
     expect(calls).toHaveLength(3);
@@ -478,8 +668,10 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     expect(calls[2].options.adjustment).toBe('more reserved');
     expect(await page.evaluate(() => JSON.stringify(editingNpcs[0].details))).toBe(originalDetails);
 
-    await page.locator('#npc-acquaintance-flow [data-flow-action="confirm-judgement"]').click();
+    await confirmJudgementButton.click();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="save-note"]')).toBeVisible();
     await page.locator('#npc-acquaintance-flow [data-flow-action="skip-save"]').click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="confirmed"]')).toHaveCount(0);
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario"]')).toBeVisible();
     expect(await page.evaluate(() => JSON.stringify(editingNpcs[0].details))).toBe(originalDetails);
 });

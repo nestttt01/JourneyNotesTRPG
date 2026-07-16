@@ -13,6 +13,20 @@ async function countEditableElements(page) {
         .count();
 }
 
+test('player preview plus hit target covers the visible glyph', async ({ page }) => {
+    await openCharacterConfig(page);
+    await page.locator('.desktop-player-card').click();
+
+    const plusButton = page.locator('#desktop-config-editor > .desktop-player-new-preset-btn');
+    await expect(plusButton).toBeVisible();
+    const hitTarget = await plusButton.evaluate(button => {
+        const box = button.getBoundingClientRect();
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return hit === button || button.contains(hit);
+    });
+    expect(hitTarget).toBe(true);
+});
+
 test('player card opens a read-only preview before editing (desktop)', async ({ page }) => {
     await openCharacterConfig(page);
     await page.locator('.desktop-player-card').click();
@@ -26,7 +40,14 @@ test('player card opens a read-only preview before editing (desktop)', async ({ 
     await expect(preview.locator('.desktop-npc-preview-hero h2')).toBeVisible();
     await expect(preview.locator('.status-stat-item')).toHaveCount(6);
     await expect(plusButton).toBeVisible();
+    await expect(preview.locator('.desktop-character-preview-basis .npc-flow-basis-row')).toHaveCount(6);
     const plusBoxInPreview = await plusButton.boundingBox();
+    const plusCenterHitsButton = await plusButton.evaluate(button => {
+        const box = button.getBoundingClientRect();
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return hit === button || button.contains(hit);
+    });
+    expect(plusCenterHitsButton).toBe(true);
 
     await preview.locator('.desktop-npc-preview-tool').click();
     await expect(preview).toBeHidden();
@@ -66,7 +87,8 @@ test('player preview mirrors form data and follows UI language', async ({ page }
     const preview = page.locator('#desktop-player-readonly-preview');
     await expect(preview).toBeVisible();
     await expect(preview.locator('.desktop-npc-preview-hero h2')).toHaveText('測試玩家');
-    await expect(preview.locator('.desktop-npc-preview-read-item').first()).toContainText('17歲／160cm');
+    await expect(preview.locator('.desktop-character-preview-basis .npc-flow-basis-row').first())
+        .toContainText('17歲／160cm');
     expect(await countEditableElements(page)).toBe(0);
 
     const editButton = preview.locator('.desktop-npc-preview-tool');
@@ -78,7 +100,7 @@ test('player preview mirrors form data and follows UI language', async ({ page }
     await expect(editButton).toHaveText(/編輯/);
 });
 
-test('player preview stats grid is centered and content width matches editor column', async ({ page }) => {
+test('player preview stats stay centered and details reuse the character-basis grid', async ({ page }) => {
     await openCharacterConfig(page);
     await page.evaluate(() => openDesktopPlayerPreview());
     const stats = page.locator('.desktop-player-preview-stats');
@@ -86,20 +108,19 @@ test('player preview stats grid is centered and content width matches editor col
     await expect(stats).toHaveCSS('justify-items', 'center');
 
     const widths = await page.evaluate(() => {
-        const editor = document.getElementById('desktop-config-editor');
-        const grid = document.querySelector('.desktop-npc-preview-read-grid');
-        const chapters = document.querySelector('.desktop-npc-preview-chapters');
-        const editorStyle = getComputedStyle(editor);
-        const contentWidth = editor.clientWidth
-            - parseFloat(editorStyle.paddingLeft) - parseFloat(editorStyle.paddingRight);
+        const preview = document.getElementById('desktop-player-readonly-preview');
+        const basis = document.querySelector('.desktop-character-preview-basis');
+        const previewStyle = getComputedStyle(preview);
+        const contentWidth = preview.clientWidth
+            - parseFloat(previewStyle.paddingLeft) - parseFloat(previewStyle.paddingRight);
         return {
-            expected: Math.min(contentWidth * 0.82, 750),
-            grid: grid.getBoundingClientRect().width,
-            chapters: chapters.getBoundingClientRect().width
+            expected: Math.min(contentWidth, 560),
+            basis: basis.getBoundingClientRect().width,
+            columns: getComputedStyle(basis).gridTemplateColumns.split(' ').length
         };
     });
-    expect(Math.abs(widths.grid - widths.expected)).toBeLessThan(2);
-    expect(Math.abs(widths.chapters - widths.expected)).toBeLessThan(2);
+    expect(Math.abs(widths.basis - widths.expected)).toBeLessThan(2);
+    expect(widths.columns).toBe(2);
 });
 
 test('player editor uses the light NPC-style fields', async ({ page }) => {

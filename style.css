@@ -194,7 +194,7 @@ font-weight: 800;
 line-height: 1.65;
 }
 
-h2 { color: var(--text-main); text-shadow: 0 0 12px #fff, 3px 3px 0px var(--accent-neon); margin-bottom: 8px; font-weight: 900; text-align: center; }
+h2 { color: var(--text-main); text-shadow: 0 0 12px #fff, 1px 1px 0px var(--accent-neon); margin-bottom: 8px; font-weight: 900; text-align: center; }
 
         .key-input, .model-select, .scenario-input { background: var(--card-bg); border: 2px solid var(--border-dark); padding: 14px; border-radius: 8px; color: var(--text-main); width: 100%; text-align: left; font-size: 14px; margin-bottom: 15px; transition: all 0.2s; font-weight: 600; }
         .key-input { text-align: center; max-width: 400px; }
@@ -856,27 +856,31 @@ z-index: 10;
             font-weight: 900;
         }
         .journal-actions .journal-action-organize::before {
+            /* 2026-07-16 專案主核准:磚格 3px→2px(150% 縮放整數對齊消除過渡色毛邊),左線 2px 貼齊磚格、無縫隙(照核准範例) */
             content: "";
-            width: 14px;
-            height: 21px;
-            flex: 0 0 14px;
+            width: 12px;
+            height: 18px;
+            flex: 0 0 12px;
             background:
-                linear-gradient(var(--text-main) 0 0) 0 0 / 2px 21px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 2px 0 / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 5px 3px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 8px 6px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 11px 9px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 8px 12px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 5px 15px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 2px 18px / 3px 3px no-repeat,
-                linear-gradient(var(--accent-neon) 0 0) 2px 3px / 3px 15px no-repeat,
-                linear-gradient(var(--accent-neon) 0 0) 5px 6px / 3px 9px no-repeat,
-                linear-gradient(var(--accent-neon) 0 0) 8px 9px / 3px 3px no-repeat;
+                linear-gradient(var(--text-main) 0 0) 0 0 / 2px 18px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 0 / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 4px 2px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 6px 4px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 6px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 10px 8px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 10px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 6px 12px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 4px 14px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 16px / 2px 2px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 2px 2px / 2px 14px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 4px 4px / 2px 10px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 6px 6px / 2px 6px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 8px 8px / 2px 2px no-repeat;
         }
         .journal-actions .journal-action-organize::after {
             content: "";
             width: 1px;
-            height: 21px;
+            height: 18px;
             flex: 0 0 1px;
             margin-left: 4px;
         }
@@ -2529,11 +2533,12 @@ background: var(--paper-bg);
             text-shadow: none;
         }
         #status-page-settings .status-detail-pixel-cursor {
+            /* 2026-07-16 專案主核准:三角形統一新版(1px 左線+2px 磚格) */
             position: relative;
             display: inline-block;
-            width: 14px;
-            height: 19px;
-            flex: 0 0 14px;
+            width: 12px;
+            height: 18px;
+            flex: 0 0 12px;
             pointer-events: none;
         }
         #status-page-settings .status-detail-pixel-cursor::before {
@@ -2541,17 +2546,20 @@ background: var(--paper-bg);
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(var(--text-main) 0 0) 0 -1px / 2px 21px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 2px -1px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 5px 2px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 8px 5px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 11px 8px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 8px 11px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 5px 14px / 3px 3px no-repeat,
-                linear-gradient(var(--text-main) 0 0) 2px 17px / 3px 3px no-repeat,
-                linear-gradient(var(--accent-neon) 0 0) 2px 2px / 3px 15px no-repeat,
-                linear-gradient(var(--accent-neon) 0 0) 5px 5px / 3px 9px no-repeat,
-                linear-gradient(var(--accent-neon) 0 0) 8px 8px / 3px 3px no-repeat;
+                linear-gradient(var(--text-main) 0 0) 0 0 / 2px 18px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 0 / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 4px 2px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 6px 4px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 6px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 10px 8px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 8px 10px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 6px 12px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 4px 14px / 2px 2px no-repeat,
+                linear-gradient(var(--text-main) 0 0) 2px 16px / 2px 2px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 2px 2px / 2px 14px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 4px 4px / 2px 10px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 6px 6px / 2px 6px no-repeat,
+                linear-gradient(var(--accent-neon) 0 0) 8px 8px / 2px 2px no-repeat;
             animation: status-detail-cursor-poke 900ms steps(1, end) infinite;
         }
         @keyframes status-detail-cursor-poke {
@@ -3277,7 +3285,7 @@ margin-top: auto;
                 margin: 8px 0 3px;
                 font-size: clamp(30px, 3vw, 40px);
                 letter-spacing: 0;
-                text-shadow: 3px 3px 0 var(--accent-neon);
+                text-shadow: 1px 1px 0 var(--accent-neon);
             }
 
             #setup-screen .u-inline-026 {
@@ -3672,7 +3680,9 @@ font-size: 12px;
 font-weight: 900;
 }
 .desktop-scenario-random-actions {
-margin: 0;
+    align-items: center;
+    justify-items: center;
+    margin: 0;
 }
 .desktop-game-card {
                 margin: 18px 0 auto; padding: 26px; min-height: 160px;
@@ -6977,15 +6987,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     line-height: 1.55;
     text-align: left;
     touch-action: manipulation;
-}
-
-.npc-flow-option[aria-pressed="true"] {
-    background: linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--accent-neon) 46%, transparent),
-        transparent 82%
-    );
-    color: #000000;
+    transition: transform 100ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .npc-flow-option:focus-visible {
@@ -6994,56 +6996,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 .npc-flow-option:active {
-    transform: scale(0.99);
-}
-
-.npc-flow-cursor {
-    position: absolute;
-    top: 0;
-    left: 2px;
-    z-index: 2;
-    width: 14px;
-    height: 19px;
-    pointer-events: none;
-    transform: translateY(0);
-    transition: transform 150ms steps(3, end);
-}
-
-.npc-flow-cursor.instant {
-    transition-duration: 0ms;
-}
-
-.npc-flow-cursor.empty {
-    opacity: 0;
-}
-
-.npc-flow-cursor::before {
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(var(--text-main) 0 0) 0 -1px / 2px 21px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 2px -1px / 3px 3px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 5px 2px / 3px 3px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 8px 5px / 3px 3px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 11px 8px / 3px 3px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 8px 11px / 3px 3px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 5px 14px / 3px 3px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 2px 17px / 3px 3px no-repeat,
-        linear-gradient(var(--accent-neon) 0 0) 2px 2px / 3px 15px no-repeat,
-        linear-gradient(var(--accent-neon) 0 0) 5px 5px / 3px 9px no-repeat,
-        linear-gradient(var(--accent-neon) 0 0) 8px 8px / 3px 3px no-repeat;
-    content: "";
-    animation: npc-flow-cursor-idle 900ms steps(1, end) infinite;
-}
-
-@keyframes npc-flow-cursor-idle {
-    0%, 42%, 72%, 100% {
-        transform: translateX(0);
-    }
-
-    43%, 71% {
-        transform: translateX(2px);
-    }
+    transform: translateX(4px);
 }
 
 .npc-flow-custom-field {
@@ -7237,15 +7190,21 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     gap: 2px;
     padding: 8px 2px;
     color: var(--text-main);
+    font-family: var(--font-reading);
+    font-size: 15px;
+    font-weight: 700;
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .npc-flow-bracket-action::before,
 .npc-flow-bracket-action::after {
     color: var(--accent-neon);
     font-family: var(--font-ui);
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 900;
     line-height: 1;
+    text-shadow: 1px 1px 0 var(--border-dark);
+    transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .npc-flow-bracket-action::before {
@@ -7259,9 +7218,9 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 .npc-flow-bracket-label {
     position: relative;
     display: inline-block;
-    padding: 0 13px;
+    margin: 0 6px;
     color: var(--text-main);
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.35;
     white-space: nowrap;
 }
@@ -7277,7 +7236,10 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 .npc-flow-bracket-label::after {
-    inset: 0 13px;
+    inset: 0;
+    opacity: 1;
+    text-shadow: 1px 1px 0 var(--border-dark);
+    transition: clip-path 240ms steps(6, end);
 }
 
 .npc-flow-bracket-action:disabled {
@@ -7321,7 +7283,10 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     outline-offset: 3px;
 }
 
-.npc-flow-bracket-action:active,
+.npc-flow-bracket-action:active {
+    transform: scale(0.97);
+}
+
 .npc-flow-return-action:active {
     transform: scale(0.98);
 }
@@ -7390,10 +7355,20 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
         background: transparent;
         box-shadow: none;
         color: inherit;
-        transform: none;
     }
 
-    .npc-flow-bracket-action:hover .npc-flow-bracket-label::after,
+    .npc-flow-bracket-action:not(:disabled):hover::before {
+        transform: translateX(-4px);
+    }
+
+    .npc-flow-bracket-action:not(:disabled):hover::after {
+        transform: translateX(4px);
+    }
+
+    .npc-flow-bracket-action:not(:disabled):hover .npc-flow-bracket-label::after {
+        clip-path: inset(0 0 0 0);
+    }
+
     .npc-flow-return-action:hover .npc-flow-return-label::after {
         animation: npc-flow-label-scan 280ms steps(1, end) 1;
     }
@@ -7449,15 +7424,16 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .npc-flow-cursor,
+    .npc-flow-option,
     .npc-flow-bracket-action,
+    .npc-flow-bracket-action::before,
+    .npc-flow-bracket-action::after,
+    .npc-flow-bracket-label::after,
     .npc-flow-return-action {
         transition-duration: 0ms;
     }
 
-    .npc-flow-cursor::before,
     .npc-flow-wait-mark span,
-    .npc-flow-bracket-action:hover .npc-flow-bracket-label::after,
     .npc-flow-return-action:hover .npc-flow-return-label::after {
         animation: none;
     }
@@ -7653,12 +7629,13 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     min-height: 44px;
     padding: 8px 4px;
     border: 0;
-    border-bottom: 1px solid var(--accent-gray);
     background: transparent;
     color: var(--text-sub);
     cursor: pointer;
     font-family: var(--font-ui);
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1px;
 }
 
 .desktop-npc-editor-delete:hover,
@@ -7691,6 +7668,13 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     position: relative;
 }
 
+.desktop-character-preview-basis {
+    min-height: 0;
+    flex: 1 1 auto;
+    align-content: start;
+    overflow-y: auto;
+}
+
 .desktop-player-preview-stats {
     justify-items: center;
 }
@@ -7710,6 +7694,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 #edit-scenario-screen[data-editor-section="player"] #desktop-config-editor > .desktop-player-new-preset-btn {
+    z-index: 2;
     display: grid;
     top: 20px;
     right: 28px;
@@ -7867,14 +7852,206 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 .desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card {
     border: 0;
     border-radius: 0;
+    position: relative;
     border-bottom: 1px dashed color-mix(in srgb, var(--text-sub) 45%, transparent);
     background: transparent;
     box-shadow: none;
+    transition: transform 100ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card:hover,
 .desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card:focus-visible {
-    background: color-mix(in srgb, var(--card-bg) 40%, transparent);
+    background: transparent;
+    transform: none;
+}
+
+.desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card:active {
+    transform: translateX(4px);
+}
+
+.npc-flow-option::before,
+.desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card::before {
+    position: absolute;
+    top: 50%;
+    left: 6px;
+    z-index: 2;
+    width: 12px;
+    height: 18px;
+    margin-top: -9px;
+    background:
+        linear-gradient(var(--text-main) 0 0) 0 0 / 2px 18px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 2px 0 / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 4px 2px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 6px 4px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 8px 6px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 10px 8px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 8px 10px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 6px 12px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 4px 14px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 2px 16px / 2px 2px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 2px 2px / 2px 14px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 4px 4px / 2px 10px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 6px 6px / 2px 6px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 8px 8px / 2px 2px no-repeat;
+    content: "";
+    opacity: 0;
+    pointer-events: none;
+}
+
+.npc-flow-option::before {
+    left: 2px;
+}
+
+@keyframes px-option-cursor-idle {
+    0%, 42%, 72%, 100% {
+        transform: translateX(0);
+    }
+
+    43%, 71% {
+        transform: translateX(2px);
+    }
+}
+
+.npc-flow-option[aria-pressed="true"] {
+    text-shadow: 2px 2px 0 var(--accent-neon);
+}
+
+.npc-flow-option[aria-pressed="true"]::before {
+    opacity: 1;
+    animation: px-option-cursor-idle 900ms steps(1, end) infinite;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .npc-flow-option-list:not(:has(.npc-flow-option[aria-pressed="true"]))
+        .npc-flow-option:hover::before,
+    .desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card:hover::before {
+        opacity: 1;
+        animation: px-option-cursor-idle 900ms steps(1, end) infinite;
+    }
+}
+
+.npc-flow-option-list:not(:has(.npc-flow-option[aria-pressed="true"]))
+    .npc-flow-option:focus-visible::before,
+.desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card:focus-visible::before {
+    opacity: 1;
+    animation: none;
+    transform: none;
+}
+
+/* ---- 按鈕系統(2026-07-16 專案主核准):黑掃光 CTA/D1 長按刪除/清單滑動游標 ---- */
+.cta-shine {
+    border: 0;
+    border-radius: 999px;
+    background: var(--border-dark);
+    color: #ffffff;
+    letter-spacing: 2px;
+    transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.cta-shine:hover,
+.cta-shine:focus-visible {
+    background: var(--border-dark);
+    color: #ffffff;
+}
+
+.cta-shine:active {
+    transform: scale(0.97);
+}
+
+.hold-delete {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+/* 情境刪除鈕:D1 靜默文字定版,壓過所有舊紅底/全寬/hover 規則 */
+#edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete,
+#edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete:hover,
+#edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete:focus-visible,
+:root[data-bg-mode="image"] #edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete {
+    position: absolute;
+    top: 15px;
+    right: 12px;
+    width: auto;
+    min-height: 0;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+    color: var(--text-sub);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    z-index: 5;
+}
+
+.hold-delete .hold-delete-base {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.hold-delete .hold-delete-wash {
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ff4444;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.hold-delete.arming .hold-delete-wash {
+    transition: clip-path 1.2s steps(10, end);
+    clip-path: inset(0 0 0 0);
+}
+
+.hold-delete:active {
+    transform: translateY(1px);
+}
+
+.desktop-game-two-buttons button.npc-flow-bracket-action,
+.desktop-game-management-actions button.npc-flow-bracket-action,
+.desktop-game-two-buttons button.npc-flow-bracket-action:hover,
+.desktop-game-two-buttons button.npc-flow-bracket-action:focus-visible,
+.desktop-game-management-actions button.npc-flow-bracket-action:hover,
+.desktop-game-management-actions button.npc-flow-bracket-action:focus-visible,
+:root[data-bg-mode="image"] .desktop-game-two-buttons button.npc-flow-bracket-action,
+:root[data-bg-mode="image"] .desktop-game-management-actions button.npc-flow-bracket-action {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    transform: none;
+}
+
+.desktop-game-two-buttons button.npc-flow-bracket-action:active,
+.desktop-game-management-actions button.npc-flow-bracket-action:active {
+    transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card,
+    .hold-delete .hold-delete-wash,
+    .cta-shine {
+        transition: none;
+    }
+
+    .npc-flow-option::before,
+    .desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card::before {
+        animation: none;
+        transform: none;
+    }
+
+    .hold-delete.arming .hold-delete-wash {
+        transition: clip-path 1.2s linear;
+    }
 }
 
 /* AI 生成面板:去外框、標題小標化(兩顆按鈕本身維持現狀) */
@@ -8262,6 +8439,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     }
 
     .desktop-npc-preview-chapters,
+    .desktop-character-preview-basis,
     .npc-flow-view[data-flow-view="intro"] {
         overflow: visible;
     }

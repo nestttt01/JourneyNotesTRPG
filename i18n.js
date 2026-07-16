@@ -298,6 +298,7 @@
 '編輯 NPC': ['Edit NPC', 'NPC を編集'],
 '返回 NPC 預覽': ['Back to NPC Profile', 'NPC 詳細へ戻る'],
 '返回玩家預覽': ['Back to Player Profile', 'プレイヤー詳細へ戻る'],
+'長按以刪除': ['Hold to delete', '長押しで削除'],
 '輸入名稱': ['Enter a name', '名前を入力'],
 '刪除 NPC': ['Delete NPC', 'NPC を削除'],
 '查看人物資料': ['View Character Details', '人物データを見る'],

@@ -187,3 +187,32 @@
 - [x] 修改檔案：`app-config-ui.js`、`app-preset-edit.js`、`style.css`、`i18n.js`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`TODO.md`、`COMPLETED.md`。
 - [x] 未改存檔格式、`sanko_*` key、API key、圖片傳送／匯出規則、遊戲主流程 prompt、玩家唯讀預覽、首頁或角色面板其他分頁。
 - [x] 驗證：桌機、553px 細指標手機、長短 NPC 內容、zh-TW／en／ja、返回操作與長文保護均經實際瀏覽器渲染；完整 Playwright 32/32 通過。
+
+## 2026-07-16
+
+### 情境列與 NPC 問答像素選單動效
+
+- [x] 情境列（含新增情境）與 NPC 六組問答選項移除漸層底色；滑鼠移入時箭頭立即出現，不含淡入、水平進場或跨列上下滑動。
+- [x] 每列改用自身的 12×18px 像素三角形；hover 時以 900ms `steps(1)` 在原位與右移 2px 間循環，按下整列右推 4px、放開以 100ms 強 ease-out 回位。
+- [x] NPC 問答初始不預選任何選項；未選取前 hover／鍵盤聚焦哪一列，哪一列立即顯示水平待機三角形。
+- [x] 一旦選中，`aria-pressed="true"` 的三角形與重點色文字陰影就鎖在該列；hover／聚焦其他列不會移走，只有實際點選另一列才會換列。
+- [x] 移除 `app-config-ui.js` 兩套共享游標 DOM、垂直定位、resize 重算與 pointerover 事件；保留選取、鍵盤導覽、點擊結果、拖曳排序與問答資料流。
+- [x] 依 `emil-design-eng` 將 hover 動態限制在 transform／opacity，細指標才播放待機跳動；鍵盤焦點立即靜態顯示，`prefers-reduced-motion` 停用位移。
+- [x] 專案主以 `20260716-1403-24.3003208.mp4` 確認待機位移節奏，並於實際頁面確認情境列版本；另逐幀確認 `20260716-1404-41.9007610.mp4` 的多箭頭殘影來自延遲退場，本版已移除該 transition。
+- [x] NPC／玩家唯讀預覽改用人物基底六欄雙欄版面；移除 NPC 問答的多餘方向確認頁，接受／略過保存後直接進情境或返回預覽。
+- [x] 玩家預覽右上另存 `＋` 提升到內容層上方，中心可點範圍與可見圖示一致；NPC 刪除按鈕對齊 D1：12px、單底線、無第二層邊框。
+- [x] 所有現存帶「［］」的重點按鈕統一為定案 A 類：透明底、左右括號 hover 各外彈 4px、文字 `steps(6)` 掃出、按下縮放 0.97；涵蓋隨機配置、另存配置、NPC 編輯／預覽與問答流程共用操作。
+- [x] 修改檔案：`app-config-ui.js`、`style.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/player-readonly-preview.spec.js`、`COMPLETED.md`；未改存檔格式、API、AI prompt、返回／刪除以外的其他按鈕分類。
+- [x] 專項瀏覽器驗證：A 類 computed style／hover／active／淺色與背景圖模式 1/1；NPC 無預選、選中三角鎖列、移除確認頁 1/1；玩家預覽 `＋` 中心命中 1/1。完整規格仍有與本批無關的舊測試失敗（NPC 編輯返回幾何 3px、手機返回鈕攔截、玩家編輯返回命中），未擴大修改。
+
+### NPC 問答返回層級去重
+
+- [x] 移除「和他說一句」畫面底部重複的「回到人物基底」按鈕；保留全流程共用的左上「回到角色設定」與右側「就說這一句」。
+- [x] 修改檔案：`app-config-ui.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`TODO.md`、`COMPLETED.md`；未改其他返回鈕、問答資料流、存檔、API 或 AI prompt。
+- [x] 驗證：專項 Playwright 確認底部 `intro` 返回不存在、左上 `close` 仍可見且完整問答送出流程通過；JS 語法、UTF-8／LF、延遲 hash 與 `git diff --check` 通過。
+
+### AI 生成 A 類按鈕對齊
+
+- [x] 情境設定底部兩顆 AI 生成 A 類按鈕改為各自在等寬左右欄置中，並維持同一水平中心；日文長短不同時不再偏向欄位左側。
+- [x] 修改檔案：`style.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`TODO.md`、`COMPLETED.md`；未改其他按鈕、A 類動態或問答流程。
+- [x] 驗證：日文實際頁面兩欄中心與垂直中心幾何專項 Playwright 1/1 通過；CSS 結構、全 JS 語法、UTF-8／LF、延遲 hash 與 `git diff --check` 通過。

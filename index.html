@@ -114,7 +114,7 @@
                 </div>
                 <div class="u-inline-009">
                     <button class="status-save-as-btn" type="button" onclick="saveAsNewGameFile()">另存新檔</button>
-                    <button id="status-save-btn" class="btn u-inline-011 px-shine" onclick="saveStatusModal()">儲存並返回</button>
+                    <button id="status-save-btn" class="btn u-inline-011 px-shine cta-shine" onclick="saveStatusModal()">儲存並返回</button>
                     <button class="status-panel-close" type="button" onclick="collapseStatusPanel()" aria-label="關閉角色面板" title="關閉角色面板">×</button>
                 </div>
             </div>
@@ -755,8 +755,8 @@
                     <div class="desktop-scenario-random-panel" aria-label="AI 隨機生成">
                         <strong>AI 隨機生成</strong>
                         <div class="desktop-game-two-buttons desktop-scenario-random-actions">
-                            <button type="button" onclick="openRandomGenerator('world')">保留人物，隨機情境</button>
-                            <button type="button" onclick="openRandomGenerator('all')">人物與情境全部隨機</button>
+                            <button type="button" class="npc-flow-bracket-action" onclick="openRandomGenerator('world')"><span class="npc-flow-bracket-label" data-label="保留人物，隨機情境">保留人物，隨機情境</span></button>
+                            <button type="button" class="npc-flow-bracket-action" onclick="openRandomGenerator('all')"><span class="npc-flow-bracket-label" data-label="人物與情境全部隨機">人物與情境全部隨機</span></button>
                         </div>
                     </div>
                 </section>
@@ -809,7 +809,7 @@
                         <p class="desktop-game-difficulty-note">困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定。極限模式：檢定 DC +3，歸零會觸發「最後掙扎」，生死檢定 D20 ≥ 8 才能存活；NPC 死亡後無法復活。</p>
  <div class="desktop-game-management-actions">
  <button type="button" onclick="saveCurrentPreset()">儲存配置</button>
- <button type="button" onclick="saveAsNewPreset()">另存配置</button>
+ <button type="button" class="npc-flow-bracket-action" onclick="saveAsNewPreset()"><span class="npc-flow-bracket-label" data-label="另存配置">另存配置</span></button>
  <div class="desktop-preset-bulk-toolbar">
  <label><input type="checkbox" id="preset-delete-select-all" onchange="togglePresetDeleteSelectAll(this.checked)"> 全選</label>
  <button type="button" class="danger" onclick="deleteSelectedPresets()">刪除選取配置</button>
@@ -967,7 +967,7 @@
             <div id="random-generator-preview" class="random-preview" style="display:none"></div>
             <div class="action-buttons">
                 <button class="btn" id="random-generator-run-btn" type="button" onclick="generateRandomPresetPreview()">開始生成</button>
-                <button class="btn" id="random-generator-apply-btn" type="button" onclick="applyRandomPresetPreview()" style="display:none">套用到表單</button>
+                <button class="btn px-shine cta-shine" id="random-generator-apply-btn" type="button" onclick="applyRandomPresetPreview()" style="display:none">套用到表單</button>
                 <button class="btn" type="button" onclick="closeRandomGenerator()">取消</button>
             </div>
         </div>
