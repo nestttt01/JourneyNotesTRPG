@@ -216,3 +216,19 @@
 - [x] 情境設定底部兩顆 AI 生成 A 類按鈕改為各自在等寬左右欄置中，並維持同一水平中心；日文長短不同時不再偏向欄位左側。
 - [x] 修改檔案：`style.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`TODO.md`、`COMPLETED.md`；未改其他按鈕、A 類動態或問答流程。
 - [x] 驗證：日文實際頁面兩欄中心與垂直中心幾何專項 Playwright 1/1 通過；CSS 結構、全 JS 語法、UTF-8／LF、延遲 hash 與 `git diff --check` 通過。
+
+## 2026-07-17
+
+### style.css 純搬移拆檔（維護性）
+
+- [x] 原 8,447 行／327KB 單檔 `style.css` 依原檔順序 bytes 級切為 7 個 `style-*.css`；`index.html` 改為 7 個 `<link>` 依序載入；內容零改動（7 檔 concat SHA-256 與原檔全等）。
+- [x] CI（static.yml）驗證改為檢查 7 檔（含「必須恰好 7 檔」守門與註解檔尾例外）；`PROJECT_MAP.md` CSS 地圖改為 7 檔對照並修正「材質在檔案最末段」過時描述；`AGENTS.md` 專案描述與手打禁令清單同步。
+- [x] 切檔由專案主本機執行 `split_style.py` 完成（寫前原檔 SHA、各段 SHA、括號平衡、concat 全等四層驗證全過）；舊 `style.css`、`split_style.py`、`跑測試.bat`、`test-result.log` 已清除。
+- [x] 驗證：E2E A/B 對照（拆檔前後失敗清單完全相同：8 敗 32 過，拆檔零新增失敗）；`node --check` 全過；編碼／括號／檔尾檢查全過；部署後專案主目視正常。8 個既有失敗與拆檔無關，已立 TODO 待修。
+- [x] 附註：AGENTS.md 同日新增 Claude（Cowork）Windows 直讀直寫例外條款（專案主核准）；bash 掛載層當日多次實證回傳寫入中舊快照，維持禁寫。
+
+### NPC／玩家預覽大頭貼黑圈修復
+
+- [x] 病因：頭貼照片為 `z-index:1` 絕對定位子元素，Chrome 繪製順序蓋掉父層內縮 outline；有照片的頭貼黑圈消失、無照片（首字）正常。
+- [x] 修復：`.npc-flow-intro-avatar` 與 `.desktop-npc-preview-hero-avatar` 各加 `::after` 補畫層（`z-index:2`、`inset box-shadow 2px var(--border-dark)`、`pointer-events:none`）；僅 `style-7-game.css` +22 行，未動既有規則。
+- [x] 驗證：線上站覆蓋層實驗事前證明修法有效；括號平衡／UTF-8／檔尾完整；部署後專案主目視黑圈恢復。

@@ -1,7 +1,8 @@
 # 技術債盤點清單（TECH_DEBT.md）
 
 - 盤點日期：2026-07-11｜盤點方式：唯讀腳本掃描（Claude），未修改任何程式
-- 行號基準：第二、三節仍為 `88a4e3811f265b65` 版行號（第一波清除前）；第一節已更新為 `45476f27d19cb004` 版。**style.css 一經修改行號就會漂移，動手前一律先用 selector 重新定位。**
+- **行號基準（2026-07-17 重要更新）：`style.css` 已拆為 7 個 `style-*.css`（bytes 級純搬移，見 COMPLETED），本檔所有 style.css 行號全面作廢，僅供歷史對照。定位一律改用 `rg '<selector>' style-*.css`。**
+- 2026-07-17 `!important` 現況基線（出現次數實測，非行數）：style-1-base 10、style-2-status 19、style-3-panels 4、style-4-desktop-config 11、style-5-mobile-config 18、style-6-surfaces 4、style-7-game 4，**合計 70——比 07-11 舊帳的 61 淨增 9**。07-11 後有清（如 `.creator-mode-btn` ×3）但近期 UI 工作加得更多；新增者未分類，下次動到對應區域時順帶盤點是否該進白名單或清除。第二節逐條帳未重掃，白名單分類仍有效。
 - 使用規則：不專門大掃除；哪次任務剛好動到某區，才順帶清那一區的債。每批清完必須：桌機＋手機雙版面目視驗收、CSS 括號平衡檢查、`git diff` 小範圍可讀。
 - 本檔已納入 Git 追蹤（2026-07-11 起），修改比照程式檔安全寫檔流程，版本歷史見 Git。
 
@@ -35,11 +36,27 @@
 
 1. 行 457 `.journal-pagination`：單條規則 8 個 `!important`，最肥目標。
 2. 行 2590–2592 `#status-modal-content` 系列：手機版狀態面板串（與白名單相鄰，拆時小心邊界）。
-3. textarea 三胞胎：行 802–819、2350、2379、2383、2421 的 `min-height/resize/overflow` 同招重複三遍，可合併為共用 class 順帶去 `!important`。
+3. textarea 三胞胎：行 802–819、2350、2379、2383、2421 的 `min-height/resize/overflow` 同招重複三遍，可合併為共用 class 順帶去 `!important`（07-17 又發現新副本，見「2026-07-17 新增追蹤」節）。
+   **專案主裁示（2026-07-17）：三處高度（86/96/82px）不必保留差異，清理時統一為單一值（建議 96px，取最大），共用 class 單值即可、免 CSS 變數；驗收＝三處輸入框統一起始高度且 `resize: vertical` 拖拉不變。**
+   **07-17 深夜偵察結果（清理前必讀）：**
+   - 副本全清單：style-2-status:627–631（系統頁 86px）、style-4:945–950（外貌/背景 96px）、style-4:976–980（情境內文 82px）、style-4:982（132px 另一處）、style-7-game:981（86px）。
+   - 源頭＝style-1-base:330/333 的 `.anime-sheet textarea`／`textarea.scenario-input` 基礎規則（`resize: none; overflow: hidden`，自動長高設計）。副本 selector 全都帶 id、特異性本來就贏，**`!important` 疑似全數是打錯對象的 cargo cult**——真正的對手是 `autoResize()`（app-core.js:8，inline `style.height`），而 inline height 本來就輸給 min-height、也蓋不掉 overflow/resize。
+   - 彩蛋 bug：`initTextareas()` 對**全部** textarea 套 autoResize，這批「可拖拉」欄位拖完一打字就被 inline height 彈回——清理時應一併決定是否讓這批欄位跳過 autoResize（需小改 JS，例如以 class 排除）。
+   - 清理方案：一條共用規則（union selector 或 class）＋ 96px 統一值，先在真實頁面驗證拆 `!important` 後 computed style 不變，再逐畫面目視；JS 排除 autoResize 由專案主另行核准。
 4. 行 589 `.btn:disabled` ×4。
 5. 零星：303–304（overflow 捲動）、598（#crop-img）、890、2033、2492、2503、3343、3371、3442（diary 系）。
 
 已清：`.creator-mode-btn:not(.active)` ×3 隨單框輸入列改造移除；神模式視覺改由 `.input-mode-tab.active` 接手，不再需要 `!important`。
+
+### 2026-07-17 新增追蹤（07-11 基線後淨增 9，實測合計 70）
+
+以 `comm` 對比 07-11 基線（dc214d8）與現況，新增位置與初步分類：
+
+- 疑似正當（動畫抑制家族，可能屬 reduced-motion／效能覆蓋，確認後入白名單）：style-3-panels:485–486、1190–1194（`animation/transition: none`、`opacity: 0`）。
+- 疑似正當（桌機配置分區切換家族，同白名單 A 類）：style-4-desktop-config:816、835–836（`display: none`）。
+- 舊債複製（textarea 尺寸三胞胎的新複製品，B3 同款）：style-2-status:629–631、style-4-desktop-config:949、978（`min-height/overflow-y/resize`）。
+- 待查（硬藏元素，hotfix 嫌疑）：style-2-status:382、387、602（`display: none`／`opacity: 0`）、style-1-base:338（`overflow-y`）。
+- 行號為 2026-07-17 拆檔後各新檔行號；動手前仍以 selector 重新定位。
 
 ### 重複定義說明
 

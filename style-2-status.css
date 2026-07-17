@@ -496,9 +496,11 @@
         #status-modal-content select:focus {
             outline: none;
         }
-        #status-modal-content input:not([type="checkbox"]):not([type="radio"]):not(.memory-task-text):not(.status-inline-input):focus,
-        #status-modal-content textarea:focus,
-        #status-modal-content select:focus {
+        #status-modal-content :where(
+            input:not([type="checkbox"]):not([type="radio"]):not(.memory-task-text):not(.status-inline-input),
+            textarea,
+            select
+        ):focus {
             border-color: var(--border-dark);
             box-shadow: 3px 3px 0 var(--accent-neon);
         }
@@ -604,34 +606,50 @@
         #status-page-settings .anime-sheet {
             align-items: start;
         }
+        /* 輸入框統一第一批(2026-07-17 專案主核定):角色編輯款底線式,單一共用規則。
+           盒面、字型與 focus 動態集中在此;以角色配置頁的 0.2s 全屬性過渡為基準。 */
         #status-page-settings .anime-sheet input,
         #status-page-settings .anime-sheet textarea,
-        #status-page-settings .scenario-input {
+        #status-page-settings .scenario-input,
+        #status-page-settings .status-detail-editor input,
+        #status-page-settings .status-detail-editor textarea {
             width: 100%;
             min-width: 0;
-            padding: 10px 12px;
-            border: var(--control-border);
-            border-radius: var(--control-radius);
-            background: var(--card-bg);
+            box-sizing: border-box;
+            padding: 10px 3px 9px;
+            border: 0;
+            border-bottom: 1px solid var(--text-sub);
+            border-radius: 0;
+            background: color-mix(in srgb, var(--card-bg) 30%, transparent);
             color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.65;
             box-shadow: none;
+            transition: all 0.2s;
         }
         #status-page-settings .anime-sheet input:focus,
         #status-page-settings .anime-sheet textarea:focus,
-        #status-page-settings .scenario-input:focus {
-            border-color: var(--border-dark);
-            outline: none;
-            box-shadow: var(--control-focus-shadow);
+        #status-page-settings .scenario-input:focus,
+        #status-page-settings .status-detail-editor input:focus,
+        #status-page-settings .status-detail-editor textarea:focus {
+            border-bottom-color: var(--border-dark);
+            outline: 1px solid var(--accent-neon);
+            outline-offset: 2px;
+            box-shadow: none;
             transform: none;
         }
+        /* 多行欄:96px 統一起始高(TECH_DEBT B3 專案主裁示),沿用角色配置頁 autoResize。 */
         #status-page-settings .anime-sheet textarea,
-        #status-page-settings .scenario-input {
-            min-height: 86px !important;
-            resize: vertical !important;
-            overflow-y: auto !important;
-            line-height: 1.55;
+        #status-page-settings .scenario-input,
+        #status-page-settings .status-detail-editor textarea {
+            min-height: 96px;
+            resize: vertical;
+            overflow-y: auto;
         }
-        #status-page-settings .anime-sheet input {
+        #status-page-settings .anime-sheet input,
+        #status-page-settings .status-detail-editor input {
             min-height: var(--control-height);
         }
         #status-page-settings .dark-card-content,

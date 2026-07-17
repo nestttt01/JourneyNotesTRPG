@@ -567,8 +567,11 @@ return `sanko_input_draft_${saveId || 'none'}`;
 
         function openStatusScenarioEditor(scenarioIndex) {
             activeStatusTab = 'settings';
+            statusDetailLowerView = 'scenario';
+            statusDetailSelectedScenarioIndex = scenarioIndex;
             openStatusModal();
             switchStatusTab('settings');
+            beginStatusDetailEdit('scenario');
             requestAnimationFrame(() => {
                 const input = document.getElementById(`edit-scen-name-${scenarioIndex}`);
                 const card = input?.closest('details');

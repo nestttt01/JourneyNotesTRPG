@@ -259,7 +259,7 @@ text-align: left;
 }
 
 #setup-screen #save-list {
-gap: 12px;
+gap: 0;
 margin-bottom: 16px;
 }
 
@@ -576,7 +576,7 @@ outline: none;
 #desktop-config-editor .language-mode-select,
 #desktop-config-editor .anime-sheet input,
 #desktop-config-editor .anime-sheet textarea {
-border: 1px solid #808080; box-shadow: none; background: var(--card-bg);
+border: 1px solid var(--text-sub); box-shadow: none; background: var(--card-bg);
 }
             #desktop-config-editor .scenario-input:focus,
             #desktop-config-editor .language-mode-select:focus,
@@ -596,7 +596,7 @@ border: 1px solid #808080; box-shadow: none; background: var(--card-bg);
             #desktop-config-editor details.foldable-card[open] { box-shadow: none; transform: none; }
             #desktop-config-editor .stat-box { border: 0; border-radius: 8px; background: var(--card-bg); }
             #desktop-config-editor .stat-input,
-            #desktop-config-editor .stat-input:disabled { background: #BFB3B8; color: #282828; }
+            #desktop-config-editor .stat-input:disabled { background: var(--accent-gray); color: var(--text-main); }
 
             #desktop-config-editor #npc-list-container details,
             #desktop-config-editor #scenario-list-container details { display: none; }
@@ -649,8 +649,7 @@ border: 0; border-radius: 0; box-shadow: none;
             }
 .desktop-game-inline-control { display: grid; grid-template-columns: auto auto; gap: 8px; justify-content: start; }
 .desktop-game-preset-control { display: block; }
-.desktop-game-inline-control select,
-#desktop-preset-name-input {
+.desktop-game-inline-control select {
 width: min(260px, 100%); min-width: 0; min-height: 34px; padding: 7px 10px;
 border: 2px solid var(--border-dark); border-radius: 8px;
 background: var(--card-bg); color: var(--text-main); font-size: 13px; font-weight: 800;
@@ -680,12 +679,16 @@ box-shadow: none;
 #desktop-preset-name-input {
 display: block;
 width: min(260px, 100%);
+min-width: 0;
 min-height: 30px;
 padding: 5px 2px 7px;
 border: 0;
 border-bottom: 1px solid var(--input-line);
 border-radius: 0;
 background: transparent;
+color: var(--text-main);
+font-size: 13px;
+font-weight: 800;
 }
 .desktop-game-preset-control #desktop-preset-selector:focus,
 #desktop-preset-name-input:focus,

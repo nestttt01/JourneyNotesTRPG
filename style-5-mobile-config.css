@@ -1147,7 +1147,6 @@ input:not([type="checkbox"]):not([type="radio"]), textarea, select:not(#btn-loca
 }
 #status-modal-content { width: 100% !important; max-height: none !important; min-height: calc(100dvh - 16px); margin: 0 auto !important; overflow: visible !important; box-shadow: none !important; }
 #status-modal-content > .u-inline-012 { flex: 1 0 auto !important; min-height: 0 !important; overflow: visible !important; touch-action: pan-y; }
-#status-page-settings textarea { overflow-y: hidden !important; resize: none !important; }
 #status-modal input:not([type="checkbox"]):not([type="radio"]),
 #status-modal textarea,
 #status-modal select {
@@ -1364,14 +1363,29 @@ align-items: center;
 justify-content: flex-end;
 gap: 8px;
 margin: 0 0 12px;
+padding: 0 0 8px;
+border-bottom: 1px solid var(--input-line);
 }
 
+/* 純文字工具款(2026-07-17 存檔選單改版):刪除鈕去卡片框,hover 只留螢光字影 */
 .save-toolbar-delete {
 margin: 0;
 padding: 4px 10px;
 min-height: 0;
 font-size: 13px;
 line-height: 1.2;
+border: 0;
+border-radius: 0;
+background: transparent;
+box-shadow: none;
+}
+
+.save-toolbar-delete:hover,
+.save-toolbar-delete:active {
+background: transparent;
+box-shadow: none;
+transform: none;
+text-shadow: 2px 2px 0 var(--accent-neon);
 }
 
 .save-slot-main {
@@ -1394,10 +1408,6 @@ outline: none;
 .save-title-input:hover,
 .save-title-input:focus {
 border-bottom-color: var(--text-sub);
-}
-
-.save-slot:hover .save-title-input {
-color: var(--text-main);
 }
 
 .save-select-frame {

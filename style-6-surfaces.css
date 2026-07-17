@@ -9,18 +9,17 @@
     background: var(--bg-panel-glass);
 }
 
-/* 卡片 / 輸入框 */
+/* 卡片 / 輸入框
+   (2026-07-17 拆組摘除:.storage-health-card/.save-slot 隨存檔選單去卡片改為無底,
+    #status-page-settings .status-detail-editor input/textarea 隨輸入框統一改半透底線款,
+    四者不再需要玻璃底,直接透出背景) */
 :root[data-bg-mode="image"] details.foldable-card,
 :root[data-bg-mode="image"] details.dark-card,
 :root[data-bg-mode="image"] .dark-card-content,
-:root[data-bg-mode="image"] .storage-health-card,
 :root[data-bg-mode="image"] .stat-box,
-:root[data-bg-mode="image"] .save-slot,
 :root[data-bg-mode="image"] .key-input,
 :root[data-bg-mode="image"] .model-select,
 :root[data-bg-mode="image"] .scenario-input,
-:root[data-bg-mode="image"] #status-page-settings .status-detail-editor input,
-:root[data-bg-mode="image"] #status-page-settings .status-detail-editor textarea,
 :root[data-bg-mode="image"] #input-area {
     background: var(--card-bg);
     background: var(--bg-card-glass);
@@ -746,6 +745,16 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
 /* 存檔列表:有把手時多一欄(不影響其他 save-slot 樣式) */
 .save-slot:has(.reorder-handle) { grid-template-columns: auto minmax(0, 1fr) 20px; }
 .save-slot > .reorder-handle { margin-right: 0; }
+/* 存檔列把手 hover 才浮現(2026-07-17 存檔選單改版);觸控裝置無 hover,維持常駐避免看不到仍可拖 */
+@media (hover: hover) and (pointer: fine) {
+    #save-list .reorder-handle {
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+    #save-list .save-slot:hover .reorder-handle {
+        opacity: 1;
+    }
+}
 /* 狀態面板標題列:桌機顯示可拖動游標(手機不啟用拖動) */
 @media (min-width: 601px) {
     #status-modal-content .modal-header-sticky { cursor: move; }

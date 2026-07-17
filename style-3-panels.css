@@ -644,6 +644,10 @@
             min-height: 0;
             overflow: hidden;
         }
+        /* 編輯態固定展開:讓外移 2px 的 focus outline 可見;收合態仍維持 overflow:hidden。 */
+        #status-page-settings .status-detail-editing .status-detail-player-collapsible > div {
+            overflow: visible;
+        }
         #status-page-settings .status-detail-protagonist.is-collapsed .status-detail-player-collapsible {
             grid-template-rows: 0fr;
         }
@@ -1082,32 +1086,6 @@
             font-family: var(--font-reading);
             font-size: 10px;
             line-height: 1.5;
-        }
-        #status-page-settings .status-detail-editor input,
-        #status-page-settings .status-detail-editor textarea {
-            width: 100%;
-            min-width: 0;
-            min-height: var(--control-height);
-            box-sizing: border-box;
-            padding: 10px 12px;
-            border: var(--control-border);
-            border-radius: var(--control-radius);
-            background: var(--card-bg);
-            color: var(--text-main);
-            font-family: var(--font-reading);
-            font-size: 14px;
-            line-height: 1.55;
-            box-shadow: none;
-        }
-        #status-page-settings .status-detail-editor textarea {
-            min-height: 86px;
-            resize: vertical;
-        }
-        #status-page-settings .status-detail-editor input:focus,
-        #status-page-settings .status-detail-editor textarea:focus {
-            border-color: var(--border-dark);
-            outline: none;
-            box-shadow: var(--control-focus-shadow);
         }
         #status-page-settings .status-detail-editing .dynamic-state-panel {
             grid-column: 1 / -1;
