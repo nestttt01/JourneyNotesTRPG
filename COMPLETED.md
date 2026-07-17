@@ -232,3 +232,13 @@
 - [x] 病因：頭貼照片為 `z-index:1` 絕對定位子元素，Chrome 繪製順序蓋掉父層內縮 outline；有照片的頭貼黑圈消失、無照片（首字）正常。
 - [x] 修復：`.npc-flow-intro-avatar` 與 `.desktop-npc-preview-hero-avatar` 各加 `::after` 補畫層（`z-index:2`、`inset box-shadow 2px var(--border-dark)`、`pointer-events:none`）；僅 `style-7-game.css` +22 行，未動既有規則。
 - [x] 驗證：線上站覆蓋層實驗事前證明修法有效；括號平衡／UTF-8／檔尾完整；部署後專案主目視黑圈恢復。
+
+### 角色細節輸入框共用元件整理
+
+- [x] 只統一角色配置與角色面板中，玩家／NPC 各自對應的年齡體型、語氣、喜好、厭惡、外貌與背景六欄，共 24 個欄位；角色配置頁為外觀基準。
+- [x] 新增單一 `.character-detail-control` 元件，統一底線、半透明底、字型、字重、行高、96px 長文起始高度、垂直縮放與 focus；focus 為 1px 重點色細框、2px 外距，無硬陰影與位移。
+- [x] 移除配置頁與角色面板針對同一批欄位的重複外觀規則，並讓背景圖模式不再替配置頁這批欄位另加玻璃底；沒有新增 `!important`，移除本批 4 個既有 `!important`。
+- [x] 保留角色配置／角色面板各自的大外框與排列，也未修改角色面板三角形、名稱、好感、六圍、NPC 動態、記憶、AI 記憶、情境欄、存檔或資料流程。
+- [x] 修改檔案：`index.html`、`app-config-ui.js`、`app-status-journal.js`、`style-1-base.css`、`style-2-status.css`、`style-4-desktop-config.css`、`style-5-mobile-config.css`、`style-6-surfaces.css`、`style-7-game.css`、`COMPLETED.md`。
+- [x] 瀏覽器驗證：配置玩家／配置 NPC／角色面板玩家／角色面板 NPC 四組的一般與 focus 計算樣式完全一致；1440px 純色／背景圖模式與 390px 手機均通過，手機左右 focus 外框無裁切。
+- [x] 回歸驗證：完整 Playwright 32 通過／8 個既有失敗／新增失敗 0；JS 語法、CSS 結構、HTML 檔尾、嚴格 UTF-8／LF、`git diff --check` 與 Python／Node hash 複驗通過。

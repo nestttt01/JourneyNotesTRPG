@@ -573,19 +573,12 @@ outline: none;
             #desktop-config-editor .avatar-label { display: none; }
             #desktop-config-editor .avatar-preview { width: 82px; height: 82px; }
 #desktop-config-editor .scenario-input,
-#desktop-config-editor .language-mode-select,
-#desktop-config-editor .anime-sheet input,
-#desktop-config-editor .anime-sheet textarea {
+#desktop-config-editor .language-mode-select {
 border: 1px solid var(--text-sub); box-shadow: none; background: var(--card-bg);
 }
             #desktop-config-editor .scenario-input:focus,
-            #desktop-config-editor .language-mode-select:focus,
-            #desktop-config-editor .anime-sheet input:focus,
-            #desktop-config-editor .anime-sheet textarea:focus {
+            #desktop-config-editor .language-mode-select:focus {
                 border-color: var(--border-dark); box-shadow: 3px 3px 0 var(--accent-neon); transform: none;
-            }
-            #desktop-config-editor .anime-sheet {
-                border: 0; border-radius: 10px; padding: 14px; background: var(--card-bg); box-shadow: none;
             }
             #desktop-config-editor details.foldable-card {
                 border: 0; border-radius: 10px; background: var(--card-bg); box-shadow: none; transform: none;
@@ -886,11 +879,6 @@ padding: 20px 28px 24px;
             }
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card > summary { display: none; }
             #edit-scenario-screen[data-editor-section="player"] #preset-player-editor > details.foldable-card > .foldable-content { padding: 0; }
-            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input,
-            #edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea {
-                border: 1px solid #808080; border-radius: 5px; background: var(--card-bg);
-            }
-
             /* 角色／情境編輯細修：使用可自訂主題色，縮窄標籤與內容範圍。 */
 .desktop-config-tab,
 .setup-side-tab { min-height: 104px; }
@@ -945,13 +933,6 @@ grid-template-columns: 1fr 1fr; gap: 10px 12px;
 margin: 0; padding: 0; background: transparent;
 }
             #desktop-config-editor .anime-sheet .full { grid-column: 1 / -1; }
-            #desktop-config-editor #p-app,
-            #desktop-config-editor #p-bg,
-            #desktop-config-editor [id^="npc-app-"],
-            #desktop-config-editor [id^="npc-bg-"] {
-                min-height: 96px !important; overflow-y: auto !important; resize: vertical !important;
-            }
-
             #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .u-inline-061 {
                 display: flex; flex-direction: column; align-items: center; gap: 2px;
             }
@@ -986,4 +967,3 @@ margin: 0; padding: 0; background: transparent;
             }
 
 }
-

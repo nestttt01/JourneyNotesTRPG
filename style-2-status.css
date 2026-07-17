@@ -491,14 +491,14 @@
         .language-setting-row .scenario-label { margin: 0; }
         .language-mode-select { width: 100%; background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; padding: 10px 12px; color: var(--text-main); font-size: 13px; font-weight: 800; }
         #status-modal-content button:focus,
-        #status-modal-content input:focus,
-        #status-modal-content textarea:focus,
+        #status-modal-content input:not(.character-detail-control):focus,
+        #status-modal-content textarea:not(.character-detail-control):focus,
         #status-modal-content select:focus {
             outline: none;
         }
         #status-modal-content :where(
-            input:not([type="checkbox"]):not([type="radio"]):not(.memory-task-text):not(.status-inline-input),
-            textarea,
+            input:not([type="checkbox"]):not([type="radio"]):not(.memory-task-text):not(.status-inline-input):not(.character-detail-control),
+            textarea:not(.character-detail-control),
             select
         ):focus {
             border-color: var(--border-dark);
@@ -606,13 +606,13 @@
         #status-page-settings .anime-sheet {
             align-items: start;
         }
-        /* 輸入框統一第一批(2026-07-17 專案主核定):角色編輯款底線式,單一共用規則。
-           盒面、字型與 focus 動態集中在此;以角色配置頁的 0.2s 全屬性過渡為基準。 */
+        /* 輸入框統一第一批(2026-07-17 專案主核定):保留未納入角色細節共用元件的狀態面板欄位。
+           24 個角色細節欄位改由 style-1-base.css 的 .character-detail-control 統一。 */
         #status-page-settings .anime-sheet input,
         #status-page-settings .anime-sheet textarea,
         #status-page-settings .scenario-input,
-        #status-page-settings .status-detail-editor input,
-        #status-page-settings .status-detail-editor textarea {
+        #status-page-settings .status-detail-editor input:not(.character-detail-control),
+        #status-page-settings .status-detail-editor textarea:not(.character-detail-control) {
             width: 100%;
             min-width: 0;
             box-sizing: border-box;
@@ -632,8 +632,8 @@
         #status-page-settings .anime-sheet input:focus,
         #status-page-settings .anime-sheet textarea:focus,
         #status-page-settings .scenario-input:focus,
-        #status-page-settings .status-detail-editor input:focus,
-        #status-page-settings .status-detail-editor textarea:focus {
+        #status-page-settings .status-detail-editor input:not(.character-detail-control):focus,
+        #status-page-settings .status-detail-editor textarea:not(.character-detail-control):focus {
             border-bottom-color: var(--border-dark);
             outline: 1px solid var(--accent-neon);
             outline-offset: 2px;
@@ -643,13 +643,13 @@
         /* 多行欄:96px 統一起始高(TECH_DEBT B3 專案主裁示),沿用角色配置頁 autoResize。 */
         #status-page-settings .anime-sheet textarea,
         #status-page-settings .scenario-input,
-        #status-page-settings .status-detail-editor textarea {
+        #status-page-settings .status-detail-editor textarea:not(.character-detail-control) {
             min-height: 96px;
             resize: vertical;
             overflow-y: auto;
         }
         #status-page-settings .anime-sheet input,
-        #status-page-settings .status-detail-editor input {
+        #status-page-settings .status-detail-editor input:not(.character-detail-control) {
             min-height: var(--control-height);
         }
         #status-page-settings .dark-card-content,
@@ -879,4 +879,3 @@ background: var(--paper-bg);
             font-size: 13px;
             font-weight: 900;
         }
-

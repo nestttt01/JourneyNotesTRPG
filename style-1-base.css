@@ -330,6 +330,44 @@ font-synthesis: none;
         .anime-sheet input, .anime-sheet textarea { width: 100%; border: 1px solid var(--text-sub); border-radius: 4px; padding: 8px; font-size: 14px; font-weight: 600; font-family: inherit; background: var(--card-bg); color: var(--text-main); transition: all 0.2s; resize: none; overflow: hidden; line-height: 1.5;}
         .anime-sheet input:focus, .anime-sheet textarea:focus { border-color: var(--accent-neon); outline: none; box-shadow: 2px 2px 0px var(--accent-neon); }
 
+
+        /* Shared visual component for the six matching player/NPC detail fields. */
+        input.character-detail-control,
+        textarea.character-detail-control {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            margin-top: 6px;
+            padding: 10px 3px 9px;
+            border: 0;
+            border-bottom: 1px solid var(--text-sub);
+            border-radius: 0;
+            background: color-mix(in srgb, var(--card-bg) 30%, transparent);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.65;
+            box-shadow: none;
+            transition: all 0.2s;
+        }
+        input.character-detail-control {
+            min-height: var(--control-height);
+        }
+        textarea.character-detail-control {
+            min-height: 96px;
+            resize: vertical;
+            overflow-y: auto;
+        }
+        input.character-detail-control:focus,
+        textarea.character-detail-control:focus {
+            border-bottom-color: var(--border-dark);
+            outline: 1px solid var(--accent-neon);
+            outline-offset: 2px;
+            box-shadow: none;
+            transform: none;
+        }
+
         textarea.scenario-input { resize: none; overflow: hidden; min-height: 48px; line-height: 1.5; }
 
         .modal-overlay {
@@ -1104,4 +1142,3 @@ z-index: 10;
         }
         .status-panel-close:hover,
         .status-panel-close:focus-visible { background: var(--accent-neon); outline: none; box-shadow: 2px 2px 0 var(--border-dark); }
-

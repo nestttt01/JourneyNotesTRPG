@@ -115,8 +115,8 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 :root[data-bg-mode="image"] .desktop-overview-card,
 :root[data-bg-mode="image"] .desktop-game-card,
 :root[data-bg-mode="image"] #desktop-config-editor .stat-box,
-:root[data-bg-mode="image"] .anime-sheet input,
-:root[data-bg-mode="image"] .anime-sheet textarea,
+:root[data-bg-mode="image"] .anime-sheet input:not(.character-detail-control),
+:root[data-bg-mode="image"] .anime-sheet textarea:not(.character-detail-control),
 :root[data-bg-mode="image"] .dynamic-state-field input,
 :root[data-bg-mode="image"] .dynamic-state-field textarea {
     background: var(--card-bg);
@@ -893,5 +893,4 @@ body.survival-fx-active #survival-effects-layer { opacity: 1; }
     .chapter-divider.enter .chapter-heading, .chapter-divider.enter .chapter-objective,
     .chapter-divider.enter .chapter-grant { animation: none; opacity: 1; }
 }
-
 

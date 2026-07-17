@@ -960,32 +960,8 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     grid-column: 1 / -1;
 }
 
-#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field input,
-#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field textarea {
-    width: 100%;
-    min-width: 0;
-    margin-top: 6px;
-    padding: 10px 3px 9px;
-    border: 0;
-    border-bottom: 1px solid var(--text-sub);
-    border-radius: 0;
-    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
-    color: var(--text-main);
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1.65;
-    box-shadow: none;
-}
-
-#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field textarea {
-    min-height: 86px !important;
-    resize: vertical;
-}
-
 #edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-name input:focus,
-#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-affection input:focus,
-#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field input:focus,
-#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-field textarea:focus {
+#edit-scenario-screen[data-editor-section="npc"] .desktop-npc-editor-affection input:focus {
     border-bottom-color: var(--border-dark);
     outline: 1px solid var(--accent-neon);
     outline-offset: 2px;
@@ -1143,23 +1119,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     letter-spacing: 0.07em;
 }
 
-#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input,
-#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea {
-    width: 100%;
-    min-width: 0;
-    margin-top: 6px;
-    padding: 10px 3px 9px;
-    border: 0;
-    border-bottom: 1px solid var(--text-sub);
-    border-radius: 0;
-    background: color-mix(in srgb, var(--card-bg) 30%, transparent);
-    color: var(--text-main);
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1.65;
-    box-shadow: none;
-}
-
 #edit-scenario-screen[data-editor-section="player"] #input-player-name {
     border: 0;
     border-bottom: 1px solid var(--text-sub);
@@ -1177,9 +1136,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     background: color-mix(in srgb, var(--card-bg) 30%, transparent);
 }
 
-#edit-scenario-screen[data-editor-section="player"] #input-player-name:focus,
-#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet input:focus,
-#edit-scenario-screen[data-editor-section="player"] #preset-player-editor .anime-sheet textarea:focus {
+#edit-scenario-screen[data-editor-section="player"] #input-player-name:focus {
     border-bottom-color: var(--border-dark);
     outline: 1px solid var(--accent-neon);
     outline-offset: 2px;

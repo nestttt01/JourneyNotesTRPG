@@ -459,27 +459,27 @@ function selectDesktopPreset(id) {
                         <div class="anime-sheet desktop-npc-editor-grid">
                             <label class="desktop-npc-editor-field">
                                 <span>${escapeStatusHtml(uiText('年齡／身高／體型'))}</span>
-                                <input type="text" id="npc-age-${index}" value="${escapeStatusHtml(npc.details?.age || '')}">
+                                <input type="text" class="character-detail-control" id="npc-age-${index}" value="${escapeStatusHtml(npc.details?.age || '')}">
                             </label>
                             <label class="desktop-npc-editor-field">
                                 <span>${escapeStatusHtml(uiText('說話習慣／語氣'))}</span>
-                                <input type="text" id="npc-speech-${index}" value="${escapeStatusHtml(npc.details?.speech || '')}">
+                                <input type="text" class="character-detail-control" id="npc-speech-${index}" value="${escapeStatusHtml(npc.details?.speech || '')}">
                             </label>
                             <label class="desktop-npc-editor-field">
                                 <span>${escapeStatusHtml(uiText('喜好'))}</span>
-                                <input type="text" id="npc-likes-${index}" value="${escapeStatusHtml(npc.details?.likes || '')}">
+                                <input type="text" class="character-detail-control" id="npc-likes-${index}" value="${escapeStatusHtml(npc.details?.likes || '')}">
                             </label>
                             <label class="desktop-npc-editor-field">
                                 <span>${escapeStatusHtml(uiText('厭惡'))}</span>
-                                <input type="text" id="npc-dislikes-${index}" value="${escapeStatusHtml(npc.details?.dislikes || '')}">
+                                <input type="text" class="character-detail-control" id="npc-dislikes-${index}" value="${escapeStatusHtml(npc.details?.dislikes || '')}">
                             </label>
                             <label class="desktop-npc-editor-field full">
                                 <span>${escapeStatusHtml(uiText('外貌特徵／常見穿搭'))}</span>
-                                <textarea id="npc-app-${index}" rows="3" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.app || '')}</textarea>
+                                <textarea class="character-detail-control" id="npc-app-${index}" rows="3" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.app || '')}</textarea>
                             </label>
                             <label class="desktop-npc-editor-field full">
                                 <span>${escapeStatusHtml(uiText('核心性格／背景故事'))}</span>
-                                <textarea id="npc-bg-${index}" rows="3" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.bg || npc.persona || '')}</textarea>
+                                <textarea class="character-detail-control" id="npc-bg-${index}" rows="3" oninput="autoResize(this)">${escapeStatusHtml(npc.details?.bg || npc.persona || '')}</textarea>
                             </label>
                         </div>
                         <div class="desktop-npc-editor-actions">

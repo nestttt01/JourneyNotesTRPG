@@ -542,28 +542,28 @@ function renderStatusPlayerEditorHtml() {
             </p>
             <div>
                 <label>${escapeStatusHtml(uiText('年齡／身高／體型'))}</label>
-                <input type="text" id="edit-p-age" value="${escapeStatusHtml(details.age)}">
+                <input type="text" class="character-detail-control" id="edit-p-age" value="${escapeStatusHtml(details.age)}">
             </div>
             <div>
                 <label>${escapeStatusHtml(uiText('說話習慣／語氣'))}</label>
-                <input type="text" id="edit-p-speech" value="${escapeStatusHtml(details.speech)}">
+                <input type="text" class="character-detail-control" id="edit-p-speech" value="${escapeStatusHtml(details.speech)}">
             </div>
             <div>
                 <label>${escapeStatusHtml(uiText('喜好'))}</label>
-                <input type="text" id="edit-p-likes" value="${escapeStatusHtml(details.likes)}">
+                <input type="text" class="character-detail-control" id="edit-p-likes" value="${escapeStatusHtml(details.likes)}">
             </div>
             <div>
                 <label>${escapeStatusHtml(uiText('厭惡'))}</label>
-                <input type="text" id="edit-p-dislikes" value="${escapeStatusHtml(details.dislikes)}">
+                <input type="text" class="character-detail-control" id="edit-p-dislikes" value="${escapeStatusHtml(details.dislikes)}">
             </div>
             <div class="full">
                 <label>${escapeStatusHtml(uiText('外貌特徵／常見穿搭'))}</label>
-                <textarea id="edit-p-app" rows="3"
+                <textarea class="character-detail-control" id="edit-p-app" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.app)}</textarea>
             </div>
             <div class="full">
                 <label>${escapeStatusHtml(uiText('核心性格／背景故事'))}</label>
-                <textarea id="edit-p-bg" rows="3"
+                <textarea class="character-detail-control" id="edit-p-bg" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.bg)}</textarea>
             </div>
         </div>`;
@@ -601,28 +601,28 @@ function renderStatusNpcEditorHtml(npc, index) {
             </div>
             <div>
                 <label>${escapeStatusHtml(uiText('年齡／身高／體型'))}</label>
-                <input type="text" id="edit-n-age-${index}" value="${escapeStatusHtml(details.age)}">
+                <input type="text" class="character-detail-control" id="edit-n-age-${index}" value="${escapeStatusHtml(details.age)}">
             </div>
             <div>
                 <label>${escapeStatusHtml(uiText('說話習慣／語氣'))}</label>
-                <input type="text" id="edit-n-speech-${index}" value="${escapeStatusHtml(details.speech)}">
+                <input type="text" class="character-detail-control" id="edit-n-speech-${index}" value="${escapeStatusHtml(details.speech)}">
             </div>
             <div>
                 <label>${escapeStatusHtml(uiText('喜好'))}</label>
-                <input type="text" id="edit-n-likes-${index}" value="${escapeStatusHtml(details.likes)}">
+                <input type="text" class="character-detail-control" id="edit-n-likes-${index}" value="${escapeStatusHtml(details.likes)}">
             </div>
             <div>
                 <label>${escapeStatusHtml(uiText('厭惡'))}</label>
-                <input type="text" id="edit-n-dislikes-${index}" value="${escapeStatusHtml(details.dislikes)}">
+                <input type="text" class="character-detail-control" id="edit-n-dislikes-${index}" value="${escapeStatusHtml(details.dislikes)}">
             </div>
             <div class="full">
                 <label>${escapeStatusHtml(uiText('外貌特徵／常見穿搭'))}</label>
-                <textarea id="edit-n-app-${index}" rows="3"
+                <textarea class="character-detail-control" id="edit-n-app-${index}" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.app)}</textarea>
             </div>
             <div class="full">
                 <label>${escapeStatusHtml(uiText('核心性格／背景故事'))}</label>
-                <textarea id="edit-n-bg-${index}" rows="3"
+                <textarea class="character-detail-control" id="edit-n-bg-${index}" rows="3"
                     oninput="autoResize(this)">${escapeStatusHtml(details.bg)}</textarea>
             </div>
             ${renderDynamicStateEditor(`edit-n-state-${index}`, dynamic, { allowDeath: true })}

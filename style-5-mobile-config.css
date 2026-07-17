@@ -838,24 +838,13 @@
         font-weight: 400;
     }
 
-    #desktop-config-editor .scenario-input,
-    #desktop-config-editor .anime-sheet input,
-    #desktop-config-editor .anime-sheet textarea {
+    #desktop-config-editor .scenario-input {
         width: 100%;
         min-width: 0;
         border: 1px solid var(--text-sub);
         background: var(--card-bg);
         box-shadow: none;
         font-size: 14px;
-    }
-
-    #desktop-config-editor #p-app,
-    #desktop-config-editor #p-bg,
-    #desktop-config-editor [id^="npc-app-"],
-    #desktop-config-editor [id^="npc-bg-"] {
-        min-height: 96px;
-        overflow-y: auto;
-        resize: vertical;
     }
 
     #desktop-config-editor #npc-list-container details,
@@ -1564,4 +1553,3 @@ html { background-color: var(--bg-main); }
 --bg-tab-shadow: var(--accent-gray);
 --bg-tab-shadow: color-mix(in srgb, var(--accent-gray) 48%, transparent);
 }
-
