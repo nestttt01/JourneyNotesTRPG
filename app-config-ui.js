@@ -416,12 +416,11 @@ function selectDesktopPreset(id) {
                 const backLabel = uiText('返回 NPC 預覽');
                 const acquaintanceLabel = uiText('認識夥伴');
                 const doneLabel = uiText('完成');
-                const deleteLabel = escapeStatusHtml(uiText('刪除 NPC'));
+                const deleteLabel = uiText('刪除 NPC');
                 const deleteButton = isNewNpc ? '' : `
-                    <button type="button" class="desktop-npc-editor-delete hold-delete" data-hold-kind="npc" data-hold-index="${index}">
-                        <span class="hold-delete-base">${deleteLabel}</span>
-                        <span class="hold-delete-wash">${deleteLabel}</span>
-                    </button>
+                    <button type="button" class="desktop-npc-editor-delete"
+                        aria-label="${escapeStatusHtml(deleteLabel)}"
+                        title="${escapeStatusHtml(deleteLabel)}">${escapeStatusHtml(deleteLabel)}</button>
                 `;
 
                 details.innerHTML = `
@@ -496,6 +495,15 @@ function selectDesktopPreset(id) {
                     </div>
                 `;
                 container.appendChild(details);
+                const npcDeleteButton = details.querySelector('.desktop-npc-editor-delete');
+                if (npcDeleteButton) {
+                    configureHoldDeleteButton(npcDeleteButton, () => removeNpcBlock(index), {
+                        labelKey: '刪除 NPC',
+                        expandDirection: 'end',
+                        ariaLabelKey: '刪除 NPC',
+                        confirmTextKey: '確定要刪除這位 NPC 嗎？'
+                    });
+                }
                 if (typeof enableReorderDrag === 'function') {
                     enableReorderDrag(details.querySelector('.reorder-handle'), details, container, 'details.foldable-card', (fromIndex, toIndex) => {
                         syncEditingDataFromDOM();
@@ -790,42 +798,6 @@ function selectDesktopPreset(id) {
                 return;
             }
             switchDesktopConfigWorkspace(desktopConfigWorkspace);
-        }
-
-        let holdDeleteTimer = null;
-        let holdDeleteButton = null;
-
-        function ensureHoldDeleteDelegation() {
-            if (window.__holdDeleteDelegated) return;
-            window.__holdDeleteDelegated = true;
-            document.addEventListener('pointerdown', event => {
-                const button = event.target.closest('.hold-delete');
-                if (!button) return;
-                event.preventDefault();
-                holdDeleteButton = button;
-                button.classList.add('arming');
-                holdDeleteTimer = window.setTimeout(() => {
-                    button.classList.remove('arming');
-                    holdDeleteButton = null;
-                    const holdIndex = Number(button.dataset.holdIndex);
-                    if (button.dataset.holdKind === 'npc') removeNpcBlock(holdIndex);
-                    if (button.dataset.holdKind === 'scenario') removeScenarioBlock(holdIndex);
-                }, 1200);
-            });
-            const disarmHoldDelete = event => {
-                if (!holdDeleteButton) return;
-                window.clearTimeout(holdDeleteTimer);
-                holdDeleteButton.classList.remove('arming');
-                holdDeleteButton = null;
-                if (event.type === 'pointerup' && typeof tinyToast === 'function') {
-                    tinyToast(uiText('長按以刪除'));
-                }
-            };
-            document.addEventListener('pointerup', disarmHoldDelete);
-            document.addEventListener('pointercancel', disarmHoldDelete);
-            document.addEventListener('contextmenu', event => {
-                if (event.target.closest('.hold-delete')) event.preventDefault();
-            });
         }
 
         function syncStaticBracketLabels() {
@@ -1646,7 +1618,6 @@ function selectDesktopPreset(id) {
         });
         window.addEventListener('load', syncStaticBracketLabels);
         syncStaticBracketLabels();
-        ensureHoldDeleteDelegation();
 
         let forceOpenScenIndex = -1;
         function renderScenarioList() {
@@ -1660,7 +1631,9 @@ function selectDesktopPreset(id) {
                 details.innerHTML = `
                     <summary><span class="reorder-handle" data-no-i18n title="${escapeStatusHtml(uiText('拖曳排序'))}">☰</span>情境: <span id="scen-title-${index}" data-no-i18n>${escapeStatusHtml(scen.name || '未命名')}</span></summary>
                     <div class="foldable-content">
-                        <button type="button" class="delete-scen-btn hold-delete" data-hold-kind="scenario" data-hold-index="${index}"><span class="hold-delete-base">${escapeStatusHtml(uiText('刪除'))}</span><span class="hold-delete-wash">${escapeStatusHtml(uiText('刪除'))}</span></button>
+                        <button type="button" class="delete-scen-btn"
+                            aria-label="${escapeStatusHtml(uiText('刪除'))}"
+                            title="${escapeStatusHtml(uiText('刪除'))}">${escapeStatusHtml(uiText('刪除'))}</button>
                         <div class="scenario-label">情境名稱</div>
                         <input type="text" class="scenario-input" id="scen-name-${index}" value="${escapeStatusHtml(scen.name)}" oninput="document.getElementById('scen-title-${index}').innerText = this.value || '未命名'; renderDesktopPresetOverview();">
                         <div class="scenario-label">該情境下的物理法則與世界觀</div>
@@ -1676,6 +1649,12 @@ function selectDesktopPreset(id) {
                     </div>
                 `;
                 container.appendChild(details);
+                const scenarioDeleteButton = details.querySelector('.delete-scen-btn');
+                configureHoldDeleteButton(scenarioDeleteButton, () => removeScenarioBlock(index), {
+                    labelKey: '刪除',
+                    ariaLabelKey: '刪除',
+                    confirmTextKey: '確定要刪除這個情境嗎？'
+                });
                 if (typeof enableReorderDrag === 'function') {
                     enableReorderDrag(details.querySelector('.reorder-handle'), details, container, 'details.foldable-card', (fromIndex, toIndex) => {
                         syncEditingDataFromDOM();
@@ -1779,13 +1758,17 @@ widget.classList.toggle('open', willOpen);
                     const tag = document.createElement('span');
                     tag.className = 'proficiency-tag';
                     tag.appendChild(document.createTextNode(valueToText(prof) + ' '));
-                    const rm = document.createElement('span');
+                    const rm = document.createElement('button');
+                    rm.type = 'button';
                     rm.className = 'proficiency-tag-remove';
-                    rm.textContent = '✖';
-                    rm.setAttribute('role', 'button');
-                    rm.setAttribute('tabindex', '0');
-                    rm.onclick = () => removeProficiency(index, inGame);
-                    rm.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') removeProficiency(index, inGame); };
+                    configureHoldDeleteButton(rm, () => removeProficiency(index, inGame), {
+                        idleText: '✖',
+                        compact: true,
+                        ariaLabelKey: '刪除擅長領域',
+                        confirmTextKey: inGame
+                            ? '確定刪除這個擅長領域？（用成長點新增的不會退還點數）'
+                            : '確定要刪除這個項目嗎？'
+                    });
                     tag.appendChild(rm);
                     container.appendChild(tag);
                 });
@@ -1812,12 +1795,6 @@ widget.classList.toggle('open', willOpen);
         function removeProficiency(index, inGame) {
             const list = getProficiencyListForContext(inGame).slice();
             if (index < 0 || index >= list.length) return;
-            /* 遊戲中刪除要確認(2026/07/10):用成長點買的擅長刪除不退點,防手滑蒸發;
-               配置編輯頁(創角階段)不擋,照舊直接刪。 */
-            if (inGame) {
-                const msg = (typeof uiText === 'function') ? uiText('確定刪除這個擅長領域？（用成長點新增的不會退還點數）') : '確定刪除這個擅長領域？（用成長點新增的不會退還點數）';
-                if (!window.confirm(msg)) return;
-            }
             list.splice(index, 1);
             persistProficiencyList(list, inGame);
         }

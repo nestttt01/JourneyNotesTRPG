@@ -689,7 +689,7 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
             storyText: ['#ui-story-summary', '14px'],
             taskText: ['.memory-task-text', '12px'],
             taskFail: ['.memory-task-fail', '14px'],
-            taskRemove: ['.memory-task-remove', '10px'],
+            taskRemove: ['.memory-task-remove', '12px'],
             playerName: ['.u-inline-069', '20px'],
             statLabel: ['.status-stat-item > span', '12px'],
             statValue: ['.status-stat-item > strong', '14px'],

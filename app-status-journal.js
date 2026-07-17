@@ -1231,13 +1231,15 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
                 const displayFlag = (typeof uiText === 'function') ? uiText(cleanFlag) : cleanFlag;
                 tag.appendChild(document.createTextNode(`${displayFlag} `));
 
-                const removeButton = document.createElement('span');
-                removeButton.innerText = '✖';
-                removeButton.title = '刪除此標籤';
-                removeButton.setAttribute('role', 'button');
-                removeButton.setAttribute('tabindex', '0');
-                removeButton.onclick = () => removeFlag(index);
-                removeButton.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') removeFlag(index); };
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'flag-remove-btn';
+                configureHoldDeleteButton(removeButton, () => removeFlag(index), {
+                    idleText: '✖',
+                    compact: true,
+                    ariaLabelKey: '刪除此標籤',
+                    confirmTextKey: '確定要刪除這個項目嗎？'
+                });
                 tag.appendChild(removeButton);
                 container.appendChild(tag);
             });
@@ -1296,9 +1298,6 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
         function removeItem(index) {
             if (!Number.isInteger(index) || index < 0 || index >= currentItems.length) return;
             const removedName = currentItems[index];
-            /* 刪除確認(2026/07/10):× 貼著「使用」鈕,誤觸即蒸發(成長結晶=2 成長點);與擅長刪除同語彙 */
-            const confirmMsg = (typeof uiText === 'function') ? uiText('確定刪除這個道具？（成長結晶或劇情道具刪除後不會補償）') : '確定刪除這個道具？（成長結晶或劇情道具刪除後不會補償）';
-            if (!window.confirm(`${confirmMsg}\n[ ${removedName} ]`)) return;
             currentItems.splice(index, 1);
             if (itemEffects && !currentItems.includes(removedName)) {
                 delete itemEffects[removedName];
@@ -1333,10 +1332,14 @@ alert(`【系統提醒】\n因為大廳的配置 [${scenarioPresets[sourceId].pr
                 const removeButton = document.createElement('button');
                 removeButton.type = 'button';
                 removeButton.className = 'item-remove-btn';
-                removeButton.innerText = '×';
-                removeButton.title = `刪除道具：${item}`;
-                removeButton.setAttribute('aria-label', `刪除道具：${item}`);
-                removeButton.onclick = () => removeItem(index);
+                configureHoldDeleteButton(removeButton, () => removeItem(index), {
+                    idleText: '×',
+                    compact: true,
+                    ariaLabelKey: '刪除道具：{item}',
+                    ariaLabelParams: { item },
+                    confirmTextKey: '確定刪除這個道具？（成長結晶或劇情道具刪除後不會補償）',
+                    confirmTextSuffix: `\n[ ${item} ]`
+                });
 
                 tag.append(removeButton);
                 container.appendChild(tag);
@@ -1608,7 +1611,7 @@ function removeCollection(idx) {
         function selectDiarySave(id) { diaryViewSaveId = id; diaryViewIndex = 0; renderDiary(); }
         function deleteCurrentDiary() {
             const list = getCollections(diaryViewSaveId);
-            if (list.length && confirm('刪除目前這則收藏？')) removeCollection(diaryViewIndex);
+            if (list.length) removeCollection(diaryViewIndex);
         }
         // 用「跟遊戲同一套」的泡泡/旁白元件，把收藏的原始訊息行重畫進任意容器
         function renderDiaryLines(container, lines, scenario) {
@@ -1849,9 +1852,13 @@ event.preventDefault();
 pageList.scrollLeft += event.deltaY;
 };
 if (cols.length) {
-const del = document.createElement('button'); del.type = 'button'; del.className = 'diary-pg-del'; del.textContent = '\u2715';
-del.title = getDiaryUiText('\u522a\u9664\u9019\u5247'); del.setAttribute('aria-label', getDiaryUiText('\u522a\u9664\u9019\u5247'));
-del.onclick = () => deleteCurrentDiary();
+const del = document.createElement('button'); del.type = 'button'; del.className = 'diary-pg-del';
+configureHoldDeleteButton(del, () => deleteCurrentDiary(), {
+    idleText: '\u2715',
+    compact: true,
+    ariaLabelKey: '\u522a\u9664\u9019\u5247',
+    confirmTextKey: '\u522a\u9664\u76ee\u524d\u9019\u5247\u6536\u85cf\uFF1F'
+});
 pageActions.appendChild(del);
 const nx = document.createElement('button'); nx.type = 'button'; nx.className = 'diary-pg-next'; nx.textContent = '\u2794'; nx.onclick = () => { diaryViewIndex = (diaryViewIndex + 1) % cols.length; renderDiary(); };
 pageActions.appendChild(nx);
@@ -2213,9 +2220,18 @@ list.innerHTML = visibleEntries.map(entry => `
 <span class="journal-entry-index">#${entry.index + 1}</span>
 <textarea class="journal-entry-text journal-entry-inline-input" rows="1" aria-label="${escapeStatusHtml(uiText('冒險紀錄內容'))}" oninput="autoResize(this)" onblur="saveJournalEntryInlineEdit(${entry.index}, this.value)">${escapeStatusHtml(uiJournalEntryText(entry.text))}</textarea>
 <button class="journal-entry-star" type="button" aria-label="${entry.important ? escapeStatusHtml(uiText('取消重要標記')) : escapeStatusHtml(uiText('標記為重要'))}" title="${entry.important ? escapeStatusHtml(uiText('取消重要標記')) : escapeStatusHtml(uiText('標記為重要'))}" onclick="toggleJournalEntryImportant(${entry.index})">${entry.important ? '★' : '☆'}</button>
-<button class="journal-entry-delete" type="button" aria-label="${escapeStatusHtml(uiText('刪除此筆'))}" title="${escapeStatusHtml(uiText('刪除此筆'))}" onclick="deleteJournalEntryInline(${entry.index})">－</button>
+<button class="journal-entry-delete" type="button" data-journal-entry-index="${entry.index}" aria-label="${escapeStatusHtml(uiText('刪除此筆'))}" title="${escapeStatusHtml(uiText('刪除此筆'))}">－</button>
 </article>`).join('');
 list.querySelectorAll('.journal-entry-inline-input').forEach(autoResize);
+list.querySelectorAll('.journal-entry-delete').forEach(button => {
+const entryIndex = Number(button.dataset.journalEntryIndex);
+configureHoldDeleteButton(button, () => deleteJournalEntryInline(entryIndex), {
+idleText: '－',
+compact: true,
+ariaLabelKey: '刪除此筆',
+confirmTextKey: '確定要刪除這筆冒險紀錄嗎？'
+});
+});
 if (pagination) list.appendChild(pagination);
 }
 
@@ -2244,7 +2260,6 @@ const index = Number(entryIndex);
 if (!save || !Number.isInteger(index)) return;
 const entries = getAdventureJournalEntries().map(entry => entry.text);
 if (index < 0 || index >= entries.length) return;
-if (!confirm(uiText('確定要刪除這筆冒險紀錄嗎？'))) return;
 entries.splice(index, 1);
 if (Array.isArray(save.importantJournalEntries)) {
 save.importantJournalEntries = save.importantJournalEntries

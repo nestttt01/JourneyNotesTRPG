@@ -996,10 +996,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     background: transparent;
     color: var(--text-sub);
     cursor: pointer;
-    font-family: var(--font-ui);
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 1px;
 }
 
 .desktop-npc-editor-delete:hover,
@@ -1303,62 +1299,27 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     transform: scale(0.97);
 }
 
-.hold-delete {
-    position: relative;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
-}
-
-/* 情境刪除鈕:D1 靜默文字定版,壓過所有舊紅底/全寬/hover 規則 */
-#edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete,
-#edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete:hover,
-#edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete:focus-visible,
-:root[data-bg-mode="image"] #edit-scenario-screen #desktop-config-editor .delete-scen-btn.hold-delete {
+/* 情境刪除鈕：文字外觀由 hold-delete-text 共用，這裡只保留版面定位。 */
+.delete-scen-btn.hold-delete {
     position: absolute;
     top: 15px;
     right: 12px;
     width: auto;
     min-height: 0;
     padding: 4px 2px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    transform: none;
     color: var(--text-sub);
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 1px;
     z-index: 5;
 }
 
-.hold-delete .hold-delete-base {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-}
-
-.hold-delete .hold-delete-wash {
-    position: absolute;
-    inset: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #ff4444;
-    clip-path: inset(0 100% 0 0);
-    transition: clip-path 200ms cubic-bezier(0.23, 1, 0.32, 1);
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-.hold-delete.arming .hold-delete-wash {
-    transition: clip-path 1.2s steps(10, end);
-    clip-path: inset(0 0 0 0);
-}
-
-.hold-delete:active {
-    transform: translateY(1px);
+@media screen and (max-width: 600px),
+    screen and (max-width: 1099px) and (hover: none),
+    screen and (max-width: 1099px) and (pointer: coarse) {
+    #desktop-config-editor details.desktop-active-card .delete-scen-btn.hold-delete {
+        top: 0;
+        right: 0;
+        min-height: 44px;
+        padding: 5px 10px;
+    }
 }
 
 .desktop-game-two-buttons button.npc-flow-bracket-action,
@@ -1383,7 +1344,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 
 @media (prefers-reduced-motion: reduce) {
     .desktop-workspace-view[data-workspace-view="scenarios"] .desktop-overview-card,
-    .hold-delete .hold-delete-wash,
     .cta-shine {
         transition: none;
     }
@@ -1394,9 +1354,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
         transform: none;
     }
 
-    .hold-delete.arming .hold-delete-wash {
-        transition: clip-path 1.2s linear;
-    }
 }
 
 /* AI 生成面板:去外框、標題小標化(兩顆按鈕本身維持現狀) */

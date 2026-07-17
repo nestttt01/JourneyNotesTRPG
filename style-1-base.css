@@ -322,7 +322,6 @@ font-synthesis: none;
         .delete-btn-red:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0px var(--border-dark); }
         /* ======================================= */
 
-        .delete-scen-btn { position: absolute; top: 15px; right: 10px; background: #ff4444; color: #fff; border: 2px solid var(--border-dark); border-radius: 6px; font-size: 11px; padding: 2px 8px; cursor: pointer; font-weight: bold; z-index: 5;}
 
         .anime-sheet { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--surface-muted); padding: 12px; border-radius: 8px; border: 2px solid var(--border-dark); margin-top: 5px; margin-bottom: 10px; }
         .anime-sheet .full { grid-column: 1 / -1; }
@@ -443,12 +442,16 @@ z-index: 10;
             white-space: normal;
             overflow-wrap: anywhere;
         }
-        .flag-tag span {
+        .flag-tag > .flag-remove-btn {
             margin-left: 10px;
+            appearance: none;
+            padding: 0;
+            border: 0;
+            background: transparent;
             color: #ff4444;
             font-family: inherit;
             font-size: 14px;
-            line-height: 1;
+            line-height: inherit;
             cursor: pointer;
         }
 
@@ -795,10 +798,160 @@ z-index: 10;
 }
 .memory-task-row.done .memory-task-text { text-decoration: line-through; color: var(--text-sub); }
 .memory-task-row.failed .memory-task-text { color: var(--border-dark); text-decoration: none; }
-.memory-task-fail, .memory-task-remove { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text-sub); font-size: 14px; font-weight: 900; line-height: 22px; cursor: pointer; }
+.memory-task-fail, .memory-task-remove { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--text-sub); line-height: 22px; cursor: pointer; }
+.memory-task-fail { font-size: 14px; font-weight: 900; }
 .memory-task-fail:hover, .memory-task-fail:focus-visible, .memory-task-row.failed .memory-task-fail { color: var(--border-dark); outline: none; }
-.memory-task-remove { color: #9b3942; font-size: 10px; font-weight: 900; letter-spacing: 0.4px; }
+.memory-task-remove { color: #9b3942; }
 .memory-task-remove:hover, .memory-task-remove:focus-visible { color: var(--border-dark); outline: none; }
+
+button.hold-delete {
+    position: relative;
+    overflow: visible;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+}
+
+button.hold-delete-text,
+button.hold-delete-text:hover,
+button.hold-delete-text:focus-visible {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-synthesis: none;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-align: center;
+    vertical-align: middle;
+    transform: none;
+}
+
+button.hold-delete-text[data-hold-expand="end"] {
+    justify-self: start;
+}
+
+button.hold-delete[data-hold-state="armed"] {
+    z-index: 20;
+}
+
+.hold-delete > .hold-delete-idle {
+    font-family: inherit;
+    line-height: inherit;
+    white-space: nowrap;
+}
+
+.hold-delete-text > .hold-delete-idle {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.hold-delete[data-hold-state="armed"] > .hold-delete-idle {
+    visibility: hidden;
+}
+
+.hold-delete > .hold-delete-prompt {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    font-family: inherit;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.hold-delete-compact > .hold-delete-prompt {
+    inset: 0;
+    place-items: center;
+}
+
+.hold-delete-text > .hold-delete-prompt {
+    top: 50%;
+    right: 2px;
+    width: max-content;
+    transform: translateY(-50%);
+}
+
+.hold-delete-text[data-hold-expand="end"] > .hold-delete-prompt {
+    right: auto;
+    left: 2px;
+}
+
+.hold-delete[data-hold-state="armed"] > .hold-delete-prompt {
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.hold-delete-prompt > .hold-delete-base,
+.hold-delete-prompt > .hold-delete-wash {
+    grid-area: 1 / 1;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.hold-delete-compact .hold-delete-base,
+.hold-delete-compact .hold-delete-wash {
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+}
+
+.hold-delete-compact .hold-delete-base {
+    color: currentColor;
+    opacity: 0.35;
+}
+
+.hold-delete-compact .hold-delete-wash {
+    color: #ff4444;
+}
+
+button.hold-delete-compact[data-hold-state="armed"] {
+    background: transparent;
+    box-shadow: none;
+    color: var(--text-sub);
+    transform: none;
+}
+
+.hold-delete-text .hold-delete-base {
+    color: var(--text-sub);
+    font-weight: inherit;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.hold-delete-text .hold-delete-wash {
+    color: #ff4444;
+    font-weight: inherit;
+}
+
+.hold-delete .hold-delete-wash {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    pointer-events: none;
+}
+
+.hold-delete.is-holding .hold-delete-wash {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 1.2s steps(10, end);
+}
+
+button.hold-delete-text:active {
+    transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hold-delete .hold-delete-wash {
+        transition: none;
+    }
+
+    .hold-delete.is-holding .hold-delete-wash {
+        transition: clip-path 1.2s linear;
+    }
+}
+
         .memory-task-add {
             box-sizing: border-box;
             width: calc(100% - 9px);

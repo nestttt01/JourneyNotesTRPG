@@ -242,3 +242,16 @@
 - [x] 修改檔案：`index.html`、`app-config-ui.js`、`app-status-journal.js`、`style-1-base.css`、`style-2-status.css`、`style-4-desktop-config.css`、`style-5-mobile-config.css`、`style-6-surfaces.css`、`style-7-game.css`、`COMPLETED.md`。
 - [x] 瀏覽器驗證：配置玩家／配置 NPC／角色面板玩家／角色面板 NPC 四組的一般與 focus 計算樣式完全一致；1440px 純色／背景圖模式與 390px 手機均通過，手機左右 focus 外框無裁切。
 - [x] 回歸驗證：完整 Playwright 32 通過／8 個既有失敗／新增失敗 0；JS 語法、CSS 結構、HTML 檔尾、嚴格 UTF-8／LF、`git diff --check` 與 Python／Node hash 複驗通過。
+
+## 2026-07-18
+
+### 共用小型長按刪除與功能文字字型統一
+
+- [x] 任務 DEL、Flags、道具、擅長領域、日記單則、冒險日誌單筆，以及角色配置 NPC／情境共 8 組小型刪除鍵，統一接到同一套兩階段長按刪除控制器。
+- [x] 第一次短按只進入待命；第二次持續按住 1.2 秒，紅色進度完整填滿並保留最後一格 50ms 後才刪除。提早放開、移動超過 10px、`pointercancel`、切換頁面或按鈕中途重繪都會安全取消，且不會讓舊計時誤刪新的操作。
+- [x] 文字鍵統一為專案功能文字規格 `TRPG Cubic Pixel`／12px／400／1px；原字、待命灰字與紅色填滿字三層實際計算樣式一致。DEL 與 NPC 提示向右展開，情境提示向左展開，DEL 不再遮住左側驚嘆號。
+- [x] `×`／`✖`／`✕`／`－` 等符號鍵全程保留原符號與原尺寸，只在符號內填入紅色進度，不改成文字；手機保留 `touch-action: manipulation`、10px 移動取消與 44px 情境觸控高度，601–1099px 粗指標平板同樣生效。
+- [x] 道具刪除的 `aria-label`／`title` 改為帶 `{item}` 的中英日模板，切換語言時會刷新所有已註冊按鈕；鍵盤操作保留確認視窗，滑鼠／觸控長按不再另跳確認框。
+- [x] 清除 DEL、NPC 與情境刪除的重複字型／定位覆蓋，字型只由共用 `hold-delete-text` 規則提供；沒有新增 `!important`。
+- [x] 修改檔案：`app-ui-helpers.js`、`app-memory.js`、`app-status-journal.js`、`app-config-ui.js`、`i18n.js`、`style-1-base.css`、`style-4-desktop-config.css`、`style-5-mobile-config.css`、`style-6-surfaces.css`、`style-7-game.css`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/hold-delete.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 驗證：長按刪除專項 11/11 通過，涵蓋 8 組正式 caller、特殊字體三層、最終填滿畫面、取消競態、重繪移除、語言切換、鍵盤與粗指標平板；完整 Playwright 42 通過／8 個既有失敗／新增失敗 0。JS 語法、CSS 結構、嚴格 UTF-8／LF、`git diff --check` 與延遲 hash 複驗通過。

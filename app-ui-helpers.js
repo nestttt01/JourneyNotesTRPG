@@ -28,6 +28,351 @@
             if (window.setUiLanguage) setUiLanguage(next);
         }
 
+        const HOLD_DELETE_DURATION_MS = 1200;
+        const HOLD_DELETE_COMPLETE_DWELL_MS = 50;
+        const HOLD_DELETE_ARM_TIMEOUT_MS = 4000;
+        const HOLD_DELETE_MOVE_THRESHOLD_PX = 10;
+        const HOLD_DELETE_POINTER_RECORD_TIMEOUT_MS = 5000;
+        const holdDeleteRegistry = new WeakMap();
+        const holdDeleteSuppressedClicks = new WeakSet();
+        const holdDeleteCompletedPointers = new Map();
+        const holdDeleteCanceledPointers = new Map();
+        let holdDeleteArmedButton = null;
+        let holdDeleteArmTimer = null;
+        let holdDeleteActivePointer = null;
+        let holdDeletePendingCommit = null;
+        let holdDeleteDelegated = false;
+
+        function getHoldDeleteText(source, params = {}) {
+            return window.uiMessage ? window.uiMessage(source, params) : source;
+        }
+
+        function getRegisteredHoldDeleteButton(target) {
+            if (!(target instanceof Element)) return null;
+            const button = target.closest('.hold-delete');
+            return button && holdDeleteRegistry.has(button) ? button : null;
+        }
+
+        function clearHoldDeleteArmTimer() {
+            if (holdDeleteArmTimer === null) return;
+            window.clearTimeout(holdDeleteArmTimer);
+            holdDeleteArmTimer = null;
+        }
+
+        function rememberHoldDeletePointer(recordMap, pointerId, button) {
+            const entry = { button };
+            recordMap.set(pointerId, entry);
+            window.setTimeout(() => {
+                if (recordMap.get(pointerId) === entry) recordMap.delete(pointerId);
+            }, HOLD_DELETE_POINTER_RECORD_TIMEOUT_MS);
+        }
+
+        function refreshHoldDeleteButton(button, armed) {
+            const record = holdDeleteRegistry.get(button);
+            if (!record) return;
+            const idleText = record.labelKey
+                ? getHoldDeleteText(record.labelKey)
+                : record.idleText;
+            const holdText = getHoldDeleteText('長按以刪除');
+            const promptText = record.compact ? idleText : holdText;
+            record.idle.textContent = idleText;
+            record.base.textContent = promptText;
+            record.wash.textContent = promptText;
+            const accessibleLabel = `${getHoldDeleteText(
+                record.ariaLabelKey,
+                record.ariaLabelParams
+            )}${record.ariaLabelSuffix}`;
+            const title = `${getHoldDeleteText(record.titleKey, record.titleParams)}${record.ariaLabelSuffix}`;
+            if (armed) {
+                button.setAttribute('aria-label', `${holdText} — ${accessibleLabel}`);
+                button.title = record.compact ? title : holdText;
+                return;
+            }
+            button.setAttribute('aria-label', accessibleLabel);
+            button.title = title;
+        }
+
+        function clearHoldDeletePointer() {
+            const active = holdDeleteActivePointer;
+            if (!active) return null;
+            window.clearTimeout(active.timer);
+            active.button.classList.remove('is-holding');
+            holdDeleteActivePointer = null;
+            return active;
+        }
+
+        function disarmHoldDeleteButton(button = holdDeleteArmedButton) {
+            if (!button) return;
+            if (holdDeleteActivePointer?.button === button) clearHoldDeletePointer();
+            if (holdDeletePendingCommit?.button === button) holdDeletePendingCommit = null;
+            if (holdDeleteArmedButton === button) {
+                clearHoldDeleteArmTimer();
+                holdDeleteArmedButton = null;
+            }
+            button.classList.remove('is-holding');
+            button.dataset.holdState = 'idle';
+            refreshHoldDeleteButton(button, false);
+        }
+
+        function scheduleHoldDeleteDisarm(button) {
+            clearHoldDeleteArmTimer();
+            holdDeleteArmTimer = window.setTimeout(() => {
+                if (holdDeleteArmedButton === button) disarmHoldDeleteButton(button);
+            }, HOLD_DELETE_ARM_TIMEOUT_MS);
+        }
+
+        function armHoldDeleteButton(button) {
+            const record = holdDeleteRegistry.get(button);
+            if (!record || button.disabled) return;
+            if (holdDeleteArmedButton && holdDeleteArmedButton !== button) {
+                disarmHoldDeleteButton(holdDeleteArmedButton);
+            }
+            holdDeleteArmedButton = button;
+            button.dataset.holdState = 'armed';
+            refreshHoldDeleteButton(button, true);
+            scheduleHoldDeleteDisarm(button);
+        }
+
+        function commitHoldDeleteButton(button) {
+            const record = holdDeleteRegistry.get(button);
+            if (!record || !button.isConnected || button.disabled) {
+                disarmHoldDeleteButton(button);
+                return;
+            }
+            const commit = record.onCommit;
+            disarmHoldDeleteButton(button);
+            commit();
+        }
+
+        function startHoldDeletePointer(event, button) {
+            if (holdDeleteActivePointer || event.isPrimary === false || event.button !== 0) return;
+            clearHoldDeleteArmTimer();
+            button.classList.add('is-holding');
+            holdDeleteSuppressedClicks.add(button);
+            const pointer = {
+                button,
+                pointerId: event.pointerId,
+                startX: event.clientX,
+                startY: event.clientY,
+                timer: null
+            };
+            pointer.timer = window.setTimeout(() => {
+                if (holdDeleteActivePointer !== pointer || holdDeleteArmedButton !== button) return;
+                if (!button.isConnected || button.disabled) {
+                    disarmHoldDeleteButton(button);
+                    return;
+                }
+                const pendingCommit = { button };
+                holdDeletePendingCommit = pendingCommit;
+                rememberHoldDeletePointer(holdDeleteCompletedPointers, pointer.pointerId, button);
+                holdDeleteActivePointer = null;
+                window.requestAnimationFrame(() => {
+                    window.setTimeout(() => {
+                        if (holdDeletePendingCommit !== pendingCommit) return;
+                        holdDeletePendingCommit = null;
+                        if (holdDeleteArmedButton !== button || !button.isConnected || button.disabled) {
+                            if (holdDeleteArmedButton === button) disarmHoldDeleteButton(button);
+                            return;
+                        }
+                        commitHoldDeleteButton(button);
+                    }, HOLD_DELETE_COMPLETE_DWELL_MS);
+                });
+            }, HOLD_DELETE_DURATION_MS);
+            holdDeleteActivePointer = pointer;
+            if (event.pointerType === 'mouse' && typeof button.setPointerCapture === 'function') {
+                try {
+                    button.setPointerCapture(event.pointerId);
+                } catch (error) {
+                    /* 元素在事件途中重繪時可能已無法 capture；document 監聽仍會完成取消。 */
+                }
+            }
+        }
+
+        function suppressCompletedHoldDeleteClick(button) {
+            holdDeleteSuppressedClicks.add(button);
+            window.setTimeout(() => holdDeleteSuppressedClicks.delete(button), 0);
+        }
+
+        function handleHoldDeletePointerDown(event) {
+            const button = getRegisteredHoldDeleteButton(event.target);
+            holdDeleteCompletedPointers.delete(event.pointerId);
+            holdDeleteCanceledPointers.delete(event.pointerId);
+            if (button) holdDeleteSuppressedClicks.delete(button);
+            if (holdDeleteArmedButton && button !== holdDeleteArmedButton) {
+                disarmHoldDeleteButton(holdDeleteArmedButton);
+            }
+            if (!button || button !== holdDeleteArmedButton) return;
+            startHoldDeletePointer(event, button);
+        }
+
+        function handleHoldDeletePointerMove(event) {
+            const active = holdDeleteActivePointer;
+            if (!active || active.pointerId !== event.pointerId) return;
+            const movedX = Math.abs(event.clientX - active.startX);
+            const movedY = Math.abs(event.clientY - active.startY);
+            if (Math.max(movedX, movedY) <= HOLD_DELETE_MOVE_THRESHOLD_PX) return;
+            const button = active.button;
+            const pointerId = active.pointerId;
+            clearHoldDeletePointer();
+            rememberHoldDeletePointer(holdDeleteCanceledPointers, pointerId, button);
+            disarmHoldDeleteButton(button);
+        }
+
+        function handleHoldDeletePointerUp(event) {
+            const completedButton = holdDeleteCompletedPointers.get(event.pointerId)?.button;
+            if (completedButton) {
+                holdDeleteCompletedPointers.delete(event.pointerId);
+                suppressCompletedHoldDeleteClick(completedButton);
+                return;
+            }
+            const canceledButton = holdDeleteCanceledPointers.get(event.pointerId)?.button;
+            if (canceledButton) {
+                holdDeleteCanceledPointers.delete(event.pointerId);
+                suppressCompletedHoldDeleteClick(canceledButton);
+                return;
+            }
+            const active = holdDeleteActivePointer;
+            if (!active || active.pointerId !== event.pointerId) return;
+            const button = active.button;
+            clearHoldDeletePointer();
+            suppressCompletedHoldDeleteClick(button);
+            if (button.isConnected && holdDeleteArmedButton === button) {
+                scheduleHoldDeleteDisarm(button);
+            } else {
+                disarmHoldDeleteButton(button);
+            }
+        }
+
+        function handleHoldDeletePointerCancel(event) {
+            const completedButton = holdDeleteCompletedPointers.get(event.pointerId)?.button;
+            if (completedButton) {
+                holdDeleteCompletedPointers.delete(event.pointerId);
+                holdDeleteSuppressedClicks.delete(completedButton);
+                disarmHoldDeleteButton(completedButton);
+                return;
+            }
+            const canceledButton = holdDeleteCanceledPointers.get(event.pointerId)?.button;
+            if (canceledButton) {
+                holdDeleteCanceledPointers.delete(event.pointerId);
+                holdDeleteSuppressedClicks.delete(canceledButton);
+                disarmHoldDeleteButton(canceledButton);
+                return;
+            }
+            const active = holdDeleteActivePointer;
+            if (!active || active.pointerId !== event.pointerId) return;
+            const button = active.button;
+            clearHoldDeletePointer();
+            holdDeleteSuppressedClicks.delete(button);
+            disarmHoldDeleteButton(button);
+        }
+
+        function handleHoldDeleteClick(event) {
+            const button = getRegisteredHoldDeleteButton(event.target);
+            if (!button) {
+                disarmHoldDeleteButton();
+                return;
+            }
+            event.preventDefault();
+            const record = holdDeleteRegistry.get(button);
+            if (event.detail === 0) {
+                disarmHoldDeleteButton(holdDeleteArmedButton || button);
+                const message = `${getHoldDeleteText(record.confirmTextKey)}${record.confirmTextSuffix}`;
+                if (window.confirm(message)) record.onCommit();
+                return;
+            }
+            if (holdDeleteSuppressedClicks.has(button)) {
+                holdDeleteSuppressedClicks.delete(button);
+                return;
+            }
+            armHoldDeleteButton(button);
+        }
+
+        function ensureHoldDeleteDelegation() {
+            if (holdDeleteDelegated) return;
+            holdDeleteDelegated = true;
+            document.addEventListener('pointerdown', handleHoldDeletePointerDown, true);
+            document.addEventListener('pointermove', handleHoldDeletePointerMove, { passive: true });
+            document.addEventListener('pointerup', handleHoldDeletePointerUp);
+            document.addEventListener('pointercancel', handleHoldDeletePointerCancel);
+            document.addEventListener('click', handleHoldDeleteClick);
+            document.addEventListener('contextmenu', event => {
+                if (!getRegisteredHoldDeleteButton(event.target)) return;
+                event.preventDefault();
+            });
+            document.addEventListener('selectstart', event => {
+                if (!getRegisteredHoldDeleteButton(event.target)) return;
+                event.preventDefault();
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') disarmHoldDeleteButton();
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) disarmHoldDeleteButton();
+            });
+            window.addEventListener('blur', () => disarmHoldDeleteButton());
+            window.addEventListener('ui-language-change', () => {
+                document.querySelectorAll('.hold-delete').forEach(button => {
+                    if (!holdDeleteRegistry.has(button)) return;
+                    refreshHoldDeleteButton(button, button === holdDeleteArmedButton);
+                });
+            });
+        }
+
+        function configureHoldDeleteButton(button, onCommit, options = {}) {
+            if (!button || button.tagName !== 'BUTTON' || typeof onCommit !== 'function') return null;
+            ensureHoldDeleteDelegation();
+            const labelKey = options.labelKey || '';
+            const idleText = labelKey
+                ? getHoldDeleteText(labelKey)
+                : String(options.idleText ?? button.textContent ?? '').trim();
+            const ariaLabelKey = options.ariaLabelKey
+                || labelKey
+                || button.getAttribute('aria-label')
+                || idleText;
+            const titleKey = options.titleKey || ariaLabelKey;
+            const confirmTextKey = options.confirmTextKey || '確定要刪除這個項目嗎？';
+            const compact = Boolean(options.compact);
+            button.type = 'button';
+            button.classList.add('hold-delete');
+            button.classList.toggle('hold-delete-compact', compact);
+            button.classList.toggle('hold-delete-text', !compact);
+            button.dataset.holdState = 'idle';
+            button.dataset.holdExpand = options.expandDirection === 'end' ? 'end' : 'start';
+            button.dataset.holdDeleteReady = 'true';
+            button.replaceChildren();
+
+            const idle = document.createElement('span');
+            idle.className = 'hold-delete-idle';
+            const prompt = document.createElement('span');
+            prompt.className = 'hold-delete-prompt';
+            prompt.setAttribute('aria-hidden', 'true');
+            const base = document.createElement('span');
+            base.className = 'hold-delete-base';
+            const wash = document.createElement('span');
+            wash.className = 'hold-delete-wash';
+            prompt.append(base, wash);
+            button.append(idle, prompt);
+
+            holdDeleteRegistry.set(button, {
+                onCommit,
+                labelKey,
+                idleText,
+                ariaLabelKey,
+                ariaLabelParams: options.ariaLabelParams || {},
+                ariaLabelSuffix: String(options.ariaLabelSuffix ?? ''),
+                titleKey,
+                titleParams: options.titleParams || options.ariaLabelParams || {},
+                confirmTextKey,
+                confirmTextSuffix: String(options.confirmTextSuffix ?? ''),
+                compact,
+                idle,
+                base,
+                wash
+            });
+            refreshHoldDeleteButton(button, false);
+            return button;
+        }
+
         const PLAYER_STAT_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
         const PLAYER_STAT_TOTAL_CAP = 72;
 

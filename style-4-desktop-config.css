@@ -951,10 +951,6 @@ margin: 0; padding: 0; background: transparent;
             #desktop-config-editor details.desktop-active-card > .foldable-content {
                 position: relative; padding: 38px 0 0;
             }
-            #desktop-config-editor details.desktop-active-card .delete-scen-btn {
-                top: 0; right: 0; padding: 5px 10px;
-            }
-
             #edit-scenario-screen[data-editor-section="scenario"] #scenario-list-container .scenario-input {
                 width: 100%; padding: 10px 12px;
             }
