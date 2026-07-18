@@ -1493,6 +1493,10 @@ body::before {
 .bg-style-btn + .bg-style-btn { border-left: 2px solid var(--border-dark); }
 .bg-style-btn.active { background: var(--border-dark); color: var(--card-bg); }
 .bg-upload-row { display: flex; gap: 8px; margin-top: 8px; }
+.bg-style-row[hidden],
+.bg-upload-row[hidden] {
+    display: none;
+}
 .bg-upload-row button { flex: 1; padding: 7px 10px; border: 2px solid var(--border-dark); border-radius: 8px; background: var(--card-bg); color: var(--text-main); font-weight: 800; font-size: 12px; cursor: pointer; }
 .bg-upload-row button:disabled { opacity: 0.45; cursor: default; }
 

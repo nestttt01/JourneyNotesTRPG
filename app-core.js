@@ -40,28 +40,38 @@ widget.classList.toggle('open', nextOpen);
 if (tab) tab.setAttribute('aria-expanded', String(nextOpen));
 }
 
+const desktopShellMedia = window.matchMedia('(min-width: 1100px)');
+
+function isDesktopShellViewport() {
+    return desktopShellMedia.matches;
+}
+
 function showHomeInfoView(viewName = 'main', options = {}) {
-const setupScreen = document.getElementById('setup-screen');
-if (!setupScreen || getComputedStyle(setupScreen).display === 'none') return false;
-if (!window.matchMedia('(min-width: 1100px)').matches) return false;
-const requested = ['main', 'api', 'guide', 'saves', 'journal', 'diary'].includes(viewName) ? viewName : 'main';
-const activeView = document.querySelector('.setup-home-view.active')?.dataset.homeView || 'main';
-const nextView = !options.force && activeView === requested && requested !== 'main' ? 'main' : requested;
-if (nextView !== 'main') toggleHomeUpdateNotes(false);
-document.querySelectorAll('.setup-home-view').forEach(view => {
-view.classList.toggle('active', view.dataset.homeView === nextView);
-});
-            document.querySelectorAll('.setup-side-tab[data-home-tab]').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.homeTab === nextView);
-            });
-return true;
+    const requested = ['main', 'api', 'guide', 'saves', 'journal', 'diary'].includes(viewName)
+        ? viewName
+        : 'main';
+    const setupScreen = document.getElementById('setup-screen');
+    if (!setupScreen || getComputedStyle(setupScreen).display === 'none') return false;
+    if (!isDesktopShellViewport() && requested !== 'main') return false;
+    const activeView = document.querySelector('.setup-home-view.active')?.dataset.homeView || 'main';
+    const nextView = !options.force && activeView === requested && requested !== 'main'
+        ? 'main'
+        : requested;
+    if (nextView !== 'main') toggleHomeUpdateNotes(false);
+    document.querySelectorAll('.setup-home-view').forEach(view => {
+        view.classList.toggle('active', view.dataset.homeView === nextView);
+    });
+    document.querySelectorAll('.setup-side-tab[data-home-tab]').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.homeTab === nextView);
+    });
+    return true;
 }
 
 function canUseSetupHomeView() {
-const setupScreen = document.getElementById('setup-screen');
-return !!setupScreen
-&& getComputedStyle(setupScreen).display !== 'none'
-&& window.matchMedia('(min-width: 1100px)').matches;
+    const setupScreen = document.getElementById('setup-screen');
+    return Boolean(setupScreen)
+        && getComputedStyle(setupScreen).display !== 'none'
+        && isDesktopShellViewport();
 }
 
 function embedSaveMenuInSetupHome() {
@@ -87,8 +97,6 @@ if (backButton) backButton.hidden = false;
 anchor.after(screen);
 }
 
-const setupHomeDesktopMedia = window.matchMedia('(min-width: 1100px)');
-
 function syncSaveMenuResponsiveMount() {
     const setupScreen = document.getElementById('setup-screen');
     const saveMenuScreen = document.getElementById('save-menu-screen');
@@ -100,7 +108,7 @@ function syncSaveMenuResponsiveMount() {
     const embeddedViewActive = embedded && setupVisible && savesView.classList.contains('active');
     const standaloneVisible = !embedded && getComputedStyle(saveMenuScreen).display !== 'none';
 
-    if (setupHomeDesktopMedia.matches) {
+    if (isDesktopShellViewport()) {
         if (!standaloneVisible) return;
         setupScreen.style.display = 'flex';
         if (!embedSaveMenuInSetupHome()) return;
@@ -116,10 +124,15 @@ function syncSaveMenuResponsiveMount() {
     window.scrollTo(0, 0);
 }
 
-if (typeof setupHomeDesktopMedia.addEventListener === 'function') {
-    setupHomeDesktopMedia.addEventListener('change', syncSaveMenuResponsiveMount);
+function syncDesktopShellFeatures() {
+    syncSaveMenuResponsiveMount();
+    applyBackground();
+}
+
+if (typeof desktopShellMedia.addEventListener === 'function') {
+    desktopShellMedia.addEventListener('change', syncDesktopShellFeatures);
 } else {
-    setupHomeDesktopMedia.addListener(syncSaveMenuResponsiveMount);
+    desktopShellMedia.addListener(syncDesktopShellFeatures);
 }
 
 function embedJournalInSetupHome() {
@@ -547,6 +560,10 @@ heart: '--heart-base'
         let uiBgImage = '';
 
         function syncBackgroundControls() {
+            const imageBackgroundAvailable = isDesktopShellViewport();
+            document.querySelectorAll('.bg-style-row, .bg-upload-row').forEach(row => {
+                row.hidden = !imageBackgroundAvailable;
+            });
             document.querySelectorAll('.bg-style-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.bg === uiBgMode);
             });
@@ -556,9 +573,11 @@ heart: '--heart-base'
 
         function applyBackground() {
             const root = document.documentElement;
-            const mode = (uiBgMode === 'image' && !uiBgImage) ? 'solid' : uiBgMode;
-            root.dataset.bgMode = mode;
-            if (mode === 'image' && uiBgImage) {
+            const effectiveMode = isDesktopShellViewport() && uiBgMode === 'image' && uiBgImage
+                ? 'image'
+                : 'solid';
+            root.dataset.bgMode = effectiveMode;
+            if (effectiveMode === 'image') {
                 root.style.setProperty('--bg-image', 'url("' + uiBgImage + '")');
             } else {
                 root.style.removeProperty('--bg-image');

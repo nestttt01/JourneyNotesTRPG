@@ -626,6 +626,99 @@ test('save menu remounts when the viewport crosses the desktop home breakpoint',
     await page.setViewportSize({ width: 1200, height: 900 });
     await expect.poll(async () => (await readMountState()).embedded).toBe(true);
     expect((await readMountState()).activeView).toBe('saves');
+
+    await page.setViewportSize({ width: 900, height: 900 });
+    await expect.poll(async () => (await readMountState()).standalone).toBe(true);
+    await page.locator('#save-menu-screen .u-inline-056').click();
+    await expect(page.locator('#setup-screen')).toBeVisible();
+    await expect(page.locator('#save-menu-screen')).toBeHidden();
+    await expect(page.locator('.setup-home-view[data-home-view="main"]')).toHaveClass(/\bactive\b/);
+    await expect(page.locator('.setup-home-view[data-home-view="saves"]')).not.toHaveClass(/\bactive\b/);
+    await expect(page.locator('#api-provider')).toBeVisible();
+    expect(await readMountState()).toEqual({
+        embedded: false,
+        standalone: true,
+        setupDisplay: 'flex',
+        screenDisplay: 'none',
+        activeView: 'main',
+        backHidden: false,
+        horizontalOverflow: 0
+    });
+
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await expect.poll(readMountState).toEqual({
+        embedded: false,
+        standalone: true,
+        setupDisplay: 'flex',
+        screenDisplay: 'none',
+        activeView: 'main',
+        backHidden: false,
+        horizontalOverflow: 0
+    });
+});
+
+test('image background is desktop-only and restores across the shell breakpoint', async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await openApp(page);
+    await page.evaluate(() => {
+        document.querySelector('.theme-customizer').open = true;
+        uiBgImage = emptyAvatar;
+        setBackgroundMode('image');
+    });
+
+    const readBackgroundState = () => page.evaluate(() => {
+        const root = document.documentElement;
+        const controlRows = Array.from(document.querySelectorAll('.bg-style-row, .bg-upload-row'));
+        return {
+            effectiveMode: root.dataset.bgMode,
+            preferredMode: uiBgMode,
+            imagePreserved: Boolean(uiBgImage),
+            storedMode: localStorage.getItem(UI_BG_MODE_KEY),
+            cssImage: root.style.getPropertyValue('--bg-image'),
+            paintedImage: getComputedStyle(document.body, '::before').backgroundImage,
+            controlsHidden: controlRows.map(row => row.hidden),
+            controlDisplays: controlRows.map(row => getComputedStyle(row).display)
+        };
+    });
+
+    const desktopState = await readBackgroundState();
+    expect(desktopState).toMatchObject({
+        effectiveMode: 'image',
+        preferredMode: 'image',
+        imagePreserved: true,
+        storedMode: 'image',
+        controlsHidden: [false, false],
+        controlDisplays: ['flex', 'flex']
+    });
+    expect(desktopState.cssImage).toContain('data:image');
+    expect(desktopState.paintedImage).not.toBe('none');
+
+    await page.setViewportSize({ width: 1099, height: 900 });
+    await expect.poll(async () => (await readBackgroundState()).effectiveMode).toBe('solid');
+    expect(await readBackgroundState()).toMatchObject({
+        effectiveMode: 'solid',
+        preferredMode: 'image',
+        imagePreserved: true,
+        storedMode: 'image',
+        cssImage: '',
+        paintedImage: 'none',
+        controlsHidden: [true, true],
+        controlDisplays: ['none', 'none']
+    });
+
+    await page.setViewportSize({ width: 1100, height: 900 });
+    await expect.poll(async () => (await readBackgroundState()).effectiveMode).toBe('image');
+    const restoredState = await readBackgroundState();
+    expect(restoredState).toMatchObject({
+        effectiveMode: 'image',
+        preferredMode: 'image',
+        imagePreserved: true,
+        storedMode: 'image',
+        controlsHidden: [false, false],
+        controlDisplays: ['flex', 'flex']
+    });
+    expect(restoredState.cssImage).toContain('data:image');
+    expect(restoredState.paintedImage).not.toBe('none');
 });
 
 async function openStatusDetailFixture(page) {

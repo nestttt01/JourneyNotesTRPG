@@ -12,7 +12,13 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
 document.getElementById('save-menu-screen').style.display = 'flex'; renderSaveList();
 }
 
-function backToSetup() { restoreSaveMenuFromSetupHome(); restoreJournalFromSetupHome(); document.getElementById('save-menu-screen').style.display = 'none'; document.getElementById('setup-screen').style.display = 'flex'; showHomeInfoView('main'); }
+function backToSetup() {
+    restoreSaveMenuFromSetupHome();
+    restoreJournalFromSetupHome();
+    document.getElementById('save-menu-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'flex';
+    showHomeInfoView('main');
+}
 function backToSaveMenu() {
 if (typeof invalidateGameAIRequestContext === 'function') {
 invalidateGameAIRequestContext();
@@ -21,7 +27,7 @@ saveCurrentProgress();
 if (journalEmbedded) closeAdventureJournal();
 const saveMenuScreen = document.getElementById('save-menu-screen');
 const returnToSetupSave = saveMenuScreen?.parentElement?.id === 'setup-save-host'
-&& window.matchMedia('(min-width: 1100px)').matches;
+&& isDesktopShellViewport();
 setStatusPanelOpen(false);
 document.getElementById('game-container').style.display = 'none';
 if (returnToSetupSave) {

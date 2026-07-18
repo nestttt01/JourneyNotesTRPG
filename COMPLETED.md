@@ -275,3 +275,13 @@
 - [x] 修改檔案：`app-core.js`、`app-config-ui.js`、`style-4-desktop-config.css`、`style-5-mobile-config.css`、`style-7-game.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
 - [x] 未改存檔格式與內容、`sanko_*` key、AI prompt、API key、圖片傳送／匯出、角色／情境資料流或遠端 Git；沒有新增 `!important`。
 - [x] 驗證：900px 細指標桌機雙欄、390px 觸控單欄、共用返回與存檔頁 900→1200→900→1200 重新掛載專項 4／4 通過；實際瀏覽器縮放無 console error；完整 Playwright 48 通過／4 個既有量測失敗，與動工前基線完全一致，新增失敗 0。
+
+### 桌機專用圖片背景與窄版返回修復
+
+- [x] 將首頁殼層、存檔頁掛載與背景能力統一到單一 `desktopShellMedia`（`>=1100px`）判斷來源，不再由各功能重複建立同一條 media query。
+- [x] 圖片背景只改「有效模式」：窄版根節點固定為 `solid` 並隱藏圖片控制列，但完整保留 `uiBgMode`、`uiBgImage` 與既有儲存偏好；拉回 1100px 會自動恢復圖片與控制列。
+- [x] 窄版不新增存檔／日誌／首頁的個別玻璃覆蓋；既有 `data-bg-mode="image"` 半透明規則自然失效。CSS 只補背景控制列的 `[hidden]` 狀態規則，沒有新增 `!important`。
+- [x] `showHomeInfoView('main')` 改為任何寬度都可重設首頁 view，其他 API／玩法／存檔／日誌／日記在窄版仍沿用既有獨立頁／modal fallback；存檔頁按「返回大廳」不再留下空的 `saves` active view。
+- [x] 最終差異：`app-core.js`、`app-saves-game.js`、`style-5-mobile-config.css`、`tests/e2e/status-player-sheet.spec.js`、`COMPLETED.md`；`TODO.md` 依流程登記後移除，最終 bytes 回到原狀。
+- [x] 未改存檔內容／格式、背景圖片資料、`sanko_*` key 語意、API key、AI prompt、角色／情境資料流、翻譯或 Git 歷史。
+- [x] 驗證：返回大廳＋1099／1100px 背景能力專項 2／2 通過；完整 Playwright 49 通過／4 個既有量測失敗，與動工前基線完全一致，新增失敗 0。全部 JS 語法、CSS／HTML 結構、嚴格 UTF-8／LF、預期 bytes 全等與 `git diff --check` 通過。
