@@ -33,6 +33,7 @@ test('player card opens a read-only preview before editing (desktop)', async ({ 
 
     const preview = page.locator('#desktop-player-readonly-preview');
     const plusButton = page.locator('#desktop-config-editor > .desktop-player-new-preset-btn');
+    const sharedReturn = page.locator('#desktop-config-editor > .config-editor-back');
     await expect(preview).toBeVisible();
     await expect(page.locator('#edit-scenario-screen')).toHaveClass(/player-preview-open/);
     expect(await countEditableElements(page)).toBe(0);
@@ -40,7 +41,11 @@ test('player card opens a read-only preview before editing (desktop)', async ({ 
     await expect(preview.locator('.desktop-npc-preview-hero h2')).toBeVisible();
     await expect(preview.locator('.status-stat-item')).toHaveCount(6);
     await expect(plusButton).toBeVisible();
+    await expect(sharedReturn).toBeHidden();
+    await expect(page.locator('#config-editor-back')).toHaveCount(1);
+    await expect(page.locator('#desktop-player-editor-return')).toHaveCount(0);
     await expect(preview.locator('.desktop-character-preview-basis .npc-flow-basis-row')).toHaveCount(6);
+
     const plusBoxInPreview = await plusButton.boundingBox();
     const plusCenterHitsButton = await plusButton.evaluate(button => {
         const box = button.getBoundingClientRect();
@@ -53,23 +58,49 @@ test('player card opens a read-only preview before editing (desktop)', async ({ 
     await expect(preview).toBeHidden();
     await expect(page.locator('#edit-scenario-screen')).not.toHaveClass(/player-preview-open/);
     await expect(page.locator('#input-player-name')).toBeVisible();
-
-    const editorReturn = page.locator('#desktop-player-editor-return');
-    await expect(editorReturn).toBeVisible();
+    await expect(sharedReturn).toBeVisible();
     await expect(plusButton).toBeVisible();
+
+    const returnPresentation = await sharedReturn.evaluate(button => ({
+        width: button.getBoundingClientRect().width,
+        height: button.getBoundingClientRect().height,
+        border: getComputedStyle(button).borderTopWidth,
+        radius: getComputedStyle(button).borderTopLeftRadius,
+        background: getComputedStyle(button).backgroundColor,
+        color: getComputedStyle(button).color,
+        fill: getComputedStyle(button.querySelector('svg')).fill,
+        text: button.innerText.trim()
+    }));
+    expect(returnPresentation).toEqual({
+        width: 44,
+        height: 44,
+        border: '0px',
+        radius: '0px',
+        background: 'rgba(0, 0, 0, 0)',
+        color: 'rgb(237, 255, 102)',
+        fill: 'rgb(237, 255, 102)',
+        text: ''
+    });
 
     const plusBoxInEditor = await plusButton.boundingBox();
     expect(Math.abs(plusBoxInEditor.x - plusBoxInPreview.x)).toBeLessThan(0.5);
     expect(Math.abs(plusBoxInEditor.y - plusBoxInPreview.y)).toBeLessThan(0.5);
 
-    const returnBox = await editorReturn.boundingBox();
+    const returnBox = await sharedReturn.boundingBox();
     const plusCenter = plusBoxInEditor.y + plusBoxInEditor.height / 2;
     const returnCenter = returnBox.y + returnBox.height / 2;
     expect(Math.abs(plusCenter - returnCenter)).toBeLessThan(1);
+    const editorReturnCenterHitsButton = await sharedReturn.evaluate(button => {
+        const box = button.getBoundingClientRect();
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return hit === button || button.contains(hit);
+    });
+    expect(editorReturnCenterHitsButton).toBe(true);
 
-    await editorReturn.click();
+    await sharedReturn.click();
     await expect(preview).toBeVisible();
     await expect(page.locator('#edit-scenario-screen')).toHaveClass(/player-preview-open/);
+    await expect(sharedReturn).toBeHidden();
 
     await page.evaluate(() => switchDesktopConfigWorkspace('characters'));
     await expect(page.locator('.desktop-player-card')).toBeVisible();
@@ -150,7 +181,7 @@ test('mobile single-column preview supports back and edit-return flow', async ({
     await expect(preview).toBeVisible();
     expect(await countEditableElements(page)).toBe(0);
 
-    const backButton = page.locator('#desktop-config-editor > .mobile-config-editor-back');
+    const backButton = page.locator('#desktop-config-editor > .config-editor-back');
     await expect(backButton).toBeVisible();
 
     await preview.locator('.desktop-npc-preview-tool').click();
@@ -168,7 +199,7 @@ test('mobile single-column preview supports back and edit-return flow', async ({
     await context.close();
 });
 
-test('mobile back button anchors to the editor panel like the scenario page', async ({ browser }) => {
+test('shared back button anchors to the editor panel like the scenario page', async ({ browser }) => {
     const context = await browser.newContext({
         viewport: { width: 390, height: 844 },
         hasTouch: true,
@@ -180,7 +211,7 @@ test('mobile back button anchors to the editor panel like the scenario page', as
 
     const readBackOffset = () => page.evaluate(() => {
         const editor = document.getElementById('desktop-config-editor').getBoundingClientRect();
-        const back = document.querySelector('#desktop-config-editor > .mobile-config-editor-back').getBoundingClientRect();
+        const back = document.querySelector('#desktop-config-editor > .config-editor-back').getBoundingClientRect();
         return { top: back.top - editor.top, left: back.left - editor.left };
     });
 

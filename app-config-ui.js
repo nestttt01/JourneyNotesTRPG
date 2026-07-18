@@ -91,7 +91,6 @@ switchDesktopConfigWorkspace('characters');
             if (section === 'player') {
                 document.querySelector('#preset-player-editor > details')?.setAttribute('open', '');
                 syncDesktopCharacterNameWidth(document.getElementById('input-player-name'));
-                ensureDesktopPlayerEditorReturn();
             }
             if (section === 'npc') {
                 const card = document.getElementById('npc-list-container')?.querySelectorAll('details')[itemIndex];
@@ -413,7 +412,6 @@ function selectDesktopPreset(id) {
                 const details = document.createElement('details');
                 details.className = `foldable-card${isNewNpc ? ' desktop-new-npc-card' : ''}`;
                 if (index === forceOpenNpcIndex) details.open = true;
-                const backLabel = uiText('返回 NPC 預覽');
                 const acquaintanceLabel = uiText('認識夥伴');
                 const doneLabel = uiText('完成');
                 const deleteLabel = uiText('刪除 NPC');
@@ -426,14 +424,6 @@ function selectDesktopPreset(id) {
                 details.innerHTML = `
                     <summary><span class="reorder-handle" data-no-i18n title="${escapeStatusHtml(uiText('拖曳排序'))}">☰</span>NPC: <span id="npc-title-${index}" data-no-i18n>${escapeStatusHtml(npc.name || '新角色')}</span></summary>
                     <div class="foldable-content">
-                        <header class="desktop-npc-editor-header">
-                            <button type="button" class="npc-flow-return-action" onclick="completeDesktopNpcEdit(${index})">
-                                <img src="assets/icons/back.svg" alt="" aria-hidden="true">
-                                <span class="npc-flow-return-label" data-label="${escapeStatusHtml(backLabel)}">
-                                    ${escapeStatusHtml(backLabel)}
-                                </span>
-                            </button>
-                        </header>
                         <div class="avatar-setup-area u-inline-060">
                             <div class="avatar-box" onclick="document.getElementById('upload-npc-${index}').click();">
                                 <img id="preview-npc-${index}" class="avatar-preview" src="${escapeStatusHtml(npc.avatar || emptyAvatar)}" alt="">
@@ -766,32 +756,28 @@ function selectDesktopPreset(id) {
             `;
         }
 
-        function completeDesktopPlayerEdit() {
-            openDesktopPlayerPreview();
-        }
-
-        function ensureDesktopPlayerEditorReturn() {
-            const editor = document.getElementById('desktop-config-editor');
-            if (!editor) return;
-            let button = document.getElementById('desktop-player-editor-return');
-            if (!button) {
-                button = document.createElement('button');
-                button.type = 'button';
-                button.id = 'desktop-player-editor-return';
-                button.className = 'npc-flow-return-action desktop-player-editor-return';
-                button.onclick = completeDesktopPlayerEdit;
-                editor.prepend(button);
-            }
-            const label = uiText('返回玩家預覽');
-            button.innerHTML = `
-                <img src="assets/icons/back.svg" alt="" aria-hidden="true">
-                <span class="npc-flow-return-label" data-label="${escapeStatusHtml(label)}">${escapeStatusHtml(label)}</span>
-            `;
-        }
-
-        function handleMobileConfigEditorBack() {
+        function handleConfigEditorBack() {
             const screen = document.getElementById('edit-scenario-screen');
-            const inPlayerEditor = screen?.dataset.editorSection === 'player'
+            if (!screen) return;
+            if (screen.classList.contains('npc-acquaintance-open')) {
+                closeNpcAcquaintanceFlow();
+                return;
+            }
+            if (screen.classList.contains('npc-preview-open')) {
+                closeDesktopNpcPreview();
+                return;
+            }
+            const inNpcEditor = screen.dataset.editorSection === 'npc';
+            if (inNpcEditor) {
+                const cards = Array.from(document.querySelectorAll('#npc-list-container details'));
+                const activeCard = document.querySelector('#npc-list-container details.desktop-active-card');
+                const npcIndex = cards.indexOf(activeCard);
+                if (npcIndex >= 0) {
+                    completeDesktopNpcEdit(npcIndex);
+                    return;
+                }
+            }
+            const inPlayerEditor = screen.dataset.editorSection === 'player'
                 && !screen.classList.contains('player-preview-open');
             if (inPlayerEditor) {
                 openDesktopPlayerPreview();
@@ -840,7 +826,7 @@ function selectDesktopPreset(id) {
                 session = {
                     npcKey,
                     npcIndex,
-                    view: 'intro',
+                    view: 'question',
                     question: '',
                     customQuestion: '',
                     playerLine: '',
@@ -863,7 +849,7 @@ function selectDesktopPreset(id) {
                 npcAcquaintanceSessions.set(npcKey, session);
             }
             session.npcIndex = npcIndex;
-            session.view = 'intro';
+            session.view = 'question';
             session.busy = false;
             session.error = '';
             if (session.scenarioIndex >= 0 && !editingScenarios[session.scenarioIndex]) {
@@ -894,13 +880,24 @@ function selectDesktopPreset(id) {
             syncEditingDataFromDOM();
             const npc = editingNpcs[npcIndex];
             const screen = document.getElementById('edit-scenario-screen');
-            if (screen?.classList.contains('npc-preview-open')) {
+            if (!npc || !screen) return;
+            const hasFoundation = NPC_ACQUAINTANCE_FIELDS.some(field => (
+                valueToText(npc.details?.[field.key], '').trim()
+            ));
+            if (!hasFoundation) {
+                if (typeof tinyToast === 'function') {
+                    tinyToast(uiText('請先填寫至少一項人物基底，再開始認識夥伴。'));
+                }
+                return;
+            }
+            if (screen.classList.contains('npc-preview-open')) {
                 closeDesktopNpcPreview({ restoreOverview: false });
             }
             const flow = ensureNpcAcquaintanceFlow();
-            if (!npc || !screen || !flow) return;
+            if (!flow) return;
             if (screen.classList.contains('random-generator-inline-open')) closeRandomGenerator();
             npcAcquaintanceSession = createNpcAcquaintanceSession(npc, npcIndex);
+            resetNpcAcquaintanceConversation();
             screen.classList.add('desktop-editor-open', 'npc-acquaintance-open');
             screen.dataset.editorSection = 'npc';
             flow.hidden = false;
@@ -936,16 +933,6 @@ function selectDesktopPreset(id) {
                 <button type="button" class="npc-flow-bracket-action${className}" data-flow-action="${action}"${disabled}
                     aria-label="${escapeStatusHtml(translated)}">
                     <span class="npc-flow-bracket-label" data-label="${escapeStatusHtml(translated)}">${escapeStatusHtml(translated)}</span>
-                </button>
-            `;
-        }
-
-        function npcAcquaintanceReturnHtml(action, label) {
-            const translated = uiText(label);
-            return `
-                <button type="button" class="npc-flow-return-action" data-flow-action="${action}">
-                    <img src="assets/icons/back.svg" alt="" aria-hidden="true">
-                    <span class="npc-flow-return-label" data-label="${escapeStatusHtml(translated)}">${escapeStatusHtml(translated)}</span>
                 </button>
             `;
         }
@@ -1007,40 +994,6 @@ function selectDesktopPreset(id) {
             `;
         }
 
-        function renderNpcAcquaintanceIntro(npc) {
-            const filledFields = NPC_ACQUAINTANCE_FIELDS
-                .map(field => ({ ...field, value: valueToText(npc.details?.[field.key], '') }))
-                .filter(field => field.value);
-            const fieldRows = filledFields.map(field => `
-                <div class="npc-flow-basis-row">
-                    <span>${escapeStatusHtml(uiText(field.previewLabel))}</span>
-                    <strong data-no-i18n>${escapeStatusHtml(field.value)}</strong>
-                </div>
-            `).join('');
-            const emptyMessage = `
-                <p class="npc-flow-empty-note">${escapeStatusHtml(uiText('請先填寫至少一項人物基底，再開始認識夥伴。'))}</p>
-            `;
-            const foundationNote = filledFields.length
-                ? `<p class="npc-flow-foundation-note">${escapeStatusHtml(uiText('人物基底已有玩家提供的內容，可以進入對話驗證；對話本身不會改寫人設。'))}</p>`
-                : '';
-            return `
-                <div class="npc-flow-view" data-flow-view="intro">
-                    <h2 class="npc-flow-title" tabindex="-1">${escapeStatusHtml(uiText('先確認人物基底'))}</h2>
-                    <p class="npc-flow-lead">
-                        ${escapeStatusHtml(uiText('只顯示玩家已明確填寫的內容；不知道的部分維持未知，不交給 AI 猜測。'))}
-                    </p>
-                    <div class="npc-flow-basis-list"
-                        aria-label="${escapeStatusHtml(uiText('玩家已填寫的人物基底'))}">
-                        ${fieldRows || emptyMessage}
-                    </div>
-                    ${foundationNote}
-                    <div class="npc-flow-action-row">
-                        ${npcAcquaintanceActionHtml('question', '和他說一句', { disabled: !filledFields.length })}
-                    </div>
-                </div>
-            `;
-        }
-
         function renderNpcAcquaintanceQuestion() {
             const session = npcAcquaintanceSession;
             const items = NPC_ACQUAINTANCE_QUESTIONS.map(value => ({
@@ -1076,7 +1029,7 @@ function selectDesktopPreset(id) {
                         <div class="npc-flow-wait-mark" aria-hidden="true"><span></span><span></span><span></span></div>
                         <p class="npc-flow-lead">${escapeStatusHtml(uiText('人物資料不會在等待時被修改。'))}</p>
                         <div class="npc-flow-action-row">
-                            ${npcAcquaintanceReturnHtml('cancel-request', '取消等待')}
+                            ${npcAcquaintanceActionHtml('cancel-request', '取消等待', { secondary: true })}
                         </div>
                     </div>
                 `;
@@ -1087,7 +1040,7 @@ function selectDesktopPreset(id) {
                         <h2 class="npc-flow-title" tabindex="-1">${escapeStatusHtml(uiText('暫時沒有聽到回答'))}</h2>
                         <p class="npc-flow-error">${escapeStatusHtml(uiText(session.error))}</p>
                         <div class="npc-flow-action-row">
-                            ${npcAcquaintanceReturnHtml('question', '回到上一頁')}
+                            ${npcAcquaintanceActionHtml('question', '回到上一頁', { secondary: true })}
                             ${npcAcquaintanceActionHtml('send-question', '再試一次')}
                         </div>
                     </div>
@@ -1130,7 +1083,7 @@ function selectDesktopPreset(id) {
                             placeholder="${escapeStatusHtml(uiText('用你自己的話寫下哪裡不像他'))}">${escapeStatusHtml(session.customRefine)}</textarea>
                     </label>
                     <div class="npc-flow-action-row">
-                        ${npcAcquaintanceReturnHtml('response', '回到他的回答')}
+                        ${npcAcquaintanceActionHtml('response', '回到他的回答', { secondary: true })}
                         ${npcAcquaintanceActionHtml('retry-with-note', '帶著提醒再試一次', {
                             disabled: custom && !session.customRefine.trim()
                         })}
@@ -1174,7 +1127,7 @@ function selectDesktopPreset(id) {
                         </div>
                     </div>
                     <div class="npc-flow-action-row">
-                        ${npcAcquaintanceReturnHtml('skip-save', '這次不要寫入')}
+                        ${npcAcquaintanceActionHtml('skip-save', '這次不要寫入', { secondary: true })}
                         ${npcAcquaintanceActionHtml('save-note', '寫入這個欄位', { disabled: !canSave })}
                     </div>
                 </div>
@@ -1203,7 +1156,7 @@ function selectDesktopPreset(id) {
                             placeholder="${escapeStatusHtml(uiText('輸入想對他說的話'))}">${escapeStatusHtml(draft)}</textarea>
                     </label>
                     <div class="npc-flow-action-row">
-                        ${npcAcquaintanceReturnHtml('response', '回到他的回答')}
+                        ${npcAcquaintanceActionHtml('response', '回到他的回答', { secondary: true })}
                         ${npcAcquaintanceActionHtml('run-scenario', '對他說這句話', { disabled: !draft.trim() })}
                     </div>
                 </div>
@@ -1219,7 +1172,7 @@ function selectDesktopPreset(id) {
                         <div class="npc-flow-wait-mark" aria-hidden="true"><span></span><span></span><span></span></div>
                         <p class="npc-flow-lead">${escapeStatusHtml(uiText('人物資料不會在等待時被修改。'))}</p>
                         <div class="npc-flow-action-row">
-                            ${npcAcquaintanceReturnHtml('cancel-request', '取消等待')}
+                            ${npcAcquaintanceActionHtml('cancel-request', '取消等待', { secondary: true })}
                         </div>
                     </div>
                 `;
@@ -1230,7 +1183,7 @@ function selectDesktopPreset(id) {
                         <h2 class="npc-flow-title" tabindex="-1">${escapeStatusHtml(uiText('暫時沒有聽到回答'))}</h2>
                         <p class="npc-flow-error">${escapeStatusHtml(uiText(session.error))}</p>
                         <div class="npc-flow-action-row">
-                            ${npcAcquaintanceReturnHtml('scenario', '回到上一頁')}
+                            ${npcAcquaintanceActionHtml('scenario', '回到上一頁', { secondary: true })}
                             ${npcAcquaintanceActionHtml('run-scenario', '再試一次')}
                         </div>
                     </div>
@@ -1243,8 +1196,9 @@ function selectDesktopPreset(id) {
                     <h2 class="npc-flow-title" tabindex="-1">${escapeStatusHtml(uiText('情境中的他這樣回答'))}</h2>
                     ${npcAcquaintanceDialogueHtml(session.scenarioPlayerLine, session.scenarioNpcLine, npc)}
                     <div class="npc-flow-action-row">
-                        ${npcAcquaintanceReturnHtml('scenario', '換一個情境')}
+                        ${npcAcquaintanceActionHtml('scenario', '換一個情境', { secondary: true })}
                         ${npcAcquaintanceActionHtml('question', '再和他說一句', { secondary: true })}
+                        ${npcAcquaintanceActionHtml('finish', '完美！')}
                     </div>
                 </div>
             `;
@@ -1256,16 +1210,14 @@ function selectDesktopPreset(id) {
             const npc = editingNpcs[session?.npcIndex];
             if (!session || !flow || !npc) return;
             const progressByView = {
-                intro: '01 / 03',
-                question: '02 / 03',
-                response: '02 / 03',
-                refine: '02 / 03',
-                'save-note': '02 / 03',
-                scenario: '03 / 03',
-                'scenario-response': '03 / 03'
+                question: '01 / 02',
+                response: '01 / 02',
+                refine: '01 / 02',
+                'save-note': '01 / 02',
+                scenario: '02 / 02',
+                'scenario-response': '02 / 02'
             };
             const viewRenderers = {
-                intro: () => renderNpcAcquaintanceIntro(npc),
                 question: renderNpcAcquaintanceQuestion,
                 response: () => renderNpcAcquaintanceResponse(npc),
                 refine: renderNpcAcquaintanceRefine,
@@ -1273,34 +1225,12 @@ function selectDesktopPreset(id) {
                 scenario: renderNpcAcquaintanceScenario,
                 'scenario-response': () => renderNpcAcquaintanceScenarioResponse(npc)
             };
-            const progress = progressByView[session.view] || '01 / 03';
-            const npcName = uiCharacterName(npc.name, uiText('未命名'));
-            const avatar = valueToText(npc.avatar, '');
-            const avatarImage = avatar && avatar !== emptyAvatar
-                ? `<img src="${escapeStatusHtml(avatar)}" alt="">`
-                : '';
-            const initial = Array.from(npcName)[0] || 'N';
-            const introHeader = `
-                <header class="npc-flow-header npc-flow-intro-header">
-                    ${npcAcquaintanceReturnHtml('close', '回到角色設定')}
-                    <span class="npc-flow-progress" data-no-i18n>${progress}</span>
-                </header>
-                <div class="npc-flow-intro-identity">
-                    <span class="npc-flow-intro-avatar" data-initial="${escapeStatusHtml(initial)}">
-                        ${avatarImage}
-                    </span>
-                    <strong class="npc-flow-intro-nameplate" data-no-i18n>${escapeStatusHtml(npcName)}</strong>
-                </div>
-            `;
-            const compactHeader = `
-                <header class="npc-flow-header">
-                    ${npcAcquaintanceReturnHtml('close', '回到角色設定')}
-                    <span class="npc-flow-progress" data-no-i18n>${progress}</span>
-                </header>
-            `;
+            const progress = progressByView[session.view] || '01 / 02';
             flow.innerHTML = `
-                ${session.view === 'intro' ? introHeader : compactHeader}
-                ${viewRenderers[session.view]?.() || renderNpcAcquaintanceIntro(npc)}
+                <header class="npc-flow-header">
+                    <span class="npc-flow-progress" data-no-i18n>${progress}</span>
+                </header>
+                ${viewRenderers[session.view]?.() || renderNpcAcquaintanceQuestion()}
             `;
             syncNpcAcquaintanceConditionalControls();
             requestAnimationFrame(() => {
@@ -1333,6 +1263,12 @@ function selectDesktopPreset(id) {
             session.savedTarget = '';
         }
 
+        function returnNpcAcquaintanceToPreview() {
+            const npcIndex = npcAcquaintanceSession?.npcIndex ?? -1;
+            closeNpcAcquaintanceFlow({ restoreEditor: false });
+            if (npcIndex >= 0) openDesktopNpcPreview(npcIndex);
+        }
+
         function continueNpcAcquaintanceAfterReview() {
             const session = npcAcquaintanceSession;
             if (!session) return;
@@ -1341,9 +1277,7 @@ function selectDesktopPreset(id) {
                 setNpcAcquaintanceView('scenario');
                 return;
             }
-            const npcIndex = session.npcIndex;
-            closeNpcAcquaintanceFlow({ restoreEditor: false });
-            openDesktopNpcPreview(npcIndex);
+            returnNpcAcquaintanceToPreview();
         }
 
         function getNpcAcquaintanceQuestionLine() {
@@ -1480,7 +1414,6 @@ function selectDesktopPreset(id) {
             const session = npcAcquaintanceSession;
             if (!session) return;
             const previousViews = {
-                question: 'intro',
                 response: 'question',
                 refine: 'response',
                 'save-note': 'response',
@@ -1565,11 +1498,7 @@ function selectDesktopPreset(id) {
         function handleNpcAcquaintanceAction(action) {
             const session = npcAcquaintanceSession;
             if (!session) return;
-            if (action === 'close') {
-                closeNpcAcquaintanceFlow();
-            } else if (action === 'intro') {
-                setNpcAcquaintanceView('intro');
-            } else if (action === 'question') {
+            if (action === 'question') {
                 resetNpcAcquaintanceConversation();
                 setNpcAcquaintanceView('question');
             } else if (action === 'send-question') {
@@ -1599,8 +1528,12 @@ function selectDesktopPreset(id) {
                 continueNpcAcquaintanceAfterReview();
             } else if (action === 'save-note') {
                 writeNpcAcquaintanceNote();
+            } else if (action === 'scenario') {
+                setNpcAcquaintanceView('scenario');
             } else if (action === 'run-scenario') {
                 submitNpcAcquaintanceLine({ scenario: true });
+            } else if (action === 'finish') {
+                returnNpcAcquaintanceToPreview();
             } else if (action === 'cancel-request') {
                 npcAcquaintanceRequestSerial += 1;
                 if (typeof cancelActiveAIRequest === 'function') cancelActiveAIRequest();
@@ -1613,7 +1546,6 @@ function selectDesktopPreset(id) {
             if (npcAcquaintanceSession) renderNpcAcquaintanceFlow();
             const screen = document.getElementById('edit-scenario-screen');
             if (screen?.classList.contains('player-preview-open')) renderDesktopPlayerPreview();
-            if (document.getElementById('desktop-player-editor-return')) ensureDesktopPlayerEditorReturn();
             syncStaticBracketLabels();
         });
         window.addEventListener('load', syncStaticBracketLabels);

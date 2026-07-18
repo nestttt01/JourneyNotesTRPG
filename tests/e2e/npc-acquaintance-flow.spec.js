@@ -37,6 +37,76 @@ async function waitForEqualPanels(page) {
     })).toBeLessThan(1);
 }
 
+async function readNpcReturnLayout(page) {
+    return page.evaluate(() => {
+        const sharedBack = document.getElementById('config-editor-back');
+        const title = document.querySelector('#npc-acquaintance-flow .npc-flow-title');
+        const sharedBox = sharedBack.getBoundingClientRect();
+        const panelBox = document.getElementById('desktop-config-editor').getBoundingClientRect();
+        const svg = sharedBack.querySelector('svg');
+        const path = svg.querySelector('path');
+        const pathBox = path.getBoundingClientRect();
+        const titleBox = title?.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+            sharedBox.left + sharedBox.width / 2,
+            sharedBox.top + sharedBox.height / 2
+        );
+        const duplicateSelector = [
+            '.desktop-npc-editor-header > .npc-flow-return-action',
+            '#npc-acquaintance-flow .npc-flow-header > .npc-flow-return-action'
+        ].join(',');
+        const returnControls = [sharedBack, ...document.querySelectorAll(duplicateSelector)];
+        return {
+            sharedCount: document.querySelectorAll('#config-editor-back').length,
+            sharedVisible: sharedBack.getClientRects().length > 0,
+            sharedDisplay: getComputedStyle(sharedBack).display,
+            sharedWidth: sharedBox.width,
+            sharedHeight: sharedBox.height,
+            sharedText: sharedBack.innerText.trim(),
+            sharedBorder: getComputedStyle(sharedBack).borderTopWidth,
+            sharedBackground: getComputedStyle(sharedBack).backgroundColor,
+            sharedColor: getComputedStyle(sharedBack).color,
+            sharedIconFill: getComputedStyle(svg).fill,
+            sharedAriaLabel: sharedBack.getAttribute('aria-label'),
+            sharedOwnsHit: hit === sharedBack || sharedBack.contains(hit),
+            sharedLeft: sharedBox.left,
+            sharedTop: sharedBox.top,
+            sharedLeftInPanel: sharedBox.left - panelBox.left,
+            sharedTopInPanel: sharedBox.top - panelBox.top,
+            pathLeft: pathBox.left,
+            pathTitleDelta: titleBox ? Math.abs(pathBox.left - titleBox.left) : null,
+            iconViewBox: svg.getAttribute('viewBox'),
+            pathData: path.getAttribute('d'),
+            duplicateReturnCount: document.querySelectorAll(duplicateSelector).length,
+            visibleReturnCount: returnControls
+                .filter(control => control.getClientRects().length > 0).length,
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+}
+
+function expectSharedNpcReturn(layout) {
+    expect(layout).toMatchObject({
+        sharedCount: 1,
+        sharedVisible: true,
+        sharedDisplay: 'grid',
+        sharedWidth: 44,
+        sharedHeight: 44,
+        sharedText: '',
+        sharedBorder: '0px',
+        sharedBackground: 'rgba(0, 0, 0, 0)',
+        sharedColor: 'rgb(237, 255, 102)',
+        sharedIconFill: 'rgb(237, 255, 102)',
+        sharedAriaLabel: '返回',
+        sharedOwnsHit: true,
+        iconViewBox: '0 0 24 24',
+        pathData: 'M10 4 2 12l8 8v-5h12V9H10V4Z',
+        duplicateReturnCount: 0,
+        visibleReturnCount: 1,
+        horizontalOverflow: 0
+    });
+}
+
 test('approved A bracket buttons pop open without card styling', async ({ page }) => {
     await openCharacterConfig(page);
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
@@ -137,7 +207,7 @@ test('approved A bracket buttons pop open without card styling', async ({ page }
     expect(randomActionLayout.verticalCenterDelta).toBeLessThan(1);
 });
 
-test('existing NPC opens a read-only detail sheet before acquaintance', async ({ page }) => {
+test('existing NPC opens a read-only detail sheet then enters questions directly', async ({ page }) => {
     await openCharacterConfig(page);
     const playerMetrics = await page.evaluate(() => {
         openDesktopConfigEditor('player');
@@ -274,80 +344,47 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
     expect(previewOverflowProtection.scrollHeight).toBeGreaterThan(previewOverflowProtection.clientHeight);
 
     await preview.locator('.desktop-npc-preview-actions .npc-flow-bracket-action').click();
-    await expect(page.locator('#npc-acquaintance-flow')).toBeVisible();
-    await expect(page.locator('.npc-flow-intro-page-title')).toHaveCount(0);
-    await expect(page.locator('[data-flow-view="intro"] .npc-flow-title')).toHaveText('人物の基礎を確認');
-    await expect(page.locator('.npc-flow-intro-nameplate')).toBeVisible();
-    const approvedIntroStyle = await page.evaluate(() => {
-        const subtitle = document.querySelector('[data-flow-view="intro"] .npc-flow-title');
-        const avatar = document.querySelector('.npc-flow-intro-avatar');
-        const basis = document.querySelector('#npc-acquaintance-flow .npc-flow-basis-list');
-        const row = document.querySelector('#npc-acquaintance-flow .npc-flow-basis-row');
-        const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
-        const returnAction = document.querySelector(
-            '#npc-acquaintance-flow > .npc-flow-header .npc-flow-return-action'
-        );
-        const returnBox = returnAction.getBoundingClientRect();
-        const avatarBox = avatar.getBoundingClientRect();
-        const basisBox = basis.getBoundingClientRect();
-        const actionBox = document.querySelector(
-            '[data-flow-view="intro"] .npc-flow-action-row button'
-        ).getBoundingClientRect();
+    const flow = page.locator('#npc-acquaintance-flow');
+    await expect(flow).toBeVisible();
+    await expect(flow.locator('[data-flow-view="question"]')).toBeVisible();
+    await expect(flow.locator('[data-flow-view="intro"]')).toHaveCount(0);
+    await expect(flow.locator('.npc-flow-intro-identity')).toHaveCount(0);
+    await expect(flow.locator('.npc-flow-basis-list')).toHaveCount(0);
+    await expect(flow.locator('.npc-flow-progress')).toHaveText('01 / 02');
+    await expect(flow.locator('[data-option-group="question"] .npc-flow-option')).toHaveCount(5);
+    await expect(flow.locator('.npc-flow-title')).not.toHaveText('');
+    const directQuestionStyle = await flow.evaluate(root => {
+        const optionList = root.querySelector('.npc-flow-option-list');
+        const title = root.querySelector('.npc-flow-title');
         return {
-            headerBorderBottom: getComputedStyle(document.querySelector('.npc-flow-header')).borderBottomWidth,
-            returnLeft: returnBox.left,
-            returnTop: returnBox.top - panel.top,
-            subtitleSize: getComputedStyle(subtitle).fontSize,
-            avatarRadius: getComputedStyle(avatar).borderRadius,
-            avatarSize: getComputedStyle(avatar).width,
-            avatarTop: avatarBox.top - panel.top,
-            basisLeft: basisBox.left - panel.left,
-            basisWidth: basisBox.width,
-            actionRightGap: panel.right - actionBox.right,
-            actionBottomGap: panel.bottom - actionBox.bottom,
-            columns: getComputedStyle(basis).gridTemplateColumns.split(' ').length,
-            listBorderTop: getComputedStyle(basis).borderTopWidth,
-            rowBorderBottom: getComputedStyle(row).borderBottomWidth,
-            accentWidth: getComputedStyle(row, '::before').width
+            headerBorderBottom: getComputedStyle(root.querySelector('.npc-flow-header')).borderBottomWidth,
+            titleSize: getComputedStyle(title).fontSize,
+            optionCount: optionList.querySelectorAll('.npc-flow-option').length,
+            columns: getComputedStyle(optionList).gridTemplateColumns.split(' ').filter(Boolean).length,
+            writingMode: getComputedStyle(title).writingMode,
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
         };
     });
-    expect(approvedIntroStyle).toEqual({
+    expect(directQuestionStyle).toMatchObject({
         headerBorderBottom: '0px',
-        returnLeft: approvedIntroStyle.returnLeft,
-        returnTop: 25,
-        subtitleSize: '12px',
-        avatarRadius: '50%',
-        avatarSize: '104px',
-        avatarTop: 83,
-        basisLeft: approvedPreviewStyle.gridLeft,
-        basisWidth: approvedPreviewStyle.gridWidth,
-        actionRightGap: approvedPreviewStyle.actionRightGap,
-        actionBottomGap: approvedPreviewStyle.actionBottomGap,
-        columns: 2,
-        listBorderTop: '0px',
-        rowBorderBottom: '0px',
-        accentWidth: '3px'
+        titleSize: '21px',
+        optionCount: 5,
+        columns: 1,
+        writingMode: 'horizontal-tb'
     });
-    expect(Math.abs(approvedIntroStyle.avatarTop - playerMetrics.avatarTop)).toBeLessThan(2);
-    const introOverflowProtection = await page.evaluate(() => {
-        const content = document.querySelector('[data-flow-view="intro"]');
-        const action = document.querySelector('[data-flow-view="intro"] .npc-flow-action-row button');
-        const contentBox = content.getBoundingClientRect();
-        const actionBox = action.getBoundingClientRect();
-        return {
-            gap: actionBox.top - contentBox.bottom,
-            clientHeight: content.clientHeight,
-            scrollHeight: content.scrollHeight
-        };
-    });
-    expect(introOverflowProtection.gap).toBeGreaterThanOrEqual(24);
-    expect(introOverflowProtection.scrollHeight).toBeGreaterThan(introOverflowProtection.clientHeight);
+    expect(directQuestionStyle.horizontalOverflow).toBeLessThanOrEqual(0);
+    const desktopQuestionBack = await readNpcReturnLayout(page);
+    expectSharedNpcReturn(desktopQuestionBack);
+    expect(desktopQuestionBack.pathTitleDelta).toBeLessThan(0.5);
     const flowLayout = await readDualPanelLayout(page);
     expect(flowLayout.overview).toEqual(previewLayout.overview);
     expect(flowLayout.editor).toEqual(previewLayout.editor);
 
-    await page.locator('#npc-acquaintance-flow [data-flow-action="close"]').click();
+    await page.locator('#config-editor-back').click();
     await expect(page.locator('#npc-list-container details.desktop-active-card')).toBeVisible();
+    await expect.poll(() => page.evaluate(() => (
+        document.getElementById('desktop-config-editor').scrollTop
+    ))).toBe(0);
     const editorActions = page.locator(
         '#npc-list-container details.desktop-active-card .desktop-npc-editor-actions .npc-flow-bracket-action'
     );
@@ -424,20 +461,21 @@ test('existing NPC opens a read-only detail sheet before acquaintance', async ({
 
     const editorLayout = await page.evaluate(() => {
         const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
-        const header = document.querySelector('.desktop-npc-editor-header').getBoundingClientRect();
+        const sharedBack = document.getElementById('config-editor-back').getBoundingClientRect();
         const avatar = document.querySelector(
             '#npc-list-container details.desktop-active-card .avatar-preview'
         ).getBoundingClientRect();
         return {
-            returnLeft: header.left,
-            returnTop: header.top - panel.top,
+            returnBottom: sharedBack.bottom - panel.top,
             avatarTop: avatar.top - panel.top,
             avatarSize: avatar.width
         };
     });
-    expect(Math.abs(editorLayout.returnLeft - approvedIntroStyle.returnLeft)).toBeLessThan(1);
-    expect(Math.abs(editorLayout.returnTop - approvedIntroStyle.returnTop)).toBeLessThan(1);
-    expect(Math.abs(editorLayout.avatarTop - playerMetrics.avatarTop)).toBeLessThan(1);
+    const desktopEditorBack = await readNpcReturnLayout(page);
+    expectSharedNpcReturn(desktopEditorBack);
+    expect(desktopEditorBack.sharedLeftInPanel).toBeCloseTo(desktopQuestionBack.sharedLeftInPanel, 5);
+    expect(desktopEditorBack.sharedTopInPanel).toBeCloseTo(desktopQuestionBack.sharedTopInPanel, 5);
+    expect(editorLayout.avatarTop).toBeGreaterThanOrEqual(editorLayout.returnBottom);
     expect(editorLayout.avatarSize).toBe(playerMetrics.avatarSize);
 });
 
@@ -462,7 +500,7 @@ test('read-only geometry stays fixed when switching between NPC text lengths', a
     expect(layouts[1]).toEqual(layouts[0]);
 });
 
-test('fine pointer at phone width still uses the full-width mobile NPC layouts', async ({ page }) => {
+test('NPC layouts share one aligned return control across viewports', async ({ page, browser }) => {
     await openCharacterConfig(page, 553, 900);
     await page.evaluate(() => {
         const text = 'Long mobile profile text. '.repeat(80);
@@ -477,7 +515,6 @@ test('fine pointer at phone width still uses the full-width mobile NPC layouts',
         const grid = document.querySelector('.desktop-character-preview-basis');
         const gridBox = grid.getBoundingClientRect();
         const action = document.querySelector('.desktop-npc-preview-actions button').getBoundingClientRect();
-        const back = document.querySelector('.mobile-config-editor-back');
         return {
             screenDisplay: getComputedStyle(document.getElementById('edit-scenario-screen')).display,
             overviewDisplay: getComputedStyle(document.getElementById('desktop-config-overview')).display,
@@ -485,9 +522,7 @@ test('fine pointer at phone width still uses the full-width mobile NPC layouts',
             columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
             writingMode: getComputedStyle(grid.querySelector('strong')).writingMode,
             contentGap: action.top - gridBox.bottom,
-            actionInside: action.bottom < panel.bottom,
-            backDisplay: getComputedStyle(back).display,
-            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+            actionInside: action.bottom < panel.bottom
         };
     });
     expect(previewLayout).toEqual({
@@ -497,44 +532,96 @@ test('fine pointer at phone width still uses the full-width mobile NPC layouts',
         columns: 1,
         writingMode: 'horizontal-tb',
         contentGap: 30,
-        actionInside: true,
-        backDisplay: 'grid',
-        horizontalOverflow: 0
+        actionInside: true
     });
+    const previewBack = await readNpcReturnLayout(page);
+    expectSharedNpcReturn(previewBack);
 
-    await page.locator('.mobile-config-editor-back').click();
+    const sharedBack = page.locator('#config-editor-back');
+    await sharedBack.click();
     await expect(page.locator('#desktop-config-overview')).toBeVisible();
     await expect(page.locator('#desktop-config-editor')).toBeHidden();
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
-
     await page.locator('.desktop-npc-preview-tool').click();
+
     const editorLayout = await page.evaluate(() => ({
         columns: getComputedStyle(document.querySelector('.desktop-npc-editor-grid'))
             .gridTemplateColumns.split(' ').length,
         horizontalOverflow: document.documentElement.scrollWidth - innerWidth
     }));
     expect(editorLayout).toEqual({ columns: 1, horizontalOverflow: 0 });
+    const editorBack = await readNpcReturnLayout(page);
+    expectSharedNpcReturn(editorBack);
+    expect(editorBack.sharedLeft).toBeCloseTo(previewBack.sharedLeft, 5);
+    expect(editorBack.sharedTop).toBeCloseTo(previewBack.sharedTop, 5);
+    expect(editorBack.pathLeft).toBeCloseTo(previewBack.pathLeft, 5);
 
-    await page.locator('details.desktop-active-card .desktop-npc-editor-header .npc-flow-return-action').click();
+    await sharedBack.click();
+    await expect(page.locator('#desktop-npc-readonly-preview')).toBeVisible();
     await page.locator('.desktop-npc-preview-actions button').click();
     const flowLayout = await page.evaluate(() => ({
-        columns: getComputedStyle(document.querySelector('#npc-acquaintance-flow .npc-flow-basis-list'))
-            .gridTemplateColumns.split(' ').length,
+        columns: getComputedStyle(document.querySelector('#npc-acquaintance-flow .npc-flow-option-list'))
+            .gridTemplateColumns.split(' ').filter(Boolean).length,
         writingMode: getComputedStyle(
-            document.querySelector('#npc-acquaintance-flow .npc-flow-basis-row strong')
+            document.querySelector('#npc-acquaintance-flow .npc-flow-title')
         ).writingMode,
-        backDisplay: getComputedStyle(document.querySelector('.mobile-config-editor-back')).display,
-        horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        progress: document.querySelector('#npc-acquaintance-flow .npc-flow-progress').textContent.trim(),
+        questionVisible: Boolean(document.querySelector(
+            '#npc-acquaintance-flow [data-flow-view="question"]'
+        )),
+        introCount: document.querySelectorAll(
+            '#npc-acquaintance-flow [data-flow-view="intro"]'
+        ).length
     }));
     expect(flowLayout).toEqual({
         columns: 1,
         writingMode: 'horizontal-tb',
-        backDisplay: 'grid',
-        horizontalOverflow: 0
+        progress: '01 / 02',
+        questionVisible: true,
+        introCount: 0
     });
-    await page.locator('.mobile-config-editor-back').click();
+    const flowBack = await readNpcReturnLayout(page);
+    expectSharedNpcReturn(flowBack);
+    expect(flowBack.pathTitleDelta).toBeLessThan(0.5);
+    expect(flowBack.sharedLeft).toBeCloseTo(previewBack.sharedLeft, 5);
+    expect(flowBack.sharedTop).toBeCloseTo(previewBack.sharedTop, 5);
+    expect(flowBack.pathLeft).toBeCloseTo(previewBack.pathLeft, 5);
+
+    await sharedBack.click();
+    await expect(page.locator('#npc-acquaintance-flow')).toBeHidden();
+    await expect(page.locator('#npc-list-container details.desktop-active-card')).toBeVisible();
+    expectSharedNpcReturn(await readNpcReturnLayout(page));
+    await sharedBack.click();
+    await expect(page.locator('#desktop-npc-readonly-preview')).toBeVisible();
+    await sharedBack.click();
     await expect(page.locator('#desktop-config-overview')).toBeVisible();
     await expect(page.locator('#desktop-config-editor')).toBeHidden();
+
+    const coarseContext = await browser.newContext({
+        baseURL: 'http://127.0.0.1:4173',
+        viewport: { width: 815, height: 900 },
+        hasTouch: true,
+        isMobile: true
+    });
+    try {
+        const coarsePage = await coarseContext.newPage();
+        await openApp(coarsePage);
+        await coarsePage.evaluate(() => openEditScenario());
+        await coarsePage.locator(
+            '.desktop-npc-avatar-button:not(.desktop-npc-add-button)'
+        ).first().click();
+        await coarsePage.locator('.desktop-npc-preview-actions button').click();
+        expect(await coarsePage.evaluate(() => matchMedia(
+            '(min-width: 1100px)'
+        ).matches)).toBe(false);
+        const coarseBack = await readNpcReturnLayout(coarsePage);
+        expectSharedNpcReturn(coarseBack);
+        expect(coarseBack.pathTitleDelta).toBeLessThan(0.5);
+        await coarsePage.locator('#config-editor-back').click();
+        await expect(coarsePage.locator('#npc-list-container details.desktop-active-card')).toBeVisible();
+    } finally {
+        await coarseContext.close();
+    }
 });
 
 test('narrow desktop pointer keeps equal dual panels instead of a giant single card', async ({ page }) => {
@@ -549,6 +636,7 @@ test('narrow desktop pointer keeps equal dual panels instead of a giant single c
     expect(Math.abs(layout.overview.width - layout.editor.width)).toBeLessThan(1);
     expect(Math.abs(layout.overview.height - layout.editor.height)).toBeLessThan(1);
     expect(layout.horizontalOverflow).toBeLessThanOrEqual(0);
+    expectSharedNpcReturn(await readNpcReturnLayout(page));
 });
 
 test('adding an NPC enters the editor directly and continues to acquaintance', async ({ page }) => {
@@ -591,11 +679,22 @@ test('adding an NPC enters the editor directly and continues to acquaintance', a
     ]);
     await expect(ageField).toBeVisible();
     await expect(speechField.locator('xpath=..').locator('button')).toHaveCount(0);
-    await ageField.fill('test build');
+    const acquaintanceAction = activeCard.locator(
+        '.desktop-npc-editor-actions .npc-flow-bracket-action'
+    ).first();
+    await acquaintanceAction.click();
+    await expect(page.locator('#npc-acquaintance-flow')).toBeHidden();
+    await expect(page.locator('.tiny-toast.show')).toHaveText(
+        '\u8acb\u5148\u586b\u5beb\u81f3\u5c11\u4e00\u9805\u4eba\u7269\u57fa\u5e95\uff0c'
+        + '\u518d\u958b\u59cb\u8a8d\u8b58\u5925\u4f34\u3002'
+    );
 
-    await activeCard.locator('.desktop-npc-editor-actions .npc-flow-bracket-action').first().click();
+    await ageField.fill('test build');
+    await acquaintanceAction.click();
     await expect(page.locator('#npc-acquaintance-flow')).toBeVisible();
-    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="intro"]')).toBeVisible();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="question"]')).toBeVisible();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="intro"]')).toHaveCount(0);
+    await expect(page.locator('#npc-acquaintance-flow .npc-flow-progress')).toHaveText('01 / 02');
 });
 
 test('AI output stays dialogue-only and refinement retry never auto-saves fields', async ({ page }) => {
@@ -619,13 +718,13 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
 
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
     await page.locator('#desktop-npc-readonly-preview .npc-flow-bracket-action').click();
-    await page.locator('#npc-acquaintance-flow [data-flow-action="question"]').click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="question"]')).toBeVisible();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="intro"]')).toHaveCount(0);
+    await expect(page.locator('#npc-acquaintance-flow .npc-flow-progress')).toHaveText('01 / 02');
+    await expect(page.locator('#config-editor-back')).toBeVisible();
     await expect(page.locator(
-        '#npc-acquaintance-flow [data-flow-view="question"] [data-flow-action="intro"]'
+        '#npc-acquaintance-flow > .npc-flow-header .npc-flow-return-action'
     )).toHaveCount(0);
-    await expect(page.locator(
-        '#npc-acquaintance-flow > .npc-flow-header [data-flow-action="close"]'
-    )).toBeVisible();
     const questionOptions = page.locator('[data-option-group="question"] .npc-flow-option');
     const sendQuestionButton = page.locator('#npc-acquaintance-flow [data-flow-action="send-question"]');
     await expect(page.locator('[data-option-group="question"] .npc-flow-option[aria-pressed="true"]')).toHaveCount(0);
@@ -673,5 +772,53 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     await page.locator('#npc-acquaintance-flow [data-flow-action="skip-save"]').click();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="confirmed"]')).toHaveCount(0);
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario"]')).toBeVisible();
+    expect(await page.evaluate(() => JSON.stringify(editingNpcs[0].details))).toBe(originalDetails);
+
+    const previousStep = page.locator(
+        '#npc-acquaintance-flow [data-flow-view="scenario"] [data-flow-action="response"]'
+    );
+    await expect(previousStep).toHaveClass(/npc-flow-bracket-action/);
+    await previousStep.click();
+    await expect(page.locator('#npc-acquaintance-flow')).toBeVisible();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="response"]')).toBeVisible();
+    await confirmJudgementButton.click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="save-note"]')).toBeVisible();
+    await page.locator('#npc-acquaintance-flow [data-flow-action="skip-save"]').click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario"]')).toBeVisible();
+
+    const scenarioOptions = page.locator('[data-option-group="scenarioIndex"] .npc-flow-option');
+    expect(await scenarioOptions.count()).toBeGreaterThan(0);
+    await scenarioOptions.first().click();
+    const scenarioInput = page.locator('[data-flow-input="scenario-line"]');
+    await scenarioInput.fill('scenario check');
+    const runScenario = page.locator('#npc-acquaintance-flow [data-flow-action="run-scenario"]');
+    await runScenario.click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario-response"]')).toBeVisible();
+    const chooseAnotherScenario = page.locator(
+        '#npc-acquaintance-flow [data-flow-view="scenario-response"] [data-flow-action="scenario"]'
+    );
+    await expect(chooseAnotherScenario).toHaveClass(/npc-flow-bracket-action/);
+    await chooseAnotherScenario.click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario"]')).toBeVisible();
+    await expect(scenarioInput).toHaveValue('scenario check');
+    await runScenario.click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario-response"]')).toBeVisible();
+
+    const finishAction = page.locator('#npc-acquaintance-flow [data-flow-action="finish"]');
+    await expect(finishAction).toHaveText('完美！');
+    await finishAction.click();
+    await expect(page.locator('#npc-acquaintance-flow')).toBeHidden();
+    await expect(page.locator('#desktop-npc-readonly-preview')).toBeVisible();
+    expect(await page.evaluate(() => {
+        const screen = document.getElementById('edit-scenario-screen');
+        return {
+            previewOpen: screen.classList.contains('npc-preview-open'),
+            acquaintanceOpen: screen.classList.contains('npc-acquaintance-open')
+        };
+    })).toEqual({ previewOpen: true, acquaintanceOpen: false });
+    const finalCalls = await page.evaluate(() => window.__npcAcquaintanceCalls);
+    expect(finalCalls).toHaveLength(5);
+    expect(finalCalls[3].options.scenarioIndex).toBe(0);
+    expect(finalCalls[4].options.scenarioIndex).toBe(0);
     expect(await page.evaluate(() => JSON.stringify(editingNpcs[0].details))).toBe(originalDetails);
 });

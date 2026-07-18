@@ -113,7 +113,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 
 /* ---- NPC 認識夥伴流程（v18 核准版） ---- */
 #edit-scenario-screen.npc-acquaintance-open
-    #desktop-config-editor > :not(#npc-acquaintance-flow):not(.mobile-config-editor-back) {
+    #desktop-config-editor > :not(#npc-acquaintance-flow):not(.config-editor-back) {
     display: none !important;
 }
 
@@ -136,6 +136,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 
 .npc-flow-header {
     display: grid;
+    min-height: 44px;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 14px;
@@ -144,8 +145,53 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     border-bottom: 0;
 }
 
-.npc-flow-header,
-.npc-flow-intro-identity {
+#desktop-config-editor {
+    position: relative;
+}
+
+#desktop-config-editor > .config-editor-back {
+    position: sticky;
+    z-index: 3;
+    top: calc(14px - var(--config-editor-padding-top, 20px));
+    left: auto;
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    align-self: flex-start;
+    place-items: center;
+    margin: calc(14px - var(--config-editor-padding-top, 20px)) 0
+        calc(var(--config-editor-padding-top, 20px) - 58px) -13px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--accent-neon);
+    cursor: pointer;
+    font-size: 0;
+    line-height: 1;
+    touch-action: manipulation;
+}
+
+#desktop-config-editor > .config-editor-back .config-editor-back-icon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    image-rendering: pixelated;
+}
+
+#desktop-config-editor > .config-editor-back:focus-visible {
+    outline: 1px solid var(--accent-neon);
+    outline-offset: 3px;
+}
+
+#desktop-config-editor > .config-editor-back:active {
+    background: transparent;
+    transform: scale(0.98);
+}
+
+.npc-flow-header {
     flex: 0 0 auto;
 }
 
@@ -155,73 +201,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 0.08em;
-}
-
-.npc-flow-intro-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: 0;
-}
-
-.npc-flow-intro-identity {
-    display: grid;
-    justify-items: center;
-    gap: 9px;
-    margin: 14px 0 34px;
-    text-align: center;
-}
-
-.npc-flow-intro-avatar {
-    position: relative;
-    display: grid;
-    width: 104px;
-    height: 104px;
-    place-items: center;
-    overflow: hidden;
-    border: 0;
-    border-radius: 50%;
-    outline: 2px solid var(--border-dark);
-    outline-offset: -2px;
-    background: var(--card-bg);
-    box-shadow: 3px 3px 0 var(--accent-neon);
-    color: var(--text-main);
-    font-family: var(--font-ui);
-    font-size: 20px;
-}
-
-.npc-flow-intro-avatar::before {
-    content: attr(data-initial);
-}
-
-.npc-flow-intro-avatar img {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* 黑圈補畫層:照片是 z-index:1 的絕對定位子元素,會蓋掉父層內縮 outline(Chrome 繪製順序),改用 ::after 疊在照片上方 */
-.npc-flow-intro-avatar::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 2px var(--border-dark);
-    pointer-events: none;
-}
-
-.npc-flow-intro-nameplate {
-    padding: 7px 14px 6px;
-    background: var(--accent-neon);
-    color: var(--text-main);
-    font-family: var(--font-ui);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 1;
 }
 
 .npc-flow-view {
@@ -245,21 +224,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 
 .npc-flow-title:focus {
     outline: none;
-}
-
-.npc-flow-view[data-flow-view="intro"] .npc-flow-title {
-    margin-bottom: 10px;
-    font-size: 12px;
-    letter-spacing: normal;
-    line-height: 1.3;
-}
-
-.npc-flow-view[data-flow-view="intro"] {
-    min-height: 0;
-    flex: 1 1 auto;
-    padding-right: 14px;
-    padding-left: 14px;
-    overflow-y: auto;
 }
 
 .npc-flow-lead {
@@ -313,41 +277,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     font-size: 14px;
     font-weight: 700;
     line-height: 1.65;
-}
-
-.npc-flow-empty-note {
-    grid-column: 1 / -1;
-    margin: 0;
-    padding: 18px 12px;
-    border-left: 4px solid var(--accent-neon);
-    color: var(--text-sub);
-    font-size: 13px;
-    font-weight: 800;
-    line-height: 1.7;
-}
-
-.npc-flow-foundation-note {
-    position: relative;
-    margin: 0 0 28px;
-    padding-left: 17px;
-    color: var(--text-sub);
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.75;
-}
-
-.npc-flow-foundation-note::before {
-    position: absolute;
-    top: 3px;
-    bottom: 2px;
-    left: 0;
-    width: 3px;
-    background: var(--accent-neon);
-    content: "";
-}
-
-.npc-flow-view[data-flow-view="intro"] .npc-flow-action-row {
-    justify-content: flex-end;
 }
 
 .npc-flow-option-list {
@@ -770,12 +699,9 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     }
 
     .npc-flow-header {
+        min-height: 60px;
         grid-template-columns: minmax(0, 1fr) auto;
         margin-bottom: 28px;
-    }
-
-    .npc-flow-header > .npc-flow-return-action {
-        justify-self: start;
     }
 
     .npc-flow-progress {
@@ -785,11 +711,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 
     .npc-flow-basis-list {
         grid-template-columns: minmax(0, 1fr);
-    }
-
-    .npc-flow-view[data-flow-view="intro"] {
-        padding-right: 0;
-        padding-left: 0;
     }
 
     .npc-flow-basis-row,
@@ -833,11 +754,6 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 /* ---- 角色配置：NPC 新增／編輯（核准 v9） ---- */
-#edit-scenario-screen[data-editor-section="npc"]:not(.npc-preview-open):not(.npc-acquaintance-open)
-    .mobile-config-editor-back {
-    display: none;
-}
-
 #edit-scenario-screen[data-editor-section="npc"]
     #desktop-config-editor #edit-scenario-container {
     width: 100%;
@@ -852,23 +768,10 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 #edit-scenario-screen[data-editor-section="npc"]
-    #desktop-config-editor details.desktop-active-card > .foldable-content > :not(.desktop-npc-editor-header) {
+    #desktop-config-editor details.desktop-active-card > .foldable-content > * {
     width: min(82%, 750px);
     margin-left: auto;
     margin-right: auto;
-}
-
-.desktop-npc-editor-header {
-    position: absolute;
-    top: -12px;
-    right: 0;
-    left: 0;
-    display: flex;
-    min-height: 44px;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 16px;
-    margin: 0;
 }
 
 #edit-scenario-screen[data-editor-section="npc"] #npc-list-container .avatar-setup-area {
@@ -1005,7 +908,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 
 /* ---- 角色配置：NPC 唯讀預覽（沿用角色面板「詳細」語彙） ---- */
 #edit-scenario-screen.npc-preview-open
-    #desktop-config-editor > :not(#desktop-npc-readonly-preview):not(.mobile-config-editor-back) {
+    #desktop-config-editor > :not(#desktop-npc-readonly-preview):not(.config-editor-back) {
     display: none !important;
 }
 
@@ -1016,12 +919,19 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 /* ---- 角色配置：玩家唯讀預覽（2026-07-16 批次A，鏡射 NPC 唯讀預覽） ---- */
 #edit-scenario-screen.player-preview-open
     #desktop-config-editor
-    > :not(#desktop-player-readonly-preview):not(.mobile-config-editor-back):not(.desktop-player-new-preset-btn) {
+    > :not(#desktop-player-readonly-preview):not(.config-editor-back):not(.desktop-player-new-preset-btn) {
     display: none !important;
 }
 
 #desktop-player-readonly-preview[hidden] {
     display: none;
+}
+
+@media (min-width: 1100px), (hover: hover) and (pointer: fine) {
+    #edit-scenario-screen.player-preview-open[data-editor-section="player"]
+        #desktop-config-editor > .config-editor-back {
+        display: none;
+    }
 }
 
 #desktop-player-readonly-preview {
@@ -1048,40 +958,21 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     position: relative;
 }
 
-#desktop-config-editor > .desktop-player-new-preset-btn,
-#desktop-config-editor > .desktop-player-editor-return {
+#desktop-config-editor > .desktop-player-new-preset-btn {
     display: none;
 }
 
 #edit-scenario-screen[data-editor-section="player"] #desktop-config-editor > .desktop-player-new-preset-btn {
     z-index: 2;
     display: grid;
-    top: 20px;
+    top: 19px;
     right: 28px;
-}
-
-#edit-scenario-screen[data-editor-section="player"]:not(.player-preview-open)
-    #desktop-config-editor > .desktop-player-editor-return {
-    position: absolute;
-    top: 20px;
-    left: 28px;
-    display: inline-flex;
-    height: 34px;
-    min-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    align-items: center;
 }
 
 @media (max-width: 600px) {
     #edit-scenario-screen[data-editor-section="player"] #desktop-config-editor > .desktop-player-new-preset-btn {
         top: 14px;
         right: 14px;
-    }
-
-    #edit-scenario-screen[data-editor-section="player"]:not(.player-preview-open)
-        #desktop-config-editor > .desktop-player-editor-return {
-        display: none;
     }
 }
 
@@ -1536,7 +1427,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     object-fit: cover;
 }
 
-/* 黑圈補畫層:同 .npc-flow-intro-avatar::after,照片會蓋掉內縮 outline */
+/* 黑圈補畫層:照片會蓋掉內縮 outline */
 .desktop-npc-preview-hero-avatar::after {
     content: '';
     position: absolute;
@@ -1713,8 +1604,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     position: relative;
 }
 
-.desktop-npc-preview-actions,
-.npc-flow-view[data-flow-view="intro"] .npc-flow-action-row {
+.desktop-npc-preview-actions {
     position: absolute;
     right: 42px;
     bottom: 29px;
@@ -1729,8 +1619,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
         overflow: visible;
     }
 
-    .desktop-npc-preview-actions,
-    .npc-flow-view[data-flow-view="intro"] .npc-flow-action-row {
+    .desktop-npc-preview-actions {
         position: static;
         margin-top: 30px;
     }
@@ -1752,8 +1641,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     }
 
     .desktop-npc-preview-chapters,
-    .desktop-character-preview-basis,
-    .npc-flow-view[data-flow-view="intro"] {
+    .desktop-character-preview-basis {
         overflow: visible;
     }
 }

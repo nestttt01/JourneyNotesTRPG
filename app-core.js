@@ -87,6 +87,41 @@ if (backButton) backButton.hidden = false;
 anchor.after(screen);
 }
 
+const setupHomeDesktopMedia = window.matchMedia('(min-width: 1100px)');
+
+function syncSaveMenuResponsiveMount() {
+    const setupScreen = document.getElementById('setup-screen');
+    const saveMenuScreen = document.getElementById('save-menu-screen');
+    const savesView = document.querySelector('.setup-home-view[data-home-view="saves"]');
+    if (!setupScreen || !saveMenuScreen || !savesView) return;
+
+    const embedded = saveMenuScreen.parentElement?.id === 'setup-save-host';
+    const setupVisible = getComputedStyle(setupScreen).display !== 'none';
+    const embeddedViewActive = embedded && setupVisible && savesView.classList.contains('active');
+    const standaloneVisible = !embedded && getComputedStyle(saveMenuScreen).display !== 'none';
+
+    if (setupHomeDesktopMedia.matches) {
+        if (!standaloneVisible) return;
+        setupScreen.style.display = 'flex';
+        if (!embedSaveMenuInSetupHome()) return;
+        showHomeInfoView('saves', { force: true });
+        return;
+    }
+
+    if (!embedded) return;
+    restoreSaveMenuFromSetupHome();
+    if (!embeddedViewActive) return;
+    setupScreen.style.display = 'none';
+    saveMenuScreen.style.display = 'flex';
+    window.scrollTo(0, 0);
+}
+
+if (typeof setupHomeDesktopMedia.addEventListener === 'function') {
+    setupHomeDesktopMedia.addEventListener('change', syncSaveMenuResponsiveMount);
+} else {
+    setupHomeDesktopMedia.addListener(syncSaveMenuResponsiveMount);
+}
+
 function embedJournalInSetupHome() {
 const host = document.getElementById('setup-journal-host');
 const screen = document.getElementById('journal-screen');

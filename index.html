@@ -843,7 +843,11 @@
         </aside>
 
         <div id="desktop-config-editor">
-        <button type="button" class="mobile-config-editor-back" onclick="handleMobileConfigEditorBack()" aria-label="返回" title="返回">←</button>
+        <button id="config-editor-back" type="button" class="config-editor-back" onclick="handleConfigEditorBack()" aria-label="返回" title="返回">
+            <svg class="config-editor-back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M10 4 2 12l8 8v-5h12V9H10V4Z"></path>
+            </svg>
+        </button>
         <button type="button" class="desktop-player-new-preset-btn" onclick="saveAsNewPreset()" aria-label="另存配置" title="另存配置">＋</button>
         <div class="u-inline-033">
             <select id="preset-selector" class="model-select" onchange="loadPresetToForm(this.value)"></select>

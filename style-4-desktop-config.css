@@ -833,7 +833,8 @@ color: #808080; font-size: 11px; font-weight: 800;
 
 #edit-scenario-screen[data-editor-section="player"] #desktop-config-editor,
 #edit-scenario-screen[data-editor-section="npc"] #desktop-config-editor {
-padding: 20px 28px 24px;
+    --config-editor-padding-top: 20px;
+    padding: 20px 28px 24px;
 }
             #edit-scenario-screen[data-editor-section="player"] .desktop-editor-title-row {
                 min-height: 38px; margin-bottom: 0;
@@ -898,7 +899,10 @@ white-space: nowrap;
  letter-spacing: 1px;
  }
 
-#desktop-config-editor { padding: 24px 20px 28px; }
+#desktop-config-editor {
+    --config-editor-padding-top: 24px;
+    padding: 24px 20px 28px;
+}
             #desktop-config-editor #edit-scenario-container {
                 width: min(82%, 560px); margin: 14px auto 0;
             }

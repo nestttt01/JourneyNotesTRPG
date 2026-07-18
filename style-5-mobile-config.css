@@ -587,6 +587,7 @@
     }
 
     #desktop-config-editor {
+        --config-editor-padding-top: 68px;
         position: relative;
         display: none;
         width: 100%;
@@ -606,28 +607,6 @@
     #edit-scenario-screen.desktop-editor-open #desktop-config-editor {
         display: flex;
     }
-
-    .mobile-config-editor-back {
-        position: absolute;
-        top: 14px;
-        left: 14px;
-        width: 44px;
-        height: 44px;
-        display: grid;
-        place-items: center;
-        padding: 0;
-        border: 2px solid var(--border-dark);
-        border-radius: 8px;
-        background: var(--card-bg);
-        color: var(--text-main);
-        cursor: pointer;
-        font-size: 22px;
-        font-weight: 900;
-        line-height: 1;
-        touch-action: manipulation;
-    }
-
-    .mobile-config-editor-back:active { background: var(--accent-neon); }
 
     #desktop-config-editor > .u-inline-033,
     #desktop-config-editor > .u-inline-049,

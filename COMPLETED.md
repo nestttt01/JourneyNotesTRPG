@@ -255,3 +255,23 @@
 - [x] 清除 DEL、NPC 與情境刪除的重複字型／定位覆蓋，字型只由共用 `hold-delete-text` 規則提供；沒有新增 `!important`。
 - [x] 修改檔案：`app-ui-helpers.js`、`app-memory.js`、`app-status-journal.js`、`app-config-ui.js`、`i18n.js`、`style-1-base.css`、`style-4-desktop-config.css`、`style-5-mobile-config.css`、`style-6-surfaces.css`、`style-7-game.css`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/hold-delete.spec.js`、`TODO.md`、`COMPLETED.md`。
 - [x] 驗證：長按刪除專項 11/11 通過，涵蓋 8 組正式 caller、特殊字體三層、最終填滿畫面、取消競態、重繪移除、語言切換、鍵盤與粗指標平板；完整 Playwright 42 通過／8 個既有失敗／新增失敗 0。JS 語法、CSS 結構、嚴格 UTF-8／LF、`git diff --check` 與延遲 hash 複驗通過。
+
+### NPC 認識夥伴兩步化與共用返回控制
+
+- [x] 移除與 NPC 唯讀六欄重複的「人物基底確認」導入頁；從唯讀頁點「認識夥伴」會直接進入「和他說一句」，流程進度統一為 01／02、02／02，空白 NPC 仍會先阻擋且不送出 AI 請求。
+- [x] NPC 唯讀、NPC 編輯與認識夥伴流程改為共用同一個 `#config-editor-back` DOM、同一個 `handleConfigEditorBack()` 與同一套桌機／手機樣式；按鈕為無文字的重點色 SVG，透明無框，保留 44×44px 點擊／觸控範圍。
+- [x] 左上共用鍵只負責離開目前層級；「回到他的回答」「換一個情境」「再和他說一句」等流程內操作保留各自功能，沒有把不同目的地硬併成同一個返回行為。
+- [x] 情境回答頁新增「完美！」，按下後回到目前 NPC 的唯讀頁；同時補上原本已渲染但未接處理器的「換一個情境」動作。
+- [x] 清除已移除導入頁與舊 NPC 編輯頁首留下的無引用 CSS；人物六欄共用的 `.npc-flow-basis-*` 仍保留供 NPC／玩家唯讀頁使用，沒有新增 `!important`。
+- [x] 修改檔案：`app-config-ui.js`、`index.html`、`style-7-game.css`、`i18n.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未改玩家返回流程、存檔格式、`sanko_*` key、AI prompt、API key、圖片傳送／匯出規則或遠端 Git。
+- [x] 驗證：1440px 桌機、553px 觸控手機與 815px 粗指標平板實際渲染均只有一顆 44×44px 共用返回鍵、無水平溢位；NPC 專項 7／7 通過；完整 Playwright 由動工前基線 43 通過／8 失敗改善為 45 通過／6 個既有失敗，新增失敗 0。
+
+### 配置響應式分流與存檔頁跨斷點掛載修正
+
+- [x] 保留玩家、NPC、情境共用的無文字 SVG 返回控制與 44×44px 命中區；未恢復已移除的舊返回元件。
+- [x] 撤回把 601–1099px 細指標桌機強制套入手機單欄的規則；細指標維持桌機雙欄，觸控／粗指標於 ≤1099px 使用手機配置。
+- [x] 存檔頁新增 1100px 斷點監聽：窄視窗開啟後拉寬會重新掛入首頁存檔容器，拉窄則回到原本獨立頁錨點；不再停留於開啟當下的 DOM 結構。
+- [x] 修改檔案：`app-core.js`、`app-config-ui.js`、`style-4-desktop-config.css`、`style-5-mobile-config.css`、`style-7-game.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未改存檔格式與內容、`sanko_*` key、AI prompt、API key、圖片傳送／匯出、角色／情境資料流或遠端 Git；沒有新增 `!important`。
+- [x] 驗證：900px 細指標桌機雙欄、390px 觸控單欄、共用返回與存檔頁 900→1200→900→1200 重新掛載專項 4／4 通過；實際瀏覽器縮放無 console error；完整 Playwright 48 通過／4 個既有量測失敗，與動工前基線完全一致，新增失敗 0。

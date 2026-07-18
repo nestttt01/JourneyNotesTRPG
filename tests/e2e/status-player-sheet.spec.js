@@ -400,18 +400,33 @@ test('mobile character configuration reuses the overview and section editor flow
     expect(overview.externalCoreRulesDisplay).toBe('block');
     expect(overview.horizontalOverflow).toBeLessThanOrEqual(0);
 
-    await page.locator('.desktop-player-card').click();
+    const playerCard = page.locator('.desktop-player-card');
+    const playerPreview = page.locator('#desktop-player-readonly-preview');
+    const sharedBack = page.locator('#config-editor-back');
+    await playerCard.click();
+    await expect(playerPreview).toBeVisible();
+    await playerPreview.locator('.desktop-npc-preview-tool').click();
     await page.locator('#input-player-name').fill('手機保留測試');
     const player = await page.evaluate(() => {
         const screen = document.getElementById('edit-scenario-screen');
         const editor = document.getElementById('desktop-config-editor');
-        const back = document.querySelector('.mobile-config-editor-back');
+        const back = document.getElementById('config-editor-back');
         return {
             section: screen.dataset.editorSection,
             overviewDisplay: getComputedStyle(document.getElementById('desktop-config-overview')).display,
             editorDisplay: getComputedStyle(editor).display,
             backWidth: back.getBoundingClientRect().width,
             backHeight: back.getBoundingClientRect().height,
+            backBorder: getComputedStyle(back).borderTopWidth,
+            backBackground: getComputedStyle(back).backgroundColor,
+            backOwnsHit: (() => {
+                const box = back.getBoundingClientRect();
+                const hit = document.elementFromPoint(
+                    box.left + box.width / 2,
+                    box.top + box.height / 2
+                );
+                return hit === back || back.contains(hit);
+            })(),
             fieldFont: getComputedStyle(document.getElementById('p-age')).fontSize,
             animeColumns: getComputedStyle(document.querySelector('#preset-player-editor .anime-sheet'))
                 .gridTemplateColumns.split(' ').length,
@@ -425,8 +440,11 @@ test('mobile character configuration reuses the overview and section editor flow
         editorDisplay: 'flex',
         backWidth: 44,
         backHeight: 44,
-        fieldFont: '14px',
-        animeColumns: 2,
+        backBorder: '0px',
+        backBackground: 'rgba(0, 0, 0, 0)',
+        backOwnsHit: true,
+        fieldFont: '16px',
+        animeColumns: 1,
         horizontalOverflow: 0
     });
 
@@ -434,14 +452,20 @@ test('mobile character configuration reuses the overview and section editor flow
     const scrollRange = await page.evaluate(() => document.scrollingElement.scrollHeight - innerHeight);
     expect(scrollRange).toBeGreaterThan(0);
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
-    await page.locator('.mobile-config-editor-back').focus();
+    await sharedBack.focus();
     await page.keyboard.press('PageDown');
     await expect.poll(() => page.evaluate(() => document.scrollingElement.scrollTop)).toBeGreaterThan(0);
 
-    await page.locator('.mobile-config-editor-back').click();
-    await page.locator('.desktop-player-card').click();
+    await sharedBack.click();
+    await expect(playerPreview).toBeVisible();
+    await sharedBack.click();
+    await expect(playerCard).toBeVisible();
+    await playerCard.click();
+    await playerPreview.locator('.desktop-npc-preview-tool').click();
     await expect(page.locator('#input-player-name')).toHaveValue('手機保留測試');
-    await page.locator('.mobile-config-editor-back').click();
+    await sharedBack.click();
+    await expect(playerPreview).toBeVisible();
+    await sharedBack.click();
 
     const npcButtons = page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)');
     expect(await npcButtons.count()).toBeGreaterThan(0);
@@ -476,10 +500,10 @@ test('mobile character configuration reuses the overview and section editor flow
         section: 'npc',
         activeCards: 1,
         visibleCards: 1,
-        fieldFont: '14px',
+        fieldFont: '16px',
         deleteHeight: 44
     });
-    await page.locator('#npc-list-container details.desktop-active-card .npc-flow-return-action').click();
+    await page.locator('#config-editor-back').click();
     await expect(page.locator('#desktop-npc-readonly-preview')).toBeVisible();
 
     await page.evaluate(() => switchDesktopConfigWorkspace('scenarios'));
@@ -499,7 +523,7 @@ test('mobile character configuration reuses the overview and section editor flow
         visibleCards: 1,
         horizontalOverflow: 0
     });
-    await page.locator('.mobile-config-editor-back').click();
+    await sharedBack.click();
 
     await page.locator('.desktop-config-tab[data-config-section="game"]').click();
     const game = await page.evaluate(() => ({
@@ -538,6 +562,70 @@ test('mobile character configuration reuses the overview and section editor flow
     }
 
     await context.close();
+});
+
+test('save menu remounts when the viewport crosses the desktop home breakpoint', async ({ page }) => {
+    await page.setViewportSize({ width: 900, height: 900 });
+    await openApp(page);
+    await page.evaluate(() => {
+        apiProvider = 'google';
+        sessionApiKeys.google = 'TEST_ONLY_LOCAL_KEY';
+        selectedModel = 'test-model';
+        openSaveMenu();
+    });
+
+    const readMountState = () => page.evaluate(() => {
+        const setup = document.getElementById('setup-screen');
+        const screen = document.getElementById('save-menu-screen');
+        const backButton = screen.querySelector('.u-inline-056');
+        return {
+            embedded: screen.parentElement?.id === 'setup-save-host',
+            standalone: screen.previousElementSibling?.id === 'save-menu-screen-home',
+            setupDisplay: getComputedStyle(setup).display,
+            screenDisplay: getComputedStyle(screen).display,
+            activeView: document.querySelector('.setup-home-view.active')?.dataset.homeView || '',
+            backHidden: backButton.hidden,
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+
+    expect(await readMountState()).toEqual({
+        embedded: false,
+        standalone: true,
+        setupDisplay: 'none',
+        screenDisplay: 'flex',
+        activeView: 'main',
+        backHidden: false,
+        horizontalOverflow: 0
+    });
+
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await expect.poll(async () => (await readMountState()).embedded).toBe(true);
+    expect(await readMountState()).toEqual({
+        embedded: true,
+        standalone: false,
+        setupDisplay: 'flex',
+        screenDisplay: 'flex',
+        activeView: 'saves',
+        backHidden: true,
+        horizontalOverflow: 0
+    });
+
+    await page.setViewportSize({ width: 900, height: 900 });
+    await expect.poll(async () => (await readMountState()).standalone).toBe(true);
+    expect(await readMountState()).toEqual({
+        embedded: false,
+        standalone: true,
+        setupDisplay: 'none',
+        screenDisplay: 'flex',
+        activeView: 'saves',
+        backHidden: false,
+        horizontalOverflow: 0
+    });
+
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await expect.poll(async () => (await readMountState()).embedded).toBe(true);
+    expect((await readMountState()).activeView).toBe('saves');
 });
 
 async function openStatusDetailFixture(page) {

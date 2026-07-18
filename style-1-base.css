@@ -212,8 +212,7 @@ h2 { color: var(--text-main); text-shadow: 0 0 12px #fff, 1px 1px 0px var(--acce
         }
         #desktop-config-overview { display: none; }
         #desktop-config-editor { display: contents; }
-        .desktop-editor-close,
-        .mobile-config-editor-back { display: none; }
+        .desktop-editor-close { display: none; }
         .desktop-editor-title-row { width: 100%; }
 
         /* 像素字僅套用於角色名稱、大標題與配置側標籤。 */

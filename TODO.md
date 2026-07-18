@@ -60,10 +60,10 @@
 
 ### 維護性拆檔與流程減稅（2026-07-16 排程）
 
-- [ ] 修復 8 個既有 E2E 失敗（與 CSS 拆檔無關，A/B 已證明；HEAD d915fb1 原生單檔 CSS 即失敗）。
-  - 範圍：`npc-acquaintance-flow.spec.js`（:140、:465）、`player-readonly-preview.spec.js`（:30）、`status-player-sheet.spec.js`（:4、:295、:353、:785、:1221）。
-  - 症狀：UI 度量斷言（returnTop 對齊、cursor 14px/19px、字型、typography scale）不符與一次 ERR_NO_BUFFER_SPACE。
-  - 建議交 Codex 處理（其最後一輪 NPC／玩家預覽工作的斷言與實作不一致）。
+- [ ] 修復目前 4 個既有 E2E 失敗（原 8 個中的 NPC 與玩家返回流程失敗已修復；與 CSS 拆檔及本次響應式修正無關）。
+  - 範圍：`status-player-sheet.spec.js`（游標尺寸、角色配置名稱字級、詳細頁縮排）。
+  - 最新基線（2026-07-18）：完整 Playwright 48 通過／4 失敗；響應式與共用返回專項全數通過，沒有新增失敗。
+  - 原則：逐項對照目前 UI 與斷言判定應修實作或更新測試，不把既有失敗混入其他 UI 任務順手處理。
 
 - [ ] app-gameplay.js（2,704 行）與 app-status-journal.js（2,464 行）再拆一輪（P2）。
   - 比照 app.js→13 模組的純搬移前例：不改邏輯、不改全域行為、載入順序接原位。
