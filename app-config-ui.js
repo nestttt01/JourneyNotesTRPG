@@ -9,7 +9,9 @@ switchDesktopConfigWorkspace('characters');
 }
 
         function isDesktopConfigLayout() {
-            return window.matchMedia('(min-width: 1100px), (hover: hover) and (pointer: fine)').matches;
+            return window.matchMedia(
+                '(min-width: 1100px), (min-width: 601px) and (hover: hover) and (pointer: fine)'
+            ).matches;
         }
 
         function syncDesktopCharacterNameWidth(input) {

@@ -126,6 +126,7 @@ function syncSaveMenuResponsiveMount() {
 
 function syncDesktopShellFeatures() {
     syncSaveMenuResponsiveMount();
+    syncJournalResponsiveMount();
     applyBackground();
 }
 
@@ -153,6 +154,34 @@ if (!anchor || !screen || screen.parentElement?.id !== 'setup-journal-host') ret
 screen.classList.remove('journal-screen-home-embedded');
 screen.style.display = 'none';
 anchor.after(screen);
+}
+
+function syncJournalResponsiveMount() {
+    const setupScreen = document.getElementById('setup-screen');
+    const journalScreen = document.getElementById('journal-screen');
+    const journalView = document.querySelector('.setup-home-view[data-home-view="journal"]');
+    if (!setupScreen || !journalScreen || !journalView || journalEmbedded) return;
+
+    const embedded = journalScreen.parentElement?.id === 'setup-journal-host';
+    const setupVisible = getComputedStyle(setupScreen).display !== 'none';
+    const embeddedViewActive = embedded && setupVisible && journalView.classList.contains('active');
+    const standaloneVisible = !embedded && getComputedStyle(journalScreen).display !== 'none';
+
+    if (isDesktopShellViewport()) {
+        if (!standaloneVisible) return;
+        setupScreen.style.display = 'flex';
+        if (!embedJournalInSetupHome()) return;
+        showHomeInfoView('journal', { force: true });
+        return;
+    }
+
+    if (!embedded) return;
+    restoreJournalFromSetupHome();
+    if (!embeddedViewActive) return;
+    showHomeInfoView('main', { force: true });
+    setupScreen.style.display = 'none';
+    journalScreen.style.display = 'flex';
+    window.scrollTo(0, 0);
 }
 
 function updateSetupCurrentPresetLabel() {
@@ -949,4 +978,3 @@ heart: '--heart-base'
         let indexedRetryTimer = null;
         let storedSaveIds = new Set();
         let deletedSaveIds = new Set();
-

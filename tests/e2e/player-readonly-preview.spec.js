@@ -58,46 +58,14 @@ test('player card opens a read-only preview before editing (desktop)', async ({ 
     await expect(preview).toBeHidden();
     await expect(page.locator('#edit-scenario-screen')).not.toHaveClass(/player-preview-open/);
     await expect(page.locator('#input-player-name')).toBeVisible();
-    await expect(sharedReturn).toBeVisible();
+    await expect(sharedReturn).toBeHidden();
     await expect(plusButton).toBeVisible();
-
-    const returnPresentation = await sharedReturn.evaluate(button => ({
-        width: button.getBoundingClientRect().width,
-        height: button.getBoundingClientRect().height,
-        border: getComputedStyle(button).borderTopWidth,
-        radius: getComputedStyle(button).borderTopLeftRadius,
-        background: getComputedStyle(button).backgroundColor,
-        color: getComputedStyle(button).color,
-        fill: getComputedStyle(button.querySelector('svg')).fill,
-        text: button.innerText.trim()
-    }));
-    expect(returnPresentation).toEqual({
-        width: 44,
-        height: 44,
-        border: '0px',
-        radius: '0px',
-        background: 'rgba(0, 0, 0, 0)',
-        color: 'rgb(237, 255, 102)',
-        fill: 'rgb(237, 255, 102)',
-        text: ''
-    });
 
     const plusBoxInEditor = await plusButton.boundingBox();
     expect(Math.abs(plusBoxInEditor.x - plusBoxInPreview.x)).toBeLessThan(0.5);
     expect(Math.abs(plusBoxInEditor.y - plusBoxInPreview.y)).toBeLessThan(0.5);
 
-    const returnBox = await sharedReturn.boundingBox();
-    const plusCenter = plusBoxInEditor.y + plusBoxInEditor.height / 2;
-    const returnCenter = returnBox.y + returnBox.height / 2;
-    expect(Math.abs(plusCenter - returnCenter)).toBeLessThan(1);
-    const editorReturnCenterHitsButton = await sharedReturn.evaluate(button => {
-        const box = button.getBoundingClientRect();
-        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-        return hit === button || button.contains(hit);
-    });
-    expect(editorReturnCenterHitsButton).toBe(true);
-
-    await sharedReturn.click();
+    await page.locator('.desktop-player-card').click();
     await expect(preview).toBeVisible();
     await expect(page.locator('#edit-scenario-screen')).toHaveClass(/player-preview-open/);
     await expect(sharedReturn).toBeHidden();

@@ -285,3 +285,22 @@
 - [x] 最終差異：`app-core.js`、`app-saves-game.js`、`style-5-mobile-config.css`、`tests/e2e/status-player-sheet.spec.js`、`COMPLETED.md`；`TODO.md` 依流程登記後移除，最終 bytes 回到原狀。
 - [x] 未改存檔內容／格式、背景圖片資料、`sanko_*` key 語意、API key、AI prompt、角色／情境資料流、翻譯或 Git 歷史。
 - [x] 驗證：返回大廳＋1099／1100px 背景能力專項 2／2 通過；完整 Playwright 49 通過／4 個既有量測失敗，與動工前基線完全一致，新增失敗 0。全部 JS 語法、CSS／HTML 結構、嚴格 UTF-8／LF、預期 bytes 全等與 `git diff --check` 通過。
+
+### 冒險日誌跨斷點掛載與現存 E2E 基線修復
+
+- [x] 冒險日誌納入既有單一 `desktopShellMedia`／`syncDesktopShellFeatures()` 同步；窄版獨立頁拉寬會掛入桌機首頁，桌機首頁拉窄會還原到 `#journal-screen-home`，遊戲內 inline journal 由 `journalEmbedded` 排除而不受影響。
+- [x] 桌機→窄版切換時先將首頁 active view 重設為 `main` 再隱藏首頁，避免窄版關閉後回到空白大廳；窄版使用日誌返回鍵，桌機內嵌版沿用既有 Home 側欄正式返回路徑。
+- [x] 真正的 CSS 產品偏差只有詳細頁標題文字軸：既有 12px 游標配 28px gap 得到 40px，與內容／dossier 的 42px 縮排不一致；只將原規則改為 30px，保留語意對齊斷言。
+- [x] 舊測試基線更新為既有核准 UI：玩家／dossier／organizer 游標 12×18px（organizer 另同步 2px×18px 背景量測），角色配置編輯姓名 18px；沒有為測試改動這些產品外觀。
+- [x] 修改檔案：`app-core.js`、`style-3-panels.css`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`；`app-status-journal.js` 僅唯讀核對，無需修改。
+- [x] 未改存檔格式與內容、`sanko_*` key、API key、AI prompt、背景圖片資料、角色／情境資料流或遠端 Git；沒有新增 `!important`、media query、檔尾 hotfix 或重複 selector。
+- [x] 驗證：失敗點精準複跑 2／2、`status-player-sheet.spec.js` 16／16、完整 Playwright 54／54 通過；窄版 effective background 為 solid、1100px 恢復 image、存檔頁跨斷點與返回大廳均通過。14 份 JS 語法、7 份 CSS 結構、HTML 檔尾、25 份文字檔嚴格 UTF-8／LF 與 `git diff --check` 通過。
+
+### 配置頁窄版穿框與桌機返回鍵修復
+
+- [x] 修正配置版型判斷：≤600px 即使是 fine pointer 也只走窄版；≥601px fine pointer 與 ≥1100px 維持既有雙欄桌機。`isDesktopConfigLayout()` 與既有桌機 CSS media query 同步，避免固定 850px 高度和窄版 `overflow: visible` 同時生效。
+- [x] 553px fine-pointer 遊戲設定的最後內容、批次刪除列與匯入匯出列均留在外框內；真正桌機框維持固定尺寸，內層保留 `overflow-y: auto`。
+- [x] 雙欄桌機共用返回箭頭改為隱藏；玩家／NPC／情境與認識夥伴流程改由左欄可見項目切換，390px、553px 與 coarse-pointer 窄版返回鍵保留。
+- [x] 修改檔案：`app-config-ui.js`、`style-4-desktop-config.css`、`style-7-game.css`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/player-readonly-preview.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未修改頂部分類按鈕外觀、存檔格式、`sanko_*` key、API key、AI prompt、背景圖片資料或長期知識庫；沒有新增 `!important`、media query、檔尾 hotfix 或重複 selector。
+- [x] 驗證：新增回歸先紅後綠，四個受影響舊案例 4／4、完整 Playwright 55／55 通過；14 份 JS 語法、7 份 CSS 大括號、嚴格 UTF-8／LF 與 `git diff --check` 通過。

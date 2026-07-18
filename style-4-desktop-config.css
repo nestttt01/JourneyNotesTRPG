@@ -346,7 +346,7 @@ scrollbar-width: none;
 
 }
 
-@media screen and (min-width: 1100px), screen and (hover: hover) and (pointer: fine) {
+@media screen and (min-width: 1100px), screen and (min-width: 601px) and (hover: hover) and (pointer: fine) {
             #edit-scenario-screen {
                 width: 100%; max-width: 1580px; min-height: 100dvh;
                 padding: 30px clamp(56px, 6vw, 96px);

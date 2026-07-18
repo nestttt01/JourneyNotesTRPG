@@ -516,7 +516,7 @@
             padding: 0;
             flex: 1 1 auto;
             align-items: center;
-            gap: 28px;
+            gap: 30px;
             border: 0;
             border-radius: 0;
             background: transparent;
@@ -1228,4 +1228,3 @@
    Responsive styles grouped by breakpoint
    Smaller breakpoints follow larger ones so they can override safely.
    ========================================================= */
-

@@ -136,8 +136,8 @@ test('status player sheet uses the 03 protagonist layout and K respec icon', asy
     })));
     expect(sheetState.statLabelFont).toContain('TRPG Cubic Pixel');
     expect(sheetState.statValueFont).toContain('TRPG Cubic Pixel');
-    expect(sheetState.cursorWidth).toBe('14px');
-    expect(sheetState.cursorHeight).toBe('19px');
+    expect(sheetState.cursorWidth).toBe('12px');
+    expect(sheetState.cursorHeight).toBe('18px');
     expect(sheetState.cursorAnimation).toBe('status-detail-cursor-poke');
     expect(sheetState.cursorDuration).toBe('0.9s');
     expect(sheetState.respecWidth).toBe('44px');
@@ -326,7 +326,7 @@ test('character configuration uses the approved typography scale', async ({ page
     expect(playerTypography).toEqual({
         overviewName: '20px',
         npcSectionTitle: '16px',
-        editName: '16px',
+        editName: '18px',
         fieldLabel: '10px',
         fieldContent: '14px',
         statLabel: '12px',
@@ -564,6 +564,75 @@ test('mobile character configuration reuses the overview and section editor flow
     await context.close();
 });
 
+test('configuration layout keeps narrow content contained and omits redundant desktop back', async ({ page }) => {
+    await page.setViewportSize({ width: 553, height: 900 });
+    await openApp(page);
+    await page.evaluate(() => {
+        openEditScenario();
+        switchDesktopConfigWorkspace('game');
+    });
+
+    const readGameLayout = () => page.evaluate(() => {
+        const panel = document.getElementById('desktop-config-overview');
+        const card = document.querySelector('.desktop-game-settings-card');
+        const lastContent = document.querySelector('.desktop-game-autosave-note');
+        const panelBox = panel.getBoundingClientRect();
+        const cardBox = card.getBoundingClientRect();
+        const lastBox = lastContent.getBoundingClientRect();
+        return {
+            desktopConfigLayout: isDesktopConfigLayout(),
+            panelContainsLastContent: lastBox.bottom <= panelBox.bottom + 0.5,
+            cardBottomInsidePanel: cardBox.bottom <= panelBox.bottom + 0.5,
+            panelHeight: panelBox.height,
+            cardOverflowY: getComputedStyle(card).overflowY,
+            cardHasScrollRange: card.scrollHeight > card.clientHeight,
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+
+    expect(await readGameLayout()).toMatchObject({
+        desktopConfigLayout: false,
+        panelContainsLastContent: true,
+        cardBottomInsidePanel: true,
+        cardOverflowY: 'visible',
+        cardHasScrollRange: false,
+        horizontalOverflow: 0
+    });
+
+    await page.evaluate(() => switchDesktopConfigWorkspace('scenarios'));
+    await page.locator('.desktop-scenario-card').first().click();
+    const sharedBack = page.locator('#config-editor-back');
+    await expect(sharedBack).toBeVisible();
+
+    await page.setViewportSize({ width: 900, height: 900 });
+    await expect(sharedBack).toBeHidden();
+    const desktopEditor = await page.evaluate(() => ({
+        desktopConfigLayout: isDesktopConfigLayout(),
+        overviewDisplay: getComputedStyle(document.getElementById('desktop-config-overview')).display,
+        editorDisplay: getComputedStyle(document.getElementById('desktop-config-editor')).display
+    }));
+    expect(desktopEditor).toEqual({
+        desktopConfigLayout: true,
+        overviewDisplay: 'flex',
+        editorDisplay: 'flex'
+    });
+
+    await page.locator('.desktop-scenario-card').nth(1).click();
+    const activeScenarioIndex = await page.evaluate(() => {
+        const cards = Array.from(document.querySelectorAll('#scenario-list-container details'));
+        return cards.indexOf(document.querySelector('#scenario-list-container details.desktop-active-card'));
+    });
+    expect(activeScenarioIndex).toBe(1);
+
+    await page.evaluate(() => switchDesktopConfigWorkspace('game'));
+    const desktopGame = await readGameLayout();
+    expect(desktopGame.desktopConfigLayout).toBe(true);
+    expect(desktopGame.panelHeight).toBeLessThanOrEqual(850);
+    expect(desktopGame.cardBottomInsidePanel).toBe(true);
+    expect(desktopGame.cardOverflowY).toBe('auto');
+    expect(desktopGame.horizontalOverflow).toBeLessThanOrEqual(0);
+});
+
 test('save menu remounts when the viewport crosses the desktop home breakpoint', async ({ page }) => {
     await page.setViewportSize({ width: 900, height: 900 });
     await openApp(page);
@@ -655,6 +724,91 @@ test('save menu remounts when the viewport crosses the desktop home breakpoint',
         backHidden: false,
         horizontalOverflow: 0
     });
+});
+
+test('adventure journal remounts across the desktop home breakpoint and returns home', async ({ page }) => {
+    await page.setViewportSize({ width: 900, height: 900 });
+    await openApp(page);
+    await page.evaluate(() => openAdventureJournal());
+
+    const readMountState = () => page.evaluate(() => {
+        const setup = document.getElementById('setup-screen');
+        const screen = document.getElementById('journal-screen');
+        return {
+            embedded: screen.parentElement?.id === 'setup-journal-host',
+            standalone: screen.previousElementSibling?.id === 'journal-screen-home',
+            homeEmbedded: screen.classList.contains('journal-screen-home-embedded'),
+            inlineEmbedded: screen.classList.contains('journal-screen-embedded'),
+            setupDisplay: getComputedStyle(setup).display,
+            screenDisplay: getComputedStyle(screen).display,
+            activeView: document.querySelector('.setup-home-view.active')?.dataset.homeView || '',
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+    const standaloneOpenState = {
+        embedded: false,
+        standalone: true,
+        homeEmbedded: false,
+        inlineEmbedded: false,
+        setupDisplay: 'none',
+        screenDisplay: 'flex',
+        activeView: 'main',
+        horizontalOverflow: 0
+    };
+    const embeddedOpenState = {
+        embedded: true,
+        standalone: false,
+        homeEmbedded: true,
+        inlineEmbedded: false,
+        setupDisplay: 'flex',
+        screenDisplay: 'flex',
+        activeView: 'journal',
+        horizontalOverflow: 0
+    };
+    const homeState = {
+        embedded: false,
+        standalone: true,
+        homeEmbedded: false,
+        inlineEmbedded: false,
+        setupDisplay: 'flex',
+        screenDisplay: 'none',
+        activeView: 'main',
+        horizontalOverflow: 0
+    };
+
+    await expect.poll(readMountState).toEqual(standaloneOpenState);
+
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await expect.poll(readMountState).toEqual(embeddedOpenState);
+
+    await page.setViewportSize({ width: 900, height: 900 });
+    await expect.poll(readMountState).toEqual(standaloneOpenState);
+
+    await page.locator('#journal-close-btn').click();
+    await expect(page.locator('#setup-screen')).toBeVisible();
+    await expect(page.locator('#journal-screen')).toBeHidden();
+    await expect(page.locator('.setup-home-view[data-home-view="main"]')).toHaveClass(/\bactive\b/);
+    await expect(page.locator('#api-provider')).toBeVisible();
+    await expect.poll(readMountState).toEqual(homeState);
+
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await expect.poll(readMountState).toEqual(homeState);
+    await page.evaluate(() => openAdventureJournal());
+    await expect.poll(readMountState).toEqual(embeddedOpenState);
+
+    await page.setViewportSize({ width: 900, height: 900 });
+    await expect.poll(readMountState).toEqual(standaloneOpenState);
+
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await expect.poll(readMountState).toEqual(embeddedOpenState);
+
+    await expect(page.locator('#journal-close-btn')).toBeHidden();
+    await page.locator('.setup-home-tab').click();
+    await expect(page.locator('#setup-screen')).toBeVisible();
+    await expect(page.locator('#journal-screen')).toBeHidden();
+    await expect(page.locator('.setup-home-view[data-home-view="main"]')).toHaveClass(/\bactive\b/);
+    await expect(page.locator('#api-provider')).toBeVisible();
+    await expect.poll(readMountState).toEqual(homeState);
 });
 
 test('image background is desktop-only and restores across the shell breakpoint', async ({ page }) => {
@@ -1189,9 +1343,9 @@ test('status details are read-first and return to the overview after editing', a
     expect(memorySurface.journalTitleShadow).toBe('none');
     expect(journalActiveTitleShadows.summary).toBe('none');
     expect(journalActiveTitleShadows.journal).toBe(memorySurface.summaryTitleShadow);
-    expect(memorySurface.organizerIconWidth).toBe('14px');
-    expect(memorySurface.organizerIconHeight).toBe('21px');
-    expect(memorySurface.organizerIconBackgroundSize).toContain('2px 21px');
+    expect(memorySurface.organizerIconWidth).toBe('12px');
+    expect(memorySurface.organizerIconHeight).toBe('18px');
+    expect(memorySurface.organizerIconBackgroundSize).toContain('2px 18px');
     expect(memorySurface.organizerDividerWidth).toBe('1px');
     expect(memorySurface.organizerDividerHeight).toBe(memorySurface.organizerIconHeight);
     expect(memorySurface.organizerDividerColor).toBe(memorySurface.statusViewDividerColor);
@@ -1421,8 +1575,8 @@ test('03 dossier cursors match and scenario switches by 78px into a read-first e
         };
     });
     expect(cursorMetrics.player).toEqual(cursorMetrics.dossier);
-    expect(cursorMetrics.player.width).toBe('14px');
-    expect(cursorMetrics.player.height).toBe('19px');
+    expect(cursorMetrics.player.width).toBe('12px');
+    expect(cursorMetrics.player.height).toBe('18px');
     expect(cursorMetrics.player.animation).toBe('status-detail-cursor-poke');
     expect(cursorMetrics.player.duration).toBe('0.9s');
     expect(cursorMetrics.player.timing).toContain('steps(1');

@@ -927,9 +927,8 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     display: none;
 }
 
-@media (min-width: 1100px), (hover: hover) and (pointer: fine) {
-    #edit-scenario-screen.player-preview-open[data-editor-section="player"]
-        #desktop-config-editor > .config-editor-back {
+@media (min-width: 1100px), (min-width: 601px) and (hover: hover) and (pointer: fine) {
+    #desktop-config-editor > .config-editor-back {
         display: none;
     }
 }

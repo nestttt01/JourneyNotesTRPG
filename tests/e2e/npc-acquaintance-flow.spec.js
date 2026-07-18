@@ -107,6 +107,20 @@ function expectSharedNpcReturn(layout) {
     });
 }
 
+function expectHiddenDesktopNpcReturn(layout) {
+    expect(layout).toMatchObject({
+        sharedCount: 1,
+        sharedVisible: false,
+        sharedDisplay: 'none',
+        sharedWidth: 0,
+        sharedHeight: 0,
+        sharedOwnsHit: false,
+        duplicateReturnCount: 0,
+        visibleReturnCount: 0,
+        horizontalOverflow: 0
+    });
+}
+
 test('approved A bracket buttons pop open without card styling', async ({ page }) => {
     await openCharacterConfig(page);
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
@@ -374,13 +388,14 @@ test('existing NPC opens a read-only detail sheet then enters questions directly
     });
     expect(directQuestionStyle.horizontalOverflow).toBeLessThanOrEqual(0);
     const desktopQuestionBack = await readNpcReturnLayout(page);
-    expectSharedNpcReturn(desktopQuestionBack);
-    expect(desktopQuestionBack.pathTitleDelta).toBeLessThan(0.5);
+    expectHiddenDesktopNpcReturn(desktopQuestionBack);
     const flowLayout = await readDualPanelLayout(page);
     expect(flowLayout.overview).toEqual(previewLayout.overview);
     expect(flowLayout.editor).toEqual(previewLayout.editor);
 
-    await page.locator('#config-editor-back').click();
+    await npcButtons.first().click();
+    await expect(preview).toBeVisible();
+    await preview.locator('.desktop-npc-preview-tool').click();
     await expect(page.locator('#npc-list-container details.desktop-active-card')).toBeVisible();
     await expect.poll(() => page.evaluate(() => (
         document.getElementById('desktop-config-editor').scrollTop
@@ -461,21 +476,16 @@ test('existing NPC opens a read-only detail sheet then enters questions directly
 
     const editorLayout = await page.evaluate(() => {
         const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
-        const sharedBack = document.getElementById('config-editor-back').getBoundingClientRect();
         const avatar = document.querySelector(
             '#npc-list-container details.desktop-active-card .avatar-preview'
         ).getBoundingClientRect();
         return {
-            returnBottom: sharedBack.bottom - panel.top,
             avatarTop: avatar.top - panel.top,
             avatarSize: avatar.width
         };
     });
-    const desktopEditorBack = await readNpcReturnLayout(page);
-    expectSharedNpcReturn(desktopEditorBack);
-    expect(desktopEditorBack.sharedLeftInPanel).toBeCloseTo(desktopQuestionBack.sharedLeftInPanel, 5);
-    expect(desktopEditorBack.sharedTopInPanel).toBeCloseTo(desktopQuestionBack.sharedTopInPanel, 5);
-    expect(editorLayout.avatarTop).toBeGreaterThanOrEqual(editorLayout.returnBottom);
+    expectHiddenDesktopNpcReturn(await readNpcReturnLayout(page));
+    expect(editorLayout.avatarTop).toBeGreaterThan(0);
     expect(editorLayout.avatarSize).toBe(playerMetrics.avatarSize);
 });
 
@@ -636,7 +646,7 @@ test('narrow desktop pointer keeps equal dual panels instead of a giant single c
     expect(Math.abs(layout.overview.width - layout.editor.width)).toBeLessThan(1);
     expect(Math.abs(layout.overview.height - layout.editor.height)).toBeLessThan(1);
     expect(layout.horizontalOverflow).toBeLessThanOrEqual(0);
-    expectSharedNpcReturn(await readNpcReturnLayout(page));
+    expectHiddenDesktopNpcReturn(await readNpcReturnLayout(page));
 });
 
 test('adding an NPC enters the editor directly and continues to acquaintance', async ({ page }) => {
@@ -721,7 +731,7 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="question"]')).toBeVisible();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="intro"]')).toHaveCount(0);
     await expect(page.locator('#npc-acquaintance-flow .npc-flow-progress')).toHaveText('01 / 02');
-    await expect(page.locator('#config-editor-back')).toBeVisible();
+    await expect(page.locator('#config-editor-back')).toBeHidden();
     await expect(page.locator(
         '#npc-acquaintance-flow > .npc-flow-header .npc-flow-return-action'
     )).toHaveCount(0);
