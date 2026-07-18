@@ -44,8 +44,10 @@ async function readNpcReturnLayout(page) {
         const sharedBox = sharedBack.getBoundingClientRect();
         const panelBox = document.getElementById('desktop-config-editor').getBoundingClientRect();
         const svg = sharedBack.querySelector('svg');
-        const path = svg.querySelector('path');
-        const pathBox = path.getBoundingClientRect();
+        const use = svg.querySelector('use');
+        const iconBox = use.getBBox();
+        const iconMatrix = svg.getScreenCTM();
+        const iconLeft = new DOMPoint(iconBox.x, iconBox.y).matrixTransform(iconMatrix).x;
         const titleBox = title?.getBoundingClientRect();
         const hit = document.elementFromPoint(
             sharedBox.left + sharedBox.width / 2,
@@ -73,10 +75,10 @@ async function readNpcReturnLayout(page) {
             sharedTop: sharedBox.top,
             sharedLeftInPanel: sharedBox.left - panelBox.left,
             sharedTopInPanel: sharedBox.top - panelBox.top,
-            pathLeft: pathBox.left,
-            pathTitleDelta: titleBox ? Math.abs(pathBox.left - titleBox.left) : null,
+            iconLeft,
+            iconTitleDelta: titleBox ? Math.abs(iconLeft - titleBox.left) : null,
             iconViewBox: svg.getAttribute('viewBox'),
-            pathData: path.getAttribute('d'),
+            iconRef: use.getAttribute('href'),
             duplicateReturnCount: document.querySelectorAll(duplicateSelector).length,
             visibleReturnCount: returnControls
                 .filter(control => control.getClientRects().length > 0).length,
@@ -100,7 +102,7 @@ function expectSharedNpcReturn(layout) {
         sharedAriaLabel: '返回',
         sharedOwnsHit: true,
         iconViewBox: '0 0 24 24',
-        pathData: 'M10 4 2 12l8 8v-5h12V9H10V4Z',
+        iconRef: '#theme-icon-back',
         duplicateReturnCount: 0,
         visibleReturnCount: 1,
         horizontalOverflow: 0
@@ -121,50 +123,86 @@ function expectHiddenDesktopNpcReturn(layout) {
     });
 }
 
-test('approved A bracket buttons pop open without card styling', async ({ page }) => {
+test('approved command hierarchy stays borderless and uses interruptible feedback', async ({ page }) => {
     await openCharacterConfig(page);
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
 
-    const bracketButton = page.locator('#desktop-npc-readonly-preview .npc-flow-bracket-action');
-    await expect(bracketButton).toBeVisible();
-    const rest = await bracketButton.evaluate(button => ({
+    const primaryButton = page.locator('#desktop-npc-readonly-preview .ui-command-primary');
+    await expect(primaryButton).toBeVisible();
+    const rest = await primaryButton.evaluate(button => ({
         backgroundColor: getComputedStyle(button).backgroundColor,
         borderTopWidth: getComputedStyle(button).borderTopWidth,
         boxShadow: getComputedStyle(button).boxShadow,
         beforeContent: getComputedStyle(button, '::before').content,
-        afterContent: getComputedStyle(button, '::after').content
+        cursorAnimationName: getComputedStyle(button, '::before').animationName,
+        cursorAnimationDuration: getComputedStyle(button, '::before').animationDuration
     }));
     expect(rest).toEqual({
         backgroundColor: 'rgba(0, 0, 0, 0)',
         borderTopWidth: '0px',
         boxShadow: 'none',
-        beforeContent: '"\uFF3B"',
-        afterContent: '"\uFF3D"'
+        beforeContent: '""',
+        cursorAnimationName: 'ui-command-cursor-poke',
+        cursorAnimationDuration: '0.9s'
     });
 
-    await bracketButton.hover();
-    await page.waitForTimeout(300);
-    const hover = await bracketButton.evaluate(button => ({
-        beforeTransform: getComputedStyle(button, '::before').transform,
-        afterTransform: getComputedStyle(button, '::after').transform,
-        labelClipPath: getComputedStyle(button.querySelector('.npc-flow-bracket-label'), '::after').clipPath
-    }));
-    expect(hover.beforeTransform).toBe('matrix(1, 0, 0, 1, -4, 0)');
-    expect(hover.afterTransform).toBe('matrix(1, 0, 0, 1, 4, 0)');
-    expect(['inset(0px)', 'inset(0px 0px 0px 0px)']).toContain(hover.labelClipPath);
-
+    await primaryButton.hover();
     await page.mouse.down();
-    await page.waitForTimeout(180);
-    expect(await bracketButton.evaluate(button => getComputedStyle(button).transform))
-        .toBe('matrix(0.97, 0, 0, 0.97, 0, 0)');
+    await page.waitForTimeout(50);
+    const activePrimary = await primaryButton.evaluate(button => ({
+        transform: getComputedStyle(button).transform,
+        textShadow: getComputedStyle(button).textShadow,
+        cursorAnimationName: getComputedStyle(button, '::before').animationName
+    }));
+    expect(activePrimary.transform).not.toBe('none');
+    expect(activePrimary.textShadow).toContain('rgb(237, 255, 102)');
+    expect(activePrimary.cursorAnimationName).toBe('none');
+    await page.mouse.move(0, 0);
     await page.mouse.up();
 
-    const staticBracketStyles = await page.evaluate(() => {
+    await page.evaluate(() => switchDesktopConfigWorkspace('game'));
+    const secondaryButton = page.locator('.desktop-game-management-actions .ui-command-secondary').first();
+    await expect(secondaryButton).toBeVisible();
+    const secondaryRest = await secondaryButton.evaluate(button => {
+        const line = getComputedStyle(button.querySelector('.ui-command-label'), '::after');
+        return {
+            height: line.height,
+            borderTopWidth: line.borderTopWidth,
+            borderBottomWidth: line.borderBottomWidth,
+            boxShadow: line.boxShadow,
+            transitionProperty: line.transitionProperty,
+            transitionDuration: line.transitionDuration
+        };
+    });
+    expect(secondaryRest).toEqual({
+        height: '4px',
+        borderTopWidth: '1px',
+        borderBottomWidth: '1px',
+        boxShadow: 'none',
+        transitionProperty: 'transform',
+        transitionDuration: '0.22s'
+    });
+
+    await secondaryButton.dispatchEvent('pointerdown', {
+        pointerId: 1,
+        pointerType: 'touch',
+        button: 0,
+        isPrimary: true
+    });
+    await expect(secondaryButton).toHaveClass(/is-tapped/);
+    await page.waitForTimeout(240);
+    expect(await secondaryButton.evaluate(button => (
+        getComputedStyle(button.querySelector('.ui-command-label'), '::after').transform
+    ))).toBe('matrix(1, 0, 0, 1, 0, 0)');
+    await page.waitForTimeout(180);
+    await expect(secondaryButton).not.toHaveClass(/is-tapped/);
+
+    const staticCommandStyles = await page.evaluate(() => {
         const root = document.documentElement;
         const originalMode = root.dataset.bgMode;
         const selector = [
-            '.desktop-game-two-buttons button.npc-flow-bracket-action',
-            '.desktop-game-management-actions button.npc-flow-bracket-action'
+            '.desktop-game-two-buttons button.ui-command',
+            '.desktop-game-management-actions button.ui-command'
         ].join(',');
         const read = () => Array.from(document.querySelectorAll(selector)).map(button => ({
             backgroundColor: getComputedStyle(button).backgroundColor,
@@ -178,9 +216,9 @@ test('approved A bracket buttons pop open without card styling', async ({ page }
         else root.dataset.bgMode = originalMode;
         return { light, image };
     });
-    expect(staticBracketStyles.light.length).toBe(3);
-    expect(staticBracketStyles.light).toEqual(staticBracketStyles.image);
-    expect(staticBracketStyles.light.every(style => (
+    expect(staticCommandStyles.light.length).toBe(6);
+    expect(staticCommandStyles.light).toEqual(staticCommandStyles.image);
+    expect(staticCommandStyles.light.every(style => (
         style.backgroundColor === 'rgba(0, 0, 0, 0)'
         && style.borderTopWidth === '0px'
         && style.boxShadow === 'none'
@@ -357,7 +395,7 @@ test('existing NPC opens a read-only detail sheet then enters questions directly
     expect(previewOverflowProtection.gap).toBeGreaterThanOrEqual(24);
     expect(previewOverflowProtection.scrollHeight).toBeGreaterThan(previewOverflowProtection.clientHeight);
 
-    await preview.locator('.desktop-npc-preview-actions .npc-flow-bracket-action').click();
+    await preview.locator('.desktop-npc-preview-actions .ui-command-primary').click();
     const flow = page.locator('#npc-acquaintance-flow');
     await expect(flow).toBeVisible();
     await expect(flow.locator('[data-flow-view="question"]')).toBeVisible();
@@ -401,10 +439,12 @@ test('existing NPC opens a read-only detail sheet then enters questions directly
         document.getElementById('desktop-config-editor').scrollTop
     ))).toBe(0);
     const editorActions = page.locator(
-        '#npc-list-container details.desktop-active-card .desktop-npc-editor-actions .npc-flow-bracket-action'
+        '#npc-list-container details.desktop-active-card .desktop-npc-editor-actions .ui-command'
     );
     await expect(editorActions).toHaveCount(2);
     await expect(editorActions.first()).toBeVisible();
+    await expect(editorActions.first()).toHaveClass(/ui-command-secondary/);
+    await expect(editorActions.last()).toHaveClass(/ui-command-primary/);
     await expect(page.locator('.desktop-npc-editor-name > span')).toHaveCount(0);
     const deleteButton = page.locator(
         '#npc-list-container details.desktop-active-card .desktop-npc-editor-delete'
@@ -421,58 +461,19 @@ test('existing NPC opens a read-only detail sheet then enters questions directly
         textDecorationLine: 'underline'
     });
 
-    const approvedBracketButton = editorActions.first();
-    const bracketStyleAtRest = await approvedBracketButton.evaluate(button => ({
-        backgroundColor: getComputedStyle(button).backgroundColor,
-        borderTopWidth: getComputedStyle(button).borderTopWidth,
-        boxShadow: getComputedStyle(button).boxShadow,
-        beforeContent: getComputedStyle(button, '::before').content,
-        afterContent: getComputedStyle(button, '::after').content
-    }));
-    expect(bracketStyleAtRest).toEqual({
-        backgroundColor: 'rgba(0, 0, 0, 0)',
-        borderTopWidth: '0px',
-        boxShadow: 'none',
-        beforeContent: '"［"',
-        afterContent: '"］"'
+    const secondaryLine = await editorActions.first().evaluate(button => {
+        const line = getComputedStyle(button.querySelector('.ui-command-label'), '::after');
+        return {
+            height: line.height,
+            borderTopWidth: line.borderTopWidth,
+            boxShadow: line.boxShadow
+        };
     });
-    await approvedBracketButton.hover();
-    await page.waitForTimeout(300);
-    const bracketStyleOnHover = await approvedBracketButton.evaluate(button => ({
-        beforeTransform: getComputedStyle(button, '::before').transform,
-        afterTransform: getComputedStyle(button, '::after').transform,
-        labelClipPath: getComputedStyle(button.querySelector('.npc-flow-bracket-label'), '::after').clipPath
-    }));
-    expect(bracketStyleOnHover.beforeTransform).toBe('matrix(1, 0, 0, 1, -4, 0)');
-    expect(bracketStyleOnHover.afterTransform).toBe('matrix(1, 0, 0, 1, 4, 0)');
-    expect(['inset(0px)', 'inset(0px 0px 0px 0px)']).toContain(bracketStyleOnHover.labelClipPath);
-
-    const staticBracketStyles = await page.evaluate(() => {
-        const root = document.documentElement;
-        const originalMode = root.dataset.bgMode;
-        const selectors = [
-            '.desktop-game-two-buttons button.npc-flow-bracket-action',
-            '.desktop-game-management-actions button.npc-flow-bracket-action'
-        ];
-        const readStyles = () => Array.from(document.querySelectorAll(selectors.join(','))).map(button => ({
-            backgroundColor: getComputedStyle(button).backgroundColor,
-            borderTopWidth: getComputedStyle(button).borderTopWidth,
-            boxShadow: getComputedStyle(button).boxShadow
-        }));
-        const light = readStyles();
-        root.dataset.bgMode = 'image';
-        const image = readStyles();
-        if (originalMode === undefined) delete root.dataset.bgMode;
-        else root.dataset.bgMode = originalMode;
-        return { light, image };
+    expect(secondaryLine).toEqual({
+        height: '4px',
+        borderTopWidth: '1px',
+        boxShadow: 'none'
     });
-    expect(staticBracketStyles.light.length).toBe(3);
-    expect(staticBracketStyles.light).toEqual(staticBracketStyles.image);
-    expect(staticBracketStyles.light.every(style => (
-        style.backgroundColor === 'rgba(0, 0, 0, 0)'
-        && style.borderTopWidth === '0px'
-        && style.boxShadow === 'none'
-    ))).toBe(true);
 
     const editorLayout = await page.evaluate(() => {
         const panel = document.getElementById('desktop-config-editor').getBoundingClientRect();
@@ -564,7 +565,7 @@ test('NPC layouts share one aligned return control across viewports', async ({ p
     expectSharedNpcReturn(editorBack);
     expect(editorBack.sharedLeft).toBeCloseTo(previewBack.sharedLeft, 5);
     expect(editorBack.sharedTop).toBeCloseTo(previewBack.sharedTop, 5);
-    expect(editorBack.pathLeft).toBeCloseTo(previewBack.pathLeft, 5);
+    expect(editorBack.iconLeft).toBeCloseTo(previewBack.iconLeft, 5);
 
     await sharedBack.click();
     await expect(page.locator('#desktop-npc-readonly-preview')).toBeVisible();
@@ -592,10 +593,10 @@ test('NPC layouts share one aligned return control across viewports', async ({ p
     });
     const flowBack = await readNpcReturnLayout(page);
     expectSharedNpcReturn(flowBack);
-    expect(flowBack.pathTitleDelta).toBeLessThan(0.5);
+    expect(flowBack.iconTitleDelta).toBeLessThan(0.5);
     expect(flowBack.sharedLeft).toBeCloseTo(previewBack.sharedLeft, 5);
     expect(flowBack.sharedTop).toBeCloseTo(previewBack.sharedTop, 5);
-    expect(flowBack.pathLeft).toBeCloseTo(previewBack.pathLeft, 5);
+    expect(flowBack.iconLeft).toBeCloseTo(previewBack.iconLeft, 5);
 
     await sharedBack.click();
     await expect(page.locator('#npc-acquaintance-flow')).toBeHidden();
@@ -626,7 +627,7 @@ test('NPC layouts share one aligned return control across viewports', async ({ p
         ).matches)).toBe(false);
         const coarseBack = await readNpcReturnLayout(coarsePage);
         expectSharedNpcReturn(coarseBack);
-        expect(coarseBack.pathTitleDelta).toBeLessThan(0.5);
+        expect(coarseBack.iconTitleDelta).toBeLessThan(0.5);
         await coarsePage.locator('#config-editor-back').click();
         await expect(coarsePage.locator('#npc-list-container details.desktop-active-card')).toBeVisible();
     } finally {
@@ -690,7 +691,7 @@ test('adding an NPC enters the editor directly and continues to acquaintance', a
     await expect(ageField).toBeVisible();
     await expect(speechField.locator('xpath=..').locator('button')).toHaveCount(0);
     const acquaintanceAction = activeCard.locator(
-        '.desktop-npc-editor-actions .npc-flow-bracket-action'
+        '.desktop-npc-editor-actions .ui-command-secondary'
     ).first();
     await acquaintanceAction.click();
     await expect(page.locator('#npc-acquaintance-flow')).toBeHidden();
@@ -705,6 +706,28 @@ test('adding an NPC enters the editor directly and continues to acquaintance', a
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="question"]')).toBeVisible();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="intro"]')).toHaveCount(0);
     await expect(page.locator('#npc-acquaintance-flow .npc-flow-progress')).toHaveText('01 / 02');
+});
+
+test('asking the NPC again returns directly to the question view', async ({ page }) => {
+    await openCharacterConfig(page);
+    await page.evaluate(() => {
+        requestNpcAcquaintanceResponse = async () => 'direct return reply';
+    });
+
+    await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
+    await page.locator('#desktop-npc-readonly-preview .ui-command-primary').click();
+    await page.locator('[data-option-group="question"] .npc-flow-option').first().click();
+    await page.locator('#npc-acquaintance-flow [data-flow-action="send-question"]').click();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="response"]')).toBeVisible();
+
+    await page.locator('[data-option-group="judgement"] [data-option-value="again"]').click();
+
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="question"]')).toBeVisible();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-view="response"]')).toHaveCount(0);
+    await expect(page.locator('#npc-acquaintance-flow .npc-flow-progress')).toHaveText('01 / 02');
+    await expect(page.locator('[data-option-group="question"] .npc-flow-option[aria-pressed="true"]')).toHaveCount(0);
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-action="send-question"]')).toBeDisabled();
+    await expect(page.locator('#npc-acquaintance-flow [data-flow-action="confirm-judgement"]')).toHaveCount(0);
 });
 
 test('AI output stays dialogue-only and refinement retry never auto-saves fields', async ({ page }) => {
@@ -727,7 +750,7 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     });
 
     await page.locator('.desktop-npc-avatar-button:not(.desktop-npc-add-button)').first().click();
-    await page.locator('#desktop-npc-readonly-preview .npc-flow-bracket-action').click();
+    await page.locator('#desktop-npc-readonly-preview .ui-command-primary').click();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="question"]')).toBeVisible();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="intro"]')).toHaveCount(0);
     await expect(page.locator('#npc-acquaintance-flow .npc-flow-progress')).toHaveText('01 / 02');
@@ -787,7 +810,7 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     const previousStep = page.locator(
         '#npc-acquaintance-flow [data-flow-view="scenario"] [data-flow-action="response"]'
     );
-    await expect(previousStep).toHaveClass(/npc-flow-bracket-action/);
+    await expect(previousStep).toHaveClass(/ui-command-secondary/);
     await previousStep.click();
     await expect(page.locator('#npc-acquaintance-flow')).toBeVisible();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="response"]')).toBeVisible();
@@ -807,7 +830,7 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     const chooseAnotherScenario = page.locator(
         '#npc-acquaintance-flow [data-flow-view="scenario-response"] [data-flow-action="scenario"]'
     );
-    await expect(chooseAnotherScenario).toHaveClass(/npc-flow-bracket-action/);
+    await expect(chooseAnotherScenario).toHaveClass(/ui-command-secondary/);
     await chooseAnotherScenario.click();
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario"]')).toBeVisible();
     await expect(scenarioInput).toHaveValue('scenario check');
@@ -815,6 +838,7 @@ test('AI output stays dialogue-only and refinement retry never auto-saves fields
     await expect(page.locator('#npc-acquaintance-flow [data-flow-view="scenario-response"]')).toBeVisible();
 
     const finishAction = page.locator('#npc-acquaintance-flow [data-flow-action="finish"]');
+    await expect(finishAction).toHaveClass(/ui-command-primary/);
     await expect(finishAction).toHaveText('完美！');
     await finishAction.click();
     await expect(page.locator('#npc-acquaintance-flow')).toBeHidden();

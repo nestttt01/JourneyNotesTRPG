@@ -304,3 +304,35 @@
 - [x] 修改檔案：`app-config-ui.js`、`style-4-desktop-config.css`、`style-7-game.css`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/player-readonly-preview.spec.js`、`TODO.md`、`COMPLETED.md`。
 - [x] 未修改頂部分類按鈕外觀、存檔格式、`sanko_*` key、API key、AI prompt、背景圖片資料或長期知識庫；沒有新增 `!important`、media query、檔尾 hotfix 或重複 selector。
 - [x] 驗證：新增回歸先紅後綠，四個受影響舊案例 4／4、完整 Playwright 55／55 通過；14 份 JS 語法、7 份 CSS 大括號、嚴格 UTF-8／LF 與 `git diff --check` 通過。
+
+## 2026-07-19
+
+### 手機存檔命令列、共用 SVG 返回與冒險日誌工具回饋
+
+- [x] 手機存檔頁採精簡命令列：`DATA ACTIONS` 反白眉題、共同左軸與 48px 操作高度；只有主要操作顯示靜態像素三角形，次級操作不再增加卡片或按鈕框。
+- [x] 角色配置、存檔頁、手機日記與冒險日誌返回控制引用同一個 `#theme-icon-back` SVG symbol；頁面返回共用 44×44px 透明基底，桌機配置與桌機日記仍依既有規則隱藏返回鍵。
+- [x] 冒險日誌 `#journal-save-select` 改為專案常用的重點色實底、零圓角、置中選項 BAR；背景圖模式不再覆蓋成卡片底，搜尋列維持原本單底線。
+- [x] 冒險日誌與角色面板的「整理」共用短促像素游標回饋：細指標 hover 位移、觸控 active 回饋、鍵盤 focus 保留可見狀態，`prefers-reduced-motion` 停用位移與轉場。
+- [x] 修正冒險日誌跨斷點時舊文字寫入會清掉 SVG 子節點的問題；既有 embed／restore、桌機首頁與窄版獨立頁掛載流程維持不變。
+- [x] 修正桌機內嵌日誌隱藏返回鍵後，標題誤落入 44px 圖示欄而逐字換行的回歸；桌機標題恢復橫排，選取值與展開選項統一置中。
+- [x] 最終修改檔案：`index.html`、`style-1-base.css`、`style-4-desktop-config.css`、`style-6-surfaces.css`、`style-7-game.css`、`app-status-journal.js`、`i18n.js`、`tests/e2e/status-player-sheet.spec.js`、`tests/e2e/npc-acquaintance-flow.spec.js`、`COMPLETED.md`；`TODO.md` 依流程登記後移除，最終 bytes 與 HEAD 相同。
+- [x] 未改存檔格式、`sanko_*` key、匯入匯出資料、AI prompt、API key、桌機存檔操作層級或其他按鈕系統；沒有新增 `!important`、重複斷點邏輯或檔尾 hotfix。
+- [x] 驗證：390／600px 手機存檔命令列、手機日記 SVG 返回、1099／1100px 冒險日誌與存檔重新掛載、桌機日誌橫排標題／置中選項、窄版純色背景、返回大廳、背景圖恢復及整理動態專項通過；完整 Playwright 57／57、JS 語法、HTML／CSS 結構、嚴格 UTF-8／LF 與 `git diff --check` 通過。
+
+### NPC 再聊一次直返與手機日誌頁首對齊
+
+- [x] 回答判斷頁的「再和他說一句」改為點選後直接返回 01／02 提問頁；接受回答與修正語氣仍保留原本的確認步驟。
+- [x] 手機日記改用與冒險日誌相同的 `screen-header` 三欄結構、共用 SVG 返回鍵與 24px 置中標題；390px 下返回鍵與標題的水平／垂直座標差異皆小於 1px，桌機日記返回鍵維持隱藏。
+- [x] 本項修改檔案：`app-config-ui.js`、`index.html`、`style-5-mobile-config.css`、`style-6-surfaces.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/status-player-sheet.spec.js`、`COMPLETED.md`；`TODO.md` 完成後移除本項並恢復為 HEAD 內容。
+- [x] 未改括號按鈕群整體排版、存檔格式、`sanko_*` key、AI prompt、API key、匯入匯出或翻譯文字；沒有新增 `!important`、重複 media query 或檔尾 hotfix。
+- [x] 驗證：新增流程直返與手機雙頁首幾何測試，修正前兩項均可重現失敗、修正後專項通過；完整 Playwright 58／58、16 個 JS／測試語法檢查、7 份 CSS 括號平衡、HTML 檔尾、嚴格 UTF-8／LF 與 `git diff --check` 通過。
+
+### 共用主／次級命令層級與手機存檔標題
+
+- [x] 主命令統一為常駐像素三角：待機以 900ms 階梯節奏輕推，按下時按鈕與三角形前移並顯示重點色字影；生成中／重新生成等動態文字狀態也會繼承同一回饋。
+- [x] 非刪除次級命令統一為既有五級字體中的 14px、無框文字與 2px 黃芯、上下各 1px 黑邊的底線；hover 與觸控共用單一可中斷 transform transition，觸控按下保留 360ms 完整收尾，不再未跑完就跳回開頭。
+- [x] 套用存檔、桌機／窄版配置、角色面板另存、隨機生成、NPC 認識夥伴流程與一般取消命令；刪除／清空、SVG 返回、頁籤、分頁、篩選、冒險日誌工具列與既有「儲存並返回」膠囊均維持原樣。
+- [x] 手機存檔標題由「選擇記憶紀錄」精簡為「記憶紀錄」，同步 zh-TW／en／ja；主要命令獨占首列，兩個次級命令並列，390／600px 均維持 48px 操作高度且無水平溢位。
+- [x] 最終修改檔案：`index.html`、`app-config-ui.js`、`app-ui-helpers.js`、`i18n.js`、`style-2-status.css`、`style-7-game.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
+- [x] 未改存檔格式、`sanko_*` key、匯入匯出資料、AI prompt、API key、儲存層或遠端 Git；沒有新增 `!important`、全域 `button` 覆蓋、重複 media query、檔尾 hotfix 或順手重構。
+- [x] 驗證：本次命令動態／手機排列專項 2／2、舊字級斷言修正後 1／1、兩支完整 Playwright 27／27 通過；全部 `app-*.js`、`i18n.js` 與兩支測試語法、7 份 CSS 括號、HTML 檔尾、嚴格 UTF-8／LF、Python／Node hash 與 `git diff --check` 通過。

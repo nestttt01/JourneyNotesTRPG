@@ -28,6 +28,23 @@
             if (window.setUiLanguage) setUiLanguage(next);
         }
 
+        const UI_COMMAND_UNDERLINE_HOLD_MS = 360;
+        const uiCommandUnderlineTimers = new WeakMap();
+
+        function handleUiCommandPointerDown(event) {
+            if (!(event.target instanceof Element)) return;
+            const button = event.target.closest('.ui-command-secondary');
+            if (!button || button.disabled) return;
+            window.clearTimeout(uiCommandUnderlineTimers.get(button));
+            button.classList.add('is-tapped');
+            uiCommandUnderlineTimers.set(button, window.setTimeout(() => {
+                button.classList.remove('is-tapped');
+                uiCommandUnderlineTimers.delete(button);
+            }, UI_COMMAND_UNDERLINE_HOLD_MS));
+        }
+
+        document.addEventListener('pointerdown', handleUiCommandPointerDown, { passive: true });
+
         const HOLD_DELETE_DURATION_MS = 1200;
         const HOLD_DELETE_COMPLETE_DWELL_MS = 50;
         const HOLD_DELETE_ARM_TIMEOUT_MS = 4000;

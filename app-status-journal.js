@@ -1942,8 +1942,6 @@ saveCurrentProgress();
                     journalScreen.style.display = 'flex';
                     journalEmbedded = true;
                     syncStatusLogViewState('journal');
-const closeButton = document.getElementById('journal-close-btn');
-if (closeButton) closeButton.textContent = '收起';
 }
 } else if (setupHomeVisible) {
 if (embedJournalInSetupHome()) showHomeInfoView('journal');
@@ -1983,8 +1981,6 @@ journalScreen.classList.remove('journal-screen-embedded');
 document.getElementById('journal-screen-home')?.after(journalScreen);
 journalEmbedded = false;
                 syncStatusLogViewState('summary');
-                const closeButton = document.getElementById('journal-close-btn');
-                if (closeButton) closeButton.textContent = '返回';
                 return;
             }
             if (journalReturnTarget === 'game' && currentSaveId) {

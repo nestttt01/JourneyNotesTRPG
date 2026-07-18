@@ -726,10 +726,225 @@ test('save menu remounts when the viewport crosses the desktop home breakpoint',
     });
 });
 
+test('mobile save commands use the approved hierarchy and shared SVG back control', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openApp(page);
+    await page.evaluate(() => {
+        apiProvider = 'google';
+        sessionApiKeys.google = 'TEST_ONLY_LOCAL_KEY';
+        selectedModel = 'test-model';
+        openSaveMenu();
+    });
+
+    const layout = await page.locator('#save-menu-screen').evaluate(screen => {
+        const buttons = Array.from(screen.querySelectorAll('.action-buttons .ui-command'));
+        const primary = screen.querySelector('.action-buttons .ui-command-primary');
+        const secondary = Array.from(screen.querySelectorAll('.action-buttons .ui-command-secondary'));
+        const back = screen.querySelector('.page-back-button');
+        const kicker = screen.querySelector('.save-action-kicker span');
+        const title = screen.querySelector('.screen-header h2');
+        const actions = screen.querySelector('.action-buttons.u-inline-055').getBoundingClientRect();
+        const primaryBox = primary.getBoundingClientRect();
+        const secondaryBoxes = secondary.map(button => button.getBoundingClientRect());
+        const primaryBefore = getComputedStyle(primary, '::before');
+        const secondaryLine = getComputedStyle(secondary[0].querySelector('.ui-command-label'), '::after');
+        const backStyle = getComputedStyle(back);
+        const kickerStyle = getComputedStyle(kicker);
+        const titleBox = title.getBoundingClientRect();
+        return {
+            buttonCount: buttons.length,
+            primaryClass: primary.className,
+            secondaryCount: secondary.length,
+            buttonHeights: buttons.map(button => button.getBoundingClientRect().height),
+            primaryAboveSecondary: primaryBox.bottom <= Math.min(...secondaryBoxes.map(box => box.top)),
+            secondaryTopDelta: Math.abs(secondaryBoxes[0].top - secondaryBoxes[1].top),
+            secondaryOrder: secondaryBoxes[0].left < secondaryBoxes[1].left,
+            actionsWidth: actions.width,
+            primaryMarkerContent: primaryBefore.content,
+            primaryMarkerAnimation: primaryBefore.animationName,
+            secondaryLineHeight: secondaryLine.height,
+            secondaryLineBorder: secondaryLine.borderTopWidth,
+            secondaryLineShadow: secondaryLine.boxShadow,
+            kickerDisplay: getComputedStyle(screen.querySelector('.save-action-kicker')).display,
+            kickerBackground: kickerStyle.backgroundColor,
+            kickerColor: kickerStyle.color,
+            backWidth: backStyle.width,
+            backHeight: backStyle.height,
+            backBackground: backStyle.backgroundColor,
+            backLabel: back.getAttribute('aria-label'),
+            backText: back.textContent.trim(),
+            backUse: back.querySelector('use')?.getAttribute('href'),
+            titleText: title.textContent.trim(),
+            titleCenterDelta: Math.abs(titleBox.left + titleBox.width / 2 - innerWidth / 2),
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+
+    expect(layout.buttonCount).toBe(3);
+    expect(layout.primaryClass).toContain('ui-command-primary');
+    expect(layout.secondaryCount).toBe(2);
+    expect(layout.buttonHeights.every(height => height >= 48)).toBe(true);
+    expect(layout.primaryAboveSecondary).toBe(true);
+    expect(layout.secondaryTopDelta).toBeLessThan(1);
+    expect(layout.secondaryOrder).toBe(true);
+    expect(layout.actionsWidth).toBeLessThanOrEqual(300);
+    expect(layout.primaryMarkerContent).toBe('""');
+    expect(layout.primaryMarkerAnimation).toBe('ui-command-cursor-poke');
+    expect(layout.secondaryLineHeight).toBe('4px');
+    expect(layout.secondaryLineBorder).toBe('1px');
+    expect(layout.secondaryLineShadow).toBe('none');
+    expect(layout.kickerDisplay).toBe('block');
+    expect(layout.kickerBackground).toBe('rgb(40, 40, 40)');
+    expect(layout.kickerColor).toBe('rgb(237, 255, 102)');
+    expect(layout.backWidth).toBe('44px');
+    expect(layout.backHeight).toBe('44px');
+    expect(layout.backBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(layout.backLabel).toBe('返回大廳');
+    expect(layout.backText).toBe('');
+    expect(layout.backUse).toBe('#theme-icon-back');
+    expect(layout.titleText).toBe('記憶紀錄');
+    expect(layout.titleCenterDelta).toBeLessThan(1);
+    expect(layout.horizontalOverflow).toBe(0);
+
+    const secondaryButton = page.locator('#save-menu-screen .ui-command-secondary').first();
+    await secondaryButton.dispatchEvent('pointerdown', {
+        pointerId: 1,
+        pointerType: 'touch',
+        button: 0,
+        isPrimary: true
+    });
+    await expect(secondaryButton).toHaveClass(/is-tapped/);
+    await page.waitForTimeout(400);
+    await expect(secondaryButton).not.toHaveClass(/is-tapped/);
+
+    await page.setViewportSize({ width: 600, height: 900 });
+    const boundaryLayout = await page.locator('#save-menu-screen').evaluate(screen => ({
+        kickerDisplay: getComputedStyle(screen.querySelector('.save-action-kicker')).display,
+        buttonHeights: Array.from(screen.querySelectorAll('.action-buttons .ui-command'), button => (
+            button.getBoundingClientRect().height
+        )),
+        backVisible: getComputedStyle(screen.querySelector('.page-back-button')).display !== 'none',
+        horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+    }));
+    expect(boundaryLayout.kickerDisplay).toBe('block');
+    expect(boundaryLayout.buttonHeights.every(height => height >= 48)).toBe(true);
+    expect(boundaryLayout.backVisible).toBe(true);
+    expect(boundaryLayout.horizontalOverflow).toBe(0);
+});
+
+test('mobile diary and adventure journal share one aligned SVG header', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openApp(page);
+    await page.evaluate(() => openDiary());
+
+    const readHeader = selector => page.locator(selector).evaluate(header => {
+        const button = header.querySelector('.page-back-button');
+        const title = header.querySelector('h2');
+        const style = getComputedStyle(button);
+        const buttonBox = button.getBoundingClientRect();
+        const titleBox = title.getBoundingClientRect();
+        return {
+            display: style.display,
+            width: style.width,
+            height: style.height,
+            background: style.backgroundColor,
+            text: button.textContent.trim(),
+            label: button.getAttribute('aria-label'),
+            iconRef: button.querySelector('use')?.getAttribute('href'),
+            buttonLeft: buttonBox.left,
+            buttonTop: buttonBox.top,
+            titleCenter: titleBox.left + titleBox.width / 2,
+            titleTop: titleBox.top,
+            titleFontSize: getComputedStyle(title).fontSize,
+            horizontalOverflow: document.documentElement.scrollWidth - innerWidth
+        };
+    });
+
+    const diaryHeader = await readHeader('.diary-top');
+    expect(diaryHeader).toMatchObject({
+        display: 'grid',
+        width: '44px',
+        height: '44px',
+        background: 'rgba(0, 0, 0, 0)',
+        text: '',
+        label: '返回',
+        iconRef: '#theme-icon-back',
+        titleFontSize: '24px',
+        horizontalOverflow: 0
+    });
+
+    await page.evaluate(() => {
+        closeDiary();
+        openAdventureJournal();
+    });
+    const journalHeader = await readHeader('.journal-header');
+    expect(journalHeader).toMatchObject({
+        display: 'grid',
+        width: '44px',
+        height: '44px',
+        background: 'rgba(0, 0, 0, 0)',
+        text: '',
+        label: '返回',
+        iconRef: '#theme-icon-back',
+        titleFontSize: '24px',
+        horizontalOverflow: 0
+    });
+    expect(Math.abs(diaryHeader.buttonLeft - journalHeader.buttonLeft)).toBeLessThan(1);
+    expect(Math.abs(diaryHeader.buttonTop - journalHeader.buttonTop)).toBeLessThan(1);
+    expect(Math.abs(diaryHeader.titleCenter - journalHeader.titleCenter)).toBeLessThan(1);
+    expect(Math.abs(diaryHeader.titleTop - journalHeader.titleTop)).toBeLessThan(1);
+});
+
 test('adventure journal remounts across the desktop home breakpoint and returns home', async ({ page }) => {
     await page.setViewportSize({ width: 900, height: 900 });
     await openApp(page);
     await page.evaluate(() => openAdventureJournal());
+
+    const journalChrome = await page.evaluate(() => {
+        const back = document.getElementById('journal-close-btn');
+        const select = document.getElementById('journal-save-select');
+        const organize = document.getElementById('journal-organize-btn');
+        const summaryOrganize = document.getElementById('organize-summary-btn');
+        const selectStyle = getComputedStyle(select);
+        const organizeCursor = getComputedStyle(organize, '::before');
+        const summaryCursor = getComputedStyle(summaryOrganize, '::before');
+        return {
+            backText: back.textContent.trim(),
+            backLabel: back.getAttribute('aria-label'),
+            backUse: back.querySelector('use')?.getAttribute('href'),
+            selectBackground: selectStyle.backgroundColor,
+            selectRadius: selectStyle.borderRadius,
+            selectHeight: selectStyle.height,
+            selectAlign: selectStyle.textAlign,
+            optionAlign: getComputedStyle(select.options[0]).textAlign,
+            journalCursorDuration: organizeCursor.transitionDuration,
+            summaryCursorDuration: summaryCursor.transitionDuration
+        };
+    });
+    expect(journalChrome).toEqual({
+        backText: '',
+        backLabel: '返回',
+        backUse: '#theme-icon-back',
+        selectBackground: 'rgb(237, 255, 102)',
+        selectRadius: '0px',
+        selectHeight: '44px',
+        selectAlign: 'center',
+        optionAlign: 'center',
+        journalCursorDuration: '0.15s',
+        summaryCursorDuration: '0.15s'
+    });
+    await page.evaluate(() => {
+        uiBgImage = emptyAvatar;
+        setBackgroundMode('image');
+    });
+    await page.locator('#journal-organize-btn').hover();
+    await expect.poll(() => page.locator('#journal-organize-btn').evaluate(button => ({
+        cursorTransform: getComputedStyle(button, '::before').transform,
+        textShadow: getComputedStyle(button).textShadow
+    }))).toEqual({
+        cursorTransform: 'matrix(1, 0, 0, 1, 4, 0)',
+        textShadow: 'rgb(40, 40, 40) 2px 2px 0px'
+    });
 
     const readMountState = () => page.evaluate(() => {
         const setup = document.getElementById('setup-screen');
@@ -780,6 +995,28 @@ test('adventure journal remounts across the desktop home breakpoint and returns 
 
     await page.setViewportSize({ width: 1200, height: 900 });
     await expect.poll(readMountState).toEqual(embeddedOpenState);
+    const desktopJournalChrome = await page.evaluate(() => {
+        const header = document.querySelector('#journal-screen .journal-header');
+        const title = header.querySelector('h2');
+        const titleBox = title.getBoundingClientRect();
+        return {
+            effectiveMode: document.documentElement.dataset.bgMode,
+            selectBackground: getComputedStyle(document.getElementById('journal-save-select')).backgroundColor,
+            headerColumns: getComputedStyle(header).gridTemplateColumns,
+            spacerDisplay: getComputedStyle(header.querySelector('.screen-header-spacer')).display,
+            titleWritingMode: getComputedStyle(title).writingMode,
+            titleWidth: titleBox.width,
+            titleHeight: titleBox.height
+        };
+    });
+    expect(desktopJournalChrome).toMatchObject({
+        effectiveMode: 'image',
+        selectBackground: 'rgb(237, 255, 102)',
+        spacerDisplay: 'none',
+        titleWritingMode: 'horizontal-tb'
+    });
+    expect(desktopJournalChrome.headerColumns.split(' ')).toHaveLength(1);
+    expect(desktopJournalChrome.titleWidth).toBeGreaterThan(desktopJournalChrome.titleHeight);
 
     await page.setViewportSize({ width: 900, height: 900 });
     await expect.poll(readMountState).toEqual(standaloneOpenState);
@@ -1005,7 +1242,7 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
         const expected = {
             saveButton: ['#status-save-btn', '14px'],
             saveIndicator: ['.status-save-indicator', '12px'],
-            saveAsButton: ['.status-save-as-btn', '12px'],
+            saveAsButton: ['.status-save-as-btn', '14px'],
             tab: ['.status-tab-btn', '14px'],
             stateHeading: ['#status-page-state > .u-inline-013', '16px'],
             npcSummaryHeading: ['#status-summary-display .u-inline-016', '16px'],

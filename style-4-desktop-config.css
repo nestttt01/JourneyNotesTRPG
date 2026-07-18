@@ -277,6 +277,14 @@ margin-top: 4px;
 display: none;
 }
 
+#setup-screen #journal-screen.journal-screen-home-embedded .journal-header {
+grid-template-columns: minmax(0, 1fr);
+}
+
+#setup-screen #journal-screen.journal-screen-home-embedded .screen-header-spacer {
+display: none;
+}
+
 #setup-screen #journal-screen.journal-screen-home-embedded .journal-toolbar {
 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }

@@ -460,24 +460,7 @@
             align-items: center;
         }
         .status-save-as-btn {
-            padding: 5px 4px 3px;
-            border: 0;
-            border-bottom: 2px solid var(--text-sub);
-            border-radius: 0;
-            background: transparent;
-            color: var(--text-sub);
-            box-shadow: none;
-            font-size: 12px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-        .status-save-as-btn:hover,
-        .status-save-as-btn:focus-visible {
-            border-bottom-color: var(--accent-neon);
-            background: transparent;
-            color: var(--text-main);
-            box-shadow: none;
-            transform: none;
+            min-height: 36px;
         }
         #status-modal-content > .u-inline-012 {
             flex: 1;

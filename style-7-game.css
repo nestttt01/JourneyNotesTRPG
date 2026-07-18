@@ -154,41 +154,11 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     z-index: 3;
     top: calc(14px - var(--config-editor-padding-top, 20px));
     left: auto;
-    display: grid;
-    width: 44px;
-    height: 44px;
     flex: 0 0 44px;
     align-self: flex-start;
-    place-items: center;
     margin: calc(14px - var(--config-editor-padding-top, 20px)) 0
         calc(var(--config-editor-padding-top, 20px) - 58px) -13px;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    color: var(--accent-neon);
-    cursor: pointer;
     font-size: 0;
-    line-height: 1;
-    touch-action: manipulation;
-}
-
-#desktop-config-editor > .config-editor-back .config-editor-back-icon {
-    display: block;
-    width: 22px;
-    height: 22px;
-    fill: currentColor;
-    image-rendering: pixelated;
-}
-
-#desktop-config-editor > .config-editor-back:focus-visible {
-    outline: 1px solid var(--accent-neon);
-    outline-offset: 3px;
-}
-
-#desktop-config-editor > .config-editor-back:active {
-    background: transparent;
-    transform: scale(0.98);
 }
 
 .npc-flow-header {
@@ -484,7 +454,23 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     margin-top: 12px;
 }
 
-.npc-flow-bracket-action,
+.npc-flow-action-row:has(> .ui-command-primary) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: center;
+}
+
+.npc-flow-action-row > .ui-command-primary {
+    grid-column: 1 / -1;
+    grid-row: 1;
+}
+
+.npc-flow-action-row:has(> .ui-command-primary)
+    > .ui-command-secondary:first-child:nth-last-child(2) {
+    grid-column: 1 / -1;
+}
+
+.ui-command,
 .npc-flow-return-action {
     appearance: none;
     width: fit-content;
@@ -500,49 +486,89 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     transition: transform 100ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.npc-flow-bracket-action {
+.ui-command {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    padding: 8px 2px;
+    max-width: 100%;
+    padding: 8px 3px 10px;
     color: var(--text-main);
-    font-family: var(--font-reading);
-    font-size: 15px;
-    font-weight: 700;
-    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+    transition:
+        color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+        transform 100ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.npc-flow-bracket-action::before,
-.npc-flow-bracket-action::after {
-    color: var(--accent-neon);
-    font-family: var(--font-ui);
-    font-size: 19px;
-    font-weight: 900;
-    line-height: 1;
-    text-shadow: 1px 1px 0 var(--border-dark);
-    transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.npc-flow-bracket-action::before {
-    content: "［";
-}
-
-.npc-flow-bracket-action::after {
-    content: "］";
-}
-
-.npc-flow-bracket-label {
+.ui-command-label {
     position: relative;
     display: inline-block;
-    margin: 0 6px;
-    color: var(--text-main);
-    font-weight: 700;
+    max-width: 100%;
     line-height: 1.35;
-    white-space: nowrap;
+    transition: text-shadow 100ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.npc-flow-bracket-label::after,
+.ui-command-primary {
+    gap: 10px;
+    padding-inline: 4px;
+    font-family: var(--font-ui);
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.ui-command-primary::before {
+    content: "";
+    width: 12px;
+    height: 18px;
+    flex: 0 0 12px;
+    background:
+        linear-gradient(var(--text-main) 0 0) 0 0 / 2px 18px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 2px 0 / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 4px 2px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 6px 4px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 8px 6px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 10px 8px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 8px 10px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 6px 12px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 4px 14px / 2px 2px no-repeat,
+        linear-gradient(var(--text-main) 0 0) 2px 16px / 2px 2px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 2px 2px / 2px 14px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 4px 4px / 2px 10px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 6px 6px / 2px 6px no-repeat,
+        linear-gradient(var(--accent-neon) 0 0) 8px 8px / 2px 2px no-repeat;
+    animation: ui-command-cursor-poke 900ms steps(1, end) infinite;
+}
+
+@keyframes ui-command-cursor-poke {
+    0%, 42%, 72%, 100% {
+        transform: translateX(0);
+    }
+
+    43%, 71% {
+        transform: translateX(2px);
+    }
+}
+
+.ui-command-secondary {
+    color: var(--text-sub);
+    font-family: var(--font-reading);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.ui-command-secondary .ui-command-label::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: -5px;
+    left: 0;
+    height: 4px;
+    border: 1px solid var(--border-dark);
+    background: var(--accent-neon);
+    box-shadow: none;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 220ms steps(6, end);
+}
+
 .npc-flow-return-label::after {
     position: absolute;
     color: #ffffff;
@@ -552,14 +578,7 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     pointer-events: none;
 }
 
-.npc-flow-bracket-label::after {
-    inset: 0;
-    opacity: 1;
-    text-shadow: 1px 1px 0 var(--border-dark);
-    transition: clip-path 240ms steps(6, end);
-}
-
-.npc-flow-bracket-action:disabled {
+.ui-command:disabled {
     cursor: not-allowed;
     opacity: 0.42;
 }
@@ -594,14 +613,44 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     inset: 0;
 }
 
-.npc-flow-bracket-action:focus-visible,
+.ui-command:focus-visible,
 .npc-flow-return-action:focus-visible {
     outline: 1px solid var(--accent-neon);
     outline-offset: 3px;
 }
 
-.npc-flow-bracket-action:active {
-    transform: scale(0.97);
+.ui-command-secondary:focus-visible .ui-command-label::after {
+    transform: scaleX(1);
+    transform-origin: left;
+    transition-duration: 0ms;
+}
+
+.ui-command:active {
+    background: transparent;
+    box-shadow: none;
+}
+
+.ui-command-primary:active {
+    transform: translate(3px, 1px) scale(0.98);
+    text-shadow: 2px 2px 0 var(--accent-neon);
+}
+
+.ui-command-primary:active::before {
+    animation: none;
+    transform: translateX(3px);
+}
+
+.ui-command-secondary:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.ui-command-secondary.is-tapped {
+    color: var(--text-main);
+}
+
+.ui-command-secondary.is-tapped .ui-command-label::after {
+    transform: scaleX(1);
+    transform-origin: left;
 }
 
 .npc-flow-return-action:active {
@@ -667,23 +716,23 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .npc-flow-bracket-action:hover,
+    .ui-command:hover,
     .npc-flow-return-action:hover {
         background: transparent;
         box-shadow: none;
-        color: inherit;
     }
 
-    .npc-flow-bracket-action:not(:disabled):hover::before {
-        transform: translateX(-4px);
+    .ui-command:not(:active):hover {
+        transform: none;
     }
 
-    .npc-flow-bracket-action:not(:disabled):hover::after {
-        transform: translateX(4px);
+    .ui-command-secondary:hover {
+        color: var(--text-main);
     }
 
-    .npc-flow-bracket-action:not(:disabled):hover .npc-flow-bracket-label::after {
-        clip-path: inset(0 0 0 0);
+    .ui-command-secondary:hover .ui-command-label::after {
+        transform: scaleX(1);
+        transform-origin: left;
     }
 
     .npc-flow-return-action:hover .npc-flow-return-label::after {
@@ -734,20 +783,19 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 
 @media (prefers-reduced-motion: reduce) {
     .npc-flow-option,
-    .npc-flow-bracket-action,
-    .npc-flow-bracket-action::before,
-    .npc-flow-bracket-action::after,
-    .npc-flow-bracket-label::after,
+    .ui-command,
+    .ui-command-label,
+    .ui-command-secondary .ui-command-label::after,
     .npc-flow-return-action {
         transition-duration: 0ms;
     }
 
     .npc-flow-wait-mark span,
+    .ui-command-primary::before,
     .npc-flow-return-action:hover .npc-flow-return-label::after {
         animation: none;
     }
 
-    .npc-flow-bracket-label::after,
     .npc-flow-return-label::after {
         opacity: 0;
     }
@@ -1212,14 +1260,14 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     }
 }
 
-.desktop-game-two-buttons button.npc-flow-bracket-action,
-.desktop-game-management-actions button.npc-flow-bracket-action,
-.desktop-game-two-buttons button.npc-flow-bracket-action:hover,
-.desktop-game-two-buttons button.npc-flow-bracket-action:focus-visible,
-.desktop-game-management-actions button.npc-flow-bracket-action:hover,
-.desktop-game-management-actions button.npc-flow-bracket-action:focus-visible,
-:root[data-bg-mode="image"] .desktop-game-two-buttons button.npc-flow-bracket-action,
-:root[data-bg-mode="image"] .desktop-game-management-actions button.npc-flow-bracket-action {
+.desktop-game-two-buttons button.ui-command,
+.desktop-game-management-actions button.ui-command,
+.desktop-game-two-buttons button.ui-command:hover,
+.desktop-game-two-buttons button.ui-command:focus-visible,
+.desktop-game-management-actions button.ui-command:hover,
+.desktop-game-management-actions button.ui-command:focus-visible,
+:root[data-bg-mode="image"] .desktop-game-two-buttons button.ui-command,
+:root[data-bg-mode="image"] .desktop-game-management-actions button.ui-command {
     border: 0;
     background: transparent;
     box-shadow: none;
@@ -1227,9 +1275,20 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     transform: none;
 }
 
-.desktop-game-two-buttons button.npc-flow-bracket-action:active,
-.desktop-game-management-actions button.npc-flow-bracket-action:active {
-    transform: scale(0.97);
+.desktop-game-two-buttons button.ui-command:focus-visible,
+.desktop-game-management-actions button.ui-command:focus-visible {
+    outline: 1px solid var(--accent-neon);
+    outline-offset: 3px;
+}
+
+.desktop-game-two-buttons button.ui-command-primary:active,
+.desktop-game-management-actions button.ui-command-primary:active {
+    transform: translate(3px, 1px) scale(0.98);
+}
+
+.desktop-game-two-buttons button.ui-command-secondary:active,
+.desktop-game-management-actions button.ui-command-secondary:active {
+    transform: translateY(1px) scale(0.98);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1645,88 +1704,44 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
     }
 }
 
-/* ============================================================
-   存檔選單動作列:B3 選單游標款(2026-07-17 專案主核可)
-   定案來源:_handoff/2026-07-16-button-system/examples/pixel-button-concepts-v7.html 的 .b3
-   (2px 磚格像素三角 ::before,hover 三角 steps(3) 跳進＋螢光字影,:active 右移 4px)
-   ============================================================ */
-#save-menu-screen .action-buttons .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    border: 0;
-    border-radius: 0;
-    padding: 10px 6px;
-    background: transparent;
-    color: var(--text-main);
-    font-family: var(--font-ui);
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 1px;
-    cursor: pointer;
-    box-shadow: none;
-    transition: transform 100ms cubic-bezier(0.23, 1, 0.32, 1), text-shadow 100ms ease;
+/* 存檔選單沿用共用命令層級；此處只保留 DATA ACTIONS 與手機排列。 */
+.save-action-kicker {
+    display: none;
 }
-#save-menu-screen .action-buttons .btn::before {
-    content: "";
-    width: 14px;
-    height: 18px;
-    flex: 0 0 14px;
-    background:
-        linear-gradient(var(--text-main) 0 0) 0 0 / 2px 18px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 2px 0 / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 4px 2px / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 6px 4px / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 8px 6px / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 10px 8px / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 8px 10px / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 6px 12px / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 4px 14px / 2px 2px no-repeat,
-        linear-gradient(var(--text-main) 0 0) 2px 16px / 2px 2px no-repeat,
-        linear-gradient(var(--accent-neon) 0 0) 2px 2px / 2px 14px no-repeat,
-        linear-gradient(var(--accent-neon) 0 0) 4px 4px / 2px 10px no-repeat,
-        linear-gradient(var(--accent-neon) 0 0) 6px 6px / 2px 6px no-repeat,
-        linear-gradient(var(--accent-neon) 0 0) 8px 8px / 2px 2px no-repeat;
-    opacity: 0;
-    transform: translateX(-12px);
-    transition: transform 150ms steps(3, end), opacity 1ms 150ms;
-}
-@media (hover: hover) and (pointer: fine) {
-    #save-menu-screen .action-buttons .btn:hover {
-        background: transparent;
-        box-shadow: none;
-        transform: none;
-        text-shadow: 2px 2px 0 var(--accent-neon);
-    }
-    #save-menu-screen .action-buttons .btn:hover::before {
-        opacity: 1;
-        transform: translateX(0);
-        transition: transform 150ms steps(3, end), opacity 1ms;
-    }
-}
-#save-menu-screen .action-buttons .btn:active {
-    background: transparent;
-    box-shadow: none;
-    transform: translateX(4px);
-}
-/* 主鍵「創建新紀錄」:僅放大字級與字距,其餘動態相同 */
-#save-menu-screen .action-buttons .u-inline-052 {
+#save-menu-screen .action-buttons .ui-command-primary {
     font-size: 17px;
     letter-spacing: 2px;
 }
-/* 「返回大廳」:桌機(≥1100,首頁側標籤可返回)隱藏;
-   601–1099px 無側標籤,保留按鈕以免無路可退(與核定「僅 ≤600 顯示」的差異已於報告記錄) */
-#save-menu-screen .action-buttons .u-inline-056 {
-    width: auto;
-}
-@media (min-width: 1100px) {
-    #save-menu-screen .action-buttons .u-inline-056 {
-        display: none;
+
+@media (max-width: 600px) {
+    .save-action-kicker {
+        display: block;
+        width: min(300px, 100%);
+        margin: 24px auto 4px;
     }
-}
-@media (prefers-reduced-motion: reduce) {
-    #save-menu-screen .action-buttons .btn,
-    #save-menu-screen .action-buttons .btn::before {
-        transition: none;
+    .save-action-kicker span {
+        display: inline-block;
+        padding: 5px 8px 4px;
+        background: var(--border-dark);
+        color: var(--accent-neon);
+        font-family: var(--font-ui);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+    }
+    #save-menu-screen .action-buttons.u-inline-055 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: min(300px, 100%);
+        margin: 0 auto 40px;
+        gap: 10px 18px;
+    }
+
+    #save-menu-screen .action-buttons .ui-command {
+        min-height: 48px;
+        justify-self: center;
+    }
+
+    #save-menu-screen .action-buttons .ui-command-primary {
+        grid-column: 1 / -1;
     }
 }

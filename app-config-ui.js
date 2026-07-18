@@ -476,11 +476,11 @@ function selectDesktopPreset(id) {
                         <div class="desktop-npc-editor-actions">
                             ${deleteButton}
                             <div class="desktop-npc-editor-actions-primary">
-                                <button type="button" class="npc-flow-bracket-action" onclick="openNpcAcquaintanceFlow(${index})">
-                                    <span class="npc-flow-bracket-label" data-label="${escapeStatusHtml(acquaintanceLabel)}">${escapeStatusHtml(acquaintanceLabel)}</span>
+                                <button type="button" class="ui-command ui-command-secondary" onclick="openNpcAcquaintanceFlow(${index})">
+                                    <span class="ui-command-label">${escapeStatusHtml(acquaintanceLabel)}</span>
                                 </button>
-                                <button type="button" class="npc-flow-bracket-action" onclick="completeDesktopNpcEdit(${index})">
-                                    <span class="npc-flow-bracket-label" data-label="${escapeStatusHtml(doneLabel)}">${escapeStatusHtml(doneLabel)}</span>
+                                <button type="button" class="ui-command ui-command-primary" onclick="completeDesktopNpcEdit(${index})">
+                                    <span class="ui-command-label">${escapeStatusHtml(doneLabel)}</span>
                                 </button>
                             </div>
                         </div>
@@ -638,9 +638,9 @@ function selectDesktopPreset(id) {
                     ${renderDesktopNpcPreviewItem('核心性格與背景', details.bg)}
                 </div>
                 <div class="npc-flow-action-row desktop-npc-preview-actions">
-                    <button type="button" class="npc-flow-bracket-action" onclick="startNpcAcquaintanceFromPreview()"
+                    <button type="button" class="ui-command ui-command-primary" onclick="startNpcAcquaintanceFromPreview()"
                         aria-label="${escapeStatusHtml(acquaintanceLabel)}">
-                        <span class="npc-flow-bracket-label" data-label="${escapeStatusHtml(acquaintanceLabel)}">
+                        <span class="ui-command-label">
                             ${escapeStatusHtml(acquaintanceLabel)}
                         </span>
                     </button>
@@ -788,14 +788,6 @@ function selectDesktopPreset(id) {
             switchDesktopConfigWorkspace(desktopConfigWorkspace);
         }
 
-        function syncStaticBracketLabels() {
-            document.querySelectorAll('.npc-flow-bracket-label').forEach(label => {
-                if (!label.closest('#npc-acquaintance-flow')) {
-                    label.dataset.label = label.textContent.trim();
-                }
-            });
-        }
-
         const NPC_ACQUAINTANCE_FIELDS = [
             { key: 'age', label: '年齡／身高／體型', previewLabel: '體格', inputPrefix: 'npc-age' },
             { key: 'speech', label: '說話習慣／語氣', previewLabel: '語氣', inputPrefix: 'npc-speech' },
@@ -930,11 +922,11 @@ function selectDesktopPreset(id) {
         function npcAcquaintanceActionHtml(action, label, options = {}) {
             const translated = uiText(label);
             const disabled = options.disabled ? ' disabled' : '';
-            const className = options.secondary ? ' secondary' : '';
+            const hierarchyClass = options.secondary ? 'ui-command-secondary' : 'ui-command-primary';
             return `
-                <button type="button" class="npc-flow-bracket-action${className}" data-flow-action="${action}"${disabled}
+                <button type="button" class="ui-command ${hierarchyClass}" data-flow-action="${action}"${disabled}
                     aria-label="${escapeStatusHtml(translated)}">
-                    <span class="npc-flow-bracket-label" data-label="${escapeStatusHtml(translated)}">${escapeStatusHtml(translated)}</span>
+                    <span class="ui-command-label">${escapeStatusHtml(translated)}</span>
                 </button>
             `;
         }
@@ -1363,8 +1355,14 @@ function selectDesktopPreset(id) {
         function handleNpcAcquaintanceClick(event) {
             const option = event.target.closest('.npc-flow-option');
             if (option) {
+                const list = option.closest('.npc-flow-option-list');
+                const isDirectQuestion = list?.dataset.optionGroup === 'judgement'
+                    && option.dataset.optionValue === 'again';
                 if (event.detail === 0 && !option.disabled) {
                     selectNpcAcquaintanceOption(option);
+                }
+                if (isDirectQuestion && !option.disabled) {
+                    handleNpcAcquaintanceAction('question');
                 }
                 return;
             }
@@ -1548,10 +1546,7 @@ function selectDesktopPreset(id) {
             if (npcAcquaintanceSession) renderNpcAcquaintanceFlow();
             const screen = document.getElementById('edit-scenario-screen');
             if (screen?.classList.contains('player-preview-open')) renderDesktopPlayerPreview();
-            syncStaticBracketLabels();
         });
-        window.addEventListener('load', syncStaticBracketLabels);
-        syncStaticBracketLabels();
 
         let forceOpenScenIndex = -1;
         function renderScenarioList() {

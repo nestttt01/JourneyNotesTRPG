@@ -143,7 +143,6 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
     background: var(--bg-accent-tab-glass);
 }
 :root[data-bg-mode="image"] .random-preview,
-:root[data-bg-mode="image"] .journal-toolbar select,
 :root[data-bg-mode="image"] .journal-toolbar input,
 :root[data-bg-mode="image"] .memory-task-text,
 :root[data-bg-mode="image"] .api-stat-box {
@@ -342,9 +341,8 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
 #setup-screen.home-has-model .home-diary-tab { display: block; }
 .diary-view.active { display: flex !important; align-items: stretch; height: 100%; min-height: 0; }
 .diary-inner { display: flex; flex-direction: column; align-items: center; height: 100%; max-height: 680px; width: 100%; box-sizing: border-box; gap: 10px; padding: 4px 2px 0; min-height: 0; overflow: hidden; transform: translateY(52px); }
-.diary-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; width: min(76%, 680px); }
+.diary-top { width: min(76%, 680px); }
 #setup-screen .diary-view h2.diary-title, #setup-screen .diary-title { font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif; font-synthesis: none; font-weight: 400; font-size: 30px; margin: 0; text-align: left; letter-spacing: 1px; }
-.diary-top-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .diary-toolbar { display: flex; align-items: center; width: min(76%, 680px); }
 .diary-save-select { background: var(--accent-neon); border: 2px solid transparent; border-radius: 0; padding: 5px 14px; min-height: 30px; font-size: 12px; font-weight: 900; color: var(--text-main); width: auto; min-width: 120px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; text-align-last: left; cursor: pointer; appearance: none; -webkit-appearance: none; transition: all 0.2s; }
 .diary-save-select:focus { border-color: var(--border-dark); outline: none; box-shadow: 4px 4px 0px var(--accent-neon); transform: translate(-2px, -2px); }
@@ -369,8 +367,16 @@ html[lang="en"] .home-diary-tab { writing-mode: sideways-rl; text-orientation: m
 .diary-shot-cap { color: var(--accent-neon); white-space: pre-wrap; word-break: break-word; }
 .diary-shot-date { color: #d0d0d0; font-size: 12px; }
 .diary-fullscreen { position: fixed !important; inset: 0; z-index: 600; background: var(--paper-bg); display: flex !important; padding: 12px; box-sizing: border-box; }
-@media (min-width: 601px) { .diary-back-btn { display: none; } }
-@media (max-width: 600px) { .diary-top, .diary-toolbar, .diary-body { width: 100%; } }
+@media (min-width: 601px) {
+  .diary-back-btn { display: none; }
+  .diary-top.screen-header { grid-template-columns: minmax(0, 1fr); }
+  .diary-top.screen-header .screen-header-spacer { display: none; }
+}
+@media (max-width: 600px) {
+  .diary-inner { padding: 6px 0 0; transform: none; }
+  .diary-top, .diary-toolbar, .diary-body { width: 100%; }
+  #setup-screen .diary-view h2.diary-title { font-size: 24px; text-align: center; }
+}
 /* 手機版:日記標籤拉回畫面內、縮小約 2/3、沿用電腦版深色+螢光重點底色 */
 @media screen and (max-width: 600px) {
   #setup-screen.home-has-model .home-diary-tab {
