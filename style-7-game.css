@@ -1282,12 +1282,16 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
 }
 
 .desktop-game-two-buttons button.ui-command-primary:active,
-.desktop-game-management-actions button.ui-command-primary:active {
+.desktop-game-management-actions button.ui-command-primary:active,
+:root[data-bg-mode="image"] .desktop-game-two-buttons button.ui-command-primary:active,
+:root[data-bg-mode="image"] .desktop-game-management-actions button.ui-command-primary:active {
     transform: translate(3px, 1px) scale(0.98);
 }
 
 .desktop-game-two-buttons button.ui-command-secondary:active,
-.desktop-game-management-actions button.ui-command-secondary:active {
+.desktop-game-management-actions button.ui-command-secondary:active,
+:root[data-bg-mode="image"] .desktop-game-two-buttons button.ui-command-secondary:active,
+:root[data-bg-mode="image"] .desktop-game-management-actions button.ui-command-secondary:active {
     transform: translateY(1px) scale(0.98);
 }
 
