@@ -16,6 +16,12 @@
 
 ### 當前優先：整理字影修正與五級字體稽核
 
+- [ ] 補「背景圖模式命令按下動態」E2E 回歸測試。
+  - 背景：2026-07-19 修復背景圖模式重置規則（`style-7-game.css`）壓死遊戲設定／情境頁共 6 顆共用命令按下 transform 的 bug；既有測試未覆蓋「背景圖模式 × :active」狀態組合，全綠時 bug 仍在，由專案主手動按出。
+  - 內容：於 `data-bg-mode="image"` 與純色兩模式下，對 `.desktop-game-management-actions`／`.desktop-game-two-buttons` 的主／次命令斷言按下時 transform 不為 none。
+  - 範圍：僅新增測試（併入 `tests/e2e/status-player-sheet.spec.js` 或專項檔），不改產品碼。
+  - 核准狀態：專案主 2026-07-19 同意列入；實作仍須當次同意。
+
 - [ ] 修正「整理」選取字影重疊。
   - `整理`：角色面板與冒險日誌的選取重點字影不得在上下方向蓋住原字；保留既有像素三角形、hover／active／focus 與 reduced-motion 行為。
   - 範圍預估：相關 `style-*.css` 與專項 E2E；先由正式 selector／caller 盤點決定最小檔案範圍。
