@@ -207,6 +207,8 @@ updateSetupCurrentPresetLabel();
 }
 
         function renderDesktopGameSettings() {
+            const activePreset = scenarioPresets[activePresetId];
+            const isLocked = activePreset?.isLocked === true;
             const selector = document.getElementById('desktop-preset-selector');
             if (selector) {
                 selector.innerHTML = '';
@@ -218,129 +220,201 @@ updateSetupCurrentPresetLabel();
                     selector.appendChild(option);
                 });
             }
+
             const nameInput = document.getElementById('desktop-preset-name-input');
-            if (nameInput && document.activeElement !== nameInput) nameInput.value = document.getElementById('input-preset-name')?.value || '';
+            if (nameInput) {
+                if (document.activeElement !== nameInput) {
+                    nameInput.value = document.getElementById('input-preset-name')?.value || '';
+                }
+                nameInput.readOnly = isLocked;
+                nameInput.setAttribute('aria-readonly', String(isLocked));
+                if (isLocked) nameInput.title = uiText('已上鎖');
+                else nameInput.removeAttribute('title');
+            }
+
             const language = document.getElementById('desktop-language-mode');
-            if (language) language.value = document.getElementById('input-language-mode')?.value || 'zh-tw';
+            if (language) {
+                language.value = document.getElementById('input-language-mode')?.value || 'zh-tw';
+                language.disabled = isLocked;
+            }
             const difficulty = document.getElementById('desktop-game-difficulty');
-            if (difficulty) difficulty.value = document.getElementById('input-game-difficulty')?.value || 'standard';
-const lockButton = document.getElementById('desktop-preset-lock-btn');
-if (lockButton) lockButton.textContent = scenarioPresets[activePresetId]?.isLocked ? '🔒' : '🔓';
-const bindingNote = document.getElementById('desktop-preset-binding-note');
-if (bindingNote) {
-bindingNote.textContent = `${uiText('綁定紀錄')}：${getPresetBoundSaveName(activePresetId)}`;
-}
-renderPresetDeleteList();
-}
+            if (difficulty) {
+                difficulty.value = document.getElementById('input-game-difficulty')?.value || 'standard';
+                difficulty.disabled = isLocked;
+            }
 
-function getSaveDisplayName(save) {
-return valueToText(save?.title, save?.date || uiText('未命名紀錄'));
-}
+            const saveButton = document.getElementById('desktop-save-preset-btn');
+            if (saveButton) saveButton.disabled = isLocked;
+            const lockButton = document.getElementById('desktop-preset-lock-btn');
+            if (lockButton) {
+                lockButton.textContent = isLocked ? '🔒' : '🔓';
+                lockButton.setAttribute('aria-pressed', String(isLocked));
+                lockButton.setAttribute('aria-label', uiText('切換配置鎖定'));
+                lockButton.title = uiText('切換配置鎖定');
+            }
+            const bindingNote = document.getElementById('desktop-preset-binding-note');
+            if (bindingNote) {
+                bindingNote.textContent = `${uiText('綁定紀錄')}：${getPresetBoundSaveName(activePresetId)}`;
+            }
+            renderPresetDeleteList();
+        }
 
-function getPresetBoundSaveName(presetId) {
-const boundSaves = getPresetBoundSaves(presetId);
-if (!boundSaves.length) return uiText('無');
-return getSaveDisplayName(boundSaves[0][1]);
-}
+        function getSaveDisplayName(save) {
+            return valueToText(save?.title, save?.date || uiText('未命名紀錄'));
+        }
 
-function getPresetDeleteBlockReason(id) {
-if (scenarioPresets[id]?.isLocked) return uiText('已上鎖');
-return '';
-}
+        function getPresetBoundSaveName(presetId) {
+            const boundSaves = getPresetBoundSaves(presetId);
+            if (!boundSaves.length) return uiText('無');
+            return getSaveDisplayName(boundSaves[0][1]);
+        }
 
-function getPresetDeleteNote(id) {
-const boundSaveName = getPresetBoundSaveName(id);
-if (boundSaveName !== uiText('無')) return `${uiText('綁定紀錄')}：${boundSaveName}`;
-return '';
-}
+        function getPresetDeleteBlockReason(id) {
+            if (scenarioPresets[id]?.isLocked) return uiText('已上鎖');
+            return '';
+        }
 
-function renderPresetDeleteList() {
-const list = document.getElementById('preset-delete-list');
-const selectAll = document.getElementById('preset-delete-select-all');
-if (!list) return;
-list.innerHTML = '';
-Object.entries(scenarioPresets || {}).forEach(([id, preset]) => {
-const reason = getPresetDeleteBlockReason(id);
-const note = getPresetDeleteNote(id);
-const row = document.createElement('label');
-row.className = `desktop-preset-delete-row${reason ? ' disabled' : ''}`;
-const checkbox = document.createElement('input');
-checkbox.type = 'checkbox';
-checkbox.className = 'preset-delete-checkbox';
-checkbox.value = id;
-checkbox.disabled = Boolean(reason);
-checkbox.onchange = syncPresetDeleteSelectAll;
-const name = document.createElement('span');
-name.className = 'desktop-preset-delete-name';
-name.textContent = `${valueToText(preset?.presetName, '未命名配置')}${reason ? `（${reason}）` : note ? `（${note}）` : ''}`;
-row.title = name.textContent;
-row.appendChild(checkbox);
-row.appendChild(name);
-list.appendChild(row);
-});
-if (selectAll) {
-selectAll.checked = false;
-selectAll.indeterminate = false;
-selectAll.disabled = !list.querySelector('.preset-delete-checkbox:not(:disabled)');
-}
-}
+        function getPresetDeleteNote(id) {
+            const boundSaves = getPresetBoundSaves(id);
+            if (!boundSaves.length) return '';
+            return `${uiText('綁定紀錄')}：${getSaveDisplayName(boundSaves[0][1])}`;
+        }
 
-function syncPresetDeleteSelectAll() {
-const selectAll = document.getElementById('preset-delete-select-all');
-const boxes = Array.from(document.querySelectorAll('.preset-delete-checkbox:not(:disabled)'));
-if (!selectAll) return;
-const checked = boxes.filter(box => box.checked).length;
-selectAll.checked = boxes.length > 0 && checked === boxes.length;
-selectAll.indeterminate = checked > 0 && checked < boxes.length;
-}
+        function ensurePresetDeleteCommand() {
+            const button = document.getElementById('preset-delete-selected-btn');
+            if (!button || button.dataset.holdDeleteReady === 'true') return;
+            if (typeof configureHoldDeleteButton !== 'function') return;
+            configureHoldDeleteButton(button, () => deleteSelectedPresets({ skipSelectionConfirm: true }), {
+                labelKey: '刪除選取配置',
+                expandDirection: 'end',
+                ariaLabelKey: '刪除選取配置',
+                confirmTextKey: '確定要刪除選取的配置嗎？'
+            });
+        }
 
-function togglePresetDeleteSelectAll(checked) {
-document.querySelectorAll('.preset-delete-checkbox:not(:disabled)').forEach(box => {
-box.checked = checked;
-});
-syncPresetDeleteSelectAll();
-}
+        function renderPresetDeleteList() {
+            const list = document.getElementById('preset-delete-list');
+            const selectAll = document.getElementById('preset-delete-select-all');
+            if (!list) return;
+            const selectedIds = new Set(
+                Array.from(list.querySelectorAll('.preset-delete-checkbox:checked')).map(box => box.value)
+            );
+            list.replaceChildren();
+            Object.entries(scenarioPresets || {}).forEach(([id, preset]) => {
+                const reason = getPresetDeleteBlockReason(id);
+                const note = getPresetDeleteNote(id);
+                const displayName = valueToText(preset?.presetName, '未命名配置');
+                const metaText = reason || note;
+                const row = document.createElement('label');
+                row.className = `desktop-preset-delete-row${reason ? ' disabled' : ''}`;
+                row.classList.toggle('is-active', id === activePresetId);
+                row.dataset.presetId = id;
+                row.title = [displayName, metaText].filter(Boolean).join(' — ');
 
-async function deleteSelectedPresets() {
-const selectedIds = Array.from(document.querySelectorAll('.preset-delete-checkbox:checked:not(:disabled)')).map(box => box.value);
-if (!selectedIds.length) {
-alert(uiText('請先勾選要刪除的配置。'));
-return;
-}
-const deletableIds = selectedIds.filter(id => !getPresetDeleteBlockReason(id));
-if (!deletableIds.length) {
-alert(uiText('勾選的配置目前都不能刪除。'));
-renderPresetDeleteList();
-return;
-}
-if (Object.keys(scenarioPresets).length - deletableIds.length < 1) {
-alert(uiText('系統至少需要保留一組配置喔！'));
-renderPresetDeleteList();
-return;
-}
-const names = deletableIds.map(id => `• ${valueToText(scenarioPresets[id]?.presetName, '未命名配置')}`).join('\n');
-const confirmMessage = `${uiText('確定要刪除 {count} 個配置嗎？').replace('{count}', deletableIds.length)}\n${names}`;
-if (!confirm(confirmMessage)) return;
-for (const id of deletableIds) {
-const boundSaves = getPresetBoundSaves(id);
-if (!boundSaves.length) continue;
-const saveName = getSaveDisplayName(boundSaves[0][1]);
-const boundMessage = uiText('此配置目前綁定「{saveName}」遊戲紀錄。刪除配置會一起刪除此紀錄，確定要刪除嗎？')
-.replace('{saveName}', saveName);
-if (!confirm(boundMessage)) return;
-}
-const deletionResult = await deletePresetsAndBoundSaves(deletableIds);
-if (!deletionResult) {
-renderPresetDeleteList();
-renderSaveList();
-return;
-}
-renderPresetSelector();
-loadPresetToForm(activePresetId);
-renderDesktopGameSettings();
-renderSaveList();
-alert(uiText('已刪除 {count} 個配置。').replace('{count}', deletableIds.length));
-}
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'preset-delete-checkbox';
+                checkbox.value = id;
+                checkbox.disabled = Boolean(reason);
+                checkbox.checked = !checkbox.disabled && selectedIds.has(id);
+                checkbox.onchange = syncPresetDeleteSelectAll;
+
+                const copy = document.createElement('span');
+                copy.className = 'desktop-preset-delete-copy';
+                const name = document.createElement('span');
+                name.className = 'desktop-preset-delete-name';
+                name.textContent = displayName;
+                copy.appendChild(name);
+                if (metaText) {
+                    const meta = document.createElement('small');
+                    meta.className = 'desktop-preset-delete-meta';
+                    meta.textContent = metaText;
+                    copy.appendChild(meta);
+                }
+
+                row.append(checkbox, copy);
+                list.appendChild(row);
+            });
+            if (selectAll) {
+                selectAll.disabled = !list.querySelector('.preset-delete-checkbox:not(:disabled)');
+            }
+            syncPresetDeleteSelectAll();
+            ensurePresetDeleteCommand();
+        }
+
+        function syncPresetDeleteSelectAll() {
+            const selectAll = document.getElementById('preset-delete-select-all');
+            const boxes = Array.from(document.querySelectorAll('.preset-delete-checkbox:not(:disabled)'));
+            const checked = boxes.filter(box => box.checked).length;
+            if (selectAll) {
+                selectAll.checked = boxes.length > 0 && checked === boxes.length;
+                selectAll.indeterminate = checked > 0 && checked < boxes.length;
+            }
+            const deleteButton = document.getElementById('preset-delete-selected-btn');
+            if (!deleteButton) return;
+            deleteButton.disabled = checked === 0;
+            if (deleteButton.disabled && typeof disarmHoldDeleteButton === 'function') {
+                disarmHoldDeleteButton(deleteButton);
+            }
+        }
+
+        function togglePresetDeleteSelectAll(checked) {
+            document.querySelectorAll('.preset-delete-checkbox:not(:disabled)').forEach(box => {
+                box.checked = checked;
+            });
+            syncPresetDeleteSelectAll();
+        }
+
+        async function deleteSelectedPresets({ skipSelectionConfirm = false } = {}) {
+            const selectedIds = Array.from(
+                document.querySelectorAll('.preset-delete-checkbox:checked:not(:disabled)')
+            ).map(box => box.value);
+            if (!selectedIds.length) {
+                alert(uiText('請先勾選要刪除的配置。'));
+                return;
+            }
+            const deletableIds = selectedIds.filter(id => !getPresetDeleteBlockReason(id));
+            if (!deletableIds.length) {
+                alert(uiText('勾選的配置目前都不能刪除。'));
+                renderPresetDeleteList();
+                return;
+            }
+            if (Object.keys(scenarioPresets).length - deletableIds.length < 1) {
+                alert(uiText('系統至少需要保留一組配置喔！'));
+                renderPresetDeleteList();
+                return;
+            }
+            const names = deletableIds
+                .map(id => `• ${valueToText(scenarioPresets[id]?.presetName, '未命名配置')}`)
+                .join('\n');
+            const confirmMessage = `${uiText('確定要刪除 {count} 個配置嗎？')
+                .replace('{count}', deletableIds.length)}\n${names}`;
+            if (!skipSelectionConfirm && !confirm(confirmMessage)) return;
+            for (const id of deletableIds) {
+                const boundSaves = getPresetBoundSaves(id);
+                if (!boundSaves.length) continue;
+                const saveNames = boundSaves.map(([, save]) => getSaveDisplayName(save));
+                const boundMessage = boundSaves.length === 1
+                    ? uiText(
+                        '此配置目前綁定「{saveName}」遊戲紀錄。刪除配置會一起刪除此紀錄，確定要刪除嗎？'
+                    ).replace('{saveName}', saveNames[0])
+                    : uiText(
+                        '此配置目前綁定 {count} 筆遊戲紀錄（{saveNames}）。刪除配置會一起刪除這些紀錄，確定要刪除嗎？'
+                    ).replace('{count}', boundSaves.length).replace('{saveNames}', saveNames.join('、'));
+                if (!confirm(boundMessage)) return;
+            }
+            const deletionResult = await deletePresetsAndBoundSaves(deletableIds);
+            if (!deletionResult) {
+                renderPresetDeleteList();
+                renderSaveList();
+                return;
+            }
+            renderPresetSelector();
+            loadPresetToForm(activePresetId);
+            renderDesktopGameSettings();
+            renderSaveList();
+            alert(uiText('已刪除 {count} 個配置。').replace('{count}', deletableIds.length));
+        }
 
 function selectDesktopPreset(id) {
             if (!scenarioPresets[id] || id === activePresetId) return;
@@ -350,18 +424,36 @@ function selectDesktopPreset(id) {
             renderDesktopPresetOverview();
         }
 
- function updateDesktopPresetName(value) {
- const input = document.getElementById('input-preset-name');
- if (input) input.value = value;
- const nextName = valueToText(value, uiText('未命名配置'));
- if (scenarioPresets[activePresetId]) scenarioPresets[activePresetId].presetName = nextName;
- const desktopOption = document.querySelector(`#desktop-preset-selector option[value="${CSS.escape(activePresetId)}"]`);
- if (desktopOption) desktopOption.textContent = `${nextName}${scenarioPresets[activePresetId]?.isLocked ? ' 🔒' : ''}`;
- const legacyOption = document.querySelector(`#preset-selector option[value="${CSS.escape(activePresetId)}"]`);
- if (legacyOption) legacyOption.textContent = `${nextName}${scenarioPresets[activePresetId]?.isLocked ? ' 🔒' : ''}`;
- renderDesktopPresetOverview();
- updateSetupCurrentPresetLabel();
- }
+        function updateDesktopPresetName(value) {
+            const activePreset = scenarioPresets[activePresetId];
+            if (!activePreset || activePreset.isLocked) {
+                const nameInput = document.getElementById('desktop-preset-name-input');
+                if (nameInput && activePreset) nameInput.value = activePreset.presetName || '';
+                return;
+            }
+            const input = document.getElementById('input-preset-name');
+            if (input) input.value = value;
+            const nextName = valueToText(value, uiText('未命名配置'));
+            activePreset.presetName = nextName;
+            const desktopOption = document.querySelector(
+                `#desktop-preset-selector option[value="${CSS.escape(activePresetId)}"]`
+            );
+            if (desktopOption) desktopOption.textContent = nextName;
+            const legacyOption = document.querySelector(
+                `#preset-selector option[value="${CSS.escape(activePresetId)}"]`
+            );
+            if (legacyOption) legacyOption.textContent = nextName;
+            const deleteRow = document.querySelector(
+                `.desktop-preset-delete-row[data-preset-id="${CSS.escape(activePresetId)}"]`
+            );
+            if (deleteRow) {
+                const deleteName = deleteRow.querySelector('.desktop-preset-delete-name');
+                if (deleteName) deleteName.textContent = nextName;
+                const deleteMeta = deleteRow.querySelector('.desktop-preset-delete-meta')?.textContent || '';
+                deleteRow.title = [nextName, deleteMeta].filter(Boolean).join(' — ');
+            }
+            updateSetupCurrentPresetLabel();
+        }
 
         function setDesktopLanguageMode(value) {
             syncPresetLanguageMode(value);

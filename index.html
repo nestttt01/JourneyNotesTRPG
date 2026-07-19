@@ -128,15 +128,20 @@
                 </div>
             </div>
             
-            <div class="status-tabs">
-                <button class="status-tab-btn active" data-status-tab="state" onclick="switchStatusTab('state')">狀態</button>
-                <button class="status-tab-btn" data-status-tab="log" onclick="switchStatusTab('log')">紀錄</button>
-                <button class="status-tab-btn" data-status-tab="settings" onclick="switchStatusTab('settings')">詳細</button>
-                <button class="status-tab-btn" data-status-tab="api" onclick="switchStatusTab('api')">系統</button>
+            <div class="status-tabs" role="tablist" aria-label="角色面板分頁">
+                <button id="status-tab-state" class="status-tab-btn active" role="tab" aria-selected="true"
+                    aria-controls="status-page-state" data-status-tab="state" onclick="switchStatusTab('state')">狀態</button>
+                <button id="status-tab-log" class="status-tab-btn" role="tab" aria-selected="false"
+                    aria-controls="status-page-log" data-status-tab="log" onclick="switchStatusTab('log')">紀錄</button>
+                <button id="status-tab-settings" class="status-tab-btn" role="tab" aria-selected="false"
+                    aria-controls="status-page-settings" data-status-tab="settings" onclick="switchStatusTab('settings')">詳細</button>
+                <button id="status-tab-api" class="status-tab-btn" role="tab" aria-selected="false"
+                    aria-controls="status-page-api" data-status-tab="api" onclick="switchStatusTab('api')">系統</button>
             </div>
 
             <div class="u-inline-012">
-                <div id="status-page-state" class="status-page active">
+                <div id="status-page-state" class="status-page active" role="tabpanel"
+                    aria-labelledby="status-tab-state" aria-hidden="false">
                     <div id="status-summary-display"></div>
                     <p class="u-inline-013">狀態旗標 / Flags</p>
                     <div id="ui-flags-container"></div>
@@ -155,11 +160,13 @@
                     <div id="ui-growth-container"></div>
                 </div>
 
-                <div id="status-page-settings" class="status-page">
+                <div id="status-page-settings" class="status-page" role="tabpanel"
+                    aria-labelledby="status-tab-settings" aria-hidden="true">
                     <div id="ui-stats-display"></div>
                 </div>
 
-                <div id="status-page-log" class="status-page">
+                <div id="status-page-log" class="status-page" role="tabpanel"
+                    aria-labelledby="status-tab-log" aria-hidden="true">
                     <div class="status-log-view-switch" role="tablist" aria-label="紀錄內容">
                         <button id="status-log-summary-tab" class="status-log-view-option is-active" type="button" role="tab"
                             aria-selected="true" aria-controls="status-log-summary-view" data-status-log-view="summary"
@@ -210,59 +217,69 @@
                     <div id="inline-journal-host" class="inline-journal-host status-log-journal-view" role="tabpanel" aria-labelledby="status-log-journal-tab" aria-hidden="true"></div>
                 </div>
 
-                <div id="status-page-api" class="status-page">
-                    <p class="u-inline-013">顯示與輸出設定</p>
-                    <div class="settings-group">
-                    <div class="language-setting-row interface-language-setting">
-                        <div class="scenario-label">介面語言</div>
-                        <select data-ui-language-select class="language-mode-select" onchange="setUiLanguage(this.value)">
-                            <option value="zh-TW">繁體中文</option>
-                            <option value="en">English</option>
-                            <option value="ja">日本語</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">輸出語言</div>
-                        <select id="modal-language-mode" class="language-mode-select" onchange="syncGameLanguageMode(this.value)">
-                            <option value="zh-tw">繁體中文</option>
-                            <option value="en">English</option>
-                            <option value="ja">日本語</option>
-                            <option value="ja-zh">日文台詞 + 繁中翻譯</option>
-                            <option value="en-zh">英文台詞 + 繁中翻譯</option>
-                            <option value="auto">自動依玩家語言</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">回覆長度</div>
-                        <select id="reply-length-select" class="language-mode-select" onchange="setReplyLength(this.value)">
-                            <option value="short">短（精簡）</option>
-                            <option value="medium">中（適中）</option>
-                            <option value="long">長（詳細）</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">低狀態干擾</div>
-                        <select id="survival-fx-select" class="language-mode-select" onchange="setSurvivalFxPref(this.value)">
-                            <option value="full">完整效果</option>
-                            <option value="reduced">減弱效果</option>
-                            <option value="off">關閉效果</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">模型</div>
-                        <select id="game-model-choice" class="language-mode-select game-model-select" onchange="syncModelSelection(this.value)">
-                            <option value="">核心切換</option>
-                        </select>
-                    </div>
-                    <div class="language-setting-row">
-                        <div class="scenario-label">成人模式</div>
-                        <button type="button" id="mature-mode-toggle" class="mature-toggle" aria-pressed="false" onclick="toggleMatureMode()">OFF</button>
-                    </div>
-                    </div>
+                <div id="status-page-api" class="status-page" role="tabpanel"
+                    aria-labelledby="status-tab-api" aria-hidden="true">
+                    <div class="status-system-layout">
+                        <section class="status-system-region status-system-settings-region" aria-labelledby="status-system-settings-heading">
+                            <p id="status-system-settings-heading" class="u-inline-013">顯示與輸出設定</p>
+                            <div class="settings-group">
+                                <div class="language-setting-row interface-language-setting">
+                                    <label class="scenario-label" for="status-ui-language">介面語言</label>
+                                    <select id="status-ui-language" data-ui-language-select class="language-mode-select"
+                                        onchange="setUiLanguage(this.value)">
+                                        <option value="zh-TW">繁體中文</option>
+                                        <option value="en">English</option>
+                                        <option value="ja">日本語</option>
+                                    </select>
+                                </div>
+                                <div class="language-setting-row">
+                                    <label class="scenario-label" for="modal-language-mode">輸出語言</label>
+                                    <select id="modal-language-mode" class="language-mode-select" onchange="syncGameLanguageMode(this.value)">
+                                        <option value="zh-tw">繁體中文</option>
+                                        <option value="en">English</option>
+                                        <option value="ja">日本語</option>
+                                        <option value="ja-zh">日文台詞 + 繁中翻譯</option>
+                                        <option value="en-zh">英文台詞 + 繁中翻譯</option>
+                                        <option value="auto">自動依玩家語言</option>
+                                    </select>
+                                </div>
+                                <div class="language-setting-row">
+                                    <label class="scenario-label" for="reply-length-select">回覆長度</label>
+                                    <select id="reply-length-select" class="language-mode-select" onchange="setReplyLength(this.value)">
+                                        <option value="short">短（精簡）</option>
+                                        <option value="medium">中（適中）</option>
+                                        <option value="long">長（詳細）</option>
+                                    </select>
+                                </div>
+                                <div class="language-setting-row">
+                                    <label class="scenario-label" for="survival-fx-select">低狀態干擾</label>
+                                    <select id="survival-fx-select" class="language-mode-select" onchange="setSurvivalFxPref(this.value)">
+                                        <option value="full">完整效果</option>
+                                        <option value="reduced">減弱效果</option>
+                                        <option value="off">關閉效果</option>
+                                    </select>
+                                </div>
+                                <div class="language-setting-row">
+                                    <label class="scenario-label" for="game-model-choice">模型</label>
+                                    <select id="game-model-choice" class="language-mode-select game-model-select" onchange="syncModelSelection(this.value)">
+                                        <option value="">核心切換</option>
+                                    </select>
+                                </div>
+                                <div class="language-setting-row">
+                                    <div id="mature-mode-label" class="scenario-label">成人模式</div>
+                                    <button type="button" id="mature-mode-toggle" class="mature-toggle"
+                                        aria-labelledby="mature-mode-label" aria-pressed="false"
+                                        onclick="toggleMatureMode()">OFF</button>
+                                </div>
+                            </div>
+                        </section>
 
-                    <p class="u-inline-016">API 使用追蹤</p>
-                    <p class="api-stat-note">只儲存在這台裝置目前使用的瀏覽器設定檔，不會隨備份匯出或匯入；清除瀏覽器或設備資料時會一併刪除。</p>
-                    <div id="api-usage-display"></div>
+                        <section class="status-system-region status-system-usage-region" aria-labelledby="status-system-usage-heading">
+                            <p id="status-system-usage-heading" class="u-inline-016">API 使用追蹤</p>
+                            <p class="api-stat-note">只儲存在這台裝置目前使用的瀏覽器設定檔，不會隨備份匯出或匯入；清除瀏覽器或設備資料時會一併刪除。</p>
+                            <div id="api-usage-display"></div>
+                        </section>
+                    </div>
                 </div>
             </div>
         </div>
@@ -776,59 +793,78 @@
                         <h2>遊戲設定</h2>
                     </div>
                     <div class="desktop-game-settings-card">
-                        <div class="desktop-game-setting-row desktop-game-preset-row">
-                            <label for="desktop-preset-selector">目前配置</label>
-                            <div class="desktop-game-inline-control desktop-game-preset-control">
-                                <select id="desktop-preset-selector" onchange="selectDesktopPreset(this.value)"></select>
+                        <section class="desktop-game-region desktop-game-configuration-region" aria-labelledby="desktop-game-context-heading">
+                            <h3 id="desktop-game-context-heading" class="desktop-game-region-heading">目前配置</h3>
+                                <div class="desktop-game-setting-row desktop-game-preset-row">
+                                    <label for="desktop-preset-selector">目前配置</label>
+                                    <div class="desktop-game-inline-control desktop-game-preset-control">
+                                        <select id="desktop-preset-selector" onchange="selectDesktopPreset(this.value)"></select>
+                                    </div>
+                                    <p id="desktop-preset-binding-note" class="desktop-preset-binding-note"></p>
+                                </div>
+                                <div class="desktop-game-setting-row">
+                                    <div class="desktop-game-label-line">
+                                        <label for="desktop-preset-name-input">配置檔案名稱</label>
+                                    </div>
+                                    <div class="desktop-game-name-control">
+                                        <input id="desktop-preset-name-input" type="text" oninput="updateDesktopPresetName(this.value)">
+                                        <button id="desktop-preset-lock-btn" type="button" onclick="togglePresetLock()" aria-label="切換配置鎖定" aria-pressed="false" title="切換配置鎖定">🔓</button>
+                                    </div>
+                                </div>
+                            <div class="desktop-game-rules-block" aria-labelledby="desktop-game-rules-heading">
+                                <h4 id="desktop-game-rules-heading" class="desktop-game-subheading">遊戲規則</h4>
+                                <div class="desktop-game-setting-grid">
+                                    <label><span>介面語言</span>
+                                        <select data-ui-language-select onchange="setUiLanguage(this.value)">
+                                            <option value="zh-TW">繁體中文</option>
+                                            <option value="en">English</option>
+                                            <option value="ja">日本語</option>
+                                        </select>
+                                    </label>
+                                    <label><span>輸出語言</span>
+                                        <select id="desktop-language-mode" onchange="setDesktopLanguageMode(this.value)">
+                                            <option value="zh-tw">繁體中文</option>
+                                            <option value="en">English</option>
+                                            <option value="ja">日本語</option>
+                                            <option value="ja-zh">日文台詞 + 繁中翻譯</option>
+                                            <option value="en-zh">英文台詞 + 繁中翻譯</option>
+                                            <option value="auto">自動依玩家語言</option>
+                                        </select>
+                                    </label>
+                                    <label><span>遊戲難度</span>
+                                        <select id="desktop-game-difficulty" onchange="setDesktopGameDifficulty(this.value)">
+                                            <option value="standard">標準模式</option>
+                                            <option value="hard">困難模式</option>
+                                            <option value="nightmare">極限模式</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <p class="desktop-game-difficulty-note">
+                                    <span>困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定，失敗後永久死亡。</span>
+                                    <span>極限模式：檢定 DC +3，歸零會觸發「最後掙扎」，生死檢定 D20 ≥ 8 才能存活；NPC 死亡後無法復活。</span>
+                                </p>
+                                <div class="desktop-game-management-actions">
+                                    <button id="desktop-save-preset-btn" type="button" class="ui-command ui-command-primary" onclick="saveCurrentPreset()"><span class="ui-command-label">儲存配置</span></button>
+                                    <button type="button" class="ui-command ui-command-secondary" onclick="saveAsNewPreset()"><span class="ui-command-label">另存配置</span></button>
+                                </div>
                             </div>
-                            <p id="desktop-preset-binding-note" class="desktop-preset-binding-note"></p>
-                        </div>
-                        <div class="desktop-game-setting-row">
-                            <div class="desktop-game-label-line">
-                                <label for="desktop-preset-name-input">配置檔案名稱</label>
-                                <button id="desktop-preset-lock-btn" type="button" onclick="togglePresetLock()" title="切換配置鎖定">🔓</button>
+                        </section>
+
+                        <section class="desktop-game-region desktop-game-directory-region" aria-labelledby="desktop-game-directory-heading">
+                            <div class="desktop-game-region-heading-line">
+                                <h3 id="desktop-game-directory-heading" class="desktop-game-region-heading">配置名冊</h3>
+                                <label class="desktop-preset-select-all"><input type="checkbox" id="preset-delete-select-all" onchange="togglePresetDeleteSelectAll(this.checked)"> 全選</label>
                             </div>
-                            <input id="desktop-preset-name-input" type="text" oninput="updateDesktopPresetName(this.value)">
-                        </div>
-                        <div class="desktop-game-setting-grid">
-                            <label>介面語言
-                                <select data-ui-language-select onchange="setUiLanguage(this.value)">
-                                    <option value="zh-TW">繁體中文</option>
-                                    <option value="en">English</option>
-                                    <option value="ja">日本語</option>
-                                </select>
-                            </label>
-                            <label>輸出語言
-                                <select id="desktop-language-mode" onchange="setDesktopLanguageMode(this.value)">
-                                    <option value="zh-tw">繁體中文</option>
-                                    <option value="en">English</option>
-                                    <option value="ja">日本語</option>
-                                    <option value="ja-zh">日文台詞 + 繁中翻譯</option>
-                                    <option value="en-zh">英文台詞 + 繁中翻譯</option>
-                                    <option value="auto">自動依玩家語言</option>
-                                </select>
-                            </label>
-                            <label>遊戲難度
-                                <select id="desktop-game-difficulty" onchange="setDesktopGameDifficulty(this.value)">
-                                    <option value="standard">標準模式</option>
-                                    <option value="hard">困難模式</option>
-                                    <option value="nightmare">極限模式</option>
-                                </select>
-                            </label>
-                        </div>
-                        <p class="desktop-game-difficulty-note">困難模式：檢定 DC +2，NPC 每次死亡只有一次復活檢定。極限模式：檢定 DC +3，歸零會觸發「最後掙扎」，生死檢定 D20 ≥ 8 才能存活；NPC 死亡後無法復活。</p>
- <div class="desktop-game-management-actions">
- <button type="button" class="ui-command ui-command-primary" onclick="saveCurrentPreset()"><span class="ui-command-label">儲存配置</span></button>
- <button type="button" class="ui-command ui-command-secondary" onclick="saveAsNewPreset()"><span class="ui-command-label">另存配置</span></button>
- <div class="desktop-preset-bulk-toolbar">
- <label><input type="checkbox" id="preset-delete-select-all" onchange="togglePresetDeleteSelectAll(this.checked)"> 全選</label>
- <button type="button" class="danger" onclick="deleteSelectedPresets()">刪除選取配置</button>
- </div>
- </div>
- <div class="desktop-preset-bulk-panel" aria-label="批次刪除配置">
- <div id="preset-delete-list" class="desktop-preset-delete-list"></div>
- </div>
-                    <div class="desktop-config-transfer-panel" aria-label="配置匯入匯出">
+                            <div class="desktop-preset-bulk-panel" aria-label="批次刪除配置">
+                                <div id="preset-delete-list" class="desktop-preset-delete-list"></div>
+                            </div>
+                            <div class="desktop-preset-bulk-toolbar">
+                                <button id="preset-delete-selected-btn" type="button" class="desktop-preset-delete-command">刪除選取配置</button>
+                            </div>
+                        </section>
+
+                        <section class="desktop-game-region desktop-game-transfer-region desktop-config-transfer-panel" aria-labelledby="desktop-game-transfer-heading">
+                            <h3 id="desktop-game-transfer-heading" class="desktop-game-region-heading">角色資料保存</h3>
                             <div class="desktop-config-export-options">
                                 <label><input type="checkbox" id="preset-export-characters" checked> 人物</label>
                                 <label><input type="checkbox" id="preset-export-scenarios" checked> 情境</label>
@@ -839,8 +875,8 @@
                                 <button type="button" class="ui-command ui-command-secondary" onclick="document.getElementById('preset-import-input').click()"><span class="ui-command-label">匯入配置</span></button>
                                 <input type="file" id="preset-import-input" accept=".json,application/json" onchange="importPresetConfig(this)" hidden class="hidden-file-input">
                             </div>
-                        </div>
-                        <p class="desktop-game-autosave-note">角色與情境的修改會保留，返回首頁時自動儲存目前配置。</p>
+                            <p class="desktop-game-autosave-note">角色與情境的修改會保留，返回首頁時自動儲存目前配置。</p>
+                        </section>
                     </div>
                 </section>
             </div>

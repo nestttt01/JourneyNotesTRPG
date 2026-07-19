@@ -398,192 +398,69 @@
     }
 
     .desktop-game-settings-card {
-        width: 100%;
-        min-width: 0;
+        grid-template-areas:
+            "configuration"
+            "directory"
+            "transfer";
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 28px;
         padding: 0 2px 10px;
         overflow: visible;
-        background: transparent;
-        border: 0;
-        box-shadow: none;
     }
 
-    .desktop-game-setting-row { margin-bottom: 17px; }
+    .desktop-game-configuration-region {
+        grid-area: configuration;
+    }
 
-    .desktop-game-setting-row > label,
-    .desktop-game-label-line label,
+    .desktop-game-directory-region {
+        grid-area: directory;
+    }
+
+    .desktop-game-transfer-region {
+        grid-area: transfer;
+    }
+
+    .desktop-game-rules-block {
+        margin-top: 26px;
+    }
+
+    .desktop-game-setting-row,
     .desktop-game-setting-grid label {
-        display: block;
-        color: var(--text-main);
-        font-size: 12px;
-        font-weight: 900;
-    }
-
-    .desktop-game-setting-row > label,
-    .desktop-game-label-line { margin-bottom: 7px; }
-
-    .desktop-game-label-line {
-        display: flex;
-        align-items: center;
         gap: 8px;
-    }
-
-    #desktop-preset-lock-btn {
-        width: 44px;
-        height: 44px;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        color: var(--text-main);
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-    .desktop-game-preset-control,
-    .desktop-game-inline-control { display: block; }
-
-    .desktop-game-preset-control #desktop-preset-selector,
-    #desktop-preset-name-input,
-    .desktop-game-setting-grid select {
-        width: 100%;
-        min-width: 0;
-        min-height: 44px;
-        padding: 8px 10px;
-        border: 0;
-        border-radius: 0;
-        background: var(--accent-neon);
-        color: var(--text-main);
-        font-size: 14px;
-        font-weight: 800;
-        box-shadow: none;
-    }
-
-    #desktop-preset-name-input {
-        padding-inline: 2px;
-        border-bottom: 1px solid var(--input-line);
-        background: transparent;
     }
 
     .desktop-preset-binding-note {
-        min-height: 1.35em;
-        margin: 6px 0 0;
-        color: var(--text-sub);
-        font-size: 10px;
-        font-weight: 800;
-        line-height: 1.35;
+        margin-top: 4px;
     }
 
-    .desktop-game-setting-grid {
+    .desktop-game-transfer-region .desktop-game-management-actions {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 12px;
-        margin-bottom: 10px;
-    }
-
-    .desktop-game-setting-grid label {
-        display: grid;
-        gap: 7px;
-    }
-
-    .desktop-game-difficulty-note {
-        margin: 0 0 18px;
-        color: var(--text-sub);
-        font-size: 10px;
-        font-weight: 700;
-        line-height: 1.55;
-    }
-
-    .desktop-game-management-actions {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 10px;
-        padding-bottom: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 12px;
+        margin-top: 14px;
     }
 
     .desktop-game-management-actions > button {
-        flex: 1 1 150px;
+        min-width: 0;
+    }
+
+    .desktop-game-region-heading-line {
+        margin-bottom: 10px;
     }
 
     .desktop-preset-bulk-toolbar {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        flex-wrap: wrap;
+        margin-top: 10px;
     }
 
-    .desktop-preset-bulk-toolbar label,
-    .desktop-preset-delete-row {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--text-main);
-        font-size: 12px;
-        font-weight: 900;
+    .desktop-game-transfer-region.desktop-config-transfer-panel {
+        margin: 0;
     }
 
-    .desktop-preset-bulk-toolbar button { color: #d33; }
-
-    .desktop-preset-bulk-panel {
+    .desktop-game-transfer-region .desktop-config-export-options {
         display: grid;
-        gap: 8px;
-        margin: 0 0 16px;
-    }
-
-    .desktop-preset-delete-list {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 6px;
-    }
-
-    .desktop-preset-delete-row {
-        min-width: 0;
-        padding: 8px;
-        border: 1px solid #cfcfcf;
-        border-radius: 6px;
-        background: var(--card-bg);
-    }
-
-    .desktop-preset-delete-row.disabled { opacity: 0.55; }
-
-    .desktop-preset-delete-name {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .desktop-config-transfer-panel {
-        margin-top: 4px;
-        padding-top: 14px;
-        border-top: 1px dashed var(--dash-secondary);
-    }
-
-    .desktop-config-export-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px 14px;
-        margin-bottom: 12px;
-    }
-
-    .desktop-config-export-options label {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        font-weight: 900;
-    }
-
-    .desktop-game-autosave-note {
-        margin-top: 16px;
-        padding-top: 10px;
-        border-top: 1px dashed var(--dash-secondary);
-        color: var(--text-sub);
-        font-size: 11px;
-        font-weight: 800;
-        line-height: 1.55;
+        grid-template-columns: repeat(2, minmax(0, max-content));
+        justify-content: start;
+        gap: 10px 20px;
     }
 
     #desktop-config-editor {
@@ -1002,6 +879,9 @@
                 flex-wrap: nowrap;
                 justify-content: flex-end;
             }
+            #status-modal #status-save-btn {
+                font-size: 14px;
+            }
             .status-save-indicator {
                 gap: 6px;
                 font-size: 10px;
@@ -1026,20 +906,16 @@
                 padding: 0 4px;
                 font-size: 14px;
             }
-            .api-stat-grid {
-                grid-template-columns: 1fr 1fr;   /* 手機兩欄(2026/07/10 縮小版) */
+            #status-page-api .status-system-layout {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 28px;
+            }
+            #status-page-api .api-stat-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
             }
 
 .language-setting-row { grid-template-columns: 1fr; gap: 6px; }
-
-            #status-page-api .language-setting-row {
-                display: grid;
-                grid-template-columns: 1fr;
-                align-items: stretch;
-                width: 100%;
-                gap: 6px;
-            }
-            #status-page-api .settings-group { grid-template-columns: 1fr; }
 
             #status-page-settings .anime-sheet {
                 grid-template-columns: 1fr;

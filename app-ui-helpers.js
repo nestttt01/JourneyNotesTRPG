@@ -90,7 +90,7 @@
             const idleText = record.labelKey
                 ? getHoldDeleteText(record.labelKey)
                 : record.idleText;
-            const holdText = getHoldDeleteText('長按以刪除');
+            const holdText = getHoldDeleteText(record.holdTextKey);
             const promptText = record.compact ? idleText : holdText;
             record.idle.textContent = idleText;
             record.base.textContent = promptText;
@@ -348,6 +348,7 @@
                 || idleText;
             const titleKey = options.titleKey || ariaLabelKey;
             const confirmTextKey = options.confirmTextKey || '確定要刪除這個項目嗎？';
+            const holdTextKey = options.holdTextKey || '長按以刪除';
             const compact = Boolean(options.compact);
             button.type = 'button';
             button.classList.add('hold-delete');
@@ -380,6 +381,7 @@
                 titleKey,
                 titleParams: options.titleParams || options.ariaLabelParams || {},
                 confirmTextKey,
+                holdTextKey,
                 confirmTextSuffix: String(options.confirmTextSuffix ?? ''),
                 compact,
                 idle,

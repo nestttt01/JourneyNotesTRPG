@@ -393,26 +393,65 @@
         .status-tab-btn.active { background: var(--accent-neon); box-shadow: 2px 2px 0 var(--border-dark); }
         .status-page { display: none; }
         .status-page.active { display: block; }
-        .api-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; /* 2026/07/10 系統頁改版:設定在上,追蹤格縮小四欄一排 */ }
-        .api-stat-box { background: var(--card-bg); border: 2px solid var(--border-dark); border-radius: 8px; padding: 6px 8px; box-shadow: 2px 2px 0 var(--accent-neon); }
-        .api-stat-label { font-size: 10px; color: var(--text-sub); font-weight: 900; margin-bottom: 2px; }
-        .api-stat-value { font-size: 16px; color: var(--text-main); font-weight: 900; word-break: break-word; }
-        .api-stat-note { font-size: 12px; color: var(--text-sub); line-height: 1.6; font-weight: 700; margin: 10px 0; }
-        /* Panel-level titles: API sections and the log summary heading. */
-        #status-page-api > .u-inline-013, #status-page-api > .u-inline-016,
+        .status-system-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(278px, 1fr));
+            align-items: start;
+            gap: 24px 6px;
+        }
+        .status-system-region { min-width: 0; }
+        .status-system-region > .u-inline-013,
+        .status-system-region > .u-inline-016,
         #status-page-log > .u-inline-016 {
             font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
             font-size: 16px;
-            font-weight: 400;   /* 像素字只有單一字重,鎖 400 防瀏覽器假加粗造成兩標題粗度不一 */
+            font-weight: 400;
             letter-spacing: 1px;
             text-shadow: 2px 2px 0 var(--accent-neon);
-            margin: 18px 0 6px;
+            margin: 0 0 14px;
         }
-        #status-page-api > .u-inline-013,
-        #status-page-api > .u-inline-016 {
-            margin-bottom: 16px;
+        .api-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+            gap: 10px;
+            margin: 14px 0 18px;
         }
-        .api-stat-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .api-stat-box {
+            min-width: 0;
+            padding: 0 0 6px;
+            border: 0;
+            border-bottom: 2px solid var(--accent-neon);
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+        .api-stat-label {
+            margin-bottom: 2px;
+            color: var(--text-sub);
+            font-size: 10px;
+            font-weight: 900;
+        }
+        .api-stat-value {
+            color: var(--text-main);
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+            font-size: 16px;
+            font-weight: 400;
+            word-break: break-word;
+        }
+        .api-stat-note {
+            margin: 0 0 14px;
+            color: var(--text-sub);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.55;
+        }
+        .api-stat-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
 
         #status-modal-content { padding: 0; }
         #status-modal-content > .modal-header-sticky {
@@ -469,6 +508,11 @@
             padding: 16px 20px 18px;
             scrollbar-width: none;
         }
+        #status-modal-content > .u-inline-012::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
 
         .language-setting-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: center; margin: 8px 0 12px; }
         .language-setting-row .scenario-label { margin: 0; }
@@ -490,6 +534,16 @@
         #status-modal-content button:not(.status-add-icon-btn):focus-visible {
             box-shadow: 2px 2px 0 var(--accent-neon);
         }
+        #status-modal-content #status-save-btn:hover,
+        #status-modal-content #status-save-btn:focus-visible {
+            background: var(--border-dark);
+            color: #ffffff;
+            box-shadow: 4px 4px 0 var(--accent-neon);
+        }
+        #status-modal-content #status-save-btn:active {
+            box-shadow: 2px 2px 0 var(--accent-neon);
+            transform: scale(0.97);
+        }
         .status-panel-hint { font-size: 12px; color: var(--text-sub); font-weight: 800; line-height: 1.5; margin: 8px 0 12px; }
         #ui-flags-container,
         #ui-items-container {
@@ -506,27 +560,42 @@
         }
 
         #status-page-api .settings-group {
-            background: transparent;
-            padding: 0;
-            margin: 2px 0 12px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            column-gap: 18px;
-            row-gap: 2px;
+            grid-template-columns: minmax(0, 1fr);
             align-items: start;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            background: transparent;
         }
-        #status-page-api .settings-group .language-setting-row { margin: 0 0 12px; grid-template-columns: 120px 150px; column-gap: 10px; align-items: center; }
-        #status-page-api .settings-group .language-setting-row:last-child { margin-bottom: 0; }
+        #status-page-api .settings-group .language-setting-row {
+            display: grid;
+            grid-template-columns: 120px 150px;
+            align-items: center;
+            justify-content: start;
+            width: 278px;
+            max-width: 100%;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+        #status-page-api .settings-group .language-setting-row .scenario-label {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 900;
+        }
         #status-page-api .settings-group .language-mode-select {
-            background: var(--accent-neon);
-            border: none;
-            border-radius: 0;
             box-sizing: border-box;
             width: 150px;
             max-width: 150px;
             height: 26px;
             min-height: 26px;
             padding: 2px 8px;
+            border: 0;
+            border-radius: 0;
+            background: var(--accent-neon);
             color: var(--text-main);
             font-size: 14px;
             font-weight: 900;
@@ -541,25 +610,32 @@
             box-sizing: border-box;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            gap: 6px;
             min-width: 0;
-            padding: 0 8px;
+            min-height: 26px;
+            padding: 0 2px;
             line-height: 1.2;
-            background: var(--card-bg);
-            border: 2px solid var(--border-dark);
-            border-radius: 999px;
-            color: #e03131;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            color: var(--text-sub);
             font-size: 12px;
             font-weight: 900;
             font-family: var(--font-ui);
             letter-spacing: 0.5px;
             cursor: pointer;
-            box-shadow: 2px 2px 0px var(--accent-neon);
-            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: none;
+        }
+        .mature-toggle::before {
+            width: 8px;
+            height: 8px;
+            flex: 0 0 8px;
+            background: currentColor;
+            content: "";
         }
         .mature-toggle.on { color: #16a34a; }
-        .mature-toggle:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--accent-neon); }
-        .mature-toggle:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--accent-neon); }
+        .mature-toggle:active { transform: translateY(1px); }
         #status-page-state .u-inline-014,
         .status-panel-hint {
             font-size: 12px;
@@ -692,26 +768,6 @@ background: var(--paper-bg);
                 color: var(--text-main);
             }
         }
-        #status-page-api .language-setting-row {
-            display: inline-grid;
-            grid-template-columns: auto minmax(150px, 260px);
-            justify-content: start;
-            align-items: center;
-            gap: 10px;
-            margin: 0 0 16px;
-            padding: 0;
-            border: 0;
-        }
-        #status-page-api .language-setting-row .scenario-label {
-            font-size: 14px;
-            font-weight: 900;
-            color: var(--text-main);
-        }
-
-        #status-page-api .settings-group .game-model-select {
-            font-size: 12px;
-        }
-
         /* 分頁列:塊內矛盾宣告整併為生效值(2026/07/10 整理債) */
         #status-modal-content .status-tabs {
             position: relative;
@@ -822,24 +878,31 @@ background: var(--paper-bg);
         @keyframes npc-mood-sad { 0%, 100% { transform: rotate(0deg) translateY(0); } 26%, 66% { transform: rotate(-6deg) translateY(calc(0.35 * var(--u))); } 80% { transform: rotate(-3deg) translateY(calc(0.2 * var(--u))); } }
         @keyframes npc-mood-sad-deep { 0%, 100% { transform: rotate(-4deg) translateY(calc(0.3 * var(--u))); } 30%, 74% { transform: rotate(-10deg) translateY(calc(0.6 * var(--u))); } }
 
-        /* API model usage list */
+        /* System usage ledger */
+        .api-model-heading {
+            margin: 0 0 8px;
+            color: var(--text-main);
+            font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 var(--accent-neon);
+        }
         .api-model-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin: 8px 0 12px;
+            margin: 0 0 8px;
         }
         .api-model-row {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) max-content;
             align-items: center;
             gap: 12px;
-            padding: 8px 0;
+            min-height: 44px;
+            padding: 6px 0;
             border-bottom: 1px dashed var(--dash-secondary);
-            font-size: 13px;
-            font-weight: 800;
         }
-        .api-model-row span {
+        .api-model-copy {
             min-width: 0;
         }
         .api-model-row b {
@@ -848,17 +911,55 @@ background: var(--paper-bg);
             text-overflow: ellipsis;
             white-space: nowrap;
             color: var(--text-main);
+            font-size: 14px;
+            font-weight: 800;
         }
         .api-model-row small {
             display: block;
             margin-top: 2px;
             color: var(--text-sub);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
         }
-        .api-model-row strong {
-            flex: 0 0 auto;
+        .api-model-count {
             color: var(--text-main);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 900;
+            white-space: nowrap;
+        }
+        .api-model-list-toggle {
+            justify-content: flex-start;
+            margin: 0 0 14px;
+        }
+        .system-runtime-meta {
+            display: grid;
+            gap: 4px;
+            margin: 14px 0 0;
+            color: var(--text-sub);
+        }
+        .system-runtime-row {
+            display: grid;
+            grid-template-columns: max-content minmax(0, 1fr);
+            align-items: baseline;
+            column-gap: 0;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+        .system-runtime-row dt,
+        .system-runtime-row dd {
+            margin: 0;
+            white-space: nowrap;
+        }
+        .system-runtime-row dd {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .system-cost-note {
+            margin: 6px 0 0;
+            color: var(--text-sub);
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.45;
         }

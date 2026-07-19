@@ -354,6 +354,351 @@ scrollbar-width: none;
 
 }
 
+/* 遊戲設定共用元件：只定義結構與控制外觀，桌機／手機各自在既有 media 內負責構圖。 */
+.desktop-game-settings-card {
+    display: grid;
+    align-items: start;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.desktop-game-settings-card::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.desktop-game-region,
+.desktop-game-rules-block {
+    min-width: 0;
+}
+
+.desktop-game-region-heading,
+.desktop-game-subheading {
+    margin: 0 0 16px;
+    color: var(--text-main);
+    font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", monospace;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 1.25;
+    text-shadow: 2px 2px 0 var(--accent-neon);
+}
+
+.desktop-game-rules-block {
+    margin-top: 24px;
+}
+
+.desktop-game-region-heading-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.desktop-game-region-heading-line .desktop-game-region-heading {
+    margin: 0;
+}
+
+.desktop-game-setting-row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    align-items: center;
+    gap: 0 8px;
+    margin: 0;
+}
+
+.desktop-game-setting-row + .desktop-game-setting-row {
+    margin-top: 14px;
+}
+
+.desktop-game-setting-row > label,
+.desktop-game-label-line label,
+.desktop-game-setting-grid label > span {
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.desktop-game-label-line,
+.desktop-game-inline-control,
+.desktop-game-preset-control {
+    min-width: 0;
+}
+
+.desktop-game-name-control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+#desktop-preset-lock-btn {
+    width: 24px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+
+#desktop-preset-lock-btn:focus-visible {
+    outline: none;
+    box-shadow: 2px 2px 0 var(--accent-neon);
+}
+
+.desktop-game-preset-control #desktop-preset-selector,
+.desktop-game-setting-grid select {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    min-height: 30px;
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 0;
+    background: var(--accent-neon);
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: none;
+}
+
+#desktop-preset-name-input {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    min-height: 30px;
+    padding: 4px 2px 6px;
+    border: 0;
+    border-bottom: 1px solid var(--input-line);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#desktop-preset-name-input[readonly],
+.desktop-game-setting-grid select:disabled {
+    color: var(--text-sub);
+    cursor: not-allowed;
+    opacity: 0.58;
+}
+
+.desktop-game-preset-control #desktop-preset-selector:focus,
+#desktop-preset-name-input:focus,
+.desktop-game-setting-grid select:focus {
+    outline: none;
+    box-shadow: 3px 3px 0 var(--accent-neon);
+}
+
+.desktop-preset-binding-note {
+    grid-column: 2;
+    min-height: 1.35em;
+    margin: 4px 0 0;
+    color: var(--text-sub);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.desktop-game-setting-grid {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+}
+
+.desktop-game-setting-grid label {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.desktop-game-difficulty-note {
+    margin: 14px 0 0;
+    color: var(--text-sub);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+.desktop-game-difficulty-note span {
+    display: block;
+}
+
+.desktop-game-difficulty-note span + span {
+    margin-top: 4px;
+}
+
+.desktop-game-management-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 14px 0 0;
+    padding: 0;
+    border: 0;
+}
+
+.desktop-game-settings-card .ui-command-primary {
+    font-size: 16px;
+}
+
+.desktop-preset-select-all,
+.desktop-config-export-options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.desktop-preset-select-all input,
+.desktop-config-export-options input,
+.preset-delete-checkbox {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--accent-neon);
+    font-size: 14px;
+}
+
+#preset-import-input {
+    font-size: 14px;
+}
+
+.desktop-preset-bulk-panel {
+    margin: 0;
+}
+
+.desktop-preset-delete-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.desktop-preset-delete-row {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 0 6px 8px;
+    border: 0;
+    border-bottom: 1px dashed var(--dash-secondary);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+.desktop-preset-delete-row.is-active {
+    padding-left: 5px;
+    border-left: 3px solid var(--accent-neon);
+}
+
+.desktop-preset-delete-row.disabled {
+    opacity: 0.48;
+}
+
+.desktop-preset-delete-copy {
+    min-width: 0;
+}
+
+.desktop-preset-delete-name,
+.desktop-preset-delete-meta {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.desktop-preset-delete-name {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.desktop-preset-delete-meta {
+    margin-top: 2px;
+    color: var(--text-sub);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.desktop-preset-bulk-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 12px;
+}
+
+.desktop-preset-delete-command {
+    min-height: 44px;
+    padding: 6px 2px;
+    color: #d33;
+}
+
+.desktop-preset-delete-command:disabled {
+    color: var(--text-sub);
+    cursor: not-allowed;
+    opacity: 0.52;
+}
+
+.desktop-game-transfer-region.desktop-config-transfer-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+    border: 0;
+}
+
+.desktop-game-transfer-region .desktop-game-region-heading {
+    margin-bottom: 2px;
+}
+
+.desktop-game-transfer-region .desktop-config-export-options {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+}
+
+.desktop-game-transfer-region .desktop-config-transfer-actions {
+    margin-top: 0;
+}
+
+.desktop-game-autosave-note {
+    margin: 2px 0 0;
+    padding: 0;
+    border: 0;
+    color: var(--text-sub);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.55;
+}
+
 @media screen and (min-width: 1100px), screen and (min-width: 601px) and (hover: hover) and (pointer: fine) {
             #edit-scenario-screen {
                 width: 100%; max-width: 1580px; min-height: 100dvh;
@@ -630,187 +975,61 @@ border: 1px solid var(--text-sub); box-shadow: none; background: var(--card-bg);
             }
 
 .desktop-game-settings-card {
-flex: 1; min-height: 0; overflow-y: auto;
-max-width: 720px;
-padding: 14px 0 0; background: transparent;
-border: 0; border-radius: 0; box-shadow: none;
+    grid-template-areas:
+        "configuration directory"
+        "transfer transfer";
+    grid-template-columns: 260px minmax(0, 1fr);
+    column-gap: 24px;
+    row-gap: 26px;
+    flex: 1;
+    max-width: 720px;
+    padding: 14px 0 0;
 }
-            .desktop-game-setting-row { margin-bottom: 17px; }
-            .desktop-game-setting-row > label,
-            .desktop-game-label-line label,
-            .desktop-game-setting-grid label {
-                display: block; color: var(--text-main); font-size: 12px; font-weight: 900;
-            }
-            .desktop-game-setting-row > label,
-            .desktop-game-label-line { margin-bottom: 7px; }
-            .desktop-game-label-line { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
-            #desktop-preset-lock-btn {
-                width: 20px; height: 20px; padding: 0; border: 0; background: transparent;
-                color: var(--text-main); cursor: pointer; font-size: 12px; line-height: 1;
-            }
-.desktop-game-inline-control { display: grid; grid-template-columns: auto auto; gap: 8px; justify-content: start; }
-.desktop-game-preset-control { display: block; }
-.desktop-game-inline-control select {
-width: min(260px, 100%); min-width: 0; min-height: 34px; padding: 7px 10px;
-border: 2px solid var(--border-dark); border-radius: 8px;
-background: var(--card-bg); color: var(--text-main); font-size: 13px; font-weight: 800;
+
+.desktop-game-configuration-region {
+    grid-area: configuration;
 }
-.desktop-game-setting-grid select {
-width: min(260px, 100%);
-min-width: 0;
-min-height: 30px;
-padding: 5px 10px;
-border: 0;
-border-radius: 0;
-background: var(--accent-neon);
-color: var(--text-main);
-font-size: 13px;
-font-weight: 800;
-box-shadow: none;
+
+.desktop-game-directory-region {
+    grid-area: directory;
 }
-.desktop-game-preset-control #desktop-preset-selector {
-width: min(260px, 100%);
-min-height: 30px;
-padding: 5px 10px;
-border: 0;
-border-radius: 0;
-background: var(--accent-neon);
-box-shadow: none;
+
+.desktop-game-transfer-region {
+    grid-area: transfer;
 }
-#desktop-preset-name-input {
-display: block;
-width: min(260px, 100%);
-min-width: 0;
-min-height: 30px;
-padding: 5px 2px 7px;
-border: 0;
-border-bottom: 1px solid var(--input-line);
-border-radius: 0;
-background: transparent;
-color: var(--text-main);
-font-size: 13px;
-font-weight: 800;
-}
-.desktop-game-preset-control #desktop-preset-selector:focus,
-#desktop-preset-name-input:focus,
-.desktop-game-setting-grid select:focus {
-outline: none;
-box-shadow: 3px 3px 0 var(--accent-neon);
-}
-.desktop-preset-binding-note {
-min-height: 1.35em;
-margin: 6px 0 0;
-color: var(--text-sub);
-font-size: 10px;
-font-weight: 800;
-line-height: 1.35;
-}
+
 .desktop-game-add-btn,
-.desktop-game-two-buttons button,
-.desktop-game-management-actions button {
-padding: 10px 13px; border: 2px solid var(--border-dark); border-radius: 8px;
-background: var(--card-bg); color: var(--text-main); cursor: pointer; font-size: 12px; font-weight: 900;
-box-shadow: none;
-transition: background 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
+.desktop-game-two-buttons button {
+    padding: 10px 13px;
+    border: 2px solid var(--border-dark);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: none;
+    transition: background 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
 }
-            .desktop-game-add-btn { background: var(--card-bg); color: var(--text-main); white-space: nowrap; }
-.desktop-game-two-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.desktop-game-add-btn {
+    background: var(--card-bg);
+    color: var(--text-main);
+    white-space: nowrap;
+}
+
+.desktop-game-two-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
 .desktop-game-two-buttons button:hover,
-.desktop-game-two-buttons button:focus-visible,
-.desktop-game-management-actions button:hover,
-.desktop-game-management-actions button:focus-visible {
-background: var(--accent-neon);
-box-shadow: 4px 4px 0 var(--border-dark);
-transform: translate(-2px, -2px);
-outline: none;
-}
-.desktop-preset-bulk-panel {
-display: grid;
-gap: 8px;
-margin: 0 0 16px;
-}
-.desktop-preset-bulk-toolbar {
-display: flex;
-align-items: center;
-gap: 12px;
-flex-wrap: wrap;
-margin-left: auto;
-}
-.desktop-preset-bulk-toolbar label,
-.desktop-preset-delete-row {
-display: inline-flex;
-align-items: center;
-gap: 8px;
-font-size: 12px;
-font-weight: 900;
-color: var(--text-main);
-}
-.desktop-preset-bulk-toolbar button {
-width: auto;
-padding: 6px 10px;
-border: 2px solid var(--border-dark);
-border-radius: 8px;
-background: var(--card-bg);
-color: #ff4444;
-font-size: 12px;
-font-weight: 900;
-cursor: pointer;
-box-shadow: none;
-transition: background 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
-}
-.desktop-preset-bulk-toolbar button:hover,
-.desktop-preset-bulk-toolbar button:focus-visible {
-background: var(--accent-neon);
-box-shadow: 4px 4px 0 var(--border-dark);
-transform: translate(-2px, -2px);
-outline: none;
-}
-.desktop-preset-delete-list {
-display: grid;
-grid-template-columns: repeat(2, minmax(180px, 320px));
-gap: 6px 10px;
-justify-content: start;
-}
-.desktop-preset-delete-row {
-min-width: 0;
-padding: 5px 7px;
-border: 1px solid #cfcfcf;
-border-radius: 6px;
-background: var(--card-bg);
-}
-.desktop-preset-delete-row.disabled {
-opacity: 0.55;
-}
-.desktop-preset-delete-name {
-min-width: 0;
-overflow: hidden;
-text-overflow: ellipsis;
-white-space: nowrap;
-}
-.desktop-game-setting-grid {
-display: flex;
-flex-wrap: wrap;
-align-items: end;
-gap: 12px 14px;
-margin-bottom: 9px;
-}
- .desktop-game-setting-grid label { display: grid; gap: 7px; }
-            .desktop-game-difficulty-note {
-                margin: 0 0 18px; color: var(--text-sub); font-size: 10px; font-weight: 700; line-height: 1.55;
-            }
-            .desktop-game-management-actions {
-display: flex;
-align-items: center;
-flex-wrap: wrap;
-gap: 8px 10px;
-padding-bottom: 8px;
-margin-bottom: 10px;
-border-bottom: 0;
-}
-            .desktop-game-management-actions .danger { color: #d33; border-color: #d33; }
-.desktop-game-autosave-note {
-margin-top: 16px; padding-top: 10px; border-top: 1px dashed var(--dash-secondary);
-color: #808080; font-size: 11px; font-weight: 800;
+.desktop-game-two-buttons button:focus-visible {
+    background: var(--accent-neon);
+    box-shadow: 4px 4px 0 var(--border-dark);
+    transform: translate(-2px, -2px);
+    outline: none;
 }
 
             #edit-scenario-screen.random-generator-inline-open #desktop-config-overview {

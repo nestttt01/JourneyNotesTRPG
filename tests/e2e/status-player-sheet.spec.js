@@ -530,7 +530,12 @@ test('mobile character configuration reuses the overview and section editor flow
         workspace: document.getElementById('edit-scenario-screen').dataset.workspace,
         editorDisplay: getComputedStyle(document.getElementById('desktop-config-editor')).display,
         activeView: document.querySelector('.desktop-workspace-view.active')?.dataset.workspaceView,
-        selectorHeight: document.getElementById('desktop-preset-selector').getBoundingClientRect().height,
+        compactControlHeights: Array.from(document.querySelectorAll([
+            '#desktop-preset-selector',
+            '#desktop-preset-name-input',
+            '#desktop-preset-lock-btn',
+            '.desktop-game-setting-grid select'
+        ].join(','))).map(control => control.getBoundingClientRect().height),
         actionHeights: Array.from(document.querySelectorAll('.desktop-game-management-actions button'))
             .map(button => button.getBoundingClientRect().height),
         horizontalOverflow: document.documentElement.scrollWidth - innerWidth
@@ -538,9 +543,22 @@ test('mobile character configuration reuses the overview and section editor flow
     expect(game.workspace).toBe('game');
     expect(game.editorDisplay).toBe('none');
     expect(game.activeView).toBe('game');
-    expect(game.selectorHeight).toBeGreaterThanOrEqual(44);
+    expect(game.compactControlHeights).toEqual([30, 30, 30, 30, 30, 30]);
+    expect(game.actionHeights).toHaveLength(4);
     expect(game.actionHeights.every(height => height >= 44)).toBe(true);
     expect(game.horizontalOverflow).toBeLessThanOrEqual(0);
+
+    const batchDelete = page.locator('#preset-delete-selected-btn');
+    const unlockedPreset = page.locator('.preset-delete-checkbox:not(:disabled)').first();
+    await expect(batchDelete).toBeDisabled();
+    await expect(batchDelete).toHaveAttribute('data-hold-delete-ready', 'true');
+    await unlockedPreset.check();
+    await expect(batchDelete).toBeEnabled();
+    await batchDelete.click();
+    await expect(batchDelete).toHaveAttribute('data-hold-state', 'armed');
+    await unlockedPreset.uncheck();
+    await expect(batchDelete).toBeDisabled();
+    await expect(batchDelete).toHaveAttribute('data-hold-state', 'idle');
 
     for (const width of [600, 1099]) {
         await page.setViewportSize({ width, height: 900 });
@@ -1277,7 +1295,7 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
             memoryLabel: ['.status-detail-memory summary > span', '10px'],
             memoryCount: ['.status-detail-memory summary > strong', '12px'],
             sceneChoice: ['.status-detail-scene-choice', '12px'],
-            apiHeading: ['#status-page-api > .u-inline-013', '16px'],
+            apiHeading: ['#status-system-settings-heading', '16px'],
             apiLabel: ['.api-stat-label', '10px'],
             apiValue: ['.api-stat-value', '16px'],
             apiNote: ['.api-stat-note', '12px'],
@@ -1339,10 +1357,14 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
 
     const systemSpacing = await page.evaluate(() => {
         switchStatusTab('api');
-        const settingsHeading = document.querySelector('#status-page-api > .u-inline-013');
-        const settingsContent = document.querySelector('#status-page-api > .settings-group');
-        const usageHeading = document.querySelector('#status-page-api > .u-inline-016');
-        const usageContent = document.querySelector('#status-page-api > .api-stat-note');
+        const settingsHeading = document.getElementById('status-system-settings-heading');
+        const settingsContent = document.querySelector(
+            '.status-system-settings-region > .settings-group'
+        );
+        const usageHeading = document.getElementById('status-system-usage-heading');
+        const usageContent = document.querySelector(
+            '.status-system-usage-region > .api-stat-note'
+        );
         return {
             settingsGap: settingsContent.getBoundingClientRect().top
                 - settingsHeading.getBoundingClientRect().bottom,
@@ -1350,8 +1372,15 @@ test('status panel typography uses the five-level scale', async ({ page }) => {
                 - usageHeading.getBoundingClientRect().bottom
         };
     });
-    expect(systemSpacing.settingsGap).toBeGreaterThanOrEqual(15);
-    expect(systemSpacing.usageGap).toBeGreaterThanOrEqual(15);
+    expect(systemSpacing.settingsGap).toBeCloseTo(14, 1);
+    expect(systemSpacing.usageGap).toBeCloseTo(14, 1);
+
+    const resetStats = page.locator('#api-usage-reset-btn');
+    await expect(resetStats).toHaveAttribute('data-hold-delete-ready', 'true');
+    await resetStats.click();
+    await expect(resetStats).toHaveAttribute('data-hold-state', 'armed');
+    await page.keyboard.press('Escape');
+    await expect(resetStats).toHaveAttribute('data-hold-state', 'idle');
 });
 
 test('status details are read-first and return to the overview after editing', async ({ page }) => {

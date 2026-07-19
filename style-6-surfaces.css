@@ -144,8 +144,7 @@ box-shadow: -2px 2px 0 var(--bg-tab-shadow);
 }
 :root[data-bg-mode="image"] .random-preview,
 :root[data-bg-mode="image"] .journal-toolbar input,
-:root[data-bg-mode="image"] .memory-task-text,
-:root[data-bg-mode="image"] .api-stat-box {
+:root[data-bg-mode="image"] .memory-task-text {
     background: var(--card-bg);
     background: var(--bg-card-glass);
 }

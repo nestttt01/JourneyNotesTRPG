@@ -966,6 +966,37 @@ function normalizeMemoryNotes(value) {
             `;
         }
 
+        const API_USAGE_MODEL_LIMIT = 8;
+        const API_USAGE_MODEL_COLLAPSED_COUNT = 4;
+        let apiUsageModelsExpanded = false;
+
+        function getApiUsageProviderName(provider) {
+            const providerNames = {
+                openrouter: 'OpenRouter',
+                google: 'Google',
+                anthropic: 'Anthropic'
+            };
+            return providerNames[provider] || valueToText(provider, uiText('未知'));
+        }
+
+        function renderApiUsageModelRow(entry) {
+            const provider = getApiUsageProviderName(entry.provider);
+            const requestCount = Math.max(0, Number.parseInt(entry.requests, 10) || 0);
+            const repairCount = Math.max(0, Number.parseInt(entry.repairRequests, 10) || 0);
+            const countText = repairCount
+                ? `${requestCount} / ${uiText('修復')} ${repairCount}`
+                : String(requestCount);
+            return `
+                <div class="api-model-row">
+                    <span class="api-model-copy">
+                        <b data-no-i18n>${escapeStatusHtml(entry.displayName || entry.model)}</b>
+                        <small data-no-i18n>${escapeStatusHtml(provider)}</small>
+                    </span>
+                    <strong class="api-model-count">${escapeStatusHtml(countText)}</strong>
+                </div>
+            `;
+        }
+
         function renderApiUsageStats() {
             const target = document.getElementById('api-usage-display');
             if (!target) return;
@@ -974,41 +1005,116 @@ function normalizeMemoryNotes(value) {
             const mon = apiUsageStats.months[month];
             const total = apiUsageStats.totals;
             const providerText = getApiProviderLabel();
-            const modelRows = Object.values(apiUsageStats.models || {})
+            const modelText = getModelDisplayName(selectedModel) || uiText('尚未選擇');
+            const lastUsedText = apiUsageStats.lastUsedAt || uiText('尚未使用');
+            const modelEntries = Object.values(apiUsageStats.models || {})
                 .sort((a, b) => (b.requests || 0) - (a.requests || 0))
-                .slice(0, 8)
-                .map(entry => {
-                    const provider = entry.provider === 'openrouter' ? 'OpenRouter' : (entry.provider === 'google' ? 'Google' : (entry.provider === 'anthropic' ? 'Anthropic' : valueToText(entry.provider, '未知')));
-                    const requestCount = Math.max(0, Number.parseInt(entry.requests, 10) || 0);
-                    const repairCount = Math.max(0, Number.parseInt(entry.repairRequests, 10) || 0);
-                    const repairs = repairCount ? ` / 修復 ${repairCount}` : '';
-                    return `<div class="api-model-row"><span><b>${escapeStatusHtml(entry.displayName || entry.model)}</b><small>${escapeStatusHtml(provider)}</small></span><strong>${requestCount}${repairs}</strong></div>`;
-                }).join('') || '<p class="api-stat-note">尚未有模型使用紀錄。</p>';
+                .slice(0, API_USAGE_MODEL_LIMIT);
+            const visibleEntries = apiUsageModelsExpanded
+                ? modelEntries
+                : modelEntries.slice(0, API_USAGE_MODEL_COLLAPSED_COUNT);
+            const modelRows = visibleEntries.length
+                ? visibleEntries.map(renderApiUsageModelRow).join('')
+                : `<p class="api-stat-note">${escapeStatusHtml(uiText('尚未有模型使用紀錄。'))}</p>`;
+            const hiddenModelCount = Math.max(0, modelEntries.length - API_USAGE_MODEL_COLLAPSED_COUNT);
+            const modelToggleLabel = apiUsageModelsExpanded
+                ? uiText('收合模型紀錄')
+                : uiText('顯示其餘 {count} 個').replace('{count}', hiddenModelCount);
+            const modelToggle = hiddenModelCount
+                ? `
+                    <button class="api-model-list-toggle ui-command ui-command-secondary" type="button"
+                        aria-expanded="${apiUsageModelsExpanded}" aria-controls="api-model-list"
+                        onclick="toggleApiUsageModels()">
+                        <span class="ui-command-label">${escapeStatusHtml(modelToggleLabel)}</span>
+                    </button>
+                `
+                : '';
+
             target.innerHTML = `
                 <div class="api-stat-grid">
-                    <div class="api-stat-box"><div class="api-stat-label">今日呼叫</div><div class="api-stat-value">${Math.max(0, Number.parseInt(day.requests, 10) || 0)}</div></div>
-                    <div class="api-stat-box"><div class="api-stat-label">本月呼叫</div><div class="api-stat-value">${Math.max(0, Number.parseInt(mon.requests, 10) || 0)}</div></div>
-                    <div class="api-stat-box"><div class="api-stat-label">JSON 修復</div><div class="api-stat-value">${Math.max(0, Number.parseInt(mon.repairRequests, 10) || 0)}</div></div>
-                    <div class="api-stat-box"><div class="api-stat-label">總呼叫</div><div class="api-stat-value">${Math.max(0, Number.parseInt(total.requests, 10) || 0)}</div></div>
+                    <div class="api-stat-box">
+                        <div class="api-stat-label">${escapeStatusHtml(uiText('今日呼叫'))}</div>
+                        <div class="api-stat-value">${Math.max(0, Number.parseInt(day.requests, 10) || 0)}</div>
+                    </div>
+                    <div class="api-stat-box">
+                        <div class="api-stat-label">${escapeStatusHtml(uiText('本月呼叫'))}</div>
+                        <div class="api-stat-value">${Math.max(0, Number.parseInt(mon.requests, 10) || 0)}</div>
+                    </div>
+                    <div class="api-stat-box">
+                        <div class="api-stat-label">${escapeStatusHtml(uiText('JSON 修復'))}</div>
+                        <div class="api-stat-value">${Math.max(0, Number.parseInt(mon.repairRequests, 10) || 0)}</div>
+                    </div>
+                    <div class="api-stat-box">
+                        <div class="api-stat-label">${escapeStatusHtml(uiText('總呼叫'))}</div>
+                        <div class="api-stat-value">${Math.max(0, Number.parseInt(total.requests, 10) || 0)}</div>
+                    </div>
                 </div>
-                <p class="u-inline-016">模型使用次數</p>
-                <div class="api-model-list">${modelRows}</div>
-                <p class="api-stat-note">目前供應商：${providerText}<br>目前模型：${escapeStatusHtml(getModelDisplayName(selectedModel) || '尚未選擇')}<br>最後使用：${escapeStatusHtml(apiUsageStats.lastUsedAt || '尚未使用')}<br>實際費用仍以 OpenRouter / Google 後台為準。</p>
+                <p class="api-model-heading">${escapeStatusHtml(uiText('模型使用次數'))}</p>
+                <div id="api-model-list" class="api-model-list">${modelRows}</div>
+                ${modelToggle}
+                <dl class="system-runtime-meta">
+                    <div class="system-runtime-row">
+                        <dt>${escapeStatusHtml(uiText('目前供應商：'))}</dt>
+                        <dd data-no-i18n>${escapeStatusHtml(providerText)}</dd>
+                    </div>
+                    <div class="system-runtime-row">
+                        <dt>${escapeStatusHtml(uiText('目前模型：'))}</dt>
+                        <dd data-no-i18n>${escapeStatusHtml(modelText)}</dd>
+                    </div>
+                    <div class="system-runtime-row">
+                        <dt>${escapeStatusHtml(uiText('最後使用：'))}</dt>
+                        <dd data-no-i18n>${escapeStatusHtml(lastUsedText)}</dd>
+                    </div>
+                </dl>
+                <p class="system-cost-note">${escapeStatusHtml(uiText('實際費用以所選 AI 供應商後台為準。'))}</p>
                 <div class="api-stat-actions">
-                    <button class="btn u-inline-057" onclick="resetApiUsageStats()">重設統計</button>
+                    <button id="api-usage-reset-btn" class="ui-command ui-command-secondary" type="button">
+                        <span class="ui-command-label">${escapeStatusHtml(uiText('重設統計'))}</span>
+                    </button>
                 </div>
             `;
+            const resetButton = document.getElementById('api-usage-reset-btn');
+            if (resetButton && typeof configureHoldDeleteButton === 'function') {
+                configureHoldDeleteButton(resetButton, () => resetApiUsageStats({ skipConfirm: true }), {
+                    labelKey: '重設統計',
+                    holdTextKey: '長按以重設',
+                    expandDirection: 'end',
+                    ariaLabelKey: '重設統計',
+                    confirmTextKey: '確定要清除本機 API 使用統計嗎？遊戲存檔不會被刪除。'
+                });
+            }
         }
-        function resetApiUsageStats() {
-            if (!confirm("確定要清除本機 API 使用統計嗎？遊戲存檔不會被刪除。")) return;
+
+        function toggleApiUsageModels() {
+            apiUsageModelsExpanded = !apiUsageModelsExpanded;
+            renderApiUsageStats();
+            document.querySelector('.api-model-list-toggle')?.focus();
+        }
+
+        function resetApiUsageStats({ skipConfirm = false } = {}) {
+            if (!skipConfirm && !confirm("確定要清除本機 API 使用統計嗎？遊戲存檔不會被刪除。")) return;
             apiUsageStats = {};
+            apiUsageModelsExpanded = false;
             saveApiUsageStats();
             renderApiUsageStats();
         }
+
+        window.addEventListener('ui-language-change', () => {
+            if (typeof apiUsageStats !== 'undefined') renderApiUsageStats();
+        });
         function switchStatusTab(tabName) {
             activeStatusTab = tabName || "state";
-            document.querySelectorAll('.status-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.statusTab === activeStatusTab));
-            document.querySelectorAll('.status-page').forEach(page => page.classList.toggle('active', page.id === `status-page-${activeStatusTab}`));
+            document.querySelectorAll('.status-tab-btn').forEach(btn => {
+                const isActive = btn.dataset.statusTab === activeStatusTab;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-selected', String(isActive));
+                btn.tabIndex = isActive ? 0 : -1;
+            });
+            document.querySelectorAll('.status-page').forEach(page => {
+                const isActive = page.id === `status-page-${activeStatusTab}`;
+                page.classList.toggle('active', isActive);
+                page.setAttribute('aria-hidden', String(!isActive));
+            });
             if (activeStatusTab === "api") renderApiUsageStats();
             if (activeStatusTab === "log") resizeMemoryTextareas();
             if (activeStatusTab === "settings") initTextareas();

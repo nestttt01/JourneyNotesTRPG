@@ -336,3 +336,13 @@
 - [x] 最終修改檔案：`index.html`、`app-config-ui.js`、`app-ui-helpers.js`、`i18n.js`、`style-2-status.css`、`style-7-game.css`、`tests/e2e/npc-acquaintance-flow.spec.js`、`tests/e2e/status-player-sheet.spec.js`、`TODO.md`、`COMPLETED.md`。
 - [x] 未改存檔格式、`sanko_*` key、匯入匯出資料、AI prompt、API key、儲存層或遠端 Git；沒有新增 `!important`、全域 `button` 覆蓋、重複 media query、檔尾 hotfix 或順手重構。
 - [x] 驗證：本次命令動態／手機排列專項 2／2、舊字級斷言修正後 1／1、兩支完整 Playwright 27／27 通過；全部 `app-*.js`、`i18n.js` 與兩支測試語法、7 份 CSS 括號、HTML 檔尾、嚴格 UTF-8／LF、Python／Node hash 與 `git diff --check` 通過。
+
+### 待辦帳本實況校正與舊項補歸檔
+
+- [x] 玩家唯讀預覽已存在於 `#desktop-player-readonly-preview`，具「總覽 → 唯讀 → 編輯／返回」正式路徑、六欄與三語同步；本次專項 Playwright 7／7 通過。完成內容原已記於 2026-07-16 條目，本次移除 `TODO.md` 的重複舊待辦。
+- [x] 新增情境同步修復確認仍在目前 `app-saves-game.js`：`openStatusScenarioEditor()` 會設定情境 view／index 並開啟 scenario 編輯；本次 dossier／情境編輯專項 Playwright 1／1 通過。原修補來自 commit `220f3a1`，本次補入完成帳本。
+- [x] 存檔選單「筆記目錄風」確認仍在目前 CSS：存檔列為重點色短線＋細分隔線、hover 伸長與微縮排、拖拉把手細指標 hover 才出現，並已移除存檔列／本機資料狀態的重複玻璃卡底；原實作來自 commit `220f3a1`，本次補入完成帳本。
+- [x] 手機封面透明方框舊待辦已由「桌機專用圖片背景與窄版返回修復」完成：窄版 effective background 固定為 solid，背景圖資料與偏好保留，返回大廳與跨斷點恢復已有回歸驗證；本次只移除重複待辦，不重複宣稱新實作。
+- [x] 輸入框統一沒有誤判為全部完成：已完成的 24 個角色細節欄位維持既有完成歸檔，`TODO.md` 改寫為其餘長文輸入框的盤點與剩餘批次。
+- [x] `TODO.md` 新增遊戲設定／系統頁重排、命令遺漏與整理字影、全站五級字體稽核、長期知識庫四組未完成事項，並明記舊設定頁預覽全部作廢。
+- [x] 本次只修改 `TODO.md` 與 `COMPLETED.md`；未修改任何 JS、CSS、HTML、測試、存檔格式、`sanko_*` key、AI prompt、API key、儲存層或遠端 Git。
