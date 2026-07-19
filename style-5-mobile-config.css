@@ -107,53 +107,118 @@
         box-shadow: 5px 5px 0 rgba(40,40,40,0.09);
     }
 
+    /* 手機分類籤：移植角色面板分頁語彙（純文字＋黃指示條），HOME 為共用 44×44 透明 SVG 控制 */
     .desktop-config-tabs {
         position: static;
         width: 100%;
-        display: grid;
-        grid-template-columns: 44px repeat(3, minmax(0, 1fr));
-        gap: 6px;
+        display: flex;
+        align-items: center;
+        gap: clamp(10px, 3.2vw, 26px);
         margin: 0 0 24px;
+        padding: 0 2px;
+        border-bottom: 2px solid color-mix(in srgb, var(--text-sub) 42%, transparent);
         transform: none;
     }
 
-    .desktop-config-tab {
+    button.desktop-config-tab {
+        position: relative;
+        flex: 0 0 auto;
         width: auto;
         min-width: 0;
         min-height: 44px;
-        padding: 8px 5px;
-        border: 2px solid var(--accent-neon);
-        border-radius: 8px;
-        background: var(--border-dark);
-        color: var(--accent-neon);
+        padding: 0 2px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--text-sub);
         box-shadow: none;
         cursor: pointer;
         writing-mode: horizontal-tb;
         text-orientation: mixed;
-        font-size: 12px;
-        font-weight: 900;
-        letter-spacing: 0;
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: 1px;
         line-height: 1.25;
         touch-action: manipulation;
+        transition: transform 100ms cubic-bezier(0.23, 1, 0.32, 1);
     }
 
-    .desktop-config-tab.active {
-        border-color: var(--border-dark);
-        background: var(--accent-neon);
+    button.desktop-config-tab:hover {
+        animation: none;
+    }
+
+    button.desktop-config-tab:active {
+        transform: scale(0.97);
+    }
+
+    button.desktop-config-tab.active {
+        border: 0;
+        background: transparent;
         color: var(--text-main);
-        box-shadow: 3px 3px 0 var(--accent-gray);
+        text-shadow: 1px 1px 0 var(--accent-neon);
+        box-shadow: none;
+    }
+
+    button.desktop-config-tab.active::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: -2px;
+        left: 0;
+        z-index: 1;
+        height: 5px;
+        border: 1px solid var(--accent-neon);
+        background: var(--accent-neon);
+    }
+
+    button.desktop-config-tab.desktop-config-home-tab {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text-main);
+        font-size: 20px;
+        letter-spacing: 0;
+    }
+
+    button.desktop-config-tab.desktop-config-home-tab:hover {
+        background: transparent;
+        color: var(--text-main);
+        box-shadow: none;
         transform: none;
     }
 
-    .desktop-config-home-tab {
-        display: grid;
-        place-items: center;
-        padding: 8px;
+    button.desktop-config-tab.desktop-config-home-tab:active {
+        transform: scale(0.94);
     }
 
     .desktop-config-home-tab .theme-svg-icon {
         width: 22px;
         height: 22px;
+    }
+
+    /* 日文分類籤字數較長（キャラクター設定），降一級至 12px 並收緊間距以免 390px 溢位 */
+    html[lang="ja"] .desktop-config-tabs {
+        gap: clamp(8px, 2vw, 20px);
+    }
+
+    html[lang="ja"] button.desktop-config-tab {
+        font-size: 12px;
+        letter-spacing: 0;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        button.desktop-config-tab:hover:not(.active):not(.desktop-config-home-tab) {
+            color: var(--text-main);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        button.desktop-config-tab {
+            transition: none;
+        }
     }
 
     .desktop-config-overview-inner {
