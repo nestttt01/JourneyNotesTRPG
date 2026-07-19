@@ -346,3 +346,14 @@
 - [x] 輸入框統一沒有誤判為全部完成：已完成的 24 個角色細節欄位維持既有完成歸檔，`TODO.md` 改寫為其餘長文輸入框的盤點與剩餘批次。
 - [x] `TODO.md` 新增遊戲設定／系統頁重排、命令遺漏與整理字影、全站五級字體稽核、長期知識庫四組未完成事項，並明記舊設定頁預覽全部作廢。
 - [x] 本次只修改 `TODO.md` 與 `COMPLETED.md`；未修改任何 JS、CSS、HTML、測試、存檔格式、`sanko_*` key、AI prompt、API key、儲存層或遠端 Git。
+
+### 遊戲設定頁與系統頁重排（commit `6df6c3b`，本條為事後補歸檔）
+
+- [x] 重排「遊戲設定」與角色面板「系統」頁 DOM，補齊 ARIA 與完整狀態（`index.html`）；遊戲設定桌機三區構圖與共用控制規格（`style-4-desktop-config.css`）、390px 獨立手機構圖（`style-5-mobile-config.css`）。
+- [x] 系統頁欄位、統計、模型列與標題同色陰影（`style-2-status.css`）；移除統計區多餘的第二層玻璃背景（`style-6-surfaces.css`）。
+- [x] 配置鎖定鏈、全選只作用於 unlocked 項目、批次刪除接上共用兩階段長按刪除（`app-config-ui.js`）；「重設統計」由圓框按鈕改接共用長按控制，共用長按文字同時支援刪除／重設語彙（`app-ui-helpers.js`）。
+- [x] 系統頁 4／8 模型列、供應商資訊、統計重設與 tabs 狀態（`app-scenario-state.js`）；新增標題、難度雙行說明、供應商與費用等多語言（`i18n.js`）。
+- [x] 修改檔案共 10 個：`index.html`、`app-config-ui.js`、`app-scenario-state.js`、`app-ui-helpers.js`、`i18n.js`、`style-2-status.css`、`style-4-desktop-config.css`、`style-5-mobile-config.css`、`style-6-surfaces.css`、`tests/e2e/status-player-sheet.spec.js`（新增鎖定、批次刪除、重設與尺寸驗收）。
+- [x] 未新增 `!important`、全域控制項覆蓋或 media query；手機導航、`statsLocked`、存檔格式、`sanko_*` key、AI prompt、API key 均未修改。
+- [x] 驗證：完整 Playwright 32／32、15 個 JS 語法檢查通過；1280／1600／390×844 驗證字級、overflow、三區軸線、手機閱讀順序與無原生滾動條；正式 10 檔與核准版本逐 byte 相同，UTF-8、CSS／HTML 結構與 `git diff --check` 通過。
+- [x] 補記：Codex 完成報告時尚未執行 Git 寫入（當時 HEAD 為 `856efe4`），專案主隨後將程式碼與帳本一併提交為 `6df6c3b`，帳本漏記本項，由 Claude 於同日補齊。原同組待辦中的「整理」選取字影重疊未在本批處理，仍留 `TODO.md`。
