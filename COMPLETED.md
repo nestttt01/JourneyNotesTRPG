@@ -387,3 +387,8 @@
 - [x] 問題二（教學旗標永不解除→無限教用道具）：`app-ai.js` 加教學逃生門——旗標存在且對話已達 16 回合（以【旁白】行數推算，免新增存檔欄位）即程式摘旗＋系統訊息「新手教學已自動結束」；舊存檔殘留旗標下一回合自動解除。原完成硬驗收流程不動。
 - [x] 新系統訊息三語同步（`i18n.js`）。
 - [x] 驗證：`node --check` 三檔通過、嚴格 UTF-8／LF、完整 Playwright 58／58 通過。未動存檔格式、`sanko_*` key、API key、`buildLatestActionPrompt`／`callAI_JSON` 骨架；系統提示入史行為（`createSystemAlert`）未動（盤點列為次選，影響面大暫緩）。
+
+### 隨機生成面板輸入框接上共用元件
+
+- [x] `#random-generator-theme`（偏好關鍵字）由舊 `scenario-input` 白圓框樣式改掛 `.character-detail-control` 共用元件（`index.html` 一行 class 置換，`rows="1"`＋`autoResize` 比照統一欄位），桌機行內面板與手機 modal 同時生效。
+- [x] 驗證：computed style 與統一欄位逐項全等（底線／半透明底／14px 700／96px／垂直縮放）、手機 focus 行為與元件一致、390px 無溢位；`status-player-sheet.spec.js` 19／19、嚴格 UTF-8／LF、`git diff --check` 通過。其餘 `scenario-input` 長文欄仍屬 TODO 既有的輸入框剩餘批次，未擴作。
