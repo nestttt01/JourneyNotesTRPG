@@ -1138,7 +1138,10 @@ button.hold-delete-text:active {
         }
         @media (hover: hover) and (pointer: fine) {
             .journal-actions .journal-action-organize:hover {
-                text-shadow: 2px 2px 0 var(--border-dark);
+                /* 主客修正(2026/07/20 專案主核准預覽卡三):字保持深色、陰影用重點色,
+                   蓋掉共用 tool hover 的變色,避免「重點色字+深色影」交錯糊團 */
+                color: var(--text-main);
+                text-shadow: 2px 2px 0 var(--accent-neon);
             }
             .journal-actions .journal-action-organize:hover::before {
                 transform: translateX(4px);

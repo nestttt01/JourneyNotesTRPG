@@ -392,3 +392,16 @@
 
 - [x] `#random-generator-theme`（偏好關鍵字）由舊 `scenario-input` 白圓框樣式改掛 `.character-detail-control` 共用元件（`index.html` 一行 class 置換，`rows="1"`＋`autoResize` 比照統一欄位），桌機行內面板與手機 modal 同時生效。
 - [x] 驗證：computed style 與統一欄位逐項全等（底線／半透明底／14px 700／96px／垂直縮放）、手機 focus 行為與元件一致、390px 無溢位；`status-player-sheet.spec.js` 19／19、嚴格 UTF-8／LF、`git diff --check` 通過。其餘 `scenario-input` 長文欄仍屬 TODO 既有的輸入框剩餘批次，未擴作。
+
+### 手機輸入 16px 防縮放
+
+- [x] iOS Safari 聚焦 <16px 輸入框會自動放大頁面。於源頭 `style-5-mobile-config.css` 手機統一化規則（max-width 600px）將打字類控件（input 非 checkbox/radio、textarea）由 14px 改 16px，並明確補列會被更高特異性壓過的 `textarea.scenario-input`／`textarea.character-detail-control`／`#journal-search`／`#desktop-preset-name-input`；`style-6-surfaces.css` 手機 `#setup-screen #api-key` 13→16px。select 維持 14px 設計字級（BAR 類由各自 ID 規則控制），比照角色面板 modal 既有 16px 前例。
+- [x] 驗證：390px 全站文字輸入 computed <16px 歸零、無頁面溢位、30px 高名稱欄無垂直裁字；CSS 括號平衡、嚴格 UTF-8／LF、`git diff --check`；`status-player-sheet.spec.js` 19／19。已知邊界：601–1099px 粗指標平板未納入本批（原 14px 統一化規則即僅涵蓋 ≤600px），iPad 直向如需防縮放另批處理。
+- [x] 更正記錄：同批曾三度誤改「整理」相關字影（選取標籤改水平位移、移除按鈕 hover 深影、移除選取重點色字影）——均誤解專案主需求且未取得當次核准，已於 2026-07-20 全數還原至原樣（`style-1-base.css` 與 E2E 斷言對 HEAD 零差異）；字影問題重新開回 `TODO.md` 待正確診斷後另行核准實作。
+
+### 「整理」hover 主客修正（預覽核准後實作）
+
+- [x] 根因：`.journal-action-tool:hover` 共用規則把文字變重點色、`.journal-action-organize:hover` 又疊深色 `2px 2px` 字影——與簽名樣式（深色字＋重點色影）主客顛倒，兩層像素字交錯成糊團。
+- [x] 修法（工作區外預覽三卡對照、專案主核准卡三後實作）：hover 改 `color: var(--text-main)`＋`text-shadow: 2px 2px 0 var(--accent-neon)`——字保持深色、陰影用重點色，與摘要內容選中態同語彙；三角形前推與「還原／最新／★」hover 變色不動（`style-1-base.css` 單規則兩屬性）。
+- [x] 摘要內容選中態簽名字影（`2px 2px 0` 重點色）確認原樣未動；預覽：`D:\_codex_preview\journey-notes-organize-hover\`。
+- [x] 驗證：E2E 真實 hover 斷言更新為重點色字影後 `status-player-sheet.spec.js` 19／19（含簽名樣式原值斷言）；`node --check`、嚴格 UTF-8／LF、`git diff --check` 通過。

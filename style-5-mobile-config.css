@@ -1026,7 +1026,12 @@
 
 .game-difficulty-row { grid-template-columns: 1fr; gap: 6px; }
 
-input:not([type="checkbox"]):not([type="radio"]), textarea, select:not(#btn-location) { font-size: 14px; }
+/* 行動裝置打字類控件一律 16px:iOS Safari 聚焦 <16px 輸入框會自動放大頁面(2026/07/20)。
+   後四項是會被更高特異性規則壓過的明確補列;select 維持 14px 設計字級(BAR 類由各自 ID 規則控制)。 */
+input:not([type="checkbox"]):not([type="radio"]), textarea,
+textarea.scenario-input, textarea.character-detail-control,
+#journal-search, #desktop-preset-name-input { font-size: 16px; }
+            select:not(#btn-location) { font-size: 14px; }
             #player-input { font-size: 16px; }
             html, body { width: 100%; max-width: 100%; overflow-x: hidden !important; }
             #game-container, #status-bar, .top-row, .scroll-row, #dialogue-box, #input-area,

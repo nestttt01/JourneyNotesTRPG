@@ -961,7 +961,8 @@ test('adventure journal remounts across the desktop home breakpoint and returns 
         textShadow: getComputedStyle(button).textShadow
     }))).toEqual({
         cursorTransform: 'matrix(1, 0, 0, 1, 4, 0)',
-        textShadow: 'rgb(40, 40, 40) 2px 2px 0px'
+        /* 2026-07-20 主客修正(專案主核准):hover 字保持深色、陰影改重點色 */
+        textShadow: 'rgb(237, 255, 102) 2px 2px 0px'
     });
 
     const readMountState = () => page.evaluate(() => {
