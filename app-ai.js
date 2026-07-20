@@ -935,6 +935,16 @@ if (npcLifeEvents.length) applyAutomaticMemoryUpdate({ story_summary: npcLifeEve
                 // 好感里程碑若 AI 本回合已回傳含角色名的標籤，優先採用 AI 措辭，程式不重複補。
                 flushRelationshipMilestoneFlags(Array.isArray(addedFlags) ? addedFlags : []);
 
+                /* 教學逃生門(2026/07/20):旗標在但對話已拖過 16 回合——玩家明顯無意照教學走,
+                   或舊存檔殘留旗標——程式直接摘旗停止教學注入,不再每回合催促未完成步驟。 */
+                if (currentFlags.includes('新手教學進行中')) {
+                    const tutorialTurns = ((Array.isArray(chatScripts) ? chatScripts.flat() : []).join('\n').match(/【旁白】：/g) || []).length;
+                    if (tutorialTurns >= 16) {
+                        currentFlags = currentFlags.filter(flag => flag !== '新手教學進行中');
+                        createSystemNote('新手教學已自動結束，祝旅途愉快！');
+                    }
+                }
+
                 /* 新手教學收尾(2026/07/10):AI 回報完成旗標(寬容匹配中日英變體)後,
                    程式「硬驗收」四項進度(輸入/擲骰/用道具/好感)——比照里程碑保底哲學,
                    AI 說完成不算數:全過才摘旗道別;沒過=搶跑,沒收完成旗標、教學繼續。 */

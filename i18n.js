@@ -605,6 +605,7 @@
         '⚄ 讓 AI 根據「情境設定」隨機生成開場事件': ['⚄ Generate an Opening from the Scenario', '⚄ シナリオ設定から導入を生成'],
         '✦ 第一次跑團？從引導教學開始': ['✦ First session? Start with the guided tutorial', '✦ 初セッション？ガイド付きチュートリアルから'],
         '新手教學結束，祝旅途愉快！': ['Tutorial complete. Enjoy the journey!', 'チュートリアル終了。良い旅を！'],
+        '新手教學已自動結束，祝旅途愉快！': ['Tutorial ended automatically. Enjoy the journey!', 'チュートリアルは自動終了しました。良い旅を！'],
         '新手教學進行中': ['Tutorial in progress', 'チュートリアル進行中'],
         '新手教學完成': ['Tutorial complete', 'チュートリアル完了'],
         '同時刪除 {count} 個不再使用的專屬配置嗎？': ['Also delete {count} dedicated presets that are no longer in use?', '使われなくなった専用設定 {count} 件も削除しますか？'],
