@@ -34,6 +34,7 @@
         } catch (e) { /* 靜默 */ }
     })();
     </script>
+    <link rel="preload" href="fonts/Cubic_11.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="style-1-base.css">
     <link rel="stylesheet" href="style-2-status.css">
     <link rel="stylesheet" href="style-3-panels.css">
@@ -69,8 +70,134 @@
     </svg>
     <!-- 開機簾幕(2026/07/10):首繪即以主題紙色蓋全場,onload 尾聲(含自動驗證落定)一次掀開,
          消除「背景/頭像/驗證區/側標籤分批現身」的載入裸奔閃爍;內建 8 秒保險自動掀開 -->
-    <div id="boot-curtain" aria-hidden="true"><div class="px-loader"><i></i><i></i><i></i></div></div>
+    <div id="boot-curtain" aria-hidden="true">
+        <div class="boot-brand boot-light">
+            <div class="boot-title" data-boot-cn data-no-i18n>旅途<br>筆記</div>
+            <div class="boot-sub" data-boot-en data-no-i18n>JOURNEY NOTES</div>
+            <div class="px-loader"><i></i><i></i><i></i></div>
+        </div>
+    </div>
     <script>window.setTimeout(function () { var c = document.getElementById('boot-curtain'); if (c && !c.classList.contains('lift')) c.classList.add('lift'); }, 8000);</script>
+    <script>
+    /* 開機標題柔光掃過(2026/07/20):純裝飾,不影響 dismissBootCurtain 與 8 秒保險;簾幕移除即停 */
+    (function () {
+        var curtain = document.getElementById('boot-curtain');
+        if (!curtain) return;
+        var group = curtain.querySelector('.boot-light');
+        var cnEl = curtain.querySelector('[data-boot-cn]');
+        var enEl = curtain.querySelector('[data-boot-en]');
+        if (!group || !cnEl || !enEl) return;
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) {
+            group.classList.add('boot-done');
+            group.classList.add('boot-font-ready');
+            return;
+        }
+        var SHADE = '░▒▓';
+        var LATIN = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        function split(el) {
+            var parts = [];
+            el.childNodes.forEach(function (n) {
+                if (n.nodeType === 3) {
+                    n.textContent.split('').forEach(function (ch) {
+                        parts.push(ch === ' ' ? ' ' : '<span>' + ch + '</span>');
+                    });
+                } else if (n.nodeName === 'BR') {
+                    parts.push('<br>');
+                }
+            });
+            el.innerHTML = parts.join('');
+        }
+        split(cnEl);
+        split(enEl);
+        var all = [];
+        cnEl.querySelectorAll('span').forEach(function (s) { all.push({ s: s, cjk: true }); });
+        enEl.querySelectorAll('span').forEach(function (s) { all.push({ s: s, cjk: false }); });
+        all.forEach(function (c) { c.final = c.s.textContent; });
+        function start() {
+            if (!curtain.isConnected) return;
+            group.classList.add('boot-font-ready');
+            /* 最短展示:動畫開跑後保底 1.5 秒才允許掀幕(dismissBootCurtain 會讀取;8 秒保險與 reduced-motion 不受影響) */
+            window.__bootTitleHoldUntil = performance.now() + 1500;
+            var box = group.getBoundingClientRect();
+            var W = box.width;
+            var midY = box.height * 0.42;
+            all.forEach(function (c) {
+                var r = c.s.getBoundingClientRect();
+                c.cx = r.left + r.width / 2 - box.left;
+                c.cy = r.top + r.height / 2 - box.top;
+                c.jitter = (Math.random() - 0.5) * W * 0.18;
+                c.stubborn = Math.random() < 0.15;
+                if (c.stubborn) c.jitter += W * (0.16 + Math.random() * 0.1);
+                c.locked = false;
+                c.lv = 0;
+            });
+            var R = W * 0.5;
+            var DUR = 1150;
+            var BANDS = [0.30, 0.55, 0.80, 1.10];
+            var startAt = performance.now();
+            var lastFrame = 0;
+            function tick(now) {
+                if (!curtain.isConnected) return;
+                var el = now - startAt;
+                var t = Math.min(1, el / DUR);
+                var p = t * t * (3 - 2 * t);
+                var lx = p * (W + R * 1.7) - R * 0.85;
+                var frame = el - lastFrame >= 45;
+                if (frame) lastFrame = el;
+                group.style.setProperty('--lx', lx + 'px');
+                group.style.setProperty('--ly', midY + 'px');
+                all.forEach(function (c) {
+                    if (frame && !c.locked) {
+                        var d = Math.hypot(c.cx - lx, (c.cy - midY) * 0.9);
+                        c.lv = d < BANDS[0] * R ? 4 : d < BANDS[1] * R ? 3 : d < BANDS[2] * R ? 2 : d < BANDS[3] * R ? 1 : 0;
+                    }
+                    if (!c.locked && (lx >= c.cx + c.jitter || t >= 1)) {
+                        c.locked = true;
+                        c.s.textContent = c.final;
+                        c.s.classList.add('boot-lit');
+                        if (c.stubborn) flick(c.s, 90 + Math.random() * 70);
+                    }
+                    if (!c.locked && frame) {
+                        if (c.lv < 2) {
+                            c.s.textContent = c.final;
+                        } else if (c.cjk) {
+                            var pick = Math.min(2, Math.max(0, (c.lv === 2 ? 1 : 2) + (Math.random() < 0.25 ? 1 : 0) - (Math.random() < 0.25 ? 1 : 0)));
+                            c.s.textContent = SHADE[pick];
+                        } else {
+                            c.s.textContent = LATIN[Math.floor(Math.random() * LATIN.length)];
+                        }
+                    }
+                });
+                if (t < 1 || all.some(function (c) { return !c.locked; })) {
+                    requestAnimationFrame(tick);
+                } else {
+                    window.setTimeout(function () {
+                        if (!curtain.isConnected) return;
+                        group.classList.add('boot-done');
+                        scheduleFlicker();
+                    }, 300);
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+        function flick(span, ms) {
+            span.classList.add('boot-flick');
+            window.setTimeout(function () { span.classList.remove('boot-flick'); }, ms);
+        }
+        function scheduleFlicker() {
+            window.setTimeout(function () {
+                if (!curtain.isConnected) return;
+                var c = all[Math.floor(Math.random() * all.length)];
+                flick(c.s, 80 + Math.random() * 60);
+                scheduleFlicker();
+            }, 1600 + Math.random() * 1400);
+        }
+        /* 等像素字型就緒再顯示與量測(上限 400ms;字型已 preload,通常遠早於此) */
+        var fontReady = document.fonts && document.fonts.load ? document.fonts.load('66px "TRPG Cubic Pixel"') : Promise.resolve();
+        Promise.race([fontReady, new Promise(function (r) { window.setTimeout(r, 400); })]).then(start);
+    })();
+    </script>
 
     <input type="file" id="upload-game-avatar" accept="image/*" onchange="triggerGameAvatarCrop(this)" hidden class="hidden-file-input">
 

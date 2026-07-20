@@ -4,9 +4,15 @@
         }
 
         /* 開機簾幕掀開(2026/07/10):onload 尾聲呼叫;自動背景驗證進行中會等它落定,一次呈現最終畫面 */
+        /* 最短展示(2026/07/20):標題動畫開跑時會設 __bootTitleHoldUntil,載入太快也保底看完掃光;8 秒保險直接加 .lift 不受此限 */
         function dismissBootCurtain() {
             const curtain = document.getElementById('boot-curtain');
             if (!curtain || curtain.classList.contains('lift')) return;
+            const holdRemain = (window.__bootTitleHoldUntil || 0) - performance.now();
+            if (holdRemain > 0) {
+                window.setTimeout(dismissBootCurtain, holdRemain + 20);
+                return;
+            }
             curtain.classList.add('lift');
             window.setTimeout(() => curtain.remove(), 600);
         }

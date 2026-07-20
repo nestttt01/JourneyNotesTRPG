@@ -357,3 +357,25 @@
 - [x] 未新增 `!important`、全域控制項覆蓋或 media query；手機導航、`statsLocked`、存檔格式、`sanko_*` key、AI prompt、API key 均未修改。
 - [x] 驗證：完整 Playwright 32／32、15 個 JS 語法檢查通過；1280／1600／390×844 驗證字級、overflow、三區軸線、手機閱讀順序與無原生滾動條；正式 10 檔與核准版本逐 byte 相同，UTF-8、CSS／HTML 結構與 `git diff --check` 通過。
 - [x] 補記：Codex 完成報告時尚未執行 Git 寫入（當時 HEAD 為 `856efe4`），專案主隨後將程式碼與帳本一併提交為 `6df6c3b`，帳本漏記本項，由 Claude 於同日補齊。原同組待辦中的「整理」選取字影重疊未在本批處理，仍留 `TODO.md`。
+
+### 背景圖模式命令按下動態修復與全站盤點
+
+- [x] 修復背景圖模式重置規則（`style-7-game.css`）壓死按下 transform 的 bug：`:root[data-bg-mode="image"]` 基態規則特異性 (0,4,1) 蓋過 `:active` 重宣告 (0,3,1)，於兩條 `:active` 規則補背景圖 selector 升至 (0,5,1)；受影響共 6 顆（儲存／另存／匯出／匯入配置＋情境頁兩顆 AI 生成鈕）全數修復，零 `!important`。
+- [x] Cascade 稽核 18 顆共用命令 × 純色／背景圖：無同族殘留；390／600／1099／1280 溢位、存檔頁與冒險日誌跨斷點重掛載、遊戲設定雙模式三語溢位全數通過，console 零錯誤。
+- [x] 驗證：實機按住取樣兩模式 transform 恢復、`status-player-sheet.spec.js` 19／19。
+
+### 桌機日記修正、手機配置分類籤重排與小標移除
+
+- [x] 桌機日記返回鍵重現修復（`style-6-surfaces.css`）：共用 `button.page-back-button` (0,1,1) 蓋過 `.diary-back-btn` 隱藏 (0,1,0)，隱藏規則升為 `button.diary-back-btn`；`.diary-inner` translateY 52→41px，日記標題與冒險日誌同高（實測 deltaY=0）。手機 390px 返回鍵 44×44 與置中標題不受影響。
+- [x] 手機配置頁四顆粗框分類鈕改為分頁籤語彙（`style-5-mobile-config.css`，經工作區外預覽三方向比較後核准方向 A）：純文字 14px＋黃指示條壓灰分隔線、HOME 改 44×44 透明 SVG、按壓 scale 回饋、hover 僅細指標、reduced-motion 關閉 transition；日文籤降 12px＋縮 gap 防 390px 溢位；DOM 與 JS 零改動，桌機直向側籤原樣。
+- [x] 遊戲設定「目前配置」區塊小標移除（`index.html`）：與欄位標籤重複；section 改 `aria-label`（i18n 會翻譯 aria-label 屬性，無障礙不降級）。
+- [x] 驗證：三語×多寬度溢位與切換實測、`status-player-sheet.spec.js`＋`npc-acquaintance-flow.spec.js` 27／27、E2E 19／19、CSS 括號與嚴格 UTF-8／LF、`git diff --check` 通過。
+
+### 開機簾幕標題動畫（柔光掃過 reveal）
+
+- [x] `#boot-curtain` 加入直排疊字「旅途／筆記」＋副標「JOURNEY NOTES」（`index.html`）：行內 vanilla 引擎（載入期即跑），柔光由左至右 smoothstep 等速掃過（1.15s），暗處為 8.5% 真字暗影、光緣字元才凝聚 ░▒▓ 亂碼（上限 ▓ 不用 █，避免實心磚；全程同時亂碼 ≤3 字）、±9% jitter＋15% 頑固字鎖上閃螢光、點燃邏輯（鎖定字固定紙色不隨光熄滅）、無回頭光暈；鎖定後壞霓虹管式偶發 flicker。經工作區外預覽多輪核准（`D:\_codex_preview\journey-notes-boot-title\`）。
+- [x] 樣式（`style-3-panels.css`）：radial-gradient `background-clip: text` 柔光、點燃／flick 以宣告順序取代 `!important`；字級 66px（Cubic 11 格點 6 倍）／手機 44px（4 倍）、副標 15px，列五級字級例外白名單；字元 span 明確 `font: inherit` 避開 `*` 閱讀字型規則。
+- [x] 硬約束全數保留：`dismissBootCurtain()`、8 秒保險、E2E 等待簾幕移除不動；動畫純裝飾、簾幕移除即停（`isConnected` 守衛）；reduced-motion 直接顯示靜態標題；字型就緒等待上限 150ms 不拖慢開機。
+- [x] 驗證：正式引擎於正式頁面重掛實測 16/16 字元點燃、`boot-done` 收尾、手機 44px 規則生效；簾幕正常掀開移除、console 零錯誤；`status-player-sheet.spec.js` 19／19（每條測試皆含開機流程等待）。
+- [x] 實機回饋修正一：最短展示——動畫開跑時設 `__bootTitleHoldUntil`（+1.5s），`dismissBootCurtain()`（`app-ui-helpers.js`）讀取並延後掀幕，載入太快也能看完掃光；載入慢於 1.5s 時零額外等待，8 秒保險與 reduced-motion 不受保底影響。
+- [x] 實機回饋修正二：字體置換閃現——head 加 `Cubic_11.woff2` preload、標題於像素字就緒前 `visibility: hidden`（上限 400ms），首幀即像素字；實拍確認開場暗影階段無 FOUT。E2E 帶保底重跑 19／19（40→59s）。

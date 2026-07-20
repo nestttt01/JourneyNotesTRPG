@@ -258,9 +258,30 @@
         #boot-curtain .px-loader i:nth-child(3) { animation-delay: 0.5s; }
         #boot-curtain.lift { animation: boot-curtain-lift 0.24s steps(4, end) forwards; pointer-events: none; }
         @keyframes boot-curtain-lift { to { opacity: 0; visibility: hidden; } }
+        /* 開機標題(2026/07/20):柔光掃過 reveal;暗處為真字暗影,光緣才凝聚亂碼;字級 66px 為 Cubic 11 格點 6 倍(手機 44px=4 倍) */
+        /* 像素字就緒前隱藏標題,避免系統字→像素字置換閃現;引擎逾時上限 400ms 後仍會顯示 */
+        #boot-curtain .boot-brand { display: grid; place-items: center; gap: 26px; visibility: hidden; }
+        #boot-curtain .boot-brand.boot-font-ready { visibility: visible; }
+        #boot-curtain .boot-title, #boot-curtain .boot-sub { font-family: "TRPG Cubic Pixel", "Microsoft JhengHei", sans-serif; font-synthesis: none; font-weight: 400; text-align: center; user-select: none; }
+        #boot-curtain .boot-title { font-size: 66px; line-height: 1.18; letter-spacing: 6px; }
+        #boot-curtain .boot-sub { font-size: 15px; letter-spacing: 5px; }
+        /* span 必須明確繼承字型:全域 * 規則會把閱讀字型直接指定給新 span */
+        #boot-curtain .boot-brand span { display: inline-block; min-width: 0.62em; font: inherit; letter-spacing: inherit; }
+        #boot-curtain .boot-light { --lx: -200px; --ly: 50%; --lr: 150px; background: radial-gradient(circle var(--lr) at var(--lx) var(--ly), rgba(238, 238, 238, 1) 0%, rgba(238, 238, 238, 0.72) 30%, rgba(238, 238, 238, 0.30) 62%, rgba(238, 238, 238, 0.085) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        #boot-curtain .boot-light .boot-title, #boot-curtain .boot-light .boot-sub { color: transparent; }
+        /* 點燃:鎖定字固定紙色不隨光遠去;flick 在後宣告,同特異性下勝出,免用 !important */
+        #boot-curtain .boot-light span.boot-lit { -webkit-text-fill-color: var(--paper-bg); color: var(--paper-bg); }
+        #boot-curtain .boot-light span.boot-flick { -webkit-text-fill-color: var(--accent-neon); color: var(--accent-neon); }
+        #boot-curtain .boot-light.boot-done { background: none; color: var(--paper-bg); }
+        #boot-curtain .boot-light.boot-done .boot-title, #boot-curtain .boot-light.boot-done .boot-sub { color: var(--paper-bg); }
+        @media (max-width: 600px) {
+            #boot-curtain .boot-title { font-size: 44px; }
+        }
         @media (prefers-reduced-motion: reduce) {
             #boot-curtain.lift { animation: none; opacity: 0; visibility: hidden; }
             #boot-curtain .px-loader i { animation: none; }
+            #boot-curtain .boot-light { background: none; color: var(--paper-bg); }
+            #boot-curtain .boot-light .boot-title, #boot-curtain .boot-light .boot-sub { color: var(--paper-bg); }
         }
         /* Loading 三顆像素方塊輪流閃 */
         #loading .px-loader { display: inline-flex; gap: 4px; margin-right: 9px; vertical-align: middle; }
