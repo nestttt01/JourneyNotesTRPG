@@ -405,3 +405,39 @@
 - [x] 修法（工作區外預覽三卡對照、專案主核准卡三後實作）：hover 改 `color: var(--text-main)`＋`text-shadow: 2px 2px 0 var(--accent-neon)`——字保持深色、陰影用重點色，與摘要內容選中態同語彙；三角形前推與「還原／最新／★」hover 變色不動（`style-1-base.css` 單規則兩屬性）。
 - [x] 摘要內容選中態簽名字影（`2px 2px 0` 重點色）確認原樣未動；預覽：`D:\_codex_preview\journey-notes-organize-hover\`。
 - [x] 驗證：E2E 真實 hover 斷言更新為重點色字影後 `status-player-sheet.spec.js` 19／19（含簽名樣式原值斷言）；`node --check`、嚴格 UTF-8／LF、`git diff --check` 通過。
+
+## 2026-07-22
+
+### 背景命令動態與教學逃生門 E2E 回歸
+
+- [x] 背景模式命令測試覆蓋純色／圖片背景、遊戲設定與情境設定兩個命令區，共 6 顆正式主／次命令；每顆以真實按住狀態確認 `transform` 不為 `none`，放開前先移出避免觸發儲存、匯入或匯出。
+- [x] 教學逃生門測試以真頁面呼叫現行 `applyAIStateChanges()`：第 15 回合保留「新手教學進行中」，第 16 回合只移除該旗標、保留其他 Flags，並產生自動結束系統訊息。
+- [x] 修改檔案：`tests/e2e/npc-acquaintance-flow.spec.js`；新增 `tests/e2e/tutorial-timeout.spec.js`；帳本同步 `TODO.md`、`COMPLETED.md`。
+- [x] 未修改產品 JS、CSS、HTML、AI prompt、存檔格式、`sanko_*` key、API key 或儲存層。
+- [x] 驗證：新增專項 2／2、完整 Playwright 59／59 通過；測試 JS 語法、嚴格 UTF-8／LF、預期 bytes 全等、`git diff --check` 與延遲跨 Python／Node hash 複驗通過。
+
+### 遊戲玩法與系統指南完整更新
+
+- [x] 將專案主逐段核准的完整中文稿同步到首頁內嵌指南與窄版 modal；兩份皆為 8 個標題、35 個段落，內容與順序完全一致。
+- [x] 教學入口改為進入遊戲後使用「遊戲教學」；沿用目前人物與情境、不必切換配置，並說明最晚於第 16 個旁白回合自動結束。
+- [x] 指南補齊配置鎖定、NPC「認識夥伴」、熟練判定、HP／SAN、恢復與道具、成長、日誌保護、Diary、長圖匯出、記憶、存檔快照、備份與系統設定等現行玩法。
+- [x] `i18n.js` 完成英文與日文同步；43 個指南項目皆有翻譯，未殘留中文漏翻。
+- [x] 修改 `index.html`、`i18n.js`；新增 `tests/e2e/game-guide.spec.js`；同步 `TODO.md`、`COMPLETED.md`。未升版本號，未修改產品邏輯、AI prompt、存檔格式、`sanko_*` key、API key 或儲存層。
+- [x] 驗證：玩法指南專項 1／1、完整 Playwright 60／60 通過；全專案測試 JS 語法、嚴格 UTF-8／LF、預期 bytes 全等、`git diff --check` 與延遲跨 Python／Node hash 複驗通過。
+
+### 玩法指南桌機導言重疊修復
+
+- [x] 根因確認：桌機 `.setup-info-scroll` 原本只有「標題、單段導言、內容」三列；完整指南新增第二段導言後，第二段被壓成零高，第一章從同一位置開始而重疊。
+- [x] `style-4-desktop-config.css` 只為玩法指南加入四列格線，保留 API 說明與其他首頁分頁原有配置；未新增 `!important`。
+- [x] `tests/e2e/game-guide.spec.js` 新增桌機 1280×900 與窄版 430×800 幾何斷言，確認第二段導言底部不超過第一章起點；測試在修正前可穩定重現失敗。
+- [x] 實際瀏覽器重載後，桌機第二段導言底部為 332.3px、第一章起點為 336.3px，保留 4px 間距，畫面無文字重疊。
+- [x] 驗證：玩法指南專項 1／1、完整 Playwright 60／60、CSS 結構、測試 JS 語法、嚴格 UTF-8／LF、預期 bytes 全等與 `git diff --check` 通過。
+
+### v3.0 玩家向更新公告
+
+- [x] 首頁公告更新為專案主核准的五點正式稿，內容只保留玩家需要知道的角色／配置、NPC「認識夥伴」、設定管理、介面體驗與教學敘事改善。
+- [x] v2.9 原三點內容完整移入歷史區；首頁版本標籤更新為 `v3.0 · 2026/07/22`。
+- [x] `i18n.js` 完成 v3.0 標題與五點內容的英文、日文翻譯，中文、英文、日文皆無漏翻。
+- [x] 實際瀏覽器展開公告抽屜確認五點依序排列、無文字重疊，超出高度時維持可捲動。
+- [x] 新增 `tests/e2e/version-update.spec.js`，鎖定五點內容、三語、v2.9 歷史、版本日期與抽屜排版；專項 1／1、完整 Playwright 61／61 通過。
+- [x] 修改 `index.html`、`i18n.js`；新增公告 E2E；同步 `TODO.md`、`COMPLETED.md`。未修改遊戲邏輯、AI prompt、存檔格式、`sanko_*` key、API key 或儲存層。

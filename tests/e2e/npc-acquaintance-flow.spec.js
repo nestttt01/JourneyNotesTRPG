@@ -224,6 +224,57 @@ test('approved command hierarchy stays borderless and uses interruptible feedbac
         && style.boxShadow === 'none'
     ))).toBe(true);
 
+    const activeCommandGroups = [
+        {
+            view: 'game',
+            selector: '.desktop-game-management-actions button.ui-command',
+            count: 4
+        },
+        {
+            view: 'scenarios',
+            selector: '.desktop-game-two-buttons button.ui-command',
+            count: 2
+        }
+    ];
+    const originalBackgroundMode = await page.evaluate(() => (
+        document.documentElement.dataset.bgMode ?? null
+    ));
+    try {
+        for (const mode of ['solid', 'image']) {
+            await page.evaluate(backgroundMode => {
+                document.documentElement.dataset.bgMode = backgroundMode;
+            }, mode);
+            for (const group of activeCommandGroups) {
+                await page.evaluate(view => switchDesktopConfigWorkspace(view), group.view);
+                const commands = page.locator(group.selector);
+                await expect(commands).toHaveCount(group.count);
+                for (let index = 0; index < group.count; index += 1) {
+                    const command = commands.nth(index);
+                    await expect(command).toBeVisible();
+                    await command.hover();
+                    await page.mouse.down();
+                    try {
+                        await expect.poll(() => command.evaluate(button => (
+                            getComputedStyle(button).transform
+                        ))).not.toBe('none');
+                    } finally {
+                        await page.mouse.move(0, 0);
+                        await page.mouse.up();
+                    }
+                }
+            }
+        }
+    } finally {
+        await page.evaluate(backgroundMode => {
+            const root = document.documentElement;
+            if (backgroundMode === null) {
+                delete root.dataset.bgMode;
+            } else {
+                root.dataset.bgMode = backgroundMode;
+            }
+        }, originalBackgroundMode);
+    }
+
     await page.evaluate(() => {
         setUiLanguage('ja', { persist: false, notify: false });
         switchDesktopConfigWorkspace('scenarios');

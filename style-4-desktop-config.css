@@ -304,6 +304,10 @@ grid-template-rows: auto auto minmax(0, 1fr);
 overflow: hidden;
 }
 
+.setup-info-view[data-home-view="guide"] .setup-info-scroll {
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+}
+
 .setup-info-view h2 {
 margin: 0 0 12px;
 padding: 0 0 8px;
