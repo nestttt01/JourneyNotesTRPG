@@ -1024,6 +1024,9 @@
         #status-page-settings .status-detail-memory-control {
             margin-bottom: 4px;
         }
+        #status-page-settings .status-detail-memory-row {
+            align-items: flex-start;
+        }
         #status-page-settings .status-detail-memory-control > span {
             min-width: 0;
             color: var(--text-sub);

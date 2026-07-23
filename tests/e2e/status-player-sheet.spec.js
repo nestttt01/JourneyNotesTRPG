@@ -2076,6 +2076,44 @@ test('NPC memory control saves without AI and keeps its body collapsible below t
     await expect(page.locator('#edit-n-state-0-memoryNotes')).toHaveValue('• 答應在旅店會合');
 });
 
+test('NPC memory manage control stays beside the heading after a long list expands', async ({ page }) => {
+    for (const viewport of [
+        { width: 1280, height: 900 },
+        { width: 390, height: 844 }
+    ]) {
+        await page.setViewportSize(viewport);
+        await openStatusDetailFixture(page);
+        await page.evaluate(() => {
+            currentScenario.npcs[0].dynamic.memoryNotes = Array.from(
+                { length: 8 },
+                (_, index) => `第 ${index + 1} 筆需要保留的長期記憶`
+            );
+            openStatusModal();
+            switchStatusTab('settings');
+        });
+
+        const memoryDetails = page.locator('.status-detail-memory');
+        const summary = memoryDetails.locator('summary');
+        const manageButton = page.locator('.status-detail-memory-row > .status-detail-tool');
+        await expect(memoryDetails.locator('summary > strong')).toHaveText('08');
+
+        const beforeSummary = await summary.boundingBox();
+        const beforeManage = await manageButton.boundingBox();
+        expect(beforeSummary).not.toBeNull();
+        expect(beforeManage).not.toBeNull();
+        expect(Math.abs((beforeManage?.y || 0) - (beforeSummary?.y || 0))).toBeLessThanOrEqual(1);
+
+        await summary.click();
+        await expect(memoryDetails.locator('li')).toHaveCount(8);
+
+        const afterSummary = await summary.boundingBox();
+        const afterManage = await manageButton.boundingBox();
+        expect(afterSummary).not.toBeNull();
+        expect(afterManage).not.toBeNull();
+        expect(Math.abs((afterManage?.y || 0) - (afterSummary?.y || 0))).toBeLessThanOrEqual(1);
+    }
+});
+
 test('status detail labels render in zh-TW, en, and ja', async ({ page }) => {
     await openStatusDetailFixture(page);
 

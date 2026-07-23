@@ -441,3 +441,10 @@
 - [x] 實際瀏覽器展開公告抽屜確認五點依序排列、無文字重疊，超出高度時維持可捲動。
 - [x] 新增 `tests/e2e/version-update.spec.js`，鎖定五點內容、三語、v2.9 歷史、版本日期與抽屜排版；專項 1／1、完整 Playwright 61／61 通過。
 - [x] 修改 `index.html`、`i18n.js`；新增公告 E2E；同步 `TODO.md`、`COMPLETED.md`。未修改遊戲邏輯、AI prompt、存檔格式、`sanko_*` key、API key 或儲存層。
+
+### NPC MEMORY 管理按鈕定位修復
+
+- [x] 根因確認：記憶列使用垂直置中；展開多筆記憶後，`details` 高度包含完整清單，旁邊的「管理」按鈕因此被置中到清單中段。
+- [x] `style-3-panels.css` 將記憶列改為頂端對齊，管理按鈕固定在 MEMORY 標題旁；未改記憶資料、AI prompt、存檔或遊戲邏輯。
+- [x] `tests/e2e/status-player-sheet.spec.js` 新增 8 筆記憶的桌機 1280px／手機 390px 展開回歸；修正前相對標題偏移 173.8px，修正後兩種寬度頂端誤差皆不超過 1px。
+- [x] 驗證：定位專項 1／1、完整 Playwright 62／62 通過；CSS 括號、測試 JS 語法、嚴格 UTF-8／LF 與 `git diff --check` 通過。
