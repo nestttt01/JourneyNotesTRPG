@@ -756,6 +756,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             if (loadSurvivalOutcome.rescued || loadSurvivalOutcome.gameOver || loadSurvivalOutcome.lastStand) {
                 saveCurrentProgress();
             }
+            syncSurvivalVisualEffects();
             setCreatorInputMode(false, false);
             if (!applyGameOverUi() && !survivalLocked) input.focus();
         }
@@ -1056,6 +1057,8 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             }, 700);
         }
 
+        let activeDiceChoiceRunId = 0;
+
         async function sendDiceChoice() {
             if (getCurrentGameOver()) { applyGameOverUi(); return; }
             const inputEl = document.getElementById('player-input');
@@ -1076,6 +1079,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
             const suggestedText = inputEl.dataset.diceSuggestedText || '';
             const suggestedStat = normalizeDiceStatKey(inputEl.dataset.diceStat);
             const hasValidSuggestion = suggestedText === playerText && DICE_STATS[suggestedStat];
+            const diceChoiceRunId = ++activeDiceChoiceRunId;
             playDiceRollFx();
             inputEl.disabled = true;
             document.getElementById('send-btn').disabled = true;
@@ -1092,6 +1096,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                         reason: '採用行動選項的預設檢定'
                     }
                     : await classifyDiceCheck(playerText, isNarratorDice ? { stats: neutralNpcStats, actorLabel: 'NPC／旁白支線' } : { proficiencies: currentScenario?.playerProficiencies });
+                if (diceChoiceRunId !== activeDiceChoiceRunId) return;
                 const resurrectionIntent = getResurrectionIntent(playerText);
                 if (resurrectionIntent && normalizeGameDifficulty(currentScenario?.gameDifficulty) === 'hard') {
                     if (isNpcRevivePermanentlyLocked(resurrectionIntent.npc)) throw new Error('這名 NPC 的復活機會已經失敗，無法再次嘗試。');
@@ -1105,6 +1110,20 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                     null,
                     isNarratorDice ? { stats: neutralNpcStats, applySurvivalModifier: false, applyItemModifier: false, scope: 'narrator' } : { proficient: classification.proficient }
                 );
+                const dicePresentationStatus = typeof window.playDiceResultPresentation === 'function'
+                    ? await window.playDiceResultPresentation(check)
+                    : 'skipped';
+                if (diceChoiceRunId !== activeDiceChoiceRunId) return;
+                if (dicePresentationStatus === 'cancelled' || dicePresentationStatus === 'superseded') {
+                    inputEl.disabled = false;
+                    document.getElementById('send-btn').disabled = false;
+                    document.getElementById('dice-btn').disabled = false;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('ui-target-typing').innerText = window.uiMessage
+                        ? window.uiMessage('引擎 (DM)')
+                        : '引擎 (DM)';
+                    return;
+                }
                 const signedAbility = check.abilityModifier >= 0 ? `+${check.abilityModifier}` : String(check.abilityModifier);
                 const signedTotal = check.totalModifier >= 0 ? `+${check.totalModifier}` : String(check.totalModifier);
                 const gameDifficultyText = check.gameDifficultyDcModifier ? `｜遊戲難度 ${check.gameDifficultyLabel}：DC +${check.gameDifficultyDcModifier}` : `｜遊戲難度 ${check.gameDifficultyLabel}`;
@@ -1120,6 +1139,7 @@ document.getElementById('setup-screen').style.display = 'none'; document.getElem
                 document.getElementById('ui-target-typing').innerText = window.uiMessage ? window.uiMessage('引擎 (DM)') : '引擎 (DM)';
                 await sendChoice();
             } catch (error) {
+                if (diceChoiceRunId !== activeDiceChoiceRunId) return;
                 pendingDiceSummary = null;
                 inputEl.disabled = false;
                 document.getElementById('send-btn').disabled = false;
@@ -2424,6 +2444,20 @@ function syncSurvivalVisualEffects() {
     layer.style.setProperty('--survival-fx-vignette', (0.22 + state.severity * 0.50).toFixed(3));
     startSurvivalGrain();
     startSurvivalAmbientEffects();
+}
+
+function suspendSurvivalVisualEffects() {
+    if (typeof document === 'undefined' || !document.body) return;
+    document.body.classList.remove(
+        'survival-fx-active',
+        'survival-fx-san',
+        'survival-fx-hp',
+        'survival-fx-zero'
+    );
+    stopSurvivalGrain();
+    stopSurvivalAmbientEffects();
+    if (survivalFxActiveOption) resetSurvivalOption(survivalFxActiveOption);
+    if (typeof schedulePixelGlass === 'function') schedulePixelGlass(0);
 }
 
 window.addEventListener('resize', () => {

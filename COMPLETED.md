@@ -448,3 +448,15 @@
 - [x] `style-3-panels.css` 將記憶列改為頂端對齊，管理按鈕固定在 MEMORY 標題旁；未改記憶資料、AI prompt、存檔或遊戲邏輯。
 - [x] `tests/e2e/status-player-sheet.spec.js` 新增 8 筆記憶的桌機 1280px／手機 390px 展開回歸；修正前相對標題偏移 173.8px，修正後兩種寬度頂端誤差皆不超過 1px。
 - [x] 驗證：定位專項 1／1、完整 Playwright 62／62 通過；CSS 括號、測試 JS 語法、嚴格 UTF-8／LF 與 `git diff --check` 通過。
+
+## 2026-07-24
+
+### 正式 D20 結果演出整合
+
+- [x] 將核准的 3D 像素 D20 正式接到 `calculateDiceCheck()` 硬判定：自然 20＝B、一般成功＝D、一般失敗＝D、自然 1＝C；「大失敗」嚴格只指自然 1。
+- [x] 四種結果共用 0.5 倍速、中性色且不顯示數字的旋轉階段；停骰才顯示正確點數與結果演出，不綁定選項卡片 DOM。
+- [x] 自然 1 接地時讓整體遊戲介面做 280ms 純垂直阻尼：桌機 `+9 → -4 → +2 → -1 → 0px`、手機 `+6 → -3 → +1 → -1 → 0px`；骰子與低 HP／SAN 全螢幕層保持 fixed，不跟介面位移。
+- [x] 補齊 reduced-motion、RAF 計時保底、逐 RAF ease-out 幾何更新與外層 14 格像素步進、重入／取消 ownership、HOME／離開清理，以及 body 直屬生存特效的離開暫停／讀檔恢復。
+- [x] 修改 `AGENTS.md`、`PROJECT_MAP.md`、`app-gameplay.js`、`app-saves-game.js`、`index.html`、`style-7-game.css`；新增 `app-dice-effects.js`、`tests/e2e/dice-visual.spec.js`；同步 `TODO.md`、`COMPLETED.md`。
+- [x] 視覺驗收確認透明背景、旋轉無數字與自然 1 接地；兩輪唯讀程式／動態複審均通過，沒有 P0／P1／P2 blocker。
+- [x] 驗證：D20 專項 8／8、既有骰點與輸入回歸 6／6、完整 Playwright 70／70、正式 JS、`i18n.js` 與 D20 測試語法 16／16、CSS／HTML 結構、嚴格 UTF-8／LF、`git diff --check` 通過；未改 D20 機率、DC、加值、AI prompt、存檔格式、`sanko_*` key 或 API key。

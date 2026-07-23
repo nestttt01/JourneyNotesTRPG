@@ -1749,3 +1749,462 @@ img.chat-avatar.npc-dead-fx { animation: npc-avatar-die 0.8s steps(6, end) forwa
         grid-column: 1 / -1;
     }
 }
+
+/* ---- 正式 D20 骰點演出：透明獨立層，不綁定選項卡片 ---- */
+#dice-result-overlay {
+    position: fixed;
+    top: var(--dice-overlay-top, 0px);
+    left: var(--dice-overlay-left, 0px);
+    z-index: 10050;
+    display: grid;
+    width: var(--dice-overlay-width, 100vw);
+    height: var(--dice-overlay-height, 100dvh);
+    place-items: center;
+    overflow: hidden;
+    background: transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#dice-result-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+body.dice-presentation-active #loading {
+    visibility: hidden;
+}
+
+#dice-result-overlay .dice-result-stage {
+    position: absolute;
+    inset: 66px 0 112px;
+    display: grid;
+    place-items: center;
+}
+
+#dice-result-overlay .dice-result-card {
+    --dice-result-color: var(--accent-neon);
+    --dice-result-secondary: var(--paper-bg);
+    --dice-result-dark: color-mix(in srgb, var(--border-dark) 78%, var(--accent-neon));
+    position: relative;
+    width: 242px;
+    height: 242px;
+    background: transparent;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="failure"] {
+    --dice-result-color: #aeb8bd;
+    --dice-result-secondary: #d9dee0;
+    --dice-result-dark: #3b4245;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="fumble"] {
+    --dice-result-color: #ff6d6d;
+    --dice-result-secondary: var(--accent-neon);
+    --dice-result-dark: #5c2528;
+}
+
+#dice-result-overlay .dice-result-card.is-rolling {
+    --dice-result-color: #aeb8bd;
+    --dice-result-secondary: #d9dee0;
+    --dice-result-dark: #3b4245;
+}
+
+#dice-result-overlay .die-motion {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#dice-result-overlay .dice-result-card.is-rolling .die-motion {
+    animation: dice-result-roll-stage 1960ms steps(14, end) both;
+}
+
+@keyframes dice-result-roll-stage {
+    0% {
+        opacity: 0.7;
+        transform: translate(-8px, 8px) scale(0.94);
+    }
+
+    28% {
+        opacity: 1;
+        transform: translate(6px, -5px) scale(1);
+    }
+
+    58% {
+        transform: translate(-4px, 3px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+#dice-result-overlay .die-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    image-rendering: pixelated;
+}
+
+#dice-result-overlay .die-face {
+    stroke: none;
+    shape-rendering: crispEdges;
+}
+
+#dice-result-overlay .die-face[data-tone="0"] {
+    fill: #08090a;
+}
+
+#dice-result-overlay .die-face[data-tone="1"] {
+    fill: #141718;
+}
+
+#dice-result-overlay .die-face[data-tone="2"] {
+    fill: #232728;
+}
+
+#dice-result-overlay .die-face[data-tone="3"] {
+    fill: #343a3b;
+}
+
+#dice-result-overlay .die-edge,
+#dice-result-overlay .die-outline,
+#dice-result-overlay .floor-line {
+    fill: none;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    vector-effect: non-scaling-stroke;
+    shape-rendering: crispEdges;
+}
+
+#dice-result-overlay .die-edge {
+    stroke: color-mix(in srgb, var(--paper-bg) 70%, var(--dice-result-color));
+    stroke-width: 2.2px;
+}
+
+#dice-result-overlay .die-outline {
+    stroke: var(--dice-result-color);
+    stroke-width: 5px;
+}
+
+#dice-result-overlay .dice-result-card.is-rolling .die-edge {
+    stroke: #d9dee0;
+}
+
+#dice-result-overlay .dice-result-card.is-rolling .die-outline {
+    stroke: #aeb8bd;
+}
+
+#dice-result-overlay .fx-face,
+#dice-result-overlay .rise-particles,
+#dice-result-overlay .floor-group {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#dice-result-overlay .roll-value {
+    fill: var(--paper-bg);
+    stroke: var(--dice-result-color);
+    stroke-width: 2px;
+    font-family: var(--font-ui);
+    font-size: 25px;
+    font-weight: 400;
+    opacity: 0;
+    paint-order: stroke fill;
+    text-anchor: middle;
+}
+
+#dice-result-overlay .dice-result-card.is-impact .roll-value {
+    animation: dice-result-number-reveal 480ms steps(3, end) both;
+}
+
+#dice-result-overlay .dice-result-card.is-settled .roll-value {
+    opacity: 1;
+}
+
+@keyframes dice-result-number-reveal {
+    0% {
+        opacity: 0;
+    }
+
+    36% {
+        opacity: 1;
+    }
+
+    68% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* 大成功 B：立體稜面折射掃光。 */
+#dice-result-overlay .dice-result-card[data-outcome="critical"].is-impact .die-motion {
+    animation: dice-result-critical-rise 640ms steps(4, end) both;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="critical"] .fx-face {
+    fill: var(--dice-result-color);
+    mix-blend-mode: screen;
+    shape-rendering: crispEdges;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="critical"].is-impact .fx-face {
+    animation:
+        dice-result-critical-facet 1240ms steps(4, end)
+        calc(var(--dice-facet-delay) * 2) both;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="critical"].is-impact .die-outline {
+    animation: dice-result-critical-outline 1840ms steps(7, end) both;
+}
+
+@keyframes dice-result-critical-rise {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+
+    25%,
+    75% {
+        transform: translateY(-6px) scale(1.02);
+    }
+
+    100% {
+        transform: translateY(-4px) scale(1);
+    }
+}
+
+@keyframes dice-result-critical-facet {
+    0% {
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 0.88;
+    }
+
+    50% {
+        opacity: 0.36;
+    }
+
+    75% {
+        opacity: 0.08;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes dice-result-critical-outline {
+    0% {
+        stroke: var(--dice-result-color);
+    }
+
+    24% {
+        stroke: var(--paper-bg);
+    }
+
+    48% {
+        stroke: var(--accent-neon);
+    }
+
+    100% {
+        stroke: var(--dice-result-color);
+    }
+}
+
+/* 一般成功 D：克制的上浮粒子。 */
+#dice-result-overlay .dice-result-card[data-outcome="success"] .rise-particles {
+    fill: var(--dice-result-color);
+    shape-rendering: crispEdges;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="success"].is-impact .rise-particles {
+    animation: dice-result-success-rise 1520ms steps(6, end) both;
+}
+
+@keyframes dice-result-success-rise {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    24% {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+
+    62% {
+        opacity: 0.45;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* 一般失敗 D：稜面逐格熄滅，不做慶祝位移。 */
+#dice-result-overlay .dice-result-card[data-outcome="failure"] .fx-face {
+    fill: var(--dice-result-dark);
+    shape-rendering: crispEdges;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="failure"].is-impact .fx-face {
+    animation:
+        dice-result-failure-wipe 1120ms steps(4, end)
+        calc(var(--dice-wipe-delay) * 2) both;
+}
+
+@keyframes dice-result-failure-wipe {
+    0% {
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 0.88;
+    }
+
+    78% {
+        opacity: 0.28;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* 自然 1 C：垂直重砸；介面衝擊由獨立 keyframes 承擔。 */
+#dice-result-overlay .dice-result-card[data-outcome="fumble"].is-impact .die-motion {
+    animation: dice-result-fumble-slam 1040ms steps(5, end) both;
+}
+
+#dice-result-overlay .dice-result-card[data-outcome="fumble"].is-impact .floor-group {
+    animation: dice-result-fumble-floor 1240ms steps(5, end) both;
+}
+
+#dice-result-overlay .floor-line-primary {
+    stroke: var(--dice-result-color);
+    stroke-width: 5px;
+}
+
+#dice-result-overlay .floor-line-secondary {
+    stroke: var(--dice-result-secondary);
+    stroke-width: 3px;
+}
+
+@keyframes dice-result-fumble-slam {
+    0% {
+        transform: translateY(-4px);
+    }
+
+    34% {
+        transform: translateY(12px);
+    }
+
+    58% {
+        transform: translateY(7px);
+    }
+
+    100% {
+        transform: translateY(9px);
+    }
+}
+
+@keyframes dice-result-fumble-floor {
+    0% {
+        opacity: 0;
+        transform: scaleX(0.72);
+    }
+
+    32% {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+
+    64% {
+        opacity: 0.4;
+        transform: scaleX(1.18);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleX(1.32);
+    }
+}
+
+body.dice-interface-impact #game-container,
+body.dice-interface-impact #status-modal-content {
+    --dice-impact-y: 9px;
+    --dice-rebound-y: -4px;
+    --dice-settle-y: 2px;
+    --dice-final-y: -1px;
+    will-change: translate;
+    animation: dice-result-interface-impact 280ms steps(1, end) both;
+}
+
+@keyframes dice-result-interface-impact {
+    0%,
+    17% {
+        translate: 0 var(--dice-impact-y);
+    }
+
+    18%,
+    41% {
+        translate: 0 var(--dice-rebound-y);
+    }
+
+    42%,
+    65% {
+        translate: 0 var(--dice-settle-y);
+    }
+
+    66%,
+    83% {
+        translate: 0 var(--dice-final-y);
+    }
+
+    84%,
+    100% {
+        translate: 0 0;
+    }
+}
+
+@media (max-width: 600px) {
+    #dice-result-overlay .dice-result-stage {
+        inset: 58px 0 118px;
+    }
+
+    #dice-result-overlay .dice-result-card {
+        width: min(242px, 72vw);
+        height: min(242px, 72vw);
+    }
+
+    body.dice-interface-impact #game-container,
+    body.dice-interface-impact #status-modal-content {
+        --dice-impact-y: 6px;
+        --dice-rebound-y: -3px;
+        --dice-settle-y: 1px;
+        --dice-final-y: -1px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #dice-result-overlay .dice-result-card.is-rolling .die-motion,
+    #dice-result-overlay .dice-result-card.is-impact .die-motion,
+    #dice-result-overlay .dice-result-card.is-impact .roll-value,
+    #dice-result-overlay .dice-result-card.is-impact .fx-face,
+    #dice-result-overlay .dice-result-card.is-impact .rise-particles,
+    #dice-result-overlay .dice-result-card.is-impact .floor-group,
+    body.dice-interface-impact #game-container,
+    body.dice-interface-impact #status-modal-content {
+        animation: none;
+    }
+}

@@ -1268,7 +1268,6 @@
 
         <div id="dialogue-box"></div>
         <div id="options-area"></div>
-<div id="survival-effects-layer" aria-hidden="true"><div class="survival-fx-darkness"></div><canvas id="survival-grain-canvas"></canvas><div class="survival-fx-scan"></div><div class="survival-fx-vignette"></div><div class="survival-fx-backtexts" id="survival-fx-backtexts"></div><div class="survival-fx-signals" id="survival-fx-signals"></div><div class="survival-fx-shards" id="survival-fx-shards"></div></div>
         <div id="loading"><span class="px-loader" aria-hidden="true"><i></i><i></i><i></i></span><span id="ui-target-typing">遊戲引擎 (DM)</span> 正在進行判定與演算... <button id="cancel-ai-btn" type="button" onclick="cancelActiveAIRequest()">取消等待</button></div>
 
         <div id="input-area">
@@ -1310,6 +1309,27 @@
             </div>
         </div>
     </div>
+    <div id="survival-effects-layer" aria-hidden="true"><div class="survival-fx-darkness"></div><canvas id="survival-grain-canvas"></canvas><div class="survival-fx-scan"></div><div class="survival-fx-vignette"></div><div class="survival-fx-backtexts" id="survival-fx-backtexts"></div><div class="survival-fx-signals" id="survival-fx-signals"></div><div class="survival-fx-shards" id="survival-fx-shards"></div></div>
+    <div id="dice-result-overlay" aria-hidden="true">
+        <div class="dice-result-stage">
+            <div id="dice-result-card" class="dice-result-card" data-outcome="critical">
+                <div class="die-motion">
+                    <svg class="die-svg" viewBox="-90 -90 180 180" aria-hidden="true" focusable="false">
+                        <g class="die-faces"></g>
+                        <g class="die-fx-faces"></g>
+                        <g class="die-edges"></g>
+                        <path class="die-outline"></path>
+                        <g class="rise-particles"></g>
+                        <g class="floor-group">
+                            <path class="floor-line floor-line-primary" d="M -56 69 H 56"></path>
+                            <path class="floor-line floor-line-secondary" d="M -38 77 H 38"></path>
+                        </g>
+                        <text class="roll-value" x="0" y="0" dominant-baseline="middle"></text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="i18n.js"></script>
     <!-- app.js 已拆分為下列模組，請維持此載入順序（等同原 app.js 由上而下） -->
@@ -1324,6 +1344,7 @@
     <script src="app-preset-edit.js"></script>
     <script src="app-status-journal.js"></script>
     <script src="app-saves-game.js"></script>
+    <script src="app-dice-effects.js"></script>
     <script src="app-gameplay.js"></script>
     <script src="app-ai.js"></script>
 </body>

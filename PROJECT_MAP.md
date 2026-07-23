@@ -1,17 +1,17 @@
 # 專案地圖
 
-本專案是純前端單頁遊戲。`index.html`、`i18n.js` 維持單檔；原本的 `app.js` 已依功能拆成 13 個 `app-*.js` 模組（純搬移、無邏輯改動），全部以 classic `<script>` 標籤共用同一個全域範圍，依 `index.html` 既有順序載入（等同原 `app.js` 由上而下）。原本的 `style.css` 已於 2026-07-16 依原檔順序純搬移拆成 7 個 `style-*.css`（bytes 級切片、內容零改動），依 `index.html` 的 `<link>` 順序載入（等同原檔由上而下）。**`<script>` 與 `<link>` 載入順序都不可任意重排。**
+本專案是純前端單頁遊戲。`index.html`、`i18n.js` 維持單檔；原本的 `app.js` 已依功能拆成 13 個 `app-*.js` 模組（純搬移、無邏輯改動），2026-07-24 再新增獨立的 `app-dice-effects.js`，目前共 14 個模組。全部以 classic `<script>` 標籤共用同一個全域範圍，依 `index.html` 既有順序載入；`app-dice-effects.js` 必須位於 `app-gameplay.js` 前。原本的 `style.css` 已於 2026-07-16 依原檔順序純搬移拆成 7 個 `style-*.css`（bytes 級切片、內容零改動），依 `index.html` 的 `<link>` 順序載入（等同原檔由上而下）。**`<script>` 與 `<link>` 載入順序都不可任意重排。**
 
 - `index.html`：畫面結構、主要 modal、各頁 DOM 節點、按鈕事件入口。
 - `style-1-base.css` ～ `style-7-game.css`：全站樣式（原單檔 `style.css` 依序切成 7 檔），分工見下方「CSS 區域地圖」。
 - `i18n.js`：UI 多語言字典、動態訊息翻譯、語言切換。
 - `package.json`／`package-lock.json`：鎖定 Playwright 測試依賴與 `npm test` 指令。
 - `playwright.config.js`：以本機 HTTP server 啟動真頁面，單一 Chromium worker 執行 E2E。
-- `tests/e2e/`：回歸測試六條——API key 不進備份、重複匯入去重（第一批 P0），任務規則、選項熟練 +2、日誌★保護、骰點失敗復原（第二批，AI 呼叫以頁內 stub 攔截）。fixture 全為合成資料。
+- `tests/e2e/`：Playwright 回歸測試；fixture 全為合成資料。`dice-visual.spec.js` 鎖定 B／D／D／C、0.5 倍速、旋轉同態、自然 1 垂直接地、reduced-motion 與硬判定揭示順序。
 
 - 拆分前的舊單檔 `app.js` 已移除；如需對照原始碼，請查 git 歷史。
 
-`app.js` 拆分後的模組（依載入順序）：
+正式 JS 模組（依載入順序）：
 
 - `app-core.js`：啟動、`window.onerror`、全域狀態變數、`getModelRuntimeProfile()`、首頁導覽外殼、UI 主題、材質切換（Classic/Liquid Glass）。
 - `app-storage.js`：IndexedDB／localStorage 持久化層、兩階段舊資料遷移、`window.onload` 主載入與損壞配置修復。
@@ -24,6 +24,7 @@
 - `app-preset-edit.js`：語音測試（文字欄位白名單）、AI 隨機生成、配置表單與儲存／刪除、modal NPC／情境。
 - `app-status-journal.js`：狀態面板、Flags、道具、冒險日誌頁、日記收藏頁（英文介面顯示 Diary）與整理 prompt。
 - `app-saves-game.js`：存檔選單與列表、驗證後匯入、`saveCurrentProgress()`（含可選 `survivalState`）、情境管理、`getCompactSystemInstruction()`、場景切換、模型清單載入。
+- `app-dice-effects.js`：正式 3D 像素 D20 幾何、B／D／D／C 結果演出、自然 1 介面接地、reduced-motion 與重入／取消清理；只呈現 `check`，不參與硬判定。
 - `app-gameplay.js`：對話渲染、頭像、訊息右鍵/長按選單、日記範圍收藏、`loadGame`（含生存狀態還原）、骰點、輸入、場景參與、創作者模式、生存。
 - `app-ai.js`：AI 請求、請求情境失效檢查、JSON 解析與修復、語言修復、記憶整理 prompt、`buildLatestActionPrompt()`／`buildGamePrompt()`／`callAI_JSON()`（危險區）。
 
@@ -74,6 +75,9 @@
   - `#player-input`
   - `#send-btn`
   - `#dice-btn`
+  - `#dice-result-overlay`（`#game-container` 的 body sibling；介面震動時保持螢幕定位）
+  - `#dice-result-card`
+  - `#survival-effects-layer`（body 直屬 fixed layer；離開遊戲時暫停，讀檔後依目前 HP／SAN 重建）
 - 狀態面板：
   - `#status-modal`
   - `#status-modal-content`
@@ -197,7 +201,7 @@
 
 危險點：prompt 區互相依賴，新增規則前先找是否已有同義規則。不要把同一限制散落三四處。
 
-### 骰點 / 難度 / 生存　〔模組：app-gameplay.js〕
+### 骰點 / 難度 / 生存　〔模組：app-dice-effects.js、app-gameplay.js〕
 
 - `DICE_STATS`：六屬性定義。
 - `DICE_DIFFICULTIES`：行動難度 DC。每檔為區間，每次檢定在區間內隨機取值：超簡單 3–5、簡單 9–11、普通 12–14、困難 16–18、極難 20–22。
@@ -205,6 +209,9 @@
 - `calculateDiceCheck()`：計算 D20 結果。
 - `classifyDiceCheck()`：AI 分類檢定屬性與難度。
 - `sendDiceChoice()`：骰點按鈕入口。
+- `playDiceResultPresentation(check)`：接收硬判定後的 `roll`／`result`，播放正式大骰子並在數字揭示後解除 `sendChoice()` 等待。
+- `cancelDiceResultPresentation()`：離開遊戲或新演出取代舊演出時清除 RAF、timer、overlay 與介面衝擊 class。
+- `suspendSurvivalVisualEffects()`：離開遊戲時清除 body 生存特效 class、grain／ambient timer 與暫時節點；`loadGame()` 會重新同步目前狀態。
 - `setGameInputMode()`：切換行動／旁白／神輸入模式；行動與旁白同步目前場景參與狀態，神模式沿用創作者指令武裝。
 - `resolveSurvivalOutcome()`：處理 HP／SAN 歸零、困難模式生死檢定、極限模式瀕死選擇與恢復期；讀檔可用 `consumeGrace: false` 還原而不消耗寬限回合。
 
@@ -220,6 +227,7 @@
 - `survivalState` 隨存檔保存；載入瀕死存檔會鎖定輸入並重建選項，且不消耗寬限回合。
 - DC 不再固定單值：每檔在區間內隨機取值（見上），再疊難度模式加成與生存懲罰，最後夾 2–30。硬判定訊息顯示「基礎 DC（本次取值）」與「最終 DC」。
 - 熟練（擅長領域）：`currentScenario.playerProficiencies`（角色設定頁生成並鎖定的專長清單）。玩家自行輸入的行動由 `classifyDiceCheck` 判定 `proficient`；AI 產生的行動選項會在同一次回覆填 `options[].proficient`，不增加 API 請求。`calculateDiceCheck` 對熟練的玩家檢定 +2（最多一個、不疊加），硬判定訊息顯示「熟練 +2」；NPC／旁白骰不套用。
+- 正式 D20 規格：自然 20＝B、一般成功＝D、一般失敗＝D、自然 1＝C；四種結果旋轉階段同態且不顯示數字，固定 0.5 倍速。外層位移保留 `steps(14)` 像素節奏，3D 幾何須逐 RAF 套用 ease-out，不得再次量化為 14 格。自然 1 在接地點觸發 280ms 純垂直介面阻尼，骰子 overlay 不跟著介面位移。
 
 ### 冒險日誌　〔模組：app-status-journal.js；任務清單序列化 `parseTaskChecklist()`／`serializeTaskChecklist()` 在 app-memory.js〕
 
@@ -280,7 +288,7 @@
 - `style-4-desktop-config.css`（原 3193–4178 行）：桌機角色面板右側抽屜、創角桌機版。
 - `style-5-mobile-config.css`（原 4179–5735 行）：`min-width:1100px` 版面、手機／平板角色配置、手機日記。
 - `style-6-surfaces.css`（原 5736–6623 行）：大面板／視窗、背景圖模式、材質（Liquid Glass，`:root[data-surface-style="glass"]`，以屬性選擇器提高特異性、未使用 `!important`）、Diary 收藏。（修正舊描述：材質規則實際在此檔，不在檔案最末段。）
-- `style-7-game.css`（原 6624–8447 行）：存檔印記、遊戲玩法可讀性、面板拖動、NPC 流程等後期新增區。
+- `style-7-game.css`（原 6624–8447 行）：存檔印記、遊戲玩法可讀性、面板拖動、NPC 流程、正式 D20 overlay 與結果演出等後期新增區。
 - 手機版 `@media (max-width: 600px)` 覆蓋與「基礎＋手機成對」規則散佈於各檔對應區域，成對關係不變。
 - 注意：`TECH_DEBT.md` 的舊行號以單檔 `style.css` 為基準；拆檔後一律改用 selector 重新定位。
 

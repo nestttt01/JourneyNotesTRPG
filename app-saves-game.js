@@ -29,6 +29,9 @@ const saveMenuScreen = document.getElementById('save-menu-screen');
 const returnToSetupSave = saveMenuScreen?.parentElement?.id === 'setup-save-host'
 && isDesktopShellViewport();
 setStatusPanelOpen(false);
+if (typeof suspendSurvivalVisualEffects === 'function') {
+suspendSurvivalVisualEffects();
+}
 document.getElementById('game-container').style.display = 'none';
 if (returnToSetupSave) {
 document.getElementById('setup-screen').style.display = 'flex';

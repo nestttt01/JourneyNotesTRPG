@@ -189,7 +189,7 @@
 
 # 專案修改規則
 
-本專案是單頁式前端遊戲，功能集中在 `index.html`、`i18n.js`、7 個 `style-*.css`（2026-07-16 由原 `style.css` 純搬移拆分，依 `<link>` 順序載入，不得重排），以及 13 個 `app-*.js` 模組。這些模組以 classic `<script>` 標籤共用同一全域範圍，依 `index.html` 現有順序載入；**不得任意重排載入順序**。模組職責與函式對照見 `PROJECT_MAP.md`；拆分前的舊 `app.js` 已移除，如需對照只能使用唯讀 Git 歷史。
+本專案是單頁式前端遊戲，功能集中在 `index.html`、`i18n.js`、7 個 `style-*.css`（2026-07-16 由原 `style.css` 純搬移拆分，依 `<link>` 順序載入，不得重排），以及 14 個 `app-*.js` 模組（2026-07-24 新增獨立 `app-dice-effects.js`）。這些模組以 classic `<script>` 標籤共用同一全域範圍，依 `index.html` 現有順序載入；`app-dice-effects.js` 必須在 `app-gameplay.js` 前，**不得任意重排載入順序**。模組職責與函式對照見 `PROJECT_MAP.md`；拆分前的舊 `app.js` 已移除，如需對照只能使用唯讀 Git 歷史。
 
 修改前先定位現有函式、CSS selector、翻譯鍵與資料流；只改相關區域，不用 hotfix 疊補丁，不順手重構或改風格。
 
